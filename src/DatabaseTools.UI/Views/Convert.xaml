@@ -1,0 +1,73 @@
+﻿<UserControl x:Class="DatabaseTools.Convert"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:DatabaseTools"
+     >
+    <Grid>
+        <Grid.Resources>
+            <Style TargetType="{x:Type ListViewItem}">
+                <Setter Property="HorizontalContentAlignment" Value="Stretch"></Setter>
+                <Setter Property="VerticalContentAlignment" Value="Stretch"></Setter>
+            </Style>
+        </Grid.Resources>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="8" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="75*" />
+            <RowDefinition Height="25*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <GroupBox Header="Source Database" Grid.Row="0" Grid.Column="0">
+            <local:DatabaseConnection x:Name="SourceDatabaseConnection" />
+        </GroupBox>
+        <GroupBox Header="Target Database" Grid.Row="0" Grid.Column="2">
+            <local:DatabaseConnection x:Name="TargetDatabaseConnection" />
+        </GroupBox>
+        <ListView x:Name="ResultsListBox" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,8,0,0">
+            <ListView.View>
+                <GridView x:Name="ResultsGridView">
+                    <GridViewColumn Width="25" >
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding Selected}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Table" DisplayMemberBinding="{Binding TableName}" />
+                    <GridViewColumn Header="Progress" >
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <ProgressBar Maximum="100" Value="{Binding ProgressPercentage}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="Auto" Height="Auto"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Error" DisplayMemberBinding="{Binding ErrorMessage}" Width="400" />
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <TextBox x:Name="ErrorsTextBox" AcceptsReturn="True" AcceptsTab="True" Grid.Row="3" Grid.ColumnSpan="3">
+            
+        </TextBox>
+        <Grid Grid.Row="4" Grid.ColumnSpan="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Button x:Name="ToggleAllButton" Grid.Row="0" Grid.Column="0" Margin="8, 8" >Toggle All</Button>
+            <TextBox x:Name="ThreadsTextBox" Grid.Row="0"  Grid.Column="1" Margin="8, 8" Width="50">5</TextBox>
+            <CheckBox x:Name="UseBulkCopyCheckBox" Grid.Row="0" Grid.Column="2" Margin="8, 8" Content="Use Bulk Copy" ></CheckBox>
+            <Button x:Name="ConvertButton" Grid.Row="0" HorizontalAlignment="Right" Grid.Column="4" Margin="8, 8">Convert</Button>
+        </Grid>
+    </Grid>
+</UserControl>

@@ -1,0 +1,25 @@
+﻿<UserControl x:Class="DatabaseTools.CreateInsertScript"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+         xmlns:local="clr-namespace:DatabaseTools"
+      >
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <GroupBox Header="Database" Grid.Row="0" >
+            <local:DatabaseConnection x:Name="DatabaseConnection" />
+        </GroupBox>
+        <GroupBox Header="Table" Grid.Row="1" Grid.Column="2">
+            <ComboBox x:Name="TableComboBox" IsEditable="True" DisplayMemberPath="TableName" SelectedValuePath="TableName" />
+        </GroupBox>
+        <Button x:Name="GenerateScriptButton" Content="Generate Scripts" Grid.Row="2" HorizontalAlignment="Right" Margin="0,8,0,0" />
+        <TextBox x:Name="ResultTextBox" AcceptsReturn="True" AcceptsTab="True" Grid.Row="3"  Margin="0,8,0,0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" />
+    </Grid>
+</UserControl>
