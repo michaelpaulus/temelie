@@ -15,23 +15,16 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.ComponentModel;
+using PropertyChanged;
 
 namespace DatabaseTools
 {
+    
 	namespace ViewModels
 	{
-		public class ViewModel : System.ComponentModel.INotifyPropertyChanged
+        [ImplementPropertyChanged()]
+        public class ViewModel : PropertyChangedObject
 		{
-			protected virtual void OnPropertyChanged(string propertyName)
-			{
-				if (this.PropertyChanged != null)
-				{
-					PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
-				}
-			}
-
-			public event PropertyChangedEventHandler PropertyChanged;
-
 		}
 	}
 

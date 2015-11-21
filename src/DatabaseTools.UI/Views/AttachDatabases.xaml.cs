@@ -28,7 +28,6 @@ namespace DatabaseTools
 
             // Add any initialization after the InitializeComponent() call.
             this.DataContext = this.ViewModel;
-            SubscribeToEvents();
         }
 
         #region Properties
@@ -47,41 +46,6 @@ namespace DatabaseTools
         }
 
         #endregion
-
-        #region Event Handlers
-
-        private void DetachButton_Click(object sender, System.Windows.RoutedEventArgs e)
-        {
-            this.ViewModel.DetachDatabases(this.SourceDatabaseConnection.ConnectionString);
-        }
-
-        private void AttachButton_Click(object sender, System.Windows.RoutedEventArgs e)
-        {
-            this.ViewModel.AttachDatabases(this.SourceDatabaseConnection.ConnectionString);
-        }
-
-        private void ToggleButton_Click(object sender, RoutedEventArgs e)
-        {
-            foreach (var item in this.ViewModel.Databases)
-            {
-                item.IsSelected = !item.IsSelected;
-            }
-        }
-
-        #endregion
-
-        private bool EventsSubscribed = false;
-        private void SubscribeToEvents()
-        {
-            if (EventsSubscribed)
-                return;
-            else
-                EventsSubscribed = true;
-
-            DetachButton.Click += DetachButton_Click;
-            AttachButton.Click += AttachButton_Click;
-            ToggleButton.Click += ToggleButton_Click;
-        }
 
     }
 

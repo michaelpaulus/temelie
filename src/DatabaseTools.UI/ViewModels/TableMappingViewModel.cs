@@ -23,24 +23,35 @@ namespace DatabaseTools
     {
         public class TableMappingViewModel : ViewModel
         {
+
+            public TableMappingViewModel()
+            {
+                this.AddMappingCommand = new Command(() =>
+                {
+                    this.AddMapping();
+                });
+                this.RemoveMappingCommand = new Command(() =>
+                {
+                    this.RemoveMapping();
+                });
+                this.AutoMatchCommand = new Command(() =>
+                {
+                    this.AutoMatchMappings();
+                });
+            }
+
+            #region Commands
+
+            public Command AddMappingCommand { get; set; }
+            public Command RemoveMappingCommand { get; set; }
+            public Command AutoMatchCommand { get; set; }
+
+            #endregion
+
+
             #region Properties
 
-            private string _ColumnMapping;
-            public string ColumnMapping
-            {
-                get
-                {
-                    return this._ColumnMapping;
-                }
-                set
-                {
-                    if (!(object.Equals(this._ColumnMapping, value)))
-                    {
-                        this._ColumnMapping = value;
-                        this.OnPropertyChanged("ColumnMapping");
-                    }
-                }
-            }
+            public string ColumnMapping { get; set; }
 
             private ObservableCollection<DatabaseTools.Models.ColumnMappingModel> _columnMappings;
             public ObservableCollection<DatabaseTools.Models.ColumnMappingModel> ColumnMappings
@@ -55,124 +66,21 @@ namespace DatabaseTools
                 }
             }
 
-            private bool _IncludeSourceDatabase;
-            public bool IncludeSourceDatabase
-            {
-                get
-                {
-                    return this._IncludeSourceDatabase;
-                }
-                set
-                {
-                    if (!(object.Equals(this._ColumnMapping, value)))
-                    {
-                        this._IncludeSourceDatabase = value;
-                        this.OnPropertyChanged("IncludeSourceDatabase");
-                    }
-                }
-            }
+            public bool IncludeSourceDatabase { get; set; }
 
-            private bool _IncludeTargetDatabase;
-            public bool IncludeTargetDatabase
-            {
-                get
-                {
-                    return this._IncludeTargetDatabase;
-                }
-                set
-                {
-                    if (!(object.Equals(this._ColumnMapping, value)))
-                    {
-                        this._IncludeTargetDatabase = value;
-                        this.OnPropertyChanged("IncludeTargetDatabase");
-                    }
-                }
-            }
+            public bool IncludeTargetDatabase { get; set; }
+          
+            public bool IncludeNotExists { get; set; }
+          
 
-            private bool _IncludeNotExists;
-            public bool IncludeNotExists
-            {
-                get
-                {
-                    return this._IncludeNotExists;
-                }
-                set
-                {
-                    if (!(object.Equals(this._ColumnMapping, value)))
-                    {
-                        this._IncludeNotExists = value;
-                        this.OnPropertyChanged("IncludeNotExists");
-                    }
-                }
-            }
+            public DatabaseTools.Models.ColumnMappingModel SelectedColumnMapping { get; set; }
+            
+            public System.Configuration.ConnectionStringSettings SourceDatabaseConnectionString { get; set; }
+            
 
-            private DatabaseTools.Models.ColumnMappingModel _SelectedColumnMapping;
-            public DatabaseTools.Models.ColumnMappingModel SelectedColumnMapping
-            {
-                get
-                {
-                    return this._SelectedColumnMapping;
-                }
-                set
-                {
-                    if (!(object.Equals(this._SelectedColumnMapping, value)))
-                    {
-                        this._SelectedColumnMapping = value;
-                        this.OnPropertyChanged("SelectedColumnMapping");
-                    }
-                }
-            }
-
-            private System.Configuration.ConnectionStringSettings _SourceDatabaseConnectionString;
-            public System.Configuration.ConnectionStringSettings SourceDatabaseConnectionString
-            {
-                get
-                {
-                    return this._SourceDatabaseConnectionString;
-                }
-                set
-                {
-                    if (!(object.Equals(this._SourceDatabaseConnectionString, value)))
-                    {
-                        this._SourceDatabaseConnectionString = value;
-                        this.OnPropertyChanged("SourceDatabaseConnectionString");
-                    }
-                }
-            }
-
-            private DatabaseTools.Models.TableModel _SourceTable;
-            public DatabaseTools.Models.TableModel SourceTable
-            {
-                get
-                {
-                    return this._SourceTable;
-                }
-                set
-                {
-                    if (!(object.Equals(this._SourceTable, value)))
-                    {
-                        this._SourceTable = value;
-                        this.OnPropertyChanged("SourceTable");
-                    }
-                }
-            }
-
-            private DatabaseTools.Models.ColumnModel _SourceColumn;
-            public DatabaseTools.Models.ColumnModel SourceColumn
-            {
-                get
-                {
-                    return this._SourceColumn;
-                }
-                set
-                {
-                    if (!(object.Equals(this._SourceColumn, value)))
-                    {
-                        this._SourceColumn = value;
-                        this.OnPropertyChanged("SourceColumn");
-                    }
-                }
-            }
+           public DatabaseTools.Models.TableModel SourceTable { get; set;}
+            public DatabaseTools.Models.ColumnModel SourceColumn { get; set; }
+           
 
             private ObservableCollection<DatabaseTools.Models.TableModel> _sourceTables;
             public ObservableCollection<DatabaseTools.Models.TableModel> SourceTables
@@ -200,56 +108,14 @@ namespace DatabaseTools
                 }
             }
 
-            private DatabaseTools.Models.TableModel _TargetTable;
-            public DatabaseTools.Models.TableModel TargetTable
-            {
-                get
-                {
-                    return this._TargetTable;
-                }
-                set
-                {
-                    if (!(object.Equals(this._TargetTable, value)))
-                    {
-                        this._TargetTable = value;
-                        this.OnPropertyChanged("TargetTable");
-                    }
-                }
-            }
+            public DatabaseTools.Models.TableModel TargetTable { get; set; }
+           
 
-            private DatabaseTools.Models.ColumnModel _TargetColumn;
-            public DatabaseTools.Models.ColumnModel TargetColumn
-            {
-                get
-                {
-                    return this._TargetColumn;
-                }
-                set
-                {
-                    if (!(object.Equals(this._TargetColumn, value)))
-                    {
-                        this._TargetColumn = value;
-                        this.OnPropertyChanged("TargetColumn");
-                    }
-                }
-            }
+            public DatabaseTools.Models.ColumnModel TargetColumn { get; set; }
+           
 
-            private System.Configuration.ConnectionStringSettings _TargetDatabaseConnectionString;
-            public System.Configuration.ConnectionStringSettings TargetDatabaseConnectionString
-            {
-                get
-                {
-                    return this._TargetDatabaseConnectionString;
-                }
-                set
-                {
-                    if (!(object.Equals(this._TargetDatabaseConnectionString, value)))
-                    {
-                        this._TargetDatabaseConnectionString = value;
-                        this.OnPropertyChanged("TargetDatabaseConnectionString");
-                    }
-                }
-            }
+            public System.Configuration.ConnectionStringSettings TargetDatabaseConnectionString { get; set; }
+          
 
             private ObservableCollection<DatabaseTools.Models.TableModel> _targetTables;
             public ObservableCollection<DatabaseTools.Models.TableModel> TargetTables

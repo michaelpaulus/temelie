@@ -60,36 +60,7 @@ namespace DatabaseTools
         {
             this.ViewModel.TargetDatabaseConnectionString = this.TargetDatabaseConnection.ConnectionString;
         }
-
-        private void AddMappingButton_Click(object sender, System.Windows.RoutedEventArgs e)
-        {
-            this.ViewModel.AddMapping();
-        }
-
-        private void RemoveMappingButton_Click(object sender, System.Windows.RoutedEventArgs e)
-        {
-            this.ViewModel.RemoveMapping();
-        }
-
-        private void AutoMatchButton_Click(object sender, System.Windows.RoutedEventArgs e)
-        {
-            this.ViewModel.AutoMatchMappings();
-        }
-
-        private void MappingConverterComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
-        {
-            string strMappingConverter = string.Empty;
-            switch (strMappingConverter)
-            {
-                case "None":
-                    this.ViewModel.ColumnMapping = string.Empty;
-                    break;
-                default:
-                    this.ViewModel.ColumnMapping = strMappingConverter;
-                    break;
-            }
-        }
-
+      
         private void CreateScriptButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             ResultsDialog dialog = new ResultsDialog();
@@ -105,10 +76,6 @@ namespace DatabaseTools
         }
 
         #endregion
-
-
-
-
         
         private bool EventsSubscribed = false;
         private void SubscribeToEvents()
@@ -120,9 +87,6 @@ namespace DatabaseTools
 
             SourceDatabaseConnection.SelectionChanged += SourceDatabaseConnection_SelectionChanged;
             TargetDatabaseConnection.SelectionChanged += TargetDatabaseConnection_SelectionChanged;
-            AddMappingButton.Click += AddMappingButton_Click;
-            RemoveMappingButton.Click += RemoveMappingButton_Click;
-            AutoMatchButton.Click += AutoMatchButton_Click;
             CreateScriptButton.Click += CreateScriptButton_Click;
             CreateXmlButton.Click += CreateXmlButton_Click;
         }

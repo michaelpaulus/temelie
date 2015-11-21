@@ -21,36 +21,33 @@ namespace DatabaseTools
     {
         public class AttachDatabaseViewModel : ViewModel
         {
+
+            public AttachDatabaseViewModel()
+            {
+                this.AttachCommand = new Command<System.Configuration.ConnectionStringSettings>((System.Configuration.ConnectionStringSettings connectionString) =>
+                {
+                    this.AttachDatabases(connectionString);
+                });
+                this.DetachCommand = new Command<System.Configuration.ConnectionStringSettings>((System.Configuration.ConnectionStringSettings connectionString) =>
+                {
+                    this.DetachDatabases(connectionString);
+                });
+                this.ToggleCommand = new Command(() =>
+                {
+                    this.ToggleSelected();
+                });
+            }
+
+
             #region Properties
 
-            private string _directory;
-            public string Directory
-            {
-                get
-                {
-                    return _directory;
-                }
-                set
-                {
-                    _directory = value;
-                    this.OnPropertyChanged("Directory");
-                }
-            }
+            public string Directory { get; set; }
+            
+            public string Results { get; set; }
 
-            private string _results;
-            public string Results
-            {
-                get
-                {
-                    return _results;
-                }
-                set
-                {
-                    _results = value;
-                    this.OnPropertyChanged("Results");
-                }
-            }
-
+            public Command<System.Configuration.ConnectionStringSettings> AttachCommand { get; set; }
+            public Command<System.Configuration.ConnectionStringSettings> DetachCommand { get; set; }
+            public Command ToggleCommand { get; set; }
 
             private System.Collections.ObjectModel.ObservableCollection<Models.UIDatabaseModel> _files;
             public System.Collections.ObjectModel.ObservableCollection<Models.UIDatabaseModel> Databases
@@ -121,6 +118,14 @@ namespace DatabaseTools
                     {
                         this.Results += string.Format("Attach of database: {0} failed.", model.DatabaseName) + Environment.NewLine;
                     }
+                }
+            }
+
+            public void ToggleSelected()
+            {
+                foreach (var item in this.Databases)
+                {
+                    item.IsSelected = !item.IsSelected;
                 }
             }
 

@@ -27,10 +27,10 @@
             </DataGrid.Columns>
         </DataGrid>
         <TextBox Text="{Binding Results}" Grid.Row="3" Grid.ColumnSpan="2" AcceptsReturn="True" ScrollViewer.VerticalScrollBarVisibility="Auto" />
-        <Button x:Name="ToggleButton" Grid.Row="4" Grid.Column="0" Content="Toggle All" Margin="0,4,0,0" />
+        <Button x:Name="ToggleButton" Grid.Row="4" Grid.Column="0" Content="Toggle All" Margin="0,4,0,0" Command="{Binding ToggleCommand}" />
         <StackPanel Orientation="Horizontal" Grid.Row="4" Grid.Column="1" Margin="0,4,0,0" HorizontalAlignment="Right">
-            <Button x:Name="DetachButton" Content="Detach"  Margin="0,0,0,0" />
-            <Button x:Name="AttachButton" Content="Attach"  Margin="4,0,0,0" />
+            <Button x:Name="DetachButton" Content="Detach"  Margin="0,0,0,0" Command="{Binding DetachCommand}" CommandParameter="{Binding ConnectionString, ElementName=SourceDatabaseConnection, Mode=OneWay}"/>
+            <Button x:Name="AttachButton" Content="Attach"  Margin="4,0,0,0" Command="{Binding AttachCommand}"  CommandParameter="{Binding ConnectionString, ElementName=SourceDatabaseConnection, Mode=OneWay}"/>
         </StackPanel>
     </Grid>
 </UserControl>

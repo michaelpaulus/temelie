@@ -17,7 +17,7 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <GroupBox Header="Source Database" Grid.Row="0" Grid.Column="0">
-            <local:DatabaseConnection x:Name="SourceDatabaseConnection" IsSource="True" />
+            <local:DatabaseConnection x:Name="SourceDatabaseConnection" IsSource="True"  />
         </GroupBox>
         <GroupBox Header="Target Database" Grid.Row="0" Grid.Column="2">
             <local:DatabaseConnection x:Name="TargetDatabaseConnection" IsSource="False"/>
@@ -57,8 +57,8 @@
                 <TextBox x:Name="MappingConverterTextBox" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding ColumnMapping}"/>
             </Grid>
             <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right"  Margin="0,8,0,0" VerticalAlignment="Top">
-                <Button x:Name="AddMappingButton"  Content="Add Mapping"/>
-                <Button x:Name="AutoMatchButton" Margin="8,0,0,0" Content="Auto Match" />
+                <Button x:Name="AddMappingButton"  Content="Add Mapping" Command="{Binding AddMappingCommand}"/>
+                <Button x:Name="AutoMatchButton" Margin="8,0,0,0" Content="Auto Match" Command="{Binding AutoMatchCommand}" />
             </StackPanel>
         </Grid>
         <GroupBox Header="Mappings" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3"  Margin="0,8,0,0">
@@ -68,7 +68,7 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <ListBox x:Name="ColumnMappingsListBox" Grid.Row="0" ItemsSource="{Binding ColumnMappings}" SelectedItem="{Binding SelectedColumnMapping}" />
-                <Button x:Name="RemoveMappingButton" Grid.Row="1" Margin="8, 8" Content="Remove Mapping" HorizontalAlignment="Right" />
+                <Button x:Name="RemoveMappingButton" Grid.Row="1" Margin="8, 8" Content="Remove Mapping" HorizontalAlignment="Right" Command="{Binding RemoveMappingCommand}" />
             </Grid>
         </GroupBox>
         <Grid Grid.Row="4" Grid.ColumnSpan="3">

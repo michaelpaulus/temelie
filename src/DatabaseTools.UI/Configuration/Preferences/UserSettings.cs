@@ -16,12 +16,10 @@ using System.Windows.Navigation;
 
 namespace DatabaseTools.Configuration.Preferences
 {
-
-    public class UserSettings
+    public class UserSettings : PropertyChangedObject
     {
 
         #region Properties
-
 
         public string CreateScriptsPath { get; set; }
         public string ScriptsPath { get; set; }
@@ -65,33 +63,9 @@ namespace DatabaseTools.Configuration.Preferences
         public string TargetServer { get; set; }
         public string SourceServer { get; set; }
 
-        private string _targetDatabase;
-        public string TargetDatabase
-        {
-            get
-            {
-                return this._targetDatabase;
-            }
-            set
-            {
-                this._targetDatabase = value;
-                this.UpdateDatabases(value);
-            }
-        }
+        public string TargetDatabase { get; set; }
 
-        private string _sourceDatabase;
-        public string SourceDatabase
-        {
-            get
-            {
-                return this._sourceDatabase;
-            }
-            set
-            {
-                this._sourceDatabase = value;
-                this.UpdateDatabases(value);
-            }
-        }
+        public string SourceDatabase { get; set; }
 
         public string TargetDSN { get; set; }
         public string SourceDSN { get; set; }
@@ -126,9 +100,22 @@ namespace DatabaseTools.Configuration.Preferences
             }
         }
 
-
-
         #endregion
+
+        protected override void OnPropertyChanged(string propertyName)
+        {
+            base.OnPropertyChanged(propertyName);
+            switch (propertyName)
+            {
+                case nameof(SourceDatabase):
+                    this.UpdateDatabases(this.SourceDatabase);
+                    break;
+                case nameof(TargetDatabase):
+                    this.UpdateDatabases(this.TargetDatabase);
+                    break;
+            }
+
+        }
 
     }
 
