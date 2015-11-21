@@ -19,7 +19,10 @@ namespace DatabaseTools
 {
 	public partial class ResultsDialog
 	{
-
-	}
+        public ResultsDialog()
+        {
+            this.InitializeComponent();
+        }
+    }
 
 }
