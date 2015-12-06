@@ -98,9 +98,10 @@
     <Compile Include="Configuration\Configuration.cs" />
     <Compile Include="Configuration\ConnectionInfo.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
-    <Compile Include="Models\ColumnModel.cs" />
+    <Compile Include="IDatabaseProvider.cs" />
     <Compile Include="Models\ColumnMappingModel.cs" />
-    <Compile Include="Models\ConfiguredMappingsModel.cs" />
+    <Compile Include="Models\ColumnModel.cs" />
+    <Compile Include="Models\ColumnTypeModel.cs" />
     <Compile Include="Models\DatabaseModel.cs" />
     <Compile Include="Models\DatabaseObjectModel.cs" />
     <Compile Include="Models\DefinitionModel.cs" />
@@ -111,6 +112,8 @@
     <Compile Include="Models\Mapping.cs" />
     <Compile Include="Models\TableMapping.cs" />
     <Compile Include="Models\TriggerModel.cs" />
+    <Compile Include="Mssql\DatabaseProvider.cs" />
+    <Compile Include="MySql\DatabaseProvider.cs" />
     <Compile Include="Processes\Database.cs" />
     <Compile Include="Models\DatabaseType.cs" />
     <Compile Include="Models\TableModel.cs" />
@@ -148,6 +151,7 @@
   <ItemGroup>
     <Content Include="FodyWeavers.xml" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -598,18 +598,18 @@ namespace DatabaseTools
                 return sb.ToString();
             }
 
-            public string GetIxPkScripts()
+            public string GetIxPkScripts(string quoteCharacter)
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
                 foreach (var pk in this.PrimaryKeys)
                 {
-                    pk.AppendCreateScript(sb);
+                    pk.AppendCreateScript(sb, quoteCharacter);
                 }
 
                 foreach (var index in this.Indexes)
                 {
-                    index.AppendCreateScript(sb);
+                    index.AppendCreateScript(sb, quoteCharacter);
                 }
 
                 return sb.ToString();
@@ -673,7 +673,7 @@ namespace DatabaseTools
 
                 sb.AppendLine(this.GetTableScripts(""));
 
-                sb.AppendLine(this.GetIxPkScripts());
+                sb.AppendLine(this.GetIxPkScripts(""));
 
                 sb.AppendLine(this.GetSpFnVwScripts());
 

@@ -35,9 +35,12 @@ namespace DatabaseTools
                     case Models.DatabaseType.MySql:
                         strQuoteCharacter = "\"";
                         break;
-				}
+                    case Models.DatabaseType.MicrosoftSQLServer:
+                        strQuoteCharacter = "\"";
+                        break;
+                }
 
-				foreach (System.IO.FileInfo file in fileList)
+                foreach (System.IO.FileInfo file in fileList)
 				{
 					bool blnSkipFile = false;
 
@@ -112,28 +115,7 @@ namespace DatabaseTools
 						}
 						else if (file.Name.EndsWith("_create_ix_pk.sql", StringComparison.InvariantCultureIgnoreCase))
 						{
-								sbFile.AppendLine(database.GetIxPkScripts());
-						}
-						else if (file.Name.EndsWith("_backup_tables.sql", StringComparison.InvariantCultureIgnoreCase))
-						{
-								string strColumnMappingFile = System.IO.Path.Combine(file.DirectoryName, "column_mappings.xml");
-								if (System.IO.File.Exists(strColumnMappingFile))
-								{
-									System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
-									doc.Load(strColumnMappingFile);
-
-									Models.ConfiguredMappingsModel mappings = new Models.ConfiguredMappingsModel(doc);
-									List<Models.ColumnModel> columns = Processes.Database.GetTableColumns(connectionString);
-
-									foreach (var mapping in mappings.TableMappings)
-									{
-										sbFile.AppendLine("PRINT '-- " + mapping.TargetTableName + "'");
-										sbFile.AppendLine("GO");
-										sbFile.AppendLine(Processes.Mapping.CreateScript(mapping));
-										sbFile.AppendLine();
-									}
-
-								}
+								sbFile.AppendLine(database.GetIxPkScripts(strQuoteCharacter));
 						}
 						else if (file.Name.EndsWith("_create_sp_fn_vw.sql", StringComparison.InvariantCultureIgnoreCase))
 						{

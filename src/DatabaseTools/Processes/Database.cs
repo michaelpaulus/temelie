@@ -211,16 +211,114 @@ namespace DatabaseTools
                 return returnValue;
             }
 
-            private static List<Models.ColumnModel> GetColumns(DataTable dataTable)
+            private static List<Models.ColumnModel> GetColumns(DataTable dataTable, IDatabaseProvider converter)
             {
                 List<Models.ColumnModel> list = new List<Models.ColumnModel>();
                 foreach (System.Data.DataRow row in dataTable.Rows)
                 {
                     Models.ColumnModel column = new Models.ColumnModel();
-                    column.Initialize(row);
+                    InitializeColumn(column, row, converter);
                     list.Add(column);
                 }
                 return list;
+            }
+
+            private static void InitializeColumn(Models.ColumnModel column, DataRow row, IDatabaseProvider converter)
+            {
+
+                //Do precision first so that the column type can be converted to 
+                //   varchar for text
+                column.TableName = GetStringValue(row, "table_name");
+                column.ColumnName = GetStringValue(row, "column_name");
+                column.Precision = GetInt32Value(row, "precision");
+                column.Scale = GetInt32Value(row, "scale");
+                column.ColumnType = GetStringValue(row, "column_type");
+                column.IsNullable = GetBoolValue(row, "is_nullable");
+                column.IsIdentity = GetBoolValue(row, "is_identity");
+                column.IsComputed = GetBoolValue(row, "is_computed");
+                column.ComputedDefinition = GetStringValue(row, "computed_definition");
+                column.ColumnID = GetInt32Value(row, "column_id");
+                column.IsPrimaryKey = GetBoolValue(row, "is_primary_key");
+
+                if (converter != null)
+                {
+                    var targetColumnType = converter.GetColumnType(new Models.ColumnTypeModel() { ColumnType = column.ColumnType, Precision = column.Precision, Scale = column.Scale }, Models.DatabaseType.MicrosoftSQLServer);
+                    if (targetColumnType != null)
+                    {
+                        column.ColumnType = targetColumnType.ColumnType;
+                        column.Precision = targetColumnType.Precision.GetValueOrDefault();
+                        column.Scale = targetColumnType.Scale.GetValueOrDefault();
+                    }
+                }
+
+            }
+
+            public static string GetStringValue(DataRow row, string columnName)
+            {
+                string value = string.Empty;
+
+                try
+                {
+                    if (row.Table.Columns.Contains(columnName) && !(row.IsNull(columnName)))
+                    {
+                        value = Convert.ToString(row[columnName]);
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                }
+
+                return value;
+            }
+
+            public static Int32 GetInt32Value(DataRow row, string columnName)
+            {
+                Int32 value = 0;
+
+                try
+                {
+                    var strValue = GetStringValue(row, columnName);
+                    if (!(string.IsNullOrEmpty(strValue)))
+                    {
+                        int.TryParse(strValue, out value);
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                }
+
+                return value;
+            }
+
+            public static bool GetBoolValue(DataRow row, string columnName)
+            {
+                bool value = false;
+
+                try
+                {
+                    var strValue = GetStringValue(row, columnName);
+
+                    if (!(string.IsNullOrEmpty(strValue)))
+                    {
+                        if (strValue.EqualsIgnoreCase("Yes") || strValue.EqualsIgnoreCase("1"))
+                        {
+                            strValue = "True";
+                        }
+                        else if (strValue.EqualsIgnoreCase("No") || strValue.EqualsIgnoreCase("0"))
+                        {
+                            strValue = "False";
+                        }
+                        bool.TryParse(strValue, out value);
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                }
+
+                return value;
             }
 
             private static Int32 GetServerVersion(Models.DatabaseType databaseType, System.Configuration.ConnectionStringSettings connectionString)
@@ -263,6 +361,20 @@ namespace DatabaseTools
                 return intVersion;
             }
 
+
+            private static IDatabaseProvider GetDatabaseProvider(Models.DatabaseType databaseType)
+            {
+                if (databaseType == Models.DatabaseType.MySql)
+                {
+                    return new MySql.DatabaseProvider();
+                }
+                else if (databaseType == Models.DatabaseType.MicrosoftSQLServer)
+                {
+                    return new Mssql.DatabaseProvider();
+                }
+                return null;
+            }
+
             public static List<Models.ColumnModel> GetTableColumns(System.Configuration.ConnectionStringSettings connectionString)
             {
                 var databaseType = GetDatabaseType(connectionString);
@@ -298,7 +410,7 @@ namespace DatabaseTools
 
                 if (dataTable != null)
                 {
-                    list = GetColumns(dataTable);
+                    list = GetColumns(dataTable, GetDatabaseProvider(databaseType));
                 }
 
                 return list;
@@ -316,10 +428,30 @@ namespace DatabaseTools
                     table.Columns["type_name"].ColumnName = "column_type";
                 }
 
+                if (!table.Columns.Contains("is_identity"))
+                {
+                    table.Columns.Add("is_identity", typeof(bool));
+                    foreach (var row in table.Rows.OfType<System.Data.DataRow>())
+                    {
+                        row["is_identity"] = false;
+
+                        if (table.Columns.Contains("EXTRA"))
+                        {
+                            string value = Convert.ToString(row["EXTRA"]);
+                            if (value != null &&
+                                value.EqualsIgnoreCase("auto_increment"))
+                            {
+                                row["is_identity"] = true;
+                            }
+                        }
+
+                    }
+                }
+
                 if (table.Columns.Contains("data_type") && !(table.Columns.Contains("column_type")))
                 {
                     table.Columns.Add("column_type", typeof(string));
-                    table.Columns.Add("is_identity", typeof(bool));
+
                     foreach (var row in table.Rows.OfType<System.Data.DataRow>())
                     {
                         string strColumnType = Convert.ToString(row["data_type"]);
@@ -328,10 +460,6 @@ namespace DatabaseTools
                         {
                             strColumnType = strColumnType.Substring(0, strColumnType.Length - " IDENTITY".Length);
                             row["is_identity"] = true;
-                        }
-                        else
-                        {
-                            row["is_identity"] = false;
                         }
 
                         var dataTypeRows = (
@@ -447,7 +575,7 @@ namespace DatabaseTools
                     dataTable = ds.Tables[0];
                 }
 
-                list = GetColumns(dataTable);
+                list = GetColumns(dataTable, GetDatabaseProvider(databaseType));
 
                 return list;
             }
@@ -621,22 +749,14 @@ namespace DatabaseTools
                         }
                     }
                 }
-                
+
 
                 return list;
             }
 
             public static IList<Models.IndexModel> GetIndexes(System.Configuration.ConnectionStringSettings connectionString, IList<string> tables)
             {
-                IList<Models.IndexModel> list = new List<Models.IndexModel>();
-
-                if (GetDatabaseType(connectionString) == Models.DatabaseType.MicrosoftSQLServer)
-                {
-                    System.Data.DataSet dsIndexes = Database.Execute(connectionString, "SELECT sys.tables.name AS table_name, sys.indexes.name AS index_name, sys.indexes.type_desc index_type, sys.indexes.is_unique, sys.indexes.fill_factor, sys.columns.name AS column_name, sys.index_columns.is_included_column, sys.index_columns.is_descending_key FROM sys.indexes INNER JOIN sys.tables ON sys.indexes.object_id = sys.tables.object_id INNER JOIN sys.index_columns ON sys.indexes.object_id = sys.index_columns.object_id AND sys.indexes.index_id = sys.index_columns.index_id INNER JOIN sys.columns ON sys.index_columns.object_id = sys.columns.object_id AND sys.index_columns.column_id = sys.columns.column_id WHERE sys.tables.name NOT LIKE 'sys%' AND sys.indexes.name NOT LIKE 'MSmerge_index%' AND sys.indexes.name IS NOT NULL AND sys.indexes.is_primary_key = 0 ORDER BY sys.tables.name, sys.indexes.name, sys.index_columns.key_ordinal, sys.index_columns.index_column_id");
-                    list = GetIndexes(dsIndexes, tables, false);
-                }
-
-                return list;
+                return GetIndexes(connectionString, tables, false);
             }
 
             private static bool ContainsTable(IList<string> tables, string table)
@@ -644,41 +764,123 @@ namespace DatabaseTools
                 return (from i in tables where i.EqualsIgnoreCase(table) select i).Any();
             }
 
-            private static IList<Models.IndexModel> GetIndexes(System.Data.DataSet indexes, IList<string> tables, bool isPrimaryKey)
+            private static IList<Models.IndexModel> GetIndexes(System.Configuration.ConnectionStringSettings connectionString, IList<string> tables, bool isPrimaryKey)
             {
+
+                System.Data.DataTable dtIndexes = null;
+
+                if (GetDatabaseType(connectionString) == Models.DatabaseType.MicrosoftSQLServer)
+                {
+                    dtIndexes = Database.Execute(connectionString, @"
+SELECT 
+    sys.tables.name AS table_name, 
+    sys.indexes.name AS index_name, 
+    sys.indexes.type_desc index_type, 
+    sys.indexes.is_unique, 
+    sys.indexes.fill_factor, 
+    sys.columns.name AS column_name, 
+    sys.index_columns.is_included_column, 
+    sys.index_columns.is_descending_key, 
+    sys.index_columns.key_ordinal,
+    sys.indexes.is_primary_key
+FROM 
+    sys.indexes INNER JOIN 
+    sys.tables ON sys.indexes.object_id = sys.tables.object_id INNER JOIN 
+    sys.index_columns ON sys.indexes.object_id = sys.index_columns.object_id AND 
+    sys.indexes.index_id = sys.index_columns.index_id INNER JOIN 
+    sys.columns ON sys.index_columns.object_id = sys.columns.object_id AND sys.index_columns.column_id = sys.columns.column_id 
+WHERE 
+    sys.tables.name NOT LIKE 'sys%' AND 
+    sys.indexes.name NOT LIKE 'MSmerge_index%' AND 
+    sys.indexes.name IS NOT NULL 
+ORDER BY 
+    sys.tables.name, 
+    sys.indexes.name, 
+    sys.index_columns.key_ordinal, 
+    sys.index_columns.index_column_id
+").Tables[0];
+                }
+                else if (GetDatabaseType(connectionString) == Models.DatabaseType.MySql)
+                {
+                    using (var conn = CreateDbConnection(connectionString))
+                    {
+                        dtIndexes = conn.GetSchema("IndexColumns");
+
+                        dtIndexes.Columns.Add("is_descending_key");
+                        dtIndexes.Columns.Add("is_included_column");
+                        dtIndexes.Columns.Add("is_unique");
+                        dtIndexes.Columns.Add("fill_factor");
+                        dtIndexes.Columns.Add("key_ordinal");
+                        dtIndexes.Columns.Add("is_primary_key");
+                        dtIndexes.Columns.Add("index_type");
+
+                        foreach (DataRow row in dtIndexes.Rows)
+                        {
+                            row["is_descending_key"] = row["SORT_ORDER"].ToString() == "D";
+                            row["is_included_column"] = false;
+                            row["is_unique"] = false;
+                            row["fill_factor"] = 0;
+                            row["key_ordinal"] = (int)row["ORDINAL_POSITION"];
+                            row["is_primary_key"] = false;
+                            row["index_type"] = "NONCLUSTERED";
+
+                            if (row["INDEX_NAME"].ToString().ToUpper() == "PRIMARY")
+                            {
+                                row["is_primary_key"] = true;
+                                row["INDEX_NAME"] = "PK_" + row["TABLE_NAME"].ToString();
+                                row["index_type"] = "CLUSTERED";
+                            }
+                        }
+
+                    }
+                }
+
+
                 List<Models.IndexModel> list = new List<Models.IndexModel>();
 
                 foreach (var indexGroup in (
-                    from i in indexes.Tables[0].Rows.Cast<System.Data.DataRow>()
+                    from i in dtIndexes.Rows.Cast<System.Data.DataRow>()
                     group i by new { IndexName = i["index_name"].ToString(), TableName = i["table_name"].ToString() } into g
                     select new { IndexName = g.Key.IndexName, TableName = g.Key.TableName, Items = g.ToList() }))
                 {
                     if (ContainsTable(tables, indexGroup.TableName))
                     {
                         System.Data.DataRow summaryRow = indexGroup.Items[0];
-                        Models.IndexModel index = new Models.IndexModel { TableName = indexGroup.TableName, IndexName = indexGroup.IndexName, IndexType = summaryRow["index_type"].ToString(), IsUnique = Convert.ToBoolean(summaryRow["is_unique"]), FillFactor = Convert.ToInt32(summaryRow["fill_factor"]), IsPrimaryKey = isPrimaryKey };
 
-                        foreach (var detialRow in indexGroup.Items)
+                        Models.IndexModel index = new Models.IndexModel
                         {
-                            bool blnIsDescending = Convert.ToBoolean(detialRow["is_descending_key"]);
-                            bool blnIsIncludeColumn = Convert.ToBoolean(detialRow["is_included_column"]);
-                            string strColumnName = detialRow["column_name"].ToString();
+                            TableName = indexGroup.TableName,
+                            IndexName = indexGroup.IndexName,
+                            IndexType = summaryRow["index_type"].ToString(),
+                            IsUnique = Convert.ToBoolean(summaryRow["is_unique"]),
+                            FillFactor = Convert.ToInt32(summaryRow["fill_factor"]),
+                            IsPrimaryKey = Convert.ToBoolean(summaryRow["is_primary_key"])
+                        };
 
-                            if (blnIsIncludeColumn)
+                        if (index.IsPrimaryKey == isPrimaryKey)
+                        {
+                            foreach (var detialRow in indexGroup.Items.OrderBy(i => Convert.ToInt32(i["key_ordinal"])))
                             {
-                                index.IncludeColumns.Add(strColumnName);
+                                bool blnIsDescending = Convert.ToBoolean(detialRow["is_descending_key"]);
+                                bool blnIsIncludeColumn = Convert.ToBoolean(detialRow["is_included_column"]);
+                                string strColumnName = detialRow["column_name"].ToString();
+
+                                if (blnIsIncludeColumn)
+                                {
+                                    index.IncludeColumns.Add(strColumnName);
+                                }
+                                else if (blnIsDescending)
+                                {
+                                    index.Columns.Add(strColumnName + " DESC");
+                                }
+                                else
+                                {
+                                    index.Columns.Add(strColumnName);
+                                }
                             }
-                            else if (blnIsDescending)
-                            {
-                                index.Columns.Add(strColumnName + " DESC");
-                            }
-                            else
-                            {
-                                index.Columns.Add(strColumnName);
-                            }
+
+                            list.Add(index);
                         }
-
-                        list.Add(index);
 
                     }
                 }
@@ -688,15 +890,7 @@ namespace DatabaseTools
 
             public static IList<Models.IndexModel> GetPrimaryKeys(System.Configuration.ConnectionStringSettings connectionString, IList<string> tables)
             {
-                IList<Models.IndexModel> list = new List<Models.IndexModel>();
-
-                if (GetDatabaseType(connectionString) == Models.DatabaseType.MicrosoftSQLServer)
-                {
-                    System.Data.DataSet dsPrimaryKeys = Database.Execute(connectionString, "SELECT sys.tables.name AS table_name, sys.indexes.name AS index_name, sys.indexes.type_desc index_type, sys.indexes.is_unique, sys.indexes.fill_factor, sys.columns.name AS column_name, sys.index_columns.is_included_column, sys.index_columns.is_descending_key FROM sys.indexes INNER JOIN sys.tables ON sys.indexes.object_id = sys.tables.object_id INNER JOIN sys.index_columns ON sys.indexes.object_id = sys.index_columns.object_id AND sys.indexes.index_id = sys.index_columns.index_id INNER JOIN sys.columns ON sys.index_columns.object_id = sys.columns.object_id AND sys.index_columns.column_id = sys.columns.column_id WHERE sys.tables.name NOT LIKE 'sys%' AND sys.indexes.name IS NOT NULL AND sys.indexes.is_primary_key = 1 ORDER BY sys.tables.name, sys.indexes.name, sys.index_columns.key_ordinal, sys.index_columns.index_column_id");
-                    list = GetIndexes(dsPrimaryKeys, tables, false);
-                }
-
-                return list;
+                return GetIndexes(connectionString, tables, true);
             }
 
             public static string GetProviderName(System.Data.Common.DbConnection connection)
@@ -804,13 +998,20 @@ namespace DatabaseTools
                 foreach (System.Data.DataRow row in dataTable.Rows)
                 {
                     Models.TableModel table = new Models.TableModel();
-                    table.Initialize(row);
+                    table.TableName = Processes.Database.GetStringValue(row, "table_name");
                     if (!(tables.Contains(table.TableName.ToUpper())))
                     {
                         if (columnIndex.ContainsKey(table.TableName.ToUpper()))
                         {
                             var tableColumns = columnIndex[table.TableName.ToUpper()];
-                            table.Initialize(tableColumns);
+                            foreach (var column in (
+                                        from i in tableColumns
+                                        where i.TableName.EqualsIgnoreCase(table.TableName)
+                                        select i)
+                                        )
+                            {
+                                table.Columns.Add(column);
+                            }
                         }
                         tables.Add(table.TableName.ToUpper());
                         list.Add(table);

@@ -162,28 +162,6 @@ namespace DatabaseTools
                 this.AppendCreateScript(sb, "", true);
             }
 
-            public void Initialize(DataRow row)
-            {
-                this.TableName = this.GetStringValue(row, "table_name");
-            }
-
-            public void Initialize(IList<Models.ColumnModel> columns)
-            {
-                foreach (var column in (
-                    from i in columns
-                    where i.TableName.EqualsIgnoreCase(this.TableName)
-                    select i))
-                {
-                    this.Columns.Add(column);
-                }
-            }
-
-            public void Initialize(DataRow row, IList<Models.ColumnModel> columns)
-            {
-                this.Initialize(row);
-                this.Initialize(columns);
-            }
-
             #endregion
 
         }

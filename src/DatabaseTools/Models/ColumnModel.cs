@@ -75,7 +75,6 @@ namespace DatabaseTools
                     if (!(int.Equals(this._precision, value)))
                     {
                         this._precision = value;
-                        this.ValidateColumnTypeAndPrecision();
                         this.OnPropertyChanged("Precision");
                     }
                 }
@@ -173,84 +172,11 @@ namespace DatabaseTools
                 {
                     if (!(string.Equals(this._columnType, value)))
                     {
-                        value = value.ToUpper();
-
-                        value = value.Replace(" UNSIGNED", "");
-
-                        if (value.Contains("(") &&
-                            value.EndsWith(")"))
-                        {
-                            if (value == "TINYINT(1)")
-                            {
-                                value = "BIT";
-                            }
-                            else
-                            {
-                                value = value.Substring(0, value.IndexOf("("));
-                            }
-                        }
-
-                        switch (value)
-                        {
-                            case "LONG VARCHAR":
-                            case "TEXT":
-                            case "130":
-                            case "STRING":
-                            case "LONGTEXT":
-                                value = "VARCHAR";
-                                if (this._precision < 4000)
-                                {
-                                    this._precision = 4000;
-                                }
-                                break;
-                            case "UNSIGNED INT":
-                            case "INTEGER":
-                            case "INT32":
-                            case "MEDIUMINT":
-                                value = "INT";
-                                break;
-                            case "INT16":
-                            case "TINYINT":
-                                value = "SMALLINT";
-                                break;
-                            case "NUMERIC":
-                            case "DOUBLE":
-                            case "SINGLE":
-                                value = "DECIMAL";
-                                break;
-                            case "TIMESTAMP":
-                            case "DATE":
-                                value = "DATETIME";
-                                break;
-                            case "NVARCHAR":
-                            case "NCHAR":
-                                value = "NVARCHAR";
-                                break;
-                            case "BOOLEAN":
-                                value = "BIT";
-                                break;
-                            case "BYTE[]":
-                            case "128":
-                            case "BLOB":
-                                value = "VARBINARY";
-                                break;
-                            case "CHAR":
-                                if (this.Precision > 0 && this.Precision != 1)
-                                {
-                                    value = "VARCHAR";
-                                }
-                                break;
-                        }
                         this._columnType = value;
-                        this.ValidateColumnTypeAndPrecision();
                         this.OnPropertyChanged("ColumnType");
                     }
                 }
             }
-
-            #endregion
-
-            #region Methods
 
             public System.Data.DbType DbType
             {
@@ -260,61 +186,9 @@ namespace DatabaseTools
                 }
             }
 
-            private void ValidateColumnTypeAndPrecision()
-            {
-                if (this.ColumnType == "VARCHAR" && this.Precision > 4000)
-                {
-                    //MAX
-                    this._precision = int.MaxValue;
-                }
+            #endregion
 
-                if (this.ColumnType == "VARCHAR" && this.Precision == 0)
-                {
-                    this._precision = 4000;
-                }
-
-                if (this.ColumnType == "VARBINARY" && this.Precision > 4000)
-                {
-                    //MAX
-                    this._precision = int.MaxValue;
-                }
-
-                if (this.ColumnType == "CHAR" && this.Precision != 0 && this.Precision > 1)
-                {
-                    this._columnType = "VARCHAR";
-                }
-
-                if (this.ColumnType.EqualsIgnoreCase("DECIMAL"))
-                {
-                    //When reading the foxpro database,
-                    //   we get 8,0 for some reason
-                    if (this.Precision == 8 && this.Scale == 0)
-                    {
-                        this._precision = 18;
-                        this._scale = 6;
-                    }
-
-                    //In access we are getting 7,0 for single
-                    if (this.Precision == 7 && this.Scale == 0)
-                    {
-                        this._precision = 18;
-                        this._scale = 6;
-                    }
-
-                    //In access we are getting 15,0 for double
-                    if (this.Precision == 15 && this.Scale == 0)
-                    {
-                        this._precision = 18;
-                        this._scale = 6;
-                    }
-
-                    if (this.Precision == 0 && this.Scale == 0)
-                    {
-                        this._precision = 18;
-                        this._scale = 6;
-                    }
-                }
-            }
+            #region Methods
 
             public string ToString(string quoteCharacter)
             {
@@ -371,25 +245,6 @@ namespace DatabaseTools
             public override string ToString()
             {
                 return this.ToString("");
-            }
-
-            public void Initialize(DataRow row)
-            {
-                //Do precision first so that the column type can be converted to 
-                //   varchar for text
-                this.TableName = this.GetStringValue(row, "table_name");
-                this.ColumnName = this.GetStringValue(row, "column_name");
-                this.Precision = this.GetInt32Value(row, "precision");
-                this.Scale = this.GetInt32Value(row, "scale");
-                this.ColumnType = this.GetStringValue(row, "column_type");
-
-
-                this.IsNullable = this.GetBoolValue(row, "is_nullable");
-                this.IsIdentity = this.GetBoolValue(row, "is_identity");
-                this.IsComputed = this.GetBoolValue(row, "is_computed");
-                this.ComputedDefinition = this.GetStringValue(row, "computed_definition");
-                this.ColumnID = this.GetInt32Value(row, "column_id");
-                this.IsPrimaryKey = this.GetBoolValue(row, "is_primary_key");
             }
 
             #endregion
