@@ -98,7 +98,7 @@
     <Compile Include="Configuration\Configuration.cs" />
     <Compile Include="Configuration\ConnectionInfo.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
-    <Compile Include="IDatabaseProvider.cs" />
+    <Compile Include="Providers\IDatabaseProvider.cs" />
     <Compile Include="Models\ColumnMappingModel.cs" />
     <Compile Include="Models\ColumnModel.cs" />
     <Compile Include="Models\ColumnTypeModel.cs" />
@@ -112,8 +112,8 @@
     <Compile Include="Models\Mapping.cs" />
     <Compile Include="Models\TableMapping.cs" />
     <Compile Include="Models\TriggerModel.cs" />
-    <Compile Include="Mssql\DatabaseProvider.cs" />
-    <Compile Include="MySql\DatabaseProvider.cs" />
+    <Compile Include="Providers\Mssql\DatabaseProvider.cs" />
+    <Compile Include="Providers\MySql\DatabaseProvider.cs" />
     <Compile Include="Processes\Database.cs" />
     <Compile Include="Models\DatabaseType.cs" />
     <Compile Include="Models\TableModel.cs" />
@@ -124,6 +124,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Data\Scope.cs" />
     <Compile Include="PropertyChangedObject.cs" />
+    <Compile Include="Providers\Odbc\DatabaseProvider.cs" />
     <Compile Include="_Project\AssemblyCopyright.cs" />
     <Compile Include="_Project\AssemblyVersion.cs" />
   </ItemGroup>

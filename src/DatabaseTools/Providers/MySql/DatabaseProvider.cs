@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DatabaseTools.MySql
+namespace DatabaseTools.Providers.MySql
 {
     public class DatabaseProvider : IDatabaseProvider
     {
@@ -100,5 +102,81 @@ namespace DatabaseTools.MySql
 
         }
 
+        public DataTable GetIndexes(ConnectionStringSettings connectionString)
+        {
+            DataTable dtIndexColumns;
+
+            using (var conn = Processes.Database.CreateDbConnection(connectionString))
+            {
+                var dtIndex = conn.GetSchema("Indexes");
+
+                dtIndexColumns = conn.GetSchema("IndexColumns");
+
+                dtIndexColumns.Columns.Add("is_descending_key");
+                dtIndexColumns.Columns.Add("is_included_column");
+                dtIndexColumns.Columns.Add("is_unique");
+                dtIndexColumns.Columns.Add("fill_factor");
+                dtIndexColumns.Columns.Add("key_ordinal");
+                dtIndexColumns.Columns.Add("is_primary_key");
+                dtIndexColumns.Columns.Add("index_type");
+
+                foreach (DataRow row in dtIndexColumns.Rows)
+                {
+                    string indexName = row["INDEX_NAME"].ToString();
+                    string tableName = row["TABLE_NAME"].ToString();
+
+                    var indexRow = (from i in dtIndex.Rows.OfType<DataRow>()
+                                    where i["INDEX_NAME"].ToString() == indexName &&
+                                          i["TABLE_NAME"].ToString() == tableName
+                                    select i).Single();
+
+                    row["is_descending_key"] = row["SORT_ORDER"].ToString() == "D";
+                    row["is_included_column"] = false;
+                    row["is_unique"] = Convert.ToBoolean(indexRow["UNIQUE"]);
+                    row["fill_factor"] = 0;
+                    row["key_ordinal"] = (int)row["ORDINAL_POSITION"];
+                    row["is_primary_key"] = Convert.ToBoolean(indexRow["PRIMARY"]);
+                    row["index_type"] = "NONCLUSTERED";
+
+                    if (Convert.ToBoolean(indexRow["PRIMARY"]))
+                    {
+                        row["INDEX_NAME"] = "PK_" + tableName;
+                        row["index_type"] = "CLUSTERED";
+                    }
+                    else if (indexName.StartsWith("fk", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        row["INDEX_NAME"] = "IDX_" + indexName;
+                    }
+                    else if (indexName.StartsWith("index_", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        indexName = indexName.Substring(6);
+                        if (indexName.StartsWith(tableName, StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            row["INDEX_NAME"] = "IDX_" + indexName;
+                        }
+                        else
+                        {
+                            row["INDEX_NAME"] = "IDX_" + tableName + "_" + indexName;
+                        }
+                    }
+                    else if (!indexName.StartsWith("IDX", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        if (indexName.StartsWith(tableName, StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            row["INDEX_NAME"] = "IDX_" + indexName;
+                        }
+                        else
+                        {
+                            row["INDEX_NAME"] = "IDX_" + tableName + "_" + indexName;
+                        }
+                    }
+
+
+                }
+
+            }
+
+            return dtIndexColumns;
+        }
     }
 }

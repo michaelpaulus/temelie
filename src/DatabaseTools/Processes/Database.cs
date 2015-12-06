@@ -1,5 +1,6 @@
 ﻿
 using DatabaseTools.Extensions;
+using DatabaseTools.Providers;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -366,11 +367,11 @@ namespace DatabaseTools
             {
                 if (databaseType == Models.DatabaseType.MySql)
                 {
-                    return new MySql.DatabaseProvider();
+                    return new DatabaseTools.Providers.MySql.DatabaseProvider();
                 }
                 else if (databaseType == Models.DatabaseType.MicrosoftSQLServer)
                 {
-                    return new Mssql.DatabaseProvider();
+                    return new DatabaseTools.Providers.Mssql.DatabaseProvider();
                 }
                 return null;
             }
@@ -766,125 +767,66 @@ namespace DatabaseTools
 
             private static IList<Models.IndexModel> GetIndexes(System.Configuration.ConnectionStringSettings connectionString, IList<string> tables, bool isPrimaryKey)
             {
-
+                List<Models.IndexModel> list = new List<Models.IndexModel>();
+                var provider = GetDatabaseProvider(GetDatabaseType(connectionString));
                 System.Data.DataTable dtIndexes = null;
 
-                if (GetDatabaseType(connectionString) == Models.DatabaseType.MicrosoftSQLServer)
+                if (provider != null)
                 {
-                    dtIndexes = Database.Execute(connectionString, @"
-SELECT 
-    sys.tables.name AS table_name, 
-    sys.indexes.name AS index_name, 
-    sys.indexes.type_desc index_type, 
-    sys.indexes.is_unique, 
-    sys.indexes.fill_factor, 
-    sys.columns.name AS column_name, 
-    sys.index_columns.is_included_column, 
-    sys.index_columns.is_descending_key, 
-    sys.index_columns.key_ordinal,
-    sys.indexes.is_primary_key
-FROM 
-    sys.indexes INNER JOIN 
-    sys.tables ON sys.indexes.object_id = sys.tables.object_id INNER JOIN 
-    sys.index_columns ON sys.indexes.object_id = sys.index_columns.object_id AND 
-    sys.indexes.index_id = sys.index_columns.index_id INNER JOIN 
-    sys.columns ON sys.index_columns.object_id = sys.columns.object_id AND sys.index_columns.column_id = sys.columns.column_id 
-WHERE 
-    sys.tables.name NOT LIKE 'sys%' AND 
-    sys.indexes.name NOT LIKE 'MSmerge_index%' AND 
-    sys.indexes.name IS NOT NULL 
-ORDER BY 
-    sys.tables.name, 
-    sys.indexes.name, 
-    sys.index_columns.key_ordinal, 
-    sys.index_columns.index_column_id
-").Tables[0];
-                }
-                else if (GetDatabaseType(connectionString) == Models.DatabaseType.MySql)
-                {
-                    using (var conn = CreateDbConnection(connectionString))
-                    {
-                        dtIndexes = conn.GetSchema("IndexColumns");
-
-                        dtIndexes.Columns.Add("is_descending_key");
-                        dtIndexes.Columns.Add("is_included_column");
-                        dtIndexes.Columns.Add("is_unique");
-                        dtIndexes.Columns.Add("fill_factor");
-                        dtIndexes.Columns.Add("key_ordinal");
-                        dtIndexes.Columns.Add("is_primary_key");
-                        dtIndexes.Columns.Add("index_type");
-
-                        foreach (DataRow row in dtIndexes.Rows)
-                        {
-                            row["is_descending_key"] = row["SORT_ORDER"].ToString() == "D";
-                            row["is_included_column"] = false;
-                            row["is_unique"] = false;
-                            row["fill_factor"] = 0;
-                            row["key_ordinal"] = (int)row["ORDINAL_POSITION"];
-                            row["is_primary_key"] = false;
-                            row["index_type"] = "NONCLUSTERED";
-
-                            if (row["INDEX_NAME"].ToString().ToUpper() == "PRIMARY")
-                            {
-                                row["is_primary_key"] = true;
-                                row["INDEX_NAME"] = "PK_" + row["TABLE_NAME"].ToString();
-                                row["index_type"] = "CLUSTERED";
-                            }
-                        }
-
-                    }
+                    dtIndexes = provider.GetIndexes(connectionString);
                 }
 
-
-                List<Models.IndexModel> list = new List<Models.IndexModel>();
-
-                foreach (var indexGroup in (
-                    from i in dtIndexes.Rows.Cast<System.Data.DataRow>()
-                    group i by new { IndexName = i["index_name"].ToString(), TableName = i["table_name"].ToString() } into g
-                    select new { IndexName = g.Key.IndexName, TableName = g.Key.TableName, Items = g.ToList() }))
+                if (dtIndexes != null)
                 {
-                    if (ContainsTable(tables, indexGroup.TableName))
+                   
+                    foreach (var indexGroup in (
+                        from i in dtIndexes.Rows.Cast<System.Data.DataRow>()
+                        group i by new { IndexName = i["index_name"].ToString(), TableName = i["table_name"].ToString() } into g
+                        select new { IndexName = g.Key.IndexName, TableName = g.Key.TableName, Items = g.ToList() }))
                     {
-                        System.Data.DataRow summaryRow = indexGroup.Items[0];
-
-                        Models.IndexModel index = new Models.IndexModel
+                        if (ContainsTable(tables, indexGroup.TableName))
                         {
-                            TableName = indexGroup.TableName,
-                            IndexName = indexGroup.IndexName,
-                            IndexType = summaryRow["index_type"].ToString(),
-                            IsUnique = Convert.ToBoolean(summaryRow["is_unique"]),
-                            FillFactor = Convert.ToInt32(summaryRow["fill_factor"]),
-                            IsPrimaryKey = Convert.ToBoolean(summaryRow["is_primary_key"])
-                        };
+                            System.Data.DataRow summaryRow = indexGroup.Items[0];
 
-                        if (index.IsPrimaryKey == isPrimaryKey)
-                        {
-                            foreach (var detialRow in indexGroup.Items.OrderBy(i => Convert.ToInt32(i["key_ordinal"])))
+                            Models.IndexModel index = new Models.IndexModel
                             {
-                                bool blnIsDescending = Convert.ToBoolean(detialRow["is_descending_key"]);
-                                bool blnIsIncludeColumn = Convert.ToBoolean(detialRow["is_included_column"]);
-                                string strColumnName = detialRow["column_name"].ToString();
+                                TableName = indexGroup.TableName,
+                                IndexName = indexGroup.IndexName,
+                                IndexType = summaryRow["index_type"].ToString(),
+                                IsUnique = Convert.ToBoolean(summaryRow["is_unique"]),
+                                FillFactor = Convert.ToInt32(summaryRow["fill_factor"]),
+                                IsPrimaryKey = Convert.ToBoolean(summaryRow["is_primary_key"])
+                            };
 
-                                if (blnIsIncludeColumn)
+                            if (index.IsPrimaryKey == isPrimaryKey)
+                            {
+                                foreach (var detialRow in indexGroup.Items.OrderBy(i => Convert.ToInt32(i["key_ordinal"])))
                                 {
-                                    index.IncludeColumns.Add(strColumnName);
+                                    bool blnIsDescending = Convert.ToBoolean(detialRow["is_descending_key"]);
+                                    bool blnIsIncludeColumn = Convert.ToBoolean(detialRow["is_included_column"]);
+                                    string strColumnName = detialRow["column_name"].ToString();
+
+                                    if (blnIsIncludeColumn)
+                                    {
+                                        index.IncludeColumns.Add(strColumnName);
+                                    }
+                                    else if (blnIsDescending)
+                                    {
+                                        index.Columns.Add(strColumnName + " DESC");
+                                    }
+                                    else
+                                    {
+                                        index.Columns.Add(strColumnName);
+                                    }
                                 }
-                                else if (blnIsDescending)
-                                {
-                                    index.Columns.Add(strColumnName + " DESC");
-                                }
-                                else
-                                {
-                                    index.Columns.Add(strColumnName);
-                                }
+
+                                list.Add(index);
                             }
 
-                            list.Add(index);
                         }
-
                     }
                 }
-
+               
                 return list;
             }
 
