@@ -67,6 +67,7 @@
             <Button x:Name="ToggleAllButton" Grid.Row="0" Grid.Column="0" Margin="8, 8" >Toggle All</Button>
             <TextBox x:Name="ThreadsTextBox" Grid.Row="0"  Grid.Column="1" Margin="8, 8" Width="50">5</TextBox>
             <CheckBox x:Name="UseBulkCopyCheckBox" Grid.Row="0" Grid.Column="2" Margin="8, 8" Content="Use Bulk Copy" ></CheckBox>
+            <CheckBox x:Name="TrimStringsCheckBox" Grid.Row="0" Grid.Column="3" Margin="8, 8" Content="Trim Strings" ></CheckBox>
             <Button x:Name="ConvertButton" Grid.Row="0" HorizontalAlignment="Right" Grid.Column="4" Margin="8, 8">Convert</Button>
         </Grid>
     </Grid>

@@ -109,6 +109,7 @@ namespace DatabaseTools
                     tableConvert.TargetTables = targetTables;
 
                     tableConvert.UseBulkCopy = this.UseBulkCopyCheckBox.IsChecked.GetValueOrDefault();
+                    tableConvert.TrimStrings = this.TrimStringsCheckBox.IsChecked.GetValueOrDefault();
 
                     worker.RunWorkerAsync(tableConvert);
                 }
@@ -154,7 +155,7 @@ namespace DatabaseTools
                             }
                             else
                             {
-                                tableConverter.Convert(worker, sourceTable.TableName, tableConvert.SourceConnectionString, sourceTable.Columns, tableConvert.TargetConnectionString, targetTable.Columns);
+                                tableConverter.Convert(worker, sourceTable, tableConvert.SourceConnectionString, targetTable, tableConvert.TargetConnectionString, tableConvert.TrimStrings);
                             }
 
                         }
@@ -279,13 +280,14 @@ namespace DatabaseTools
             public IList<DatabaseTools.Models.TableModel> TargetTables { get; set; }
 
             public bool UseBulkCopy { get; set; }
+            public bool TrimStrings { get; set; }
 
         }
 
         #endregion
 
 
-        
+
         private bool EventsSubscribed = false;
         private void SubscribeToEvents()
         {

@@ -245,7 +245,7 @@ namespace DatabaseTools
 
                 if (!string.IsNullOrEmpty(this.ColumnDefault))
                 {
-                    string columnDefault = this.ColumnDefault;
+                    string columnDefault = this.ColumnDefault.Trim();
 
                     if (!columnDefault.StartsWith("("))
                     {
@@ -259,6 +259,12 @@ namespace DatabaseTools
                                 break;
                         }
                         columnDefault = "(" + columnDefault + ")";
+                    }
+                    else if (columnDefault.StartsWith("((") &&
+                        columnDefault.EndsWith("))"))
+                    {
+                        columnDefault = columnDefault.Substring(1);
+                        columnDefault = columnDefault.Substring(0, columnDefault.Length - 1);
                     }
                     defaultValue = $" DEFAULT {columnDefault}";
                 }
