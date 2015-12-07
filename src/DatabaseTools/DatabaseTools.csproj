@@ -99,6 +99,7 @@
     <Compile Include="Configuration\ConnectionInfo.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Processes\TableConverter.cs" />
+    <Compile Include="Processes\TableProgress.cs" />
     <Compile Include="Providers\IDatabaseProvider.cs" />
     <Compile Include="Models\ColumnMappingModel.cs" />
     <Compile Include="Models\ColumnModel.cs" />

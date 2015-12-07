@@ -14,75 +14,21 @@ namespace DatabaseTools
     {
         public class TableModel : DatabaseObjectModel
         {
+
+            public TableModel()
+            {
+                this.Selected = true;
+            }
+
             #region Properties
 
-            private bool _selected = true;
-            public bool Selected
-            {
-                get
-                {
-                    return _selected;
-                }
-                set
-                {
-                    if (this._selected != value)
-                    {
-                        _selected = value;
-                        this.OnPropertyChanged("Selected");
-                    }
-                }
-            }
-
-            private string _tableName;
-            public string TableName
-            {
-                get
-                {
-                    return _tableName;
-                }
-                set
-                {
-                    if (this._tableName != value)
-                    {
-                        _tableName = value;
-                        this.OnPropertyChanged("TableName");
-                    }
-                }
-            }
-
-            private int _progressPercentage;
-            public int ProgressPercentage
-            {
-                get
-                {
-                    return this._progressPercentage;
-                }
-                set
-                {
-                    if (this._progressPercentage != value)
-                    {
-                        _progressPercentage = value;
-                        this.OnPropertyChanged("ProgressPercentage");
-                    }
-                }
-            }
-
-            private string _errorMessage;
-            public string ErrorMessage
-            {
-                get
-                {
-                    return _errorMessage;
-                }
-                set
-                {
-                    if (this._errorMessage != value)
-                    {
-                        _errorMessage = value;
-                        this.OnPropertyChanged("ErrorMessage");
-                    }
-                }
-            }
+           public bool Selected { get; set; }
+           
+            public string TableName { get; set; }
+            
+            public int ProgressPercentage { get; set; }
+           
+            public string ErrorMessage { get; set; }
 
             private IList<ColumnModel> _columns;
             public IList<ColumnModel> Columns

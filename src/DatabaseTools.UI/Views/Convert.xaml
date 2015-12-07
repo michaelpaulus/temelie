@@ -28,7 +28,7 @@
         <GroupBox Header="Target Database" Grid.Row="0" Grid.Column="2">
             <local:DatabaseConnection x:Name="TargetDatabaseConnection" />
         </GroupBox>
-        <ListView x:Name="ResultsListBox" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,8,0,0">
+        <ListView x:Name="ResultsListBox" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,8,0,0" ItemsSource="{Binding Tables}">
             <ListView.View>
                 <GridView x:Name="ResultsGridView">
                     <GridViewColumn Width="25" >
@@ -39,7 +39,7 @@
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
                     <GridViewColumn Header="Table" DisplayMemberBinding="{Binding TableName}" />
-                    <GridViewColumn Header="Progress" >
+                    <GridViewColumn Header="Progress">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <ProgressBar Maximum="100" Value="{Binding ProgressPercentage}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="Auto" Height="Auto"/>
@@ -50,9 +50,7 @@
                 </GridView>
             </ListView.View>
         </ListView>
-        <TextBox x:Name="ErrorsTextBox" AcceptsReturn="True" AcceptsTab="True" Grid.Row="3" Grid.ColumnSpan="3">
-            
-        </TextBox>
+        <TextBox x:Name="ErrorsTextBox" AcceptsReturn="True" AcceptsTab="True" Grid.Row="3" Grid.ColumnSpan="3" Text="{Binding ErrorMessage}" />
         <Grid Grid.Row="4" Grid.ColumnSpan="3">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
@@ -64,11 +62,11 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <Button x:Name="ToggleAllButton" Grid.Row="0" Grid.Column="0" Margin="8, 8" >Toggle All</Button>
-            <TextBox x:Name="ThreadsTextBox" Grid.Row="0"  Grid.Column="1" Margin="8, 8" Width="50">5</TextBox>
-            <CheckBox x:Name="UseBulkCopyCheckBox" Grid.Row="0" Grid.Column="2" Margin="8, 8" Content="Use Bulk Copy" ></CheckBox>
-            <CheckBox x:Name="TrimStringsCheckBox" Grid.Row="0" Grid.Column="3" Margin="8, 8" Content="Trim Strings" ></CheckBox>
-            <Button x:Name="ConvertButton" Grid.Row="0" HorizontalAlignment="Right" Grid.Column="4" Margin="8, 8">Convert</Button>
+            <Button x:Name="ToggleAllButton" Grid.Row="0" Grid.Column="0" Margin="8,8,0,8" Command="{Binding ToggleAllCommand}" HorizontalAlignment="Left" Width="78">Toggle All</Button>
+            <TextBox x:Name="ThreadsTextBox" Grid.Row="0"  Grid.Column="1" Margin="8, 8" Width="50" Text="{Binding ThreadCount}" />
+            <CheckBox x:Name="UseBulkCopyCheckBox" Grid.Row="0" Grid.Column="2" Margin="8, 8" Content="Use Bulk Copy" IsChecked="{Binding UseBulkCopy}" />
+            <CheckBox x:Name="TrimStringsCheckBox" Grid.Row="0" Grid.Column="3" Margin="8, 8" Content="Trim Strings" IsChecked="{Binding TrimStrings}" />
+            <Button x:Name="ConvertButton" Grid.Row="0" HorizontalAlignment="Right" Grid.Column="4" Margin="8, 8" Command="{Binding ConvertCommand}">Convert</Button>
         </Grid>
     </Grid>
 </UserControl>
