@@ -25,7 +25,7 @@ namespace DatabaseTools
 
             #region Methods
 
-            public void AppendDropScript(System.Text.StringBuilder sb)
+            public void AppendDropScript(System.Text.StringBuilder sb, string quoteCharacter)
             {
                 if (sb.Length > 0)
                 {
@@ -33,11 +33,11 @@ namespace DatabaseTools
                 }
 
                 sb.AppendLine(string.Format("IF EXISTS (SELECT 1 FROM sysobjects WHERE sysobjects.name = '{0}')", this.TriggerName));
-                sb.AppendLine("\t" + string.Format("DROP TRIGGER {0}", this.TriggerName));
+                sb.AppendLine($"\tDROP TRIGGER {quoteCharacter}dbo{quoteCharacter}.{quoteCharacter}{this.TriggerName}{quoteCharacter}");
                 sb.AppendLine("GO");
             }
 
-            public void AppendScript(System.Text.StringBuilder sb)
+            public void AppendScript(System.Text.StringBuilder sb, string quoteCharacter)
             {
                 if (sb.Length > 0)
                 {

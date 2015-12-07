@@ -14,8 +14,8 @@ namespace DatabaseTools
 	{
 		public abstract class DatabaseObjectModel : Model
 		{
-			public abstract void AppendDropScript(System.Text.StringBuilder sb);
-			public abstract void AppendCreateScript(System.Text.StringBuilder sb);
+			public abstract void AppendDropScript(System.Text.StringBuilder sb, string quoteCharacter);
+			public abstract void AppendCreateScript(System.Text.StringBuilder sb, string quoteCharacter);
 
 		}
 	}

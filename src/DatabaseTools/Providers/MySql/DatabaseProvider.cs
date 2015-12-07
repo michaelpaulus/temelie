@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DatabaseTools.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -102,6 +103,53 @@ namespace DatabaseTools.Providers.MySql
 
         }
 
+        public DataTable GetDefinitionDependencies(ConnectionStringSettings connectionString)
+        {
+            return null;
+        }
+
+        public DataTable GetDefinitions(ConnectionStringSettings connectionString)
+        {
+            return null;
+        }
+
+        public DataTable GetForeignKeys(ConnectionStringSettings connectionString)
+        {
+            DataTable dataTable;
+            using (var conn = Processes.Database.CreateDbConnection(connectionString))
+            {
+                var dtForeignKeys = conn.GetSchema("Foreign Keys");
+                dataTable = conn.GetSchema("Foreign Key Columns");
+
+                dtForeignKeys.Columns["constraint_name"].ColumnName = "foreign_key_name";
+                dataTable.Columns["constraint_name"].ColumnName = "foreign_key_name";
+
+                dataTable.Columns.Add("delete_action", typeof(string));
+                dataTable.Columns.Add("update_action", typeof(string));
+                dataTable.Columns.Add("is_not_for_replication", typeof(bool));
+
+                foreach (var row in dataTable.Rows.OfType<DataRow>())
+                {
+                    string tableName = row["table_name"].ToString();
+                    string fkName = row["foreign_key_name"].ToString();
+
+                    var fkRow = (from i in dtForeignKeys.Rows.OfType<DataRow>()
+                                 where 
+                                    i["table_name"].ToString() == tableName &&
+                                    i["foreign_key_name"].ToString() == fkName
+                                 select i).First();
+
+                    row["delete_action"] = fkRow["delete_rule"].ToString().Replace("RESTRICT", "NO ACTION");
+                    row["update_action"] = fkRow["update_rule"].ToString().Replace("RESTRICT", "NO ACTION");
+                    row["is_not_for_replication"] = false;
+
+                }
+
+
+            }
+            return dataTable;
+        }
+
         public DataTable GetIndexes(ConnectionStringSettings connectionString)
         {
             DataTable dtIndexColumns;
@@ -178,5 +226,206 @@ namespace DatabaseTools.Providers.MySql
 
             return dtIndexColumns;
         }
+
+        public DataTable GetTableColumns(ConnectionStringSettings connectionString)
+        {
+            DataTable dataTable;
+            using (var conn = Processes.Database.CreateDbConnection(connectionString))
+            {
+                var dataTypes = conn.GetSchema("DataTypes");
+                dataTable = conn.GetSchema("Columns");
+                UpdateSchemaColumns(dataTable, dataTypes);
+            }
+            return dataTable;
+        }
+
+        public DataTable GetTables(ConnectionStringSettings connectionString)
+        {
+            DataTable dataTable;
+            using (var conn = Processes.Database.CreateDbConnection(connectionString))
+            {
+                dataTable = conn.GetSchema("Tables");
+            }
+            return dataTable;
+        }
+
+        public DataTable GetTriggers(ConnectionStringSettings connectionString)
+        {
+            return null;
+        }
+
+        public DataTable GetViewColumns(ConnectionStringSettings connectionString)
+        {
+            return this.GetTableColumns(connectionString);
+        }
+
+        public DataTable GetViews(ConnectionStringSettings connectionString)
+        {
+            DataTable dataTable;
+            using (var conn = Processes.Database.CreateDbConnection(connectionString))
+            {
+                dataTable = conn.GetSchema("Views");
+            }
+            return dataTable;
+        }
+
+        protected void UpdateSchemaColumns(DataTable table, DataTable dataTypes)
+        {
+            if (table.Columns.Contains("ordinal_position"))
+            {
+                table.Columns["ordinal_position"].ColumnName = "column_id";
+            }
+
+            if (table.Columns.Contains("type_name") && !(table.Columns.Contains("column_type")))
+            {
+                table.Columns["type_name"].ColumnName = "column_type";
+            }
+
+            if (!table.Columns.Contains("is_identity"))
+            {
+                table.Columns.Add("is_identity", typeof(bool));
+                foreach (var row in table.Rows.OfType<System.Data.DataRow>())
+                {
+                    row["is_identity"] = false;
+
+                    if (table.Columns.Contains("EXTRA"))
+                    {
+                        string value = Convert.ToString(row["EXTRA"]);
+                        if (value != null &&
+                            value.EqualsIgnoreCase("auto_increment"))
+                        {
+                            row["is_identity"] = true;
+                        }
+                    }
+
+                }
+            }
+
+            if (table.Columns.Contains("data_type") && !(table.Columns.Contains("column_type")))
+            {
+                table.Columns.Add("column_type", typeof(string));
+
+                foreach (var row in table.Rows.OfType<System.Data.DataRow>())
+                {
+                    string strColumnType = Convert.ToString(row["data_type"]);
+
+                    if (!(string.IsNullOrEmpty(strColumnType)) && strColumnType.ToUpper().EndsWith(" IDENTITY"))
+                    {
+                        strColumnType = strColumnType.Substring(0, strColumnType.Length - " IDENTITY".Length);
+                        row["is_identity"] = true;
+                    }
+
+                    var dataTypeRows = (
+                        from i in dataTypes.Rows.OfType<System.Data.DataRow>()
+                        where string.Equals(Convert.ToString(i["ProviderDbType"]), strColumnType)
+                        select i).ToList();
+
+                    if (dataTypeRows.Count == 0 && dataTypes.Columns.Contains("SqlType"))
+                    {
+                        dataTypeRows = (
+                            from i in dataTypes.Rows.OfType<System.Data.DataRow>()
+                            where string.Equals(Convert.ToString(i["SqlType"]), strColumnType)
+                            select i).ToList();
+                    }
+
+                    var dataTypeRow = dataTypeRows.FirstOrDefault();
+
+                    if (dataTypeRow != null)
+                    {
+                        strColumnType = Convert.ToString(dataTypeRow["DataType"]);
+                        if (strColumnType.Contains('.'.ToString()))
+                        {
+                            strColumnType = strColumnType.Split('.')[strColumnType.Split('.').Length - 1];
+                        }
+                    }
+
+                    row["column_type"] = strColumnType;
+                }
+
+                table.Columns.Remove("data_type");
+            }
+
+            if (table.Columns.Contains("numeric_scale"))
+            {
+                table.Columns["numeric_scale"].ColumnName = "scale";
+            }
+
+            if (table.Columns.Contains("decimal_digits"))
+            {
+                table.Columns["decimal_digits"].ColumnName = "scale";
+            }
+
+            if (table.Columns.Contains("num_prec_radix"))
+            {
+                table.Columns["num_prec_radix"].ColumnName = "numeric_precision";
+            }
+
+            if (table.Columns.Contains("column_size"))
+            {
+                table.Columns["column_size"].ColumnName = "character_maximum_length";
+            }
+
+            foreach (var row in table.Rows.OfType<DataRow>())
+            {
+
+                string columnDefault = Processes.Database.GetStringValue(row, "COLUMN_DEFAULT");
+                
+                if (!string.IsNullOrEmpty(columnDefault))
+                {
+                    if (columnDefault == "NULL" ||
+                        columnDefault == "(NULL)")
+                    {
+                        columnDefault = "";
+                    }
+                    else if (columnDefault == "0000-00-00 00:00:00")
+                    {
+                        columnDefault = "";
+                    }
+                    else if (columnDefault == "b'0'")
+                    {
+                        columnDefault = "0";
+                    }
+                }
+
+                row["COLUMN_DEFAULT"] = columnDefault;  
+
+            }
+
+            if (table.Columns.Contains("numeric_precision"))
+            {
+                if (table.Columns.Contains("character_maximum_length"))
+                {
+                    table.Columns.Add("precision", typeof(Int32));
+                    foreach (System.Data.DataRow row in table.Rows)
+                    {
+                        if (row.IsNull("numeric_precision"))
+                        {
+                            if (!row.IsNull("character_maximum_length"))
+                            {
+                                try
+                                {
+                                    row["precision"] = row["character_maximum_length"];
+                                }
+                                catch (ArgumentException ex)
+                                {
+                                    row["precision"] = Int32.MaxValue;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            row["precision"] = row["numeric_precision"];
+                        }
+                    }
+                }
+                else
+                {
+                    table.Columns["numeric_precision"].ColumnName = "precision";
+                }
+            }
+
+
+        }
+
     }
 }

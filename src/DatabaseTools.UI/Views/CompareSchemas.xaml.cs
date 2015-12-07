@@ -46,7 +46,7 @@ namespace DatabaseTools
 		private void SourceBackgroundWorker_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
 		{
 			var sourceDatabase = new DatabaseTools.Models.DatabaseModel((System.Configuration.ConnectionStringSettings)e.Argument);
-			e.Result = sourceDatabase.GetScript();
+			e.Result = sourceDatabase.GetScript("");
 		}
 
 		private void SourceBackgroundWorker_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
@@ -61,7 +61,7 @@ namespace DatabaseTools
 		private void TargetBackgroundWorker_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
 		{
 			var targetDatabase = new DatabaseTools.Models.DatabaseModel((System.Configuration.ConnectionStringSettings)e.Argument);
-			e.Result = targetDatabase.GetScript();
+			e.Result = targetDatabase.GetScript("");
 		}
 
 		private void TargetBackgroundWorker_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)

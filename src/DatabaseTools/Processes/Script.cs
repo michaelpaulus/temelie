@@ -105,9 +105,9 @@ namespace DatabaseTools
 						sbFile.AppendLine();
 						if (file.Name.EndsWith("_drop.sql", StringComparison.InvariantCultureIgnoreCase))
 						{
-								sbFile.AppendLine(database.GetSpFnVwDropScripts());
-								sbFile.AppendLine(database.GetTriggerDropScripts());
-								sbFile.AppendLine(database.GetFkDropScripts());
+								sbFile.AppendLine(database.GetSpFnVwDropScripts(strQuoteCharacter));
+								sbFile.AppendLine(database.GetTriggerDropScripts(strQuoteCharacter));
+								sbFile.AppendLine(database.GetFkDropScripts(strQuoteCharacter));
 						}
 						else if (file.Name.EndsWith("_create_tables.sql", StringComparison.InvariantCultureIgnoreCase))
 						{
@@ -119,21 +119,21 @@ namespace DatabaseTools
 						}
 						else if (file.Name.EndsWith("_create_sp_fn_vw.sql", StringComparison.InvariantCultureIgnoreCase))
 						{
-								sbFile.AppendLine(database.GetSpFnVwScripts());
+								sbFile.AppendLine(database.GetSpFnVwScripts(strQuoteCharacter));
 						}
 						else if (file.Name.EndsWith("_create_triggers.sql", StringComparison.InvariantCultureIgnoreCase))
 						{
-								sbFile.AppendLine(database.GetTriggerScripts());
+								sbFile.AppendLine(database.GetTriggerScripts(strQuoteCharacter));
 						}
 						else if (file.Name.EndsWith("_create_fk.sql", StringComparison.InvariantCultureIgnoreCase))
 						{
-								sbFile.AppendLine(database.GetFkScripts());
+								sbFile.AppendLine(database.GetFkScripts(strQuoteCharacter));
 						}
 						else if (file.Name.EndsWith("_insert_default_values.sql", StringComparison.InvariantCultureIgnoreCase))
 						{
 								if (Processes.Database.GetDatabaseType(connectionString) == Models.DatabaseType.MicrosoftSQLServer)
 								{
-									sbFile.AppendLine(database.GetInsertDefaultScripts());
+									sbFile.AppendLine(database.GetInsertDefaultScripts(strQuoteCharacter));
 								}
 						}
 						else if (file.Name.EndsWith("_post_mods.sql", StringComparison.InvariantCultureIgnoreCase))

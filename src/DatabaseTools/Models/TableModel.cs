@@ -101,10 +101,10 @@ namespace DatabaseTools
 
             #region Methods
 
-            public override void AppendDropScript(System.Text.StringBuilder sb)
+            public override void AppendDropScript(System.Text.StringBuilder sb, string quoteCharacter)
             {
                 sb.AppendLine(string.Format("IF EXISTS (SELECT 1 FROM sys.tables WHERE sys.tables.name = '{0}')", this.TableName));
-                sb.AppendLine("\t" + string.Format("DROP TABLE dbo.{0}", this.TableName));
+                sb.AppendLine($"\tDROP TABLE {quoteCharacter}dbo{quoteCharacter}.{quoteCharacter}{this.TableName}{quoteCharacter}");
                 sb.AppendLine("GO");
             }
 
@@ -157,9 +157,9 @@ namespace DatabaseTools
                 sb.AppendLine("GO");
             }
 
-            public override void AppendCreateScript(System.Text.StringBuilder sb)
+            public override void AppendCreateScript(System.Text.StringBuilder sb, string quoteCharacter)
             {
-                this.AppendCreateScript(sb, "", true);
+                this.AppendCreateScript(sb, quoteCharacter, true);
             }
 
             #endregion

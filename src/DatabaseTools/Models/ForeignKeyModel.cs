@@ -40,14 +40,14 @@ namespace DatabaseTools
 
             #region Methods
 
-            public override void AppendDropScript(System.Text.StringBuilder sb)
+            public override void AppendDropScript(System.Text.StringBuilder sb, string quoteCharacter)
             {
                 sb.AppendLine(string.Format("IF EXISTS (SELECT 1 FROM sysobjects WHERE sysobjects.name = '{0}')", this.ForeignKeyName));
-                sb.AppendLine("\t" + string.Format("ALTER TABLE {0} DROP CONSTRAINT {1}", this.TableName, this.ForeignKeyName));
+                sb.AppendLine($"\tALTER TABLE {this.TableName} DROP CONSTRAINT {this.ForeignKeyName}");
                 sb.AppendLine("GO");
             }
 
-            public override void AppendCreateScript(System.Text.StringBuilder sb)
+            public override void AppendCreateScript(System.Text.StringBuilder sb, string quoteCharacter)
             {
                 string strColumnNames = string.Empty;
                 string strReferencedColumnNames = string.Empty;
@@ -62,21 +62,21 @@ namespace DatabaseTools
                         strColumnNames += ",";
                     }
 
-                    strColumnNames += strColumnName;
+                    strColumnNames += $"{quoteCharacter}{strColumnName}{quoteCharacter}";
 
                     if (strReferencedColumnNames.Length > 0)
                     {
                         strReferencedColumnNames += ",";
                     }
 
-                    strReferencedColumnNames += strReferencedColumnName;
+                    strReferencedColumnNames += $"{quoteCharacter}{strReferencedColumnName}{quoteCharacter}"; ;
                 }
 
                 sb.AppendLine();
 
                 sb.AppendLine(string.Format("IF NOT EXISTS (SELECT 1 FROM sysobjects WHERE sysobjects.name = '{0}')", this.ForeignKeyName));
-                sb.AppendLine("\t" + string.Format("ALTER TABLE {0} WITH CHECK ADD CONSTRAINT {1} FOREIGN KEY ({2})", this.TableName, this.ForeignKeyName, strColumnNames));
-                sb.AppendLine("\t" + string.Format("REFERENCES {0} ({1})", this.ReferencedTableName, strReferencedColumnNames));
+                sb.AppendLine($"\tALTER TABLE {quoteCharacter}{this.TableName}{quoteCharacter} WITH CHECK ADD CONSTRAINT {quoteCharacter}{this.ForeignKeyName}{quoteCharacter} FOREIGN KEY ({strColumnNames})");
+                sb.AppendLine($"\tREFERENCES {quoteCharacter}{this.ReferencedTableName}{quoteCharacter} ({strReferencedColumnNames})");
 
                 if (this.UpdateAction != "NO ACTION")
                 {

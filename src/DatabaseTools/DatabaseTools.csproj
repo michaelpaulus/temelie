@@ -98,6 +98,7 @@
     <Compile Include="Configuration\Configuration.cs" />
     <Compile Include="Configuration\ConnectionInfo.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Processes\TableConverter.cs" />
     <Compile Include="Providers\IDatabaseProvider.cs" />
     <Compile Include="Models\ColumnMappingModel.cs" />
     <Compile Include="Models\ColumnModel.cs" />
@@ -124,7 +125,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Data\Scope.cs" />
     <Compile Include="PropertyChangedObject.cs" />
-    <Compile Include="Providers\Odbc\DatabaseProvider.cs" />
     <Compile Include="_Project\AssemblyCopyright.cs" />
     <Compile Include="_Project\AssemblyVersion.cs" />
   </ItemGroup>

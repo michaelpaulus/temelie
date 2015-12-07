@@ -256,7 +256,7 @@ namespace DatabaseTools
                 }
             }
 
-            public string GetChangeScript(DatabaseModel changedDatabase)
+            public string GetChangeScript(DatabaseModel changedDatabase, string quoteCharacter)
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
@@ -269,7 +269,7 @@ namespace DatabaseTools
                         select i2).Count() == 0
                     select i))
                 {
-                    definition.AppendDropScript(sb);
+                    definition.AppendDropScript(sb, quoteCharacter);
                 }
 
                 foreach (var foreignKey in (
@@ -280,7 +280,7 @@ namespace DatabaseTools
                         select i2).Count() == 0
                     select i))
                 {
-                    foreignKey.AppendDropScript(sb);
+                    foreignKey.AppendDropScript(sb, quoteCharacter);
                 }
 
                 foreach (var index in (
@@ -291,7 +291,7 @@ namespace DatabaseTools
                         select i2).Count() == 0
                     select i))
                 {
-                    index.AppendDropScript(sb);
+                    index.AppendDropScript(sb, quoteCharacter);
                 }
 
                 foreach (var primaryKey in (
@@ -302,7 +302,7 @@ namespace DatabaseTools
                         select i2).Count() == 0
                     select i))
                 {
-                    primaryKey.AppendDropScript(sb);
+                    primaryKey.AppendDropScript(sb, quoteCharacter);
                 }
 
                 foreach (var trigger in (
@@ -313,7 +313,7 @@ namespace DatabaseTools
                         select i2).Count() == 0
                     select i))
                 {
-                    trigger.AppendDropScript(sb);
+                    trigger.AppendDropScript(sb, quoteCharacter);
                 }
 
                 foreach (var table in (
@@ -324,7 +324,7 @@ namespace DatabaseTools
                         select i2).Count() == 0
                     select i))
                 {
-                    table.AppendDropScript(sb);
+                    table.AppendDropScript(sb, quoteCharacter);
                 }
 
                 //Find objects that have been created (in the changedDatabase but not in me)
@@ -336,7 +336,7 @@ namespace DatabaseTools
                         select i2).Count() == 0
                     select i))
                 {
-                    table.AppendCreateScript(sb);
+                    table.AppendCreateScript(sb, quoteCharacter);
                 }
 
                 foreach (var trigger in (
@@ -347,7 +347,7 @@ namespace DatabaseTools
                         select i2).Count() == 0
                     select i))
                 {
-                    trigger.AppendScript(sb);
+                    trigger.AppendScript(sb, quoteCharacter);
                 }
 
                 foreach (var primaryKey in (
@@ -358,7 +358,7 @@ namespace DatabaseTools
                         select i2).Count() == 0
                     select i))
                 {
-                    primaryKey.AppendCreateScript(sb);
+                    primaryKey.AppendCreateScript(sb, quoteCharacter);
                 }
 
                 foreach (var index in (
@@ -369,7 +369,7 @@ namespace DatabaseTools
                         select i2).Count() == 0
                     select i))
                 {
-                    index.AppendCreateScript(sb);
+                    index.AppendCreateScript(sb, quoteCharacter);
                 }
 
                 foreach (var foreignKey in (
@@ -380,7 +380,7 @@ namespace DatabaseTools
                         select i2).Count() == 0
                     select i))
                 {
-                    foreignKey.AppendCreateScript(sb);
+                    foreignKey.AppendCreateScript(sb, quoteCharacter);
                 }
 
                 foreach (var definition in (
@@ -391,13 +391,13 @@ namespace DatabaseTools
                         select i2).Count() == 0
                     select i))
                 {
-                    definition.AppendCreateScript(sb);
+                    definition.AppendCreateScript(sb, quoteCharacter);
                 }
 
                 return sb.ToString();
             }
 
-            public string GetFkDropScripts()
+            public string GetFkDropScripts(string quoteCharacter)
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
@@ -415,14 +415,14 @@ namespace DatabaseTools
 
                     foreach (var foreignKey in foreignKeyGroup.Items)
                     {
-                        foreignKey.AppendDropScript(sb);
+                        foreignKey.AppendDropScript(sb, quoteCharacter);
                     }
                 }
 
                 return sb.ToString();
             }
 
-            public string GetFkScripts()
+            public string GetFkScripts(string quoteCharacter)
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
@@ -440,14 +440,14 @@ namespace DatabaseTools
 
                     foreach (var foreignKey in foreignKeyGroup.Items)
                     {
-                        foreignKey.AppendCreateScript(sb);
+                        foreignKey.AppendCreateScript(sb, quoteCharacter);
                     }
                 }
 
                 return sb.ToString();
             }
 
-            public string GetInsertDefaultScripts()
+            public string GetInsertDefaultScripts(string quoteCharacter)
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
@@ -457,7 +457,7 @@ namespace DatabaseTools
                 {
                     if (tableRow.TableName.StartsWith("default_"))
                     {
-                        string strScript = this.GetInsertScript(tableRow.TableName);
+                        string strScript = this.GetInsertScript(tableRow.TableName, quoteCharacter);
 
                         if (!(string.IsNullOrEmpty(strScript)))
                         {
@@ -478,7 +478,7 @@ namespace DatabaseTools
                 return sb.ToString();
             }
 
-            public string GetInsertScript(string tableName, bool includeGOAfterEachInsert = false)
+            public string GetInsertScript(string tableName, string quoteCharacter, bool includeGOAfterEachInsert = false)
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
@@ -663,51 +663,51 @@ namespace DatabaseTools
                 return sb.ToString();
             }
 
-            public string GetScript()
+            public string GetScript(string quoteCharacter)
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
-                sb.AppendLine(this.GetSpFnVwDropScripts());
-                sb.AppendLine(this.GetTriggerDropScripts());
-                sb.AppendLine(this.GetFkDropScripts());
+                sb.AppendLine(this.GetSpFnVwDropScripts(quoteCharacter));
+                sb.AppendLine(this.GetTriggerDropScripts(quoteCharacter));
+                sb.AppendLine(this.GetFkDropScripts(quoteCharacter));
 
-                sb.AppendLine(this.GetTableScripts(""));
+                sb.AppendLine(this.GetTableScripts(quoteCharacter));
 
-                sb.AppendLine(this.GetIxPkScripts(""));
+                sb.AppendLine(this.GetIxPkScripts(quoteCharacter));
 
-                sb.AppendLine(this.GetSpFnVwScripts());
+                sb.AppendLine(this.GetSpFnVwScripts(quoteCharacter));
 
-                sb.AppendLine(this.GetTriggerScripts());
+                sb.AppendLine(this.GetTriggerScripts(quoteCharacter));
 
-                sb.AppendLine(this.GetFkScripts());
+                sb.AppendLine(this.GetFkScripts(quoteCharacter));
 
                 if (Processes.Database.GetDatabaseType(this.ConnectionString) == Models.DatabaseType.MicrosoftSQLServer)
                 {
-                    sb.AppendLine(this.GetInsertDefaultScripts());
+                    sb.AppendLine(this.GetInsertDefaultScripts(quoteCharacter));
                 }
 
                 return sb.ToString();
             }
 
-            public string GetSpFnVwDropScripts()
+            public string GetSpFnVwDropScripts(string quoteCharacter)
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
                 foreach (var definition in this.Definitions)
                 {
-                    definition.AppendDropScript(sb);
+                    definition.AppendDropScript(sb, quoteCharacter);
                 }
 
                 return sb.ToString();
             }
 
-            public string GetSpFnVwScripts()
+            public string GetSpFnVwScripts(string quoteCharacter)
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
                 foreach (var definition in this.Definitions)
                 {
-                    definition.AppendCreateScript(sb);
+                    definition.AppendCreateScript(sb, quoteCharacter);
                 }
 
                 return sb.ToString();
@@ -725,7 +725,7 @@ namespace DatabaseTools
                 return sb.ToString();
             }
 
-            public string GetTriggerDropScripts()
+            public string GetTriggerDropScripts(string quoteCharacter)
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
@@ -743,14 +743,14 @@ namespace DatabaseTools
 
                     foreach (var trigger in triggerGroup.Items)
                     {
-                        trigger.AppendDropScript(sb);
+                        trigger.AppendDropScript(sb, quoteCharacter);
                     }
                 }
 
                 return sb.ToString();
             }
 
-            public string GetTriggerScripts()
+            public string GetTriggerScripts(string quoteCharacter)
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
@@ -768,7 +768,7 @@ namespace DatabaseTools
 
                     foreach (var trigger in triggerGroup.Items)
                     {
-                        trigger.AppendScript(sb);
+                        trigger.AppendScript(sb, quoteCharacter);
                     }
                 }
 

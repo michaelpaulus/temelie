@@ -178,6 +178,8 @@ namespace DatabaseTools
                 }
             }
 
+            public string ColumnDefault { get; set; }
+
             public System.Data.DbType DbType
             {
                 get
@@ -227,11 +229,11 @@ namespace DatabaseTools
                     strIdentity = " IDENTITY(1,1)";
                 }
 
-                string strNull = "NULL";
+                string strNull = " NULL";
 
                 if (!this.IsNullable)
                 {
-                    strNull = "NOT " + strNull;
+                    strNull = " NOT NULL";
                 }
 
                 if (this.IsComputed)
@@ -239,7 +241,29 @@ namespace DatabaseTools
                     strNull = string.Empty;
                 }
 
-                return string.Format("{4}{0}{4} {1}{2} {3}", this.ColumnName, strDataType, strIdentity, strNull, quoteCharacter).Trim();
+                string defaultValue = "";
+
+                if (!string.IsNullOrEmpty(this.ColumnDefault))
+                {
+                    string columnDefault = this.ColumnDefault;
+
+                    if (!columnDefault.StartsWith("("))
+                    {
+                        switch (this.ColumnType.ToUpper())
+                        {
+                            case "VARCHAR":
+                            case "CHAR":
+                            case "NVARCHAR":
+                            case "NCHAR":
+                                columnDefault = "'" + columnDefault + "'";
+                                break;
+                        }
+                        columnDefault = "(" + columnDefault + ")";
+                    }
+                    defaultValue = $" DEFAULT {columnDefault}";
+                }
+
+                return $"{quoteCharacter}{this.ColumnName}{quoteCharacter} {strDataType}{strIdentity}{strNull}{defaultValue}".Trim();
             }
 
             public override string ToString()

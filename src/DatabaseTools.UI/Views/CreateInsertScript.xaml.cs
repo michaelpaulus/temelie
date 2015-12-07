@@ -50,7 +50,7 @@ namespace DatabaseTools
         private void GenerateScriptButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             DatabaseTools.Models.DatabaseModel database = new DatabaseTools.Models.DatabaseModel(this.DatabaseConnection.ConnectionString);
-            this.ResultTextBox.Text = database.GetInsertScript(this.TableComboBox.Text);
+            this.ResultTextBox.Text = database.GetInsertScript(this.TableComboBox.Text, "");
         }
 
 
