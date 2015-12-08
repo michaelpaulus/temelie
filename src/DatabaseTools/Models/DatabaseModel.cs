@@ -15,7 +15,12 @@ namespace DatabaseTools
         public class DatabaseModel
         {
 
-            public DatabaseModel(System.Configuration.ConnectionStringSettings connectionString)
+            public DatabaseModel(System.Configuration.ConnectionStringSettings connectionString) : this(connectionString, Processes.Database.GetDatabaseType(connectionString))
+            {
+
+            }
+
+            public DatabaseModel(System.Configuration.ConnectionStringSettings connectionString, Models.DatabaseType targetDatabseType)
             {
                 this._connectionString = connectionString;
                 this._databaseType = Processes.Database.GetDatabaseType(connectionString);
@@ -27,18 +32,21 @@ namespace DatabaseTools
                         break;
                 }
 
-                switch (this._databaseType)
+                switch (targetDatabseType)
                 {
                     case Models.DatabaseType.AccessOLE:
                     case Models.DatabaseType.OLE:
                     case Models.DatabaseType.Odbc:
-                        this.QuoteCharacter = "\"";
+                        this.QuoteCharacterStart = "\"";
+                        this.QuoteCharacterEnd = "\"";
                         break;
                     case Models.DatabaseType.MySql:
-                        this.QuoteCharacter = "\"";
+                        this.QuoteCharacterStart = "`";
+                        this.QuoteCharacterEnd = "`";
                         break;
                     case Models.DatabaseType.MicrosoftSQLServer:
-                        this.QuoteCharacter = "\"";
+                        this.QuoteCharacterStart = "[";
+                        this.QuoteCharacterEnd = "]";
                         break;
                 }
 
@@ -229,7 +237,8 @@ namespace DatabaseTools
 
             public string ObjectFilter { get; set; }
 
-            public string QuoteCharacter { get; set; }
+            public string QuoteCharacterStart { get; set; }
+            public string QuoteCharacterEnd { get; set; }
 
             #endregion
 
@@ -273,7 +282,7 @@ namespace DatabaseTools
                 }
             }
 
-            public string GetChangeScript(DatabaseModel changedDatabase, string quoteCharacter)
+            public string GetChangeScript(DatabaseModel changedDatabase)
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
@@ -286,7 +295,7 @@ namespace DatabaseTools
                         select i2).Count() == 0
                     select i))
                 {
-                    definition.AppendDropScript(sb, quoteCharacter);
+                    definition.AppendDropScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 foreach (var foreignKey in (
@@ -297,7 +306,7 @@ namespace DatabaseTools
                         select i2).Count() == 0
                     select i))
                 {
-                    foreignKey.AppendDropScript(sb, quoteCharacter);
+                    foreignKey.AppendDropScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 foreach (var index in (
@@ -308,7 +317,7 @@ namespace DatabaseTools
                         select i2).Count() == 0
                     select i))
                 {
-                    index.AppendDropScript(sb, quoteCharacter);
+                    index.AppendDropScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 foreach (var primaryKey in (
@@ -319,7 +328,7 @@ namespace DatabaseTools
                         select i2).Count() == 0
                     select i))
                 {
-                    primaryKey.AppendDropScript(sb, quoteCharacter);
+                    primaryKey.AppendDropScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 foreach (var trigger in (
@@ -330,7 +339,7 @@ namespace DatabaseTools
                         select i2).Count() == 0
                     select i))
                 {
-                    trigger.AppendDropScript(sb, quoteCharacter);
+                    trigger.AppendDropScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 foreach (var table in (
@@ -341,7 +350,7 @@ namespace DatabaseTools
                         select i2).Count() == 0
                     select i))
                 {
-                    table.AppendDropScript(sb, quoteCharacter);
+                    table.AppendDropScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 //Find objects that have been created (in the changedDatabase but not in me)
@@ -353,7 +362,7 @@ namespace DatabaseTools
                         select i2).Count() == 0
                     select i))
                 {
-                    table.AppendCreateScript(sb, quoteCharacter);
+                    table.AppendCreateScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 foreach (var trigger in (
@@ -364,7 +373,7 @@ namespace DatabaseTools
                         select i2).Count() == 0
                     select i))
                 {
-                    trigger.AppendScript(sb, quoteCharacter);
+                    trigger.AppendScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 foreach (var primaryKey in (
@@ -375,7 +384,7 @@ namespace DatabaseTools
                         select i2).Count() == 0
                     select i))
                 {
-                    primaryKey.AppendCreateScript(sb, quoteCharacter);
+                    primaryKey.AppendCreateScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 foreach (var index in (
@@ -386,7 +395,7 @@ namespace DatabaseTools
                         select i2).Count() == 0
                     select i))
                 {
-                    index.AppendCreateScript(sb, quoteCharacter);
+                    index.AppendCreateScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 foreach (var foreignKey in (
@@ -397,7 +406,7 @@ namespace DatabaseTools
                         select i2).Count() == 0
                     select i))
                 {
-                    foreignKey.AppendCreateScript(sb, quoteCharacter);
+                    foreignKey.AppendCreateScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 foreach (var definition in (
@@ -408,7 +417,7 @@ namespace DatabaseTools
                         select i2).Count() == 0
                     select i))
                 {
-                    definition.AppendCreateScript(sb, quoteCharacter);
+                    definition.AppendCreateScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 return sb.ToString();
@@ -432,7 +441,7 @@ namespace DatabaseTools
 
                     foreach (var foreignKey in foreignKeyGroup.Items)
                     {
-                        foreignKey.AppendDropScript(sb, this.QuoteCharacter);
+                        foreignKey.AppendDropScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                     }
                 }
 
@@ -457,7 +466,7 @@ namespace DatabaseTools
 
                     foreach (var foreignKey in foreignKeyGroup.Items)
                     {
-                        foreignKey.AppendCreateScript(sb, this.QuoteCharacter);
+                        foreignKey.AppendCreateScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                     }
                 }
 
@@ -621,12 +630,12 @@ namespace DatabaseTools
 
                 foreach (var pk in this.PrimaryKeys)
                 {
-                    pk.AppendCreateScript(sb, this.QuoteCharacter);
+                    pk.AppendCreateScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 foreach (var index in this.Indexes)
                 {
-                    index.AppendCreateScript(sb, this.QuoteCharacter);
+                    index.AppendCreateScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 return sb.ToString();
@@ -712,7 +721,7 @@ namespace DatabaseTools
 
                 foreach (var definition in this.Definitions)
                 {
-                    definition.AppendDropScript(sb, this.QuoteCharacter);
+                    definition.AppendDropScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 return sb.ToString();
@@ -724,7 +733,7 @@ namespace DatabaseTools
 
                 foreach (var definition in this.Definitions)
                 {
-                    definition.AppendCreateScript(sb, this.QuoteCharacter);
+                    definition.AppendCreateScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 return sb.ToString();
@@ -736,7 +745,7 @@ namespace DatabaseTools
 
                 foreach (Models.TableModel table in this.Tables)
                 {
-                    table.AppendCreateScript(sb, this.QuoteCharacter, includeIfNotExists);
+                    table.AppendCreateScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd, includeIfNotExists);
                 }
 
                 return sb.ToString();
@@ -760,7 +769,7 @@ namespace DatabaseTools
 
                     foreach (var trigger in triggerGroup.Items)
                     {
-                        trigger.AppendDropScript(sb, this.QuoteCharacter);
+                        trigger.AppendDropScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                     }
                 }
 
@@ -785,7 +794,7 @@ namespace DatabaseTools
 
                     foreach (var trigger in triggerGroup.Items)
                     {
-                        trigger.AppendScript(sb, this.QuoteCharacter);
+                        trigger.AppendScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                     }
                 }
 

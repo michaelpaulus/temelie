@@ -192,7 +192,7 @@ namespace DatabaseTools
 
             #region Methods
 
-            public string ToString(string quoteCharacter)
+            public string ToString(string quoteCharacterStart, string quoteCharacterEnd)
             {
                 string strDataType = this.ColumnType;
 
@@ -249,14 +249,17 @@ namespace DatabaseTools
 
                     if (!columnDefault.StartsWith("("))
                     {
-                        switch (this.ColumnType.ToUpper())
+                        if (!columnDefault.StartsWith("'"))
                         {
-                            case "VARCHAR":
-                            case "CHAR":
-                            case "NVARCHAR":
-                            case "NCHAR":
-                                columnDefault = "'" + columnDefault + "'";
-                                break;
+                            switch (this.ColumnType.ToUpper())
+                            {
+                                case "VARCHAR":
+                                case "CHAR":
+                                case "NVARCHAR":
+                                case "NCHAR":
+                                    columnDefault = "'" + columnDefault + "'";
+                                    break;
+                            }
                         }
                         columnDefault = "(" + columnDefault + ")";
                     }
@@ -269,12 +272,12 @@ namespace DatabaseTools
                     defaultValue = $" DEFAULT {columnDefault}";
                 }
 
-                return $"{quoteCharacter}{this.ColumnName}{quoteCharacter} {strDataType}{strIdentity}{strNull}{defaultValue}".Trim();
+                return $"{quoteCharacterStart}{this.ColumnName}{quoteCharacterEnd} {strDataType}{strIdentity}{strNull}{defaultValue}".Trim();
             }
 
             public override string ToString()
             {
-                return this.ToString("");
+                return this.ToString("", "");
             }
 
             #endregion

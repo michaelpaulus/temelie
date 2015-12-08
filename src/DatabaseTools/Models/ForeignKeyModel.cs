@@ -40,14 +40,14 @@ namespace DatabaseTools
 
             #region Methods
 
-            public override void AppendDropScript(System.Text.StringBuilder sb, string quoteCharacter)
+            public override void AppendDropScript(System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)
             {
                 sb.AppendLine(string.Format("IF EXISTS (SELECT 1 FROM sysobjects WHERE sysobjects.name = '{0}')", this.ForeignKeyName));
-                sb.AppendLine($"\tALTER TABLE {this.TableName} DROP CONSTRAINT {this.ForeignKeyName}");
+                sb.AppendLine($"\tALTER TABLE {quoteCharacterStart}{this.TableName}{quoteCharacterEnd} DROP CONSTRAINT {quoteCharacterStart}{this.ForeignKeyName}{quoteCharacterEnd}");
                 sb.AppendLine("GO");
             }
 
-            public override void AppendCreateScript(System.Text.StringBuilder sb, string quoteCharacter)
+            public override void AppendCreateScript(System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)
             {
                 string strColumnNames = string.Empty;
                 string strReferencedColumnNames = string.Empty;
@@ -62,21 +62,21 @@ namespace DatabaseTools
                         strColumnNames += ",";
                     }
 
-                    strColumnNames += $"{quoteCharacter}{strColumnName}{quoteCharacter}";
+                    strColumnNames += $"{quoteCharacterStart}{strColumnName}{quoteCharacterEnd}";
 
                     if (strReferencedColumnNames.Length > 0)
                     {
                         strReferencedColumnNames += ",";
                     }
 
-                    strReferencedColumnNames += $"{quoteCharacter}{strReferencedColumnName}{quoteCharacter}"; ;
+                    strReferencedColumnNames += $"{quoteCharacterStart}{strReferencedColumnName}{quoteCharacterEnd}"; ;
                 }
 
                 sb.AppendLine();
 
                 sb.AppendLine(string.Format("IF NOT EXISTS (SELECT 1 FROM sysobjects WHERE sysobjects.name = '{0}')", this.ForeignKeyName));
-                sb.AppendLine($"\tALTER TABLE {quoteCharacter}{this.TableName}{quoteCharacter} WITH CHECK ADD CONSTRAINT {quoteCharacter}{this.ForeignKeyName}{quoteCharacter} FOREIGN KEY ({strColumnNames})");
-                sb.AppendLine($"\tREFERENCES {quoteCharacter}{this.ReferencedTableName}{quoteCharacter} ({strReferencedColumnNames})");
+                sb.AppendLine($"\tALTER TABLE {quoteCharacterStart}{this.TableName}{quoteCharacterEnd} WITH CHECK ADD CONSTRAINT {quoteCharacterStart}{this.ForeignKeyName}{quoteCharacterEnd} FOREIGN KEY ({strColumnNames})");
+                sb.AppendLine($"\tREFERENCES {quoteCharacterStart}{this.ReferencedTableName}{quoteCharacterEnd} ({strReferencedColumnNames})");
 
                 if (this.UpdateAction != "NO ACTION")
                 {

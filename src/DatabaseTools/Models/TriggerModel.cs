@@ -25,7 +25,7 @@ namespace DatabaseTools
 
             #region Methods
 
-            public void AppendDropScript(System.Text.StringBuilder sb, string quoteCharacter)
+            public void AppendDropScript(System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)
             {
                 if (sb.Length > 0)
                 {
@@ -33,11 +33,11 @@ namespace DatabaseTools
                 }
 
                 sb.AppendLine(string.Format("IF EXISTS (SELECT 1 FROM sysobjects WHERE sysobjects.name = '{0}')", this.TriggerName));
-                sb.AppendLine($"\tDROP TRIGGER {quoteCharacter}dbo{quoteCharacter}.{quoteCharacter}{this.TriggerName}{quoteCharacter}");
+                sb.AppendLine($"\tDROP TRIGGER {quoteCharacterStart}dbo{quoteCharacterEnd}.{quoteCharacterStart}{this.TriggerName}{quoteCharacterEnd}");
                 sb.AppendLine("GO");
             }
 
-            public void AppendScript(System.Text.StringBuilder sb, string quoteCharacter)
+            public void AppendScript(System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)
             {
                 if (sb.Length > 0)
                 {
@@ -45,7 +45,7 @@ namespace DatabaseTools
                 }
 
                 sb.AppendLine(string.Format("IF NOT EXISTS (SELECT 1 FROM sysobjects WHERE sysobjects.name = '{0}')", this.TriggerName));
-                sb.AppendLine(string.Format("EXEC sp_executesql @statement = N'{0}'", this.Definition.Replace("[dbo].", "").Replace("[" + this.TableName + "]", this.TableName).Replace("dbo." + this.TableName, this.TableName).Replace("[" + this.TriggerName + "]", this.TriggerName).Replace("dbo." + this.TriggerName, this.TriggerName).Replace("'", "''")));
+                sb.AppendLine(string.Format("EXEC sp_executesql @statement = N'{0}'", this.Definition.Replace("'", "''")));
                 sb.AppendLine("GO");
             }
 

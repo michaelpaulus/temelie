@@ -43,7 +43,7 @@ namespace DatabaseTools
 
             #region Methods
 
-            public override void AppendDropScript(System.Text.StringBuilder sb, string quoteCharacter)
+            public override void AppendDropScript(System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)
             {
                 if (sb.Length > 0)
                 {
@@ -56,7 +56,7 @@ namespace DatabaseTools
                 sb.AppendLine("GO");
             }
 
-            public override void AppendCreateScript(System.Text.StringBuilder sb, string quoteCharacter)
+            public override void AppendCreateScript(System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)
             {
                 if (sb.Length > 0)
                 {

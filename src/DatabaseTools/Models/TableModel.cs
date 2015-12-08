@@ -47,14 +47,14 @@ namespace DatabaseTools
 
             #region Methods
 
-            public override void AppendDropScript(System.Text.StringBuilder sb, string quoteCharacter)
+            public override void AppendDropScript(System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)
             {
                 sb.AppendLine(string.Format("IF EXISTS (SELECT 1 FROM sys.tables WHERE sys.tables.name = '{0}')", this.TableName));
-                sb.AppendLine($"\tDROP TABLE {quoteCharacter}dbo{quoteCharacter}.{quoteCharacter}{this.TableName}{quoteCharacter}");
+                sb.AppendLine($"\tDROP TABLE {quoteCharacterStart}dbo{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
                 sb.AppendLine("GO");
             }
 
-            public void AppendCreateScript(System.Text.StringBuilder sb, string quoteCharacter, bool includeIfNotExists)
+            public void AppendCreateScript(System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd, bool includeIfNotExists)
             {
                 if (sb.Length > 0)
                 {
@@ -69,7 +69,7 @@ namespace DatabaseTools
                     {
                         sb.AppendLine(string.Format("IF EXISTS (SELECT 1 FROM sys.tables WHERE sys.tables.name = '{0}')", this.TableName));
                     }
-                    sb.AppendLine("\t" + string.Format("DROP TABLE {1}{0}{1}", this.TableName, quoteCharacter));
+                    sb.AppendLine($"\tDROP TABLE {quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
                     sb.AppendLine("GO");
                 }
                 sb.AppendLine();
@@ -78,7 +78,7 @@ namespace DatabaseTools
                 {
                     sb.AppendLine(string.Format("IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE sys.tables.name = '{0}')", this.TableName));
                 }
-                sb.AppendLine("\t" + string.Format("CREATE TABLE {1}dbo{1}.{1}{0}{1}", this.TableName, quoteCharacter));
+                sb.AppendLine($"\tCREATE TABLE {quoteCharacterStart}dbo{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
                 sb.AppendLine("\t" + "(");
 
                 int intColumnCount = 0;
@@ -93,7 +93,7 @@ namespace DatabaseTools
                         sb.AppendLine(",");
                     }
 
-                    sb.Append("\t" + "\t" + column.ToString(quoteCharacter));
+                    sb.Append("\t" + "\t" + column.ToString(quoteCharacterStart, quoteCharacterEnd ));
 
                     intColumnCount += 1;
                 }
@@ -103,9 +103,9 @@ namespace DatabaseTools
                 sb.AppendLine("GO");
             }
 
-            public override void AppendCreateScript(System.Text.StringBuilder sb, string quoteCharacter)
+            public override void AppendCreateScript(System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)
             {
-                this.AppendCreateScript(sb, quoteCharacter, true);
+                this.AppendCreateScript(sb, quoteCharacterStart, quoteCharacterEnd, true);
             }
 
             #endregion

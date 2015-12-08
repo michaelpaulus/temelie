@@ -50,7 +50,7 @@ namespace DatabaseTools
 			DatabaseTools.Models.DatabaseModel sourceDatabase = new DatabaseTools.Models.DatabaseModel(sourceConnectionString);
 			DatabaseTools.Models.DatabaseModel targetDatabase = new DatabaseTools.Models.DatabaseModel(targetConnectionString);
 
-			e.Result = targetDatabase.GetChangeScript(sourceDatabase, "");
+			e.Result = targetDatabase.GetChangeScript(sourceDatabase);
 		}
 
 		private void ScriptBackgroundWorker_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)

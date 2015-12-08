@@ -81,8 +81,12 @@ namespace DatabaseTools.Processes
             var sourceDatabaseType = DatabaseTools.Processes.Database.GetDatabaseType(sourceConnectionString);
             var targetDatabaseType = DatabaseTools.Processes.Database.GetDatabaseType(targetConnectionString);
 
+            int intProgress = 0;
+
             using (System.Data.Common.DbConnection targetConnection = DatabaseTools.Processes.Database.CreateDbConnection(targetFactory, targetConnectionString))
             {
+
+               
 
                 var intTargetRowCount = this.GetRowCount(targetConnection, targetTable.TableName, targetDatabaseType);
 
@@ -103,7 +107,7 @@ namespace DatabaseTools.Processes
                                 bcp.NotifyAfter = bcp.BatchSize;
 
                                 long intRowIndex = 0L;
-                                int intProgress = 0;
+                                
 
                                 bcp.SqlRowsCopied += (object sender, System.Data.SqlClient.SqlRowsCopiedEventArgs e) =>
                                 {
@@ -134,7 +138,11 @@ namespace DatabaseTools.Processes
                 }
             }
 
-            progress.Report(new TableProgress() { ProgressPercentage = 100, Table = sourceTable });
+            if (intProgress != 100)
+            {
+                progress.Report(new TableProgress() { ProgressPercentage = 100, Table = sourceTable });
+            }
+
         }
 
         public void Convert(IProgress<TableProgress> progress,
@@ -427,7 +435,10 @@ namespace DatabaseTools.Processes
 
             }
 
-            progress.Report(new TableProgress() { ProgressPercentage = 100, Table = sourceTable });
+            if (intProgress != 100)
+            {
+                progress.Report(new TableProgress() { ProgressPercentage = 100, Table = sourceTable });
+            }
         }
 
         private string FormatCommandText(string commandText, DatabaseTools.Models.DatabaseType databaseType)

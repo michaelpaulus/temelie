@@ -15,14 +15,13 @@ namespace DatabaseTools
         public class Script
         {
 
-            public static void CreateScripts(System.Configuration.ConnectionStringSettings connectionString, IList<System.IO.FileInfo> fileList, IProgress<ScriptProgress> progress, string objectFilter = "")
+            public static void CreateScripts(System.Configuration.ConnectionStringSettings connectionString, IList<System.IO.FileInfo> fileList, Models.DatabaseType targetDatabaseType, IProgress<ScriptProgress> progress, string objectFilter = "")
             {
                 int intFileCount = 1;
 
                 int intProgress = 0;
 
-                Models.DatabaseModel database = new Models.DatabaseModel(connectionString) { ObjectFilter = objectFilter };
-
+                Models.DatabaseModel database = new Models.DatabaseModel(connectionString, targetDatabaseType) { ObjectFilter = objectFilter };
 
                 foreach (System.IO.FileInfo file in fileList)
                 {

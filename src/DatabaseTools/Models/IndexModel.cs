@@ -55,22 +55,22 @@ namespace DatabaseTools
 
             #region Methods
 
-            public override void AppendDropScript(System.Text.StringBuilder sb, string quoteCharacter)
+            public override void AppendDropScript(System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)
             {
                 if (this.IsPrimaryKey)
                 {
                     sb.AppendLine(string.Format("IF EXISTS (SELECT 1 FROM sysobjects WHERE sysobjects.name = '{0}')", this.IndexName));
-                    sb.AppendLine($"\tALTER TABLE {quoteCharacter}dbo{quoteCharacter}.{quoteCharacter}{this.TableName}{quoteCharacter} DROP CONSTRAINT {quoteCharacter}{this.IndexName}{quoteCharacter}");
+                    sb.AppendLine($"\tALTER TABLE {quoteCharacterStart}dbo{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd} DROP CONSTRAINT {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd}");
                 }
                 else
                 {
                     sb.AppendLine(string.Format("IF EXISTS (SELECT 1 FROM sys.indexes WHERE sys.indexes.name = '{0}')", this.IndexName));
-                    sb.AppendLine($"\tDROP INDEX {quoteCharacter}{this.IndexName}{quoteCharacter} ON {quoteCharacter}dbo{quoteCharacter}.{quoteCharacter}{this.TableName}{quoteCharacter}");
+                    sb.AppendLine($"\tDROP INDEX {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd} ON {quoteCharacterStart}dbo{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
                 }
                 sb.AppendLine("GO");
             }
 
-            public override void AppendCreateScript(System.Text.StringBuilder sb, string quoteCharacter)
+            public override void AppendCreateScript(System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)
             {
                 if (sb.Length > 0)
                 {
@@ -80,7 +80,7 @@ namespace DatabaseTools
                 if (this.IsPrimaryKey)
                 {
                     sb.AppendLine(string.Format("IF NOT EXISTS (SELECT 1 FROM sysobjects WHERE sysobjects.name = '{0}')", this.IndexName));
-                    sb.AppendLine("\t" + $"ALTER TABLE {quoteCharacter}dbo{quoteCharacter}.{quoteCharacter}{this.TableName}{quoteCharacter} ADD CONSTRAINT {quoteCharacter}{this.IndexName}{quoteCharacter} PRIMARY KEY { this.IndexType}");
+                    sb.AppendLine("\t" + $"ALTER TABLE {quoteCharacterStart}dbo{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd} ADD CONSTRAINT {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd} PRIMARY KEY { this.IndexType}");
                     sb.AppendLine("\t" + "(");
 
                     int intColumnCount = 0;
@@ -92,7 +92,7 @@ namespace DatabaseTools
                             sb.AppendLine(",");
                         }
 
-                        sb.Append($"\t\t{quoteCharacter}{column}{quoteCharacter}");
+                        sb.Append($"\t\t{quoteCharacterStart}{column}{quoteCharacterEnd}");
 
                         intColumnCount += 1;
                     }
@@ -116,7 +116,7 @@ namespace DatabaseTools
                     }
 
                     sb.AppendLine(string.Format("IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE sys.indexes.name = '{0}')", this.IndexName));
-                    sb.AppendLine("\t" + $"CREATE {strIndexType} INDEX {quoteCharacter}{this.IndexName}{quoteCharacter} ON {quoteCharacter}dbo{quoteCharacter}.{quoteCharacter}{this.TableName}{quoteCharacter}{strRelationalIndexOptions}");
+                    sb.AppendLine("\t" + $"CREATE {strIndexType} INDEX {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd} ON {quoteCharacterStart}dbo{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}{strRelationalIndexOptions}");
                     sb.AppendLine("\t" + "(");
 
                     bool blnHasColumns = false;
@@ -127,7 +127,7 @@ namespace DatabaseTools
                         {
                             sb.AppendLine(",");
                         }
-                        sb.Append($"\t\t{quoteCharacter}{column}{quoteCharacter}");
+                        sb.Append($"\t\t{quoteCharacterStart}{column}{quoteCharacterEnd}");
                         blnHasColumns = true;
                     }
 
@@ -146,7 +146,7 @@ namespace DatabaseTools
                             {
                                 sb.Append(", ");
                             }
-                            sb.Append($"{quoteCharacter}{includeColumn}{quoteCharacter}");
+                            sb.Append($"{quoteCharacterStart}{includeColumn}{quoteCharacterEnd}");
                             blnHasIncludeColumns = true;
                         }
 

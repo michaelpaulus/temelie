@@ -77,7 +77,7 @@ namespace DatabaseTools.ViewModels
 
         private void CreateScriptsInternal(IProgress<ScriptProgress> progress)
         {
-           Script.CreateScripts(this.DatabaseConnectionString, this.Files, progress, this.ObjectFilter);
+           Script.CreateScripts(this.DatabaseConnectionString, this.Files, Models.DatabaseType.MicrosoftSQLServer, progress, this.ObjectFilter);
         }
 
         private void ReportProgress(ScriptProgress progress)
