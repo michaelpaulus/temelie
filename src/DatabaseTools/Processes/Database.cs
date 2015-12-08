@@ -53,15 +53,27 @@ namespace DatabaseTools
             public static System.Data.Common.DbConnection CreateDbConnection(System.Data.Common.DbProviderFactory dbProviderFactory, System.Configuration.ConnectionStringSettings connectionString)
             {
                 System.Data.Common.DbConnection connection = dbProviderFactory.CreateConnection();
-                if (GetDatabaseType(connectionString) == Models.DatabaseType.MicrosoftSQLServer)
+
+                var dbType = GetDatabaseType(connectionString);
+
+                if (dbType == Models.DatabaseType.MicrosoftSQLServer)
                 {
                     System.Data.SqlClient.SqlConnectionStringBuilder csb = new System.Data.SqlClient.SqlConnectionStringBuilder(connectionString.ConnectionString);
+                    csb.ConnectTimeout = Math.Max(45, csb.ConnectTimeout);
+                    connection.ConnectionString = csb.ConnectionString;
+                }
+                else if (dbType == Models.DatabaseType.MySql)
+                {
+                    var csb = new  MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connectionString.ConnectionString);
+                    csb.ConnectionTimeout = Math.Max(45, csb.ConnectionTimeout);
+                    csb.DefaultCommandTimeout = Math.Max(150, csb.ConnectionTimeout);
                     connection.ConnectionString = csb.ConnectionString;
                 }
                 else
                 {
                     connection.ConnectionString = connectionString.ConnectionString;
                 }
+
                 connection.Open();
                 return connection;
             }
