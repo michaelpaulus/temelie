@@ -207,7 +207,7 @@ namespace DatabaseTools.ViewModels
             if (!string.IsNullOrEmpty(tableProgress.ErrorMessage))
             {
                 tableProgress.Table.ErrorMessage += tableProgress.Table.ErrorMessage;
-                this.ErrorMessage += $"\n\nTable: {tableProgress.Table.TableName}\nError: {tableProgress.ErrorMessage}";
+                this.ErrorMessage += $"\r\n\r\nTable: {tableProgress.Table.TableName}\r\nError: {tableProgress.ErrorMessage}";
             }
 
         }

@@ -9,7 +9,7 @@ namespace DatabaseTools.Processes
     public class TableConverter
     {
 
-        public void ConvertBulk(IProgress<TableProgress> worker,
+        public void ConvertBulk(IProgress<TableProgress> progress,
             Models.TableModel sourceTable,
             System.Configuration.ConnectionStringSettings sourceConnectionString,
             Models.TableModel targetTable,
@@ -54,7 +54,7 @@ namespace DatabaseTools.Processes
                                     if (intProgress != intNewProgress)
                                     {
                                         intProgress = intNewProgress;
-                                        worker.Report(new TableProgress() { ProgressPercentage = intProgress, Table = sourceTable });
+                                        progress.Report(new TableProgress() { ProgressPercentage = intProgress, Table = sourceTable });
                                     }
                                 };
 
@@ -74,10 +74,10 @@ namespace DatabaseTools.Processes
                 }
             }
 
-            worker.Report(new TableProgress() { ProgressPercentage = 100, Table = sourceTable });
+            progress.Report(new TableProgress() { ProgressPercentage = 100, Table = sourceTable });
         }
 
-        public void Convert(IProgress<TableProgress> worker,
+        public void Convert(IProgress<TableProgress> progress,
             Models.TableModel sourceTable,
             System.Configuration.ConnectionStringSettings sourceConnectionString,
             Models.TableModel targetTable,
@@ -335,7 +335,7 @@ namespace DatabaseTools.Processes
                                                 if (intProgress != intNewProgress)
                                                 {
                                                     intProgress = intNewProgress;
-                                                    worker.Report(new TableProgress() { ProgressPercentage = intProgress, Table = sourceTable });
+                                                    progress.Report(new TableProgress() { ProgressPercentage = intProgress, Table = sourceTable });
                                                 }
 
                                             }
@@ -349,7 +349,7 @@ namespace DatabaseTools.Processes
 
                                                 intProgress = intNewProgress;
 
-                                                worker.Report(new TableProgress() { ProgressPercentage = intProgress, Table = sourceTable, ErrorMessage = strErrorMessage });
+                                                progress.Report(new TableProgress() { ProgressPercentage = intProgress, Table = sourceTable, ErrorMessage = strErrorMessage });
 
                                             }
 
@@ -365,7 +365,7 @@ namespace DatabaseTools.Processes
 
             }
 
-            worker.Report(new TableProgress() { ProgressPercentage = 100, Table = sourceTable });
+            progress.Report(new TableProgress() { ProgressPercentage = 100, Table = sourceTable });
         }
 
         private string FormatCommandText(string commandText, DatabaseTools.Models.DatabaseType databaseType)

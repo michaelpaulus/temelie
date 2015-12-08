@@ -12,7 +12,7 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <Grid Background="{TemplateBinding Background}" Grid.Row="0">
-                    <Image Stretch="None" HorizontalAlignment="Left" Source="..\Resources\Logo.png">
+                    <Image Stretch="None" HorizontalAlignment="Left" Visibility="Collapsed">
                         <Image.Resources>
                             <Style TargetType="{x:Type Image}">
                                 <Style.Triggers>
