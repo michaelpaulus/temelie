@@ -255,7 +255,7 @@ namespace DatabaseTools
                         value = Convert.ToString(row[columnName]);
                     }
                 }
-                catch (Exception ex)
+                catch 
                 {
 
                 }
@@ -275,7 +275,7 @@ namespace DatabaseTools
                         int.TryParse(strValue, out value);
                     }
                 }
-                catch (Exception ex)
+                catch 
                 {
 
                 }
@@ -304,7 +304,7 @@ namespace DatabaseTools
                         bool.TryParse(strValue, out value);
                     }
                 }
-                catch (Exception ex)
+                catch 
                 {
 
                 }

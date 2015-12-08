@@ -12,7 +12,7 @@
     <AssemblyName>DatabaseTools</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>Windows</MyType>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <OptionInfer>On</OptionInfer>
     <SccProjectName>SAK</SccProjectName>
     <SccLocalPath>SAK</SccLocalPath>
@@ -53,6 +53,7 @@
     <DefineConstants>TRACE;DEBUG;</DefineConstants>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
+    <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -60,8 +61,9 @@
     <OutputPath>bin\Release\</OutputPath>
     <DocumentationFile>n2y.DatabaseTools.xml</DocumentationFile>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <DefineConstants>TRACE;_MyType="Empty"</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
     <Prefer32Bit>false</Prefer32Bit>
+    <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="MySql.Data, Version=6.9.8.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
@@ -98,7 +100,9 @@
     <Compile Include="Configuration\Configuration.cs" />
     <Compile Include="Configuration\ConnectionInfo.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Processes\ScriptProgress.cs" />
     <Compile Include="Processes\TableConverter.cs" />
+    <Compile Include="Processes\TableConverterSettings.cs" />
     <Compile Include="Processes\TableProgress.cs" />
     <Compile Include="Providers\IDatabaseProvider.cs" />
     <Compile Include="Models\ColumnMappingModel.cs" />

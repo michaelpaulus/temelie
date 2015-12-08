@@ -80,7 +80,7 @@ namespace DatabaseTools
 								{
 									_current = System.Configuration.ConfigurationManager.OpenMappedExeConfiguration(fileMap, System.Configuration.ConfigurationUserLevel.None);
 								}
-								catch (Exception ex)
+								catch 
 								{
 
 								}

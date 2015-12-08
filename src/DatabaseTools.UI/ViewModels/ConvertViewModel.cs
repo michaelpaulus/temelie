@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using DatabaseTools.Processes;
 using System.Windows;
 using System.Windows.Threading;
+using System.Diagnostics;
+using DatabaseTools.Models;
 
 namespace DatabaseTools.ViewModels
 {
@@ -56,9 +58,66 @@ namespace DatabaseTools.ViewModels
         public bool UseBulkCopy { get; set; }
         public bool TrimStrings { get; set; }
 
+        private Stopwatch Stopwatch { get; set; }
+
         #endregion
 
         #region Methods
+
+        private TableConverterSettings GetTableConverterSettings()
+        {
+            var selectedTables = (from i in this.Tables where i.Selected select i).ToList();
+
+            var targetColumns = DatabaseTools.Processes.Database.GetTableColumns(this.TargetDatabaseConnectionString);
+            var targetTables = DatabaseTools.Processes.Database.GetTables(this.TargetDatabaseConnectionString, targetColumns);
+
+            TableConverterSettings settings = new TableConverterSettings();
+
+            settings.SourceConnectionString = this.SourceDatabaseConnectionString;
+            settings.TargetConnectionString = this.TargetDatabaseConnectionString;
+
+            settings.SourceTables = selectedTables;
+            settings.TargetTables = targetTables;
+
+            settings.UseBulkCopy = this.UseBulkCopy;
+            settings.TrimStrings = this.TrimStrings;
+
+            return settings;
+        }
+
+        public void Convert()
+        {
+            this.ErrorMessage = $"Started: {DateTime.Now.ToString()}\r\n";
+            this.ConvertCommand.IsEnabled = false;
+            this.ToggleAllCommand.IsEnabled = false;
+
+            this.Stopwatch = new Stopwatch();
+            this.Stopwatch.Start();
+            
+            var progress = new Progress<TableProgress>(tableProgress =>
+            {
+                this.ReportProgress(tableProgress);
+            });
+
+            var settings = this.GetTableConverterSettings();
+            
+            Task.Factory.StartNew(() =>
+            {
+                var converter = new TableConverter();
+                converter.ConvertTables(settings,
+                    progress,
+                    this.ThreadCount);
+
+            }).ContinueWith((task) =>
+            {
+                this.Stopwatch.Stop();
+
+                this.ErrorMessage += $"\r\n\r\nFinished: {DateTime.Now.ToString()}";
+                this.ErrorMessage += $"\r\nTotal Minutes: {this.Stopwatch.Elapsed.TotalMinutes}";
+                this.ConvertCommand.IsEnabled = true;
+                this.ToggleAllCommand.IsEnabled = true;
+            }, TaskScheduler.FromCurrentSynchronizationContext());
+        }
 
         public void UpdateTables()
         {
@@ -74,109 +133,6 @@ namespace DatabaseTools.ViewModels
             catch
             {
 
-            }
-        }
-
-        public void Convert()
-        {
-            this.ErrorMessage = "";
-            this.ConvertCommand.IsEnabled = false;
-            this.ToggleAllCommand.IsEnabled = false;
-
-            var uiFactory = new TaskFactory(TaskScheduler.FromCurrentSynchronizationContext());
-
-            var progress = new Progress<TableProgress>(tableProgress =>
-            {
-                uiFactory.StartNew(() => this.ReportProgress(tableProgress));
-            });
-
-            Task.Factory.StartNew(() =>
-            {
-                this.ConvertTables(progress);
-            }).ContinueWith((task) =>
-            {
-                this.ConvertCommand.IsEnabled = true;
-                this.ToggleAllCommand.IsEnabled = true;
-            }, TaskScheduler.FromCurrentSynchronizationContext());
-        }
-
-        private TableConversion GetTableConvert()
-        {
-            var selectedTables = (from i in this.Tables where i.Selected select i).ToList();
-
-            var targetColumns = DatabaseTools.Processes.Database.GetTableColumns(this.TargetDatabaseConnectionString);
-            var targetTables = DatabaseTools.Processes.Database.GetTables(this.TargetDatabaseConnectionString, targetColumns);
-
-            TableConversion tableConvert = new TableConversion();
-
-            tableConvert.SourceConnectionString = this.SourceDatabaseConnectionString;
-            tableConvert.TargetConnectionString = this.TargetDatabaseConnectionString;
-
-            tableConvert.SourceTables = selectedTables;
-            tableConvert.TargetTables = targetTables;
-
-            tableConvert.UseBulkCopy = this.UseBulkCopy;
-            tableConvert.TrimStrings = this.TrimStrings;
-
-            return tableConvert;
-        }
-
-        private void ConvertTables(IProgress<TableProgress> progress)
-        {
-            var tableConvert = GetTableConvert();
-
-            var tables = tableConvert.SourceTables.OrderBy(i => i.TableName);
-
-            var options = new ParallelOptions();
-            options.MaxDegreeOfParallelism = this.ThreadCount;
-
-            Parallel.ForEach(tables, options, (sourceTable) =>
-            {
-                this.ConvertTable(tableConvert, sourceTable, progress);
-            });
-        }
-
-        private void ConvertTable(TableConversion tableConvert, Models.TableModel sourceTable, IProgress<TableProgress> progress)
-        {
-
-            var targetTable = (
-                       from i in tableConvert.TargetTables
-                       where i.TableName.Equals(sourceTable.TableName, StringComparison.InvariantCultureIgnoreCase)
-                       select i).FirstOrDefault();
-
-            if (targetTable != null)
-            {
-                try
-                {
-                    var tableConverter = new Processes.TableConverter();
-
-                    if (tableConvert.UseBulkCopy)
-                    {
-                        tableConverter.ConvertBulk(progress, sourceTable, tableConvert.SourceConnectionString, targetTable, tableConvert.TargetConnectionString);
-                    }
-                    else
-                    {
-                        tableConverter.Convert(progress, sourceTable, tableConvert.SourceConnectionString, targetTable, tableConvert.TargetConnectionString, tableConvert.TrimStrings);
-                    }
-
-                }
-                catch (Exception ex)
-                {
-                    string strException = string.Empty;
-                    if (!(ex.Message.Equals("ERROR [00000] [QODBC] Error: 3250 - This feature is not enabled or not available in this version of QuickBooks.")))
-                    {
-                        strException = ex.ToString();
-                        if (ex.InnerException != null)
-                        {
-                            strException += Environment.NewLine + ex.InnerException.ToString();
-                        }
-                    }
-                    progress.Report(new TableProgress() { ProgressPercentage = 100, Table = sourceTable, ErrorMessage = strException });
-                }
-            }
-            else
-            {
-                progress.Report(new TableProgress() { ProgressPercentage = 100, Table = sourceTable });
             }
         }
 
@@ -214,23 +170,7 @@ namespace DatabaseTools.ViewModels
 
         #endregion
 
-        #region Nested Types
-
-        private class TableConversion
-        {
-
-            public System.Configuration.ConnectionStringSettings SourceConnectionString { get; set; }
-            public System.Configuration.ConnectionStringSettings TargetConnectionString { get; set; }
-
-            public IList<DatabaseTools.Models.TableModel> SourceTables { get; set; }
-            public IList<DatabaseTools.Models.TableModel> TargetTables { get; set; }
-
-            public bool UseBulkCopy { get; set; }
-            public bool TrimStrings { get; set; }
-
-        }
-
-        #endregion
+        
 
 
     }

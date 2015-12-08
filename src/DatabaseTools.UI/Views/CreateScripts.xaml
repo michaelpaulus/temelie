@@ -16,17 +16,24 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <local:DatabaseConnection x:Name="DatabaseConnection" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" />
+        <local:DatabaseConnection x:Name="DatabaseConnection" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" IsSource="True" />
         <Label Content="Scripts Path" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"/>
-        <TextBox x:Name="ScriptPathTextBox" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" ></TextBox>
+        <TextBox x:Name="ScriptPathTextBox" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Text="{Binding ScriptPath}" />
         <Button x:Name="BrowseButton" HorizontalAlignment="Right" Grid.Row="2" Grid.Column="1" Margin="4,0,0,0">Browse ...</Button>
         <Label Content="Object Filter" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"/>
-        <TextBox x:Name="ObjectFilterTextBox" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Center" ></TextBox>
-        <ListBox x:Name="FilesListBox" Grid.Row="5" Grid.ColumnSpan="2" ItemsSource="{Binding}" Margin="0,8,0,0" SelectedValuePath="Name" SelectionMode="Multiple" >
+        <TextBox x:Name="ObjectFilterTextBox" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Center" Text="{Binding ObjectFilter}" ></TextBox>
+        <ListBox x:Name="FilesListBox" Grid.Row="5" Grid.ColumnSpan="2" ItemsSource="{Binding Files}" Margin="0,8,0,0" SelectedValuePath="Name" >
         </ListBox>
-        <local:Progress x:Name="Progress" Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Margin="0, 8" Visibility="Collapsed" />
-        <Button x:Name="ContinueButton" HorizontalAlignment="Center" VerticalAlignment="Bottom" Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Margin="0, 8" Padding="8,2" Visibility="Collapsed">Continue</Button>
-        <Button x:Name="ExecuteButton" HorizontalAlignment="Right" VerticalAlignment="Bottom" Grid.Row="6" Grid.Column="1" Margin="0, 8" >Create</Button>
+        <Grid Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Margin="0, 8" >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <ProgressBar x:Name="ProgressBar" Grid.Row="0" MinHeight="20" Value="{Binding ProgressPercentage}" />
+            <TextBlock x:Name="ProgressLabel" Margin="0, 4, 0, 0"  Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Text="{Binding ProgressStatus}" />
+        </Grid>
+        <Button x:Name="CreateButton" HorizontalAlignment="Right" VerticalAlignment="Bottom" Grid.Row="7" Grid.Column="1" Margin="0, 8" Command="{Binding CreateScriptsCommand}" >Create</Button>
     </Grid>
 </UserControl>

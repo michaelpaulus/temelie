@@ -83,7 +83,7 @@ namespace DatabaseTools
 				}
 			}
 
-			protected void OnDisposing(System.EventArgs e)
+			private void OnDisposing(System.EventArgs e)
 			{
 				if (Disposing != null)
 				{

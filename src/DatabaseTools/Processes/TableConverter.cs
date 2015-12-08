@@ -9,6 +9,66 @@ namespace DatabaseTools.Processes
     public class TableConverter
     {
 
+        
+
+        public void ConvertTables(TableConverterSettings settings,
+            IProgress<TableProgress> progress,
+            int maxDegreeOfParallelism)
+        {
+
+            var tables = settings.SourceTables.OrderBy(i => i.TableName);
+
+            var options = new ParallelOptions();
+            options.MaxDegreeOfParallelism = maxDegreeOfParallelism;
+
+            Parallel.ForEach(tables, options, (sourceTable) =>
+            {
+                this.ConvertTable(settings, sourceTable, progress);
+            });
+        }
+
+        public  void ConvertTable(TableConverterSettings settings, Models.TableModel sourceTable, IProgress<TableProgress> progress)
+        {
+
+            var targetTable = (
+                       from i in settings.TargetTables
+                       where i.TableName.Equals(sourceTable.TableName, StringComparison.InvariantCultureIgnoreCase)
+                       select i).FirstOrDefault();
+
+            if (targetTable != null)
+            {
+                try
+                {
+                    if (settings.UseBulkCopy)
+                    {
+                        this.ConvertBulk(progress, sourceTable, settings.SourceConnectionString, targetTable, settings.TargetConnectionString);
+                    }
+                    else
+                    {
+                        this.Convert(progress, sourceTable, settings.SourceConnectionString, targetTable, settings.TargetConnectionString, settings.TrimStrings);
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    string strException = string.Empty;
+                    if (!(ex.Message.Equals("ERROR [00000] [QODBC] Error: 3250 - This feature is not enabled or not available in this version of QuickBooks.")))
+                    {
+                        strException = ex.ToString();
+                        if (ex.InnerException != null)
+                        {
+                            strException += Environment.NewLine + ex.InnerException.ToString();
+                        }
+                    }
+                    progress.Report(new TableProgress() { ProgressPercentage = 100, Table = sourceTable, ErrorMessage = strException });
+                }
+            }
+            else
+            {
+                progress.Report(new TableProgress() { ProgressPercentage = 100, Table = sourceTable });
+            }
+        }
+
         public void ConvertBulk(IProgress<TableProgress> progress,
             Models.TableModel sourceTable,
             System.Configuration.ConnectionStringSettings sourceConnectionString,
@@ -201,7 +261,9 @@ namespace DatabaseTools.Processes
                                                 {
                                                     objValue = sourceReader.GetValue(intIndex);
                                                 }
+#pragma warning disable CS0168 // Variable is declared but never used
                                                 catch (MySql.Data.Types.MySqlConversionException ex)
+#pragma warning restore CS0168 // Variable is declared but never used
                                                 {
                                                     if (parameter.DbType == System.Data.DbType.DateTime2)
                                                     {
@@ -454,7 +516,6 @@ namespace DatabaseTools.Processes
 
             return sbRow.ToString();
         }
-
 
 
     }

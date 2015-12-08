@@ -26,6 +26,22 @@ namespace DatabaseTools
                         this._databaseName = sqlCommandBuilder.InitialCatalog;
                         break;
                 }
+
+                switch (this._databaseType)
+                {
+                    case Models.DatabaseType.AccessOLE:
+                    case Models.DatabaseType.OLE:
+                    case Models.DatabaseType.Odbc:
+                        this.QuoteCharacter = "\"";
+                        break;
+                    case Models.DatabaseType.MySql:
+                        this.QuoteCharacter = "\"";
+                        break;
+                    case Models.DatabaseType.MicrosoftSQLServer:
+                        this.QuoteCharacter = "\"";
+                        break;
+                }
+
             }
 
             #region Properties
@@ -213,6 +229,8 @@ namespace DatabaseTools
 
             public string ObjectFilter { get; set; }
 
+            public string QuoteCharacter { get; set; }
+
             #endregion
 
             #region Methods
@@ -240,7 +258,6 @@ namespace DatabaseTools
                         {
                             return "0";
                         }
-                        break;
                     case System.Data.DbType.Decimal:
                     case System.Data.DbType.Double:
                     case System.Data.DbType.Int16:
@@ -397,7 +414,7 @@ namespace DatabaseTools
                 return sb.ToString();
             }
 
-            public string GetFkDropScripts(string quoteCharacter)
+            public string GetFkDropScripts()
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
@@ -415,14 +432,14 @@ namespace DatabaseTools
 
                     foreach (var foreignKey in foreignKeyGroup.Items)
                     {
-                        foreignKey.AppendDropScript(sb, quoteCharacter);
+                        foreignKey.AppendDropScript(sb, this.QuoteCharacter);
                     }
                 }
 
                 return sb.ToString();
             }
 
-            public string GetFkScripts(string quoteCharacter)
+            public string GetFkScripts()
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
@@ -440,14 +457,14 @@ namespace DatabaseTools
 
                     foreach (var foreignKey in foreignKeyGroup.Items)
                     {
-                        foreignKey.AppendCreateScript(sb, quoteCharacter);
+                        foreignKey.AppendCreateScript(sb, this.QuoteCharacter);
                     }
                 }
 
                 return sb.ToString();
             }
 
-            public string GetInsertDefaultScripts(string quoteCharacter)
+            public string GetInsertDefaultScripts()
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
@@ -457,7 +474,7 @@ namespace DatabaseTools
                 {
                     if (tableRow.TableName.StartsWith("default_"))
                     {
-                        string strScript = this.GetInsertScript(tableRow.TableName, quoteCharacter);
+                        string strScript = this.GetInsertScript(tableRow.TableName);
 
                         if (!(string.IsNullOrEmpty(strScript)))
                         {
@@ -478,7 +495,7 @@ namespace DatabaseTools
                 return sb.ToString();
             }
 
-            public string GetInsertScript(string tableName, string quoteCharacter, bool includeGOAfterEachInsert = false)
+            public string GetInsertScript(string tableName, bool includeGOAfterEachInsert = false)
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
@@ -598,18 +615,18 @@ namespace DatabaseTools
                 return sb.ToString();
             }
 
-            public string GetIxPkScripts(string quoteCharacter)
+            public string GetIxPkScripts()
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
                 foreach (var pk in this.PrimaryKeys)
                 {
-                    pk.AppendCreateScript(sb, quoteCharacter);
+                    pk.AppendCreateScript(sb, this.QuoteCharacter);
                 }
 
                 foreach (var index in this.Indexes)
                 {
-                    index.AppendCreateScript(sb, quoteCharacter);
+                    index.AppendCreateScript(sb, this.QuoteCharacter);
                 }
 
                 return sb.ToString();
@@ -667,65 +684,65 @@ namespace DatabaseTools
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
-                sb.AppendLine(this.GetSpFnVwDropScripts(quoteCharacter));
-                sb.AppendLine(this.GetTriggerDropScripts(quoteCharacter));
-                sb.AppendLine(this.GetFkDropScripts(quoteCharacter));
+                sb.AppendLine(this.GetSpFnVwDropScripts());
+                sb.AppendLine(this.GetTriggerDropScripts());
+                sb.AppendLine(this.GetFkDropScripts());
 
-                sb.AppendLine(this.GetTableScripts(quoteCharacter));
+                sb.AppendLine(this.GetTableScripts());
 
-                sb.AppendLine(this.GetIxPkScripts(quoteCharacter));
+                sb.AppendLine(this.GetIxPkScripts());
 
-                sb.AppendLine(this.GetSpFnVwScripts(quoteCharacter));
+                sb.AppendLine(this.GetSpFnVwScripts());
 
-                sb.AppendLine(this.GetTriggerScripts(quoteCharacter));
+                sb.AppendLine(this.GetTriggerScripts());
 
-                sb.AppendLine(this.GetFkScripts(quoteCharacter));
+                sb.AppendLine(this.GetFkScripts());
 
                 if (Processes.Database.GetDatabaseType(this.ConnectionString) == Models.DatabaseType.MicrosoftSQLServer)
                 {
-                    sb.AppendLine(this.GetInsertDefaultScripts(quoteCharacter));
+                    sb.AppendLine(this.GetInsertDefaultScripts());
                 }
 
                 return sb.ToString();
             }
 
-            public string GetSpFnVwDropScripts(string quoteCharacter)
+            public string GetSpFnVwDropScripts()
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
                 foreach (var definition in this.Definitions)
                 {
-                    definition.AppendDropScript(sb, quoteCharacter);
+                    definition.AppendDropScript(sb, this.QuoteCharacter);
                 }
 
                 return sb.ToString();
             }
 
-            public string GetSpFnVwScripts(string quoteCharacter)
+            public string GetSpFnVwScripts()
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
                 foreach (var definition in this.Definitions)
                 {
-                    definition.AppendCreateScript(sb, quoteCharacter);
+                    definition.AppendCreateScript(sb, this.QuoteCharacter);
                 }
 
                 return sb.ToString();
             }
 
-            public string GetTableScripts(string quoteCharacter, bool includeIfNotExists = true)
+            public string GetTableScripts(bool includeIfNotExists = true)
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
                 foreach (Models.TableModel table in this.Tables)
                 {
-                    table.AppendCreateScript(sb, quoteCharacter, includeIfNotExists);
+                    table.AppendCreateScript(sb, this.QuoteCharacter, includeIfNotExists);
                 }
 
                 return sb.ToString();
             }
 
-            public string GetTriggerDropScripts(string quoteCharacter)
+            public string GetTriggerDropScripts()
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
@@ -743,14 +760,14 @@ namespace DatabaseTools
 
                     foreach (var trigger in triggerGroup.Items)
                     {
-                        trigger.AppendDropScript(sb, quoteCharacter);
+                        trigger.AppendDropScript(sb, this.QuoteCharacter);
                     }
                 }
 
                 return sb.ToString();
             }
 
-            public string GetTriggerScripts(string quoteCharacter)
+            public string GetTriggerScripts()
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
@@ -768,7 +785,7 @@ namespace DatabaseTools
 
                     foreach (var trigger in triggerGroup.Items)
                     {
-                        trigger.AppendScript(sb, quoteCharacter);
+                        trigger.AppendScript(sb, this.QuoteCharacter);
                     }
                 }
 

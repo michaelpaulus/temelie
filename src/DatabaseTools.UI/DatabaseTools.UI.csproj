@@ -26,6 +26,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -35,6 +36,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Windows.Shell">
@@ -78,7 +80,9 @@
     <Compile Include="ViewModels\AttachDatabaseViewModel.cs" />
     <Compile Include="ViewModels\Command.cs" />
     <Compile Include="ViewModels\ConvertViewModel.cs" />
+    <Compile Include="ViewModels\CreateScriptsViewModel.cs" />
     <Compile Include="ViewModels\DatabaseConnectionViewModel.cs" />
+    <Compile Include="ViewModels\ExecuteScriptsViewModel.cs" />
     <Compile Include="ViewModels\TableMappingViewModel.cs" />
     <Compile Include="ViewModels\ViewModel.cs" />
     <Compile Include="Views\AttachDatabases.xaml.cs">

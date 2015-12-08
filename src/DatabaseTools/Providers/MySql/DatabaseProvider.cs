@@ -406,7 +406,9 @@ namespace DatabaseTools.Providers.MySql
                                 {
                                     row["precision"] = row["character_maximum_length"];
                                 }
+#pragma warning disable CS0168 // Variable is declared but never used
                                 catch (ArgumentException ex)
+#pragma warning restore CS0168 // Variable is declared but never used
                                 {
                                     row["precision"] = Int32.MaxValue;
                                 }

@@ -21,7 +21,7 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Label Content="Scripts Path" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"/>
-                <TextBox x:Name="ScriptPathTextBox" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center"></TextBox>
+                <TextBox x:Name="ScriptPathTextBox" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Text="{Binding ScriptPath}"></TextBox>
                 <Button x:Name="BrowseButton" HorizontalAlignment="Right" Grid.Row="1" Grid.Column="1" Margin="4,0,0,0">Browse ...</Button>
             </Grid>
             <Grid>
@@ -33,30 +33,26 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <Label Content="Customer Scripts Path" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"/>
-                <TextBox x:Name="CustomerScriptPathTextBox" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" ></TextBox>
-                <Button x:Name="CustomerScriptsBrowseButton" HorizontalAlignment="Right" Grid.Row="1" Grid.Column="1" Margin="4,0,0,0">Browse ...</Button>
-            </Grid>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                <Label Content="Partner Scripts Path" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"/>
-                <TextBox x:Name="PartnerScriptPathTextBox" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" ></TextBox>
-                <Button x:Name="PartnerScriptsBrowseButton" HorizontalAlignment="Right" Grid.Row="1" Grid.Column="1" Margin="4,0,0,0">Browse ...</Button>
+                <Label Content="Custom Scripts Path" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"/>
+                <TextBox x:Name="CustomScriptPathTextBox" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Text="{Binding CustomScriptPath}" ></TextBox>
+                <Button x:Name="CustomScriptsBrowseButton" HorizontalAlignment="Right" Grid.Row="1" Grid.Column="1" Margin="4,0,0,0">Browse ...</Button>
             </Grid>
         </StackPanel>
-        <ListBox x:Name="FilesListBox" Grid.Row="1" ItemsSource="{Binding}" Margin="0,8,0,0" SelectedValuePath="Name" SelectionMode="Multiple" />
+        <ListBox x:Name="FilesListBox" Grid.Row="1" ItemsSource="{Binding Files}" Margin="0,8,0,0" SelectedValuePath="Name"  />
         <Grid Grid.Row="2" >
-            <local:Progress x:Name="Progress" Margin="0, 8" Visibility="Collapsed" />
-            <Button x:Name="ContinueButton" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0, 8" Visibility="Collapsed">Continue</Button>
-            <Button x:Name="ExecuteButton" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0, 8">Execute</Button>
-            <Button x:Name="MergeButton" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0, 8">Merge</Button>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="0, 8" >
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <ProgressBar x:Name="ProgressBar" Grid.Row="0" MinHeight="20" Value="{Binding ProgressPercentage}" />
+                <TextBlock x:Name="ProgressLabel" Margin="0, 4, 0, 0"  Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Text="{Binding ProgressStatus}" />
+            </Grid>
+            <Button Grid.Row="1" x:Name="ExecuteButton" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0, 8" Command="{Binding ExecuteScriptsCommand}">Execute</Button>
         </Grid>
     </Grid>
 </UserControl>
