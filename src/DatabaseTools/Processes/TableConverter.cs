@@ -55,10 +55,6 @@ namespace DatabaseTools.Processes
                     if (!(ex.Message.Equals("ERROR [00000] [QODBC] Error: 3250 - This feature is not enabled or not available in this version of QuickBooks.")))
                     {
                         strException = ex.ToString();
-                        if (ex.InnerException != null)
-                        {
-                            strException += Environment.NewLine + ex.InnerException.ToString();
-                        }
                     }
                     progress.Report(new TableProgress() { ProgressPercentage = 100, Table = sourceTable, ErrorMessage = strException });
                 }

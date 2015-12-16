@@ -66,7 +66,7 @@ namespace DatabaseTools
                 {
                     var csb = new  MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connectionString.ConnectionString);
                     csb.ConnectionTimeout = Math.Max(45, csb.ConnectionTimeout);
-                    csb.DefaultCommandTimeout = Math.Max(150, csb.ConnectionTimeout);
+                    csb.DefaultCommandTimeout = Math.Max(1800, csb.ConnectionTimeout);
                     connection.ConnectionString = csb.ConnectionString;
                 }
                 else

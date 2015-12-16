@@ -79,7 +79,7 @@ namespace DatabaseTools
 
                 if (this.IsPrimaryKey)
                 {
-                    sb.AppendLine(string.Format("IF NOT EXISTS (SELECT 1 FROM sysobjects WHERE sysobjects.name = '{0}')", this.IndexName));
+                    sb.AppendLine($"IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE sys.indexes.name = '{this.IndexName}') AND EXISTS (SELECT 1 FROM sys.tables WHERE sys.tables.name = '{this.TableName}')");
                     sb.AppendLine("\t" + $"ALTER TABLE {quoteCharacterStart}dbo{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd} ADD CONSTRAINT {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd} PRIMARY KEY { this.IndexType}");
                     sb.AppendLine("\t" + "(");
 
@@ -115,7 +115,7 @@ namespace DatabaseTools
                         strRelationalIndexOptions = string.Format(" WITH (FILLFACTOR = {0})", this.FillFactor);
                     }
 
-                    sb.AppendLine(string.Format("IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE sys.indexes.name = '{0}')", this.IndexName));
+                    sb.AppendLine($"IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE sys.indexes.name = '{this.IndexName}') AND EXISTS (SELECT 1 FROM sys.tables WHERE sys.tables.name = '{this.TableName}')");
                     sb.AppendLine("\t" + $"CREATE {strIndexType} INDEX {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd} ON {quoteCharacterStart}dbo{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}{strRelationalIndexOptions}");
                     sb.AppendLine("\t" + "(");
 
