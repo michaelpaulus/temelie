@@ -59,12 +59,12 @@ namespace DatabaseTools
             {
                 if (this.IsPrimaryKey)
                 {
-                    sb.AppendLine(string.Format("IF EXISTS (SELECT 1 FROM sysobjects WHERE sysobjects.name = '{0}')", this.IndexName));
+                    sb.AppendLine($"IF EXISTS (SELECT 1 FROM sys.indexes WHERE sys.indexes.name = '{this.IndexName}')");
                     sb.AppendLine($"\tALTER TABLE {quoteCharacterStart}dbo{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd} DROP CONSTRAINT {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd}");
                 }
                 else
                 {
-                    sb.AppendLine(string.Format("IF EXISTS (SELECT 1 FROM sys.indexes WHERE sys.indexes.name = '{0}')", this.IndexName));
+                    sb.AppendLine($"IF EXISTS (SELECT 1 FROM sys.indexes WHERE sys.indexes.name = '{this.IndexName}')");
                     sb.AppendLine($"\tDROP INDEX {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd} ON {quoteCharacterStart}dbo{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
                 }
                 sb.AppendLine("GO");
