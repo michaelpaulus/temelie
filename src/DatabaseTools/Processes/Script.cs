@@ -21,6 +21,8 @@ namespace DatabaseTools
 
                 int intProgress = 0;
 
+                fileList = (from i in fileList orderby i.FullName select i).ToList();
+
                 Models.DatabaseModel database = new Models.DatabaseModel(connectionString, targetDatabaseType) { ObjectFilter = objectFilter };
 
                 foreach (System.IO.FileInfo file in fileList)
@@ -38,18 +40,17 @@ namespace DatabaseTools
                         {
                             progress.Report(new ScriptProgress() { ProgressPercentage = intProgress, ProgressStatus = file.Name });
                         }
-
                         CreateScript(database, file);
                     }
 
-
-                    if (progress != null)
-                    {
-                        intProgress = Convert.ToInt32((intFileCount / (double)fileList.Count) * 100);
-                        progress.Report(new ScriptProgress() { ProgressPercentage = intProgress, ProgressStatus = file.Name });
-                    }
+                    intProgress = Convert.ToInt32((intFileCount / (double)fileList.Count) * 100);
 
                     intFileCount += 1;
+                }
+
+                if (progress != null)
+                {
+                    progress.Report(new ScriptProgress() { ProgressPercentage = 100, ProgressStatus = "Completed" });
                 }
 
                 var mergeFile = (

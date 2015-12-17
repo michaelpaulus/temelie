@@ -37,11 +37,12 @@ namespace DatabaseTools
                 command.Connection = dbConnection;
 
                 command.CommandTimeout = Math.Max(1800, command.CommandTimeout);
-
+               
                 if (Data.DbTransactionScope.Current != null && Data.DbTransactionScope.Current.Connection == dbConnection)
                 {
                     command.Transaction = Data.DbTransactionScope.Current;
                 }
+
                 return command;
             }
 
@@ -381,6 +382,8 @@ namespace DatabaseTools
                         return System.Data.DbType.Boolean;
                     case "CHAR":
                         return System.Data.DbType.StringFixedLength;
+                    case "DATE":
+                        return DbType.Date;
                     case "DATETIME":
                         return System.Data.DbType.DateTime;
                     case "DATETIME2":

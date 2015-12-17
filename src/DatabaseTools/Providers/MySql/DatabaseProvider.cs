@@ -118,7 +118,8 @@ namespace DatabaseTools.Providers.MySql
             DataTable dataTable;
             using (var conn = Processes.Database.CreateDbConnection(connectionString))
             {
-                var dtForeignKeys = conn.GetSchema("Foreign Keys");
+                DataTable dtForeignKeys = conn.GetSchema("Foreign Keys");
+
                 dataTable = conn.GetSchema("Foreign Key Columns");
 
                 dtForeignKeys.Columns["constraint_name"].ColumnName = "foreign_key_name";
@@ -229,23 +230,25 @@ namespace DatabaseTools.Providers.MySql
 
         public DataTable GetTableColumns(ConnectionStringSettings connectionString)
         {
-            DataTable dataTable;
+            var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connectionString.ConnectionString);
+            var sql = $"SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE table_schema = '{csb.Database}'";
+            System.Data.DataSet ds = Processes.Database.Execute(connectionString, sql);
+            DataTable dataTable = ds.Tables[0];
+            DataTable dataTypes;
             using (var conn = Processes.Database.CreateDbConnection(connectionString))
             {
-                var dataTypes = conn.GetSchema("DataTypes");
-                dataTable = conn.GetSchema("Columns");
-                UpdateSchemaColumns(dataTable, dataTypes);
+                dataTypes = conn.GetSchema("DataTypes");
             }
+            this.UpdateSchemaColumns(dataTable, dataTypes);
             return dataTable;
         }
 
         public DataTable GetTables(ConnectionStringSettings connectionString)
         {
-            DataTable dataTable;
-            using (var conn = Processes.Database.CreateDbConnection(connectionString))
-            {
-                dataTable = conn.GetSchema("Tables");
-            }
+            var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connectionString.ConnectionString);
+            var sql = $"SELECT table_name FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = '{csb.Database}'";
+            System.Data.DataSet ds = Processes.Database.Execute(connectionString, sql);
+            DataTable dataTable = ds.Tables[0];
             return dataTable;
         }
 
@@ -256,17 +259,12 @@ namespace DatabaseTools.Providers.MySql
 
         public DataTable GetViewColumns(ConnectionStringSettings connectionString)
         {
-            return this.GetTableColumns(connectionString);
+            return null;
         }
 
         public DataTable GetViews(ConnectionStringSettings connectionString)
         {
-            DataTable dataTable;
-            using (var conn = Processes.Database.CreateDbConnection(connectionString))
-            {
-                dataTable = conn.GetSchema("Views");
-            }
-            return dataTable;
+            return null;
         }
 
         protected void UpdateSchemaColumns(DataTable table, DataTable dataTypes)
