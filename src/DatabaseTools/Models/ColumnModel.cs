@@ -180,7 +180,7 @@ namespace DatabaseTools
 
             public string ColumnDefault { get; set; }
 
-            public System.Data.DbType DbType
+            public DbType DbType
             {
                 get
                 {
