@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -38,9 +39,13 @@ namespace DatabaseTools.Processes
             {
                 try
                 {
+                    if (progress != null)
+                    {
+                        progress.Report(new TableProgress() { ProgressPercentage = 0, Table = sourceTable });
+                    }
                     if (settings.UseBulkCopy)
                     {
-                        this.ConvertBulk(progress, sourceTable, settings.SourceConnectionString, targetTable, settings.TargetConnectionString);
+                        this.ConvertBulk(progress, sourceTable, settings.SourceConnectionString, targetTable, settings.TargetConnectionString, settings.UseBulkCopyDataTable, settings.TrimStrings);
                     }
                     else
                     {
@@ -64,7 +69,9 @@ namespace DatabaseTools.Processes
             Models.TableModel sourceTable,
             System.Configuration.ConnectionStringSettings sourceConnectionString,
             Models.TableModel targetTable,
-            System.Configuration.ConnectionStringSettings targetConnectionString)
+            System.Configuration.ConnectionStringSettings targetConnectionString,
+            bool useDataTable,
+            bool trimStrings)
         {
             System.Data.Common.DbProviderFactory sourceFactory = DatabaseTools.Processes.Database.CreateDbProviderFactory(sourceConnectionString);
             System.Data.Common.DbProviderFactory targetFactory = DatabaseTools.Processes.Database.CreateDbProviderFactory(targetConnectionString);
@@ -90,17 +97,17 @@ namespace DatabaseTools.Processes
                         {
                             using (System.Data.SqlClient.SqlBulkCopy bcp = new System.Data.SqlClient.SqlBulkCopy((System.Data.SqlClient.SqlConnection)targetConnection))
                             {
-                                bcp.DestinationTableName = targetTable.TableName;
+                                bcp.DestinationTableName = $"[{targetTable.TableName}]";
                                 bcp.BatchSize = 1000;
                                 bcp.BulkCopyTimeout = 600;
                                 bcp.NotifyAfter = bcp.BatchSize;
 
-                                long intRowIndex = 0L;
+                                int intRowIndex = 0;
 
 
                                 bcp.SqlRowsCopied += (object sender, System.Data.SqlClient.SqlRowsCopiedEventArgs e) =>
                                 {
-                                    intRowIndex += 1L;
+                                    intRowIndex += 1;
 
                                     int intNewProgress = System.Convert.ToInt32(intRowIndex / (double)intSourceRowCount * 100);
 
@@ -111,12 +118,20 @@ namespace DatabaseTools.Processes
                                     }
                                 };
 
-                                using (var command = DatabaseTools.Processes.Database.CreateDbCommand(sourceConnection))
+                                if (useDataTable)
                                 {
-                                    command.CommandText = this.FormatCommandText(string.Format("SELECT * FROM [{0}]", sourceTable.TableName), sourceDatabaseType);
-                                    using (var reader = command.ExecuteReader())
+                                    var dataTable = this.GetTableValues(sourceFactory, sourceConnectionString, sourceTable, targetTable, trimStrings);
+                                    bcp.WriteToServer(dataTable);
+                                }
+                                else
+                                {
+                                    using (var command = DatabaseTools.Processes.Database.CreateDbCommand(sourceConnection))
                                     {
-                                        bcp.WriteToServer(reader);
+                                        command.CommandText = this.FormatCommandText(string.Format("SELECT * FROM [{0}]", sourceTable.TableName), sourceDatabaseType);
+                                        using (var reader = command.ExecuteReader())
+                                        {
+                                            bcp.WriteToServer(reader);
+                                        }
                                     }
                                 }
                             }
@@ -134,6 +149,8 @@ namespace DatabaseTools.Processes
 
         }
 
+
+
         public void Convert(IProgress<TableProgress> progress,
             Models.TableModel sourceTable,
             System.Configuration.ConnectionStringSettings sourceConnectionString,
@@ -147,7 +164,7 @@ namespace DatabaseTools.Processes
             var sourceDatabaseType = DatabaseTools.Processes.Database.GetDatabaseType(sourceConnectionString);
             var targetDatabaseType = DatabaseTools.Processes.Database.GetDatabaseType(targetConnectionString);
 
-            int? intProgress = null;
+            int intProgress = 0;
 
             var intTargetRowCount = 0;
 
@@ -166,7 +183,7 @@ namespace DatabaseTools.Processes
                 var sourceMatchedColumns = this.GetMatchedColumns(sourceTable.Columns, targetTable.Columns);
                 var targetMatchedColumns = this.GetMatchedColumns(targetTable.Columns, sourceTable.Columns);
 
-                var sourceValues = this.GetTableValues(sourceFactory, sourceConnectionString, sourceTable, sourceMatchedColumns);
+                var sourceValues = this.GetTableValues(sourceFactory, sourceConnectionString, sourceTable, targetTable, trimStrings);
 
                 using (System.Data.Common.DbConnection targetConnection = DatabaseTools.Processes.Database.CreateDbConnection(targetFactory, targetConnectionString))
                 {
@@ -221,126 +238,20 @@ namespace DatabaseTools.Processes
                             targetCommand.CommandText = this.FormatCommandText(string.Format("SET IDENTITY_INSERT [{0}] ON;" + Environment.NewLine + targetCommand.CommandText + Environment.NewLine + "SET IDENTITY_INSERT [{0}] OFF;", targetTable.TableName), targetDatabaseType);
                         }
 
-                        int intRowCount = sourceValues.Count;
+                        int intRowCount = sourceValues.Rows.Count;
 
                         int intRowIndex = 0;
 
                         if (intRowCount > 0)
                         {
 
-                            foreach (var row in sourceValues)
+                            foreach (var row in sourceValues.Rows.OfType<DataRow>())
                             {
 
                                 for (int intIndex = 0; intIndex < targetCommand.Parameters.Count; intIndex++)
                                 {
                                     var parameter = targetCommand.Parameters[intIndex];
-
-                                    object objValue = row[intIndex];
-                                   
-                                    if (System.Convert.IsDBNull(objValue))
-                                    {
-                                        parameter.Value = DBNull.Value;
-                                    }
-                                    else
-                                    {
-                                        var targetColumn = targetMatchedColumns[intIndex];
-
-                                        switch (targetColumn.DbType)
-                                        {
-                                            case System.Data.DbType.Date:
-                                            case System.Data.DbType.DateTime:
-
-                                                try
-                                                {
-                                                    DateTime dt = System.Convert.ToDateTime(objValue);
-
-                                                    if (dt <= new DateTime(1753, 1, 1))
-                                                    {
-                                                        parameter.Value = new DateTime(1753, 1, 1);
-                                                    }
-                                                    else if (dt > new DateTime(9999, 12, 31))
-                                                    {
-                                                        parameter.Value = new DateTime(9999, 12, 31);
-                                                    }
-                                                    else
-                                                    {
-                                                        parameter.Value = dt;
-                                                    }
-                                                }
-                                                catch
-                                                {
-                                                    parameter.Value = new DateTime(1753, 1, 1);
-                                                }
-                                                break;
-                                            case System.Data.DbType.DateTime2:
-                                                try
-                                                {
-                                                    DateTime dt = System.Convert.ToDateTime(objValue);
-                                                    parameter.Value = dt;
-                                                }
-                                                catch
-                                                {
-                                                    parameter.Value = DateTime.MinValue;
-                                                }
-                                                break;
-                                            case System.Data.DbType.Time:
-                                                {
-                                                    if ((objValue) is TimeSpan)
-                                                    {
-                                                        parameter.Value = (new DateTime(1753, 1, 1)).Add((TimeSpan)objValue);
-                                                    }
-                                                    else if ((objValue) is DateTime)
-                                                    {
-                                                        DateTime dt = System.Convert.ToDateTime(objValue);
-
-                                                        if (dt.Year <= 300 && dt.Year >= 200)
-                                                        {
-                                                            int newYear = dt.Year * 10;
-                                                            dt = dt.AddYears(newYear - dt.Year);
-                                                        }
-
-                                                        if (dt <= new DateTime(1753, 1, 1))
-                                                        {
-                                                            parameter.Value = DBNull.Value;
-                                                        }
-                                                        else if (dt > new DateTime(9999, 12, 31))
-                                                        {
-                                                            parameter.Value = DBNull.Value;
-                                                        }
-                                                        else
-                                                        {
-                                                            parameter.Value = dt;
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        parameter.Value = objValue;
-                                                    }
-                                                    break;
-                                                }
-                                            case System.Data.DbType.AnsiString:
-                                            case System.Data.DbType.AnsiStringFixedLength:
-                                            case System.Data.DbType.String:
-                                            case System.Data.DbType.StringFixedLength:
-                                                {
-                                                    if (trimStrings)
-                                                    {
-                                                        parameter.Value = System.Convert.ToString(objValue).TrimEnd();
-                                                    }
-                                                    else
-                                                    {
-                                                        parameter.Value = System.Convert.ToString(objValue);
-                                                    }
-                                                    break;
-                                                }
-                                            default:
-                                                {
-                                                    parameter.Value = objValue;
-                                                    break;
-                                                }
-                                        }
-                                    }
-
+                                    parameter.Value = row[intIndex];
                                 }
 
                                 intRowIndex += 1;
@@ -350,13 +261,7 @@ namespace DatabaseTools.Processes
                                 try
                                 {
                                     targetCommand.ExecuteNonQuery();
-
-                                    if (!intProgress.HasValue)
-                                    {
-                                        progress.Report(new TableProgress() { ProgressPercentage = 0, Table = sourceTable });
-                                    }
-
-                                    if (intProgress.GetValueOrDefault() != intNewProgress)
+                                    if (intProgress != intNewProgress)
                                     {
                                         intProgress = intNewProgress;
                                         progress.Report(new TableProgress() { ProgressPercentage = intNewProgress, Table = sourceTable });
@@ -390,29 +295,112 @@ namespace DatabaseTools.Processes
             }
         }
 
-        //private System.Data.DataTable ConvertToDataTable(IList<object[]> sourceValues, Models.TableModel targetTable, IList<Models.ColumnModel> targetColumns)
-        //{
-        //    var dataTable = new System.Data.DataTable(targetTable.TableName);
-        //    foreach (var targetColumn in targetColumns)
-        //    {
-        //        var column = new System.Data.DataColumn(targetColumn.ColumnName);
-        //        column.AutoIncrement = targetColumn.IsIdentity;
-        //        column.AllowDBNull = targetColumn.IsNullable;
-        //        column.MaxLength = targetColumn.Precision;
-
-        //        dataTable.Columns.Add(column.ColumnName , column.type)
-        //    }
-        //}
-
-        private IList<object[]> GetTableValues(System.Data.Common.DbProviderFactory sourceFactory, System.Configuration.ConnectionStringSettings sourceConnectionString, Models.TableModel sourceTable, IList<Models.ColumnModel> sourceColumns)
+        private object GetColumnValue(Models.ColumnModel targetColumn, object value, bool trimStrings)
         {
-            var list = new List<object[]>();
+            object returnValue = value;
 
+            if (value != DBNull.Value)
+            {
+                var dbType = targetColumn.DbType;
+
+                switch (dbType)
+                {
+                    case System.Data.DbType.Date:
+                    case System.Data.DbType.DateTime:
+                        try
+                        {
+                            DateTime dt = System.Convert.ToDateTime(value);
+
+                            if (dt <= new DateTime(1753, 1, 1))
+                            {
+                                returnValue = new DateTime(1753, 1, 1);
+                            }
+                            else if (dt > new DateTime(9999, 12, 31))
+                            {
+                                returnValue = new DateTime(9999, 12, 31);
+                            }
+                            else
+                            {
+                                returnValue = dt;
+                            }
+                        }
+                        catch
+                        {
+                            returnValue = new DateTime(1753, 1, 1);
+                        }
+                        break;
+                    case System.Data.DbType.DateTime2:
+                        try
+                        {
+                            DateTime dt = System.Convert.ToDateTime(value);
+                            returnValue = dt;
+                        }
+                        catch
+                        {
+                            returnValue = DateTime.MinValue;
+                        }
+                        break;
+                    case System.Data.DbType.Time:
+                        {
+                            if ((value) is TimeSpan)
+                            {
+                                returnValue = (new DateTime(1753, 1, 1)).Add((TimeSpan)value);
+                            }
+                            else if ((value) is DateTime)
+                            {
+                                DateTime dt = System.Convert.ToDateTime(value);
+
+                                if (dt <= new DateTime(1753, 1, 1))
+                                {
+                                    returnValue = DBNull.Value;
+                                }
+                                else if (dt > new DateTime(9999, 12, 31))
+                                {
+                                    returnValue = DBNull.Value;
+                                }
+                                else
+                                {
+                                    returnValue = dt;
+                                }
+                            }
+                            else
+                            {
+                                returnValue = value;
+                            }
+                            break;
+                        }
+                    case System.Data.DbType.AnsiString:
+                    case System.Data.DbType.AnsiStringFixedLength:
+                    case System.Data.DbType.String:
+                    case System.Data.DbType.StringFixedLength:
+                        {
+                            if (trimStrings)
+                            {
+                                returnValue = System.Convert.ToString(value).TrimEnd();
+                            }
+                            else
+                            {
+                                returnValue = System.Convert.ToString(value);
+                            }
+                            break;
+                        }
+                }
+            }
+
+            
+            return returnValue;
+        }
+
+        private DataTable GetTableValues(System.Data.Common.DbProviderFactory sourceFactory, System.Configuration.ConnectionStringSettings sourceConnectionString, Models.TableModel sourceTable, Models.TableModel targetTable, bool trimStrings)
+        {
             var sourceDatabaseType = DatabaseTools.Processes.Database.GetDatabaseType(sourceConnectionString);
 
             System.Text.StringBuilder sbColumns = new System.Text.StringBuilder();
 
-            foreach (var sourceColumn in sourceColumns)
+            var sourceMatchedColumns = this.GetMatchedColumns(sourceTable.Columns, targetTable.Columns);
+            var targetMatchedColumns = this.GetMatchedColumns(targetTable.Columns, sourceTable.Columns);
+
+            foreach (var sourceColumn in sourceMatchedColumns)
             {
                 if (sbColumns.Length > 0)
                 {
@@ -421,69 +409,80 @@ namespace DatabaseTools.Processes
                 sbColumns.AppendFormat("[{0}]", sourceColumn.ColumnName);
             }
 
+            var dataTable = new System.Data.DataTable($"[{targetTable.TableName}]");
+            foreach (var targetColumn in targetMatchedColumns)
+            {
+                var column = new System.Data.DataColumn($"[{targetColumn.ColumnName}]");
+                column.AutoIncrement = targetColumn.IsIdentity;
+                column.AllowDBNull = targetColumn.IsNullable;
+
+                column.DataType = Database.GetSystemType(targetColumn.DbType);
+
+                if (column.DataType == typeof(string))
+                {
+                    column.MaxLength = targetColumn.Precision;
+                }
+
+                dataTable.Columns.Add(column);
+            }
+
             using (System.Data.Common.DbConnection sourceConnection = DatabaseTools.Processes.Database.CreateDbConnection(sourceFactory, sourceConnectionString))
             {
 
                 using (System.Data.Common.DbCommand sourceCommand = DatabaseTools.Processes.Database.CreateDbCommand(sourceConnection))
                 {
-                    var intRowCount = this.GetRowCount(sourceConnection, sourceTable.TableName, sourceDatabaseType);
-
                     this.SetReadTimeout(sourceCommand);
 
-                    int intRowIndex = 0;
+                    sourceCommand.CommandText = this.FormatCommandText(string.Format("SELECT {0} FROM [{1}]", sbColumns.ToString(), sourceTable.TableName), sourceDatabaseType);
 
-                    if (intRowCount > 0)
+                    using (System.Data.Common.DbDataReader sourceReader = sourceCommand.ExecuteReader())
                     {
-                        sourceCommand.CommandText = this.FormatCommandText(string.Format("SELECT {0} FROM [{1}]", sbColumns.ToString(), sourceTable.TableName), sourceDatabaseType);
 
-                        using (System.Data.Common.DbDataReader sourceReader = sourceCommand.ExecuteReader())
+                        var intFieldCount = sourceReader.FieldCount;
+
+                        while (sourceReader.Read())
                         {
+                            var dataRow = dataTable.NewRow();
 
-                            var intFieldCount = sourceReader.FieldCount;
-
-                            while (sourceReader.Read())
+                            for (int i = 0; i < intFieldCount; i++)
                             {
-                                var values = new object[intFieldCount];
 
-                                for (int intIndex = 0; intIndex < intFieldCount; intIndex++)
+                                var sourceColumn = sourceMatchedColumns[i];
+                                var targetColumn = targetMatchedColumns[i];
+
+                                object value;
+
+                                try
                                 {
-
-                                    var sourceColumn = sourceTable.Columns[intIndex];
-
-                                    try
-                                    {
-                                        values[intIndex] = sourceReader.GetValue(intIndex);
-                                    }
+                                    value = sourceReader.GetValue(i);
+                                }
 #pragma warning disable CS0168 // Variable is declared but never used
-                                    catch (MySql.Data.Types.MySqlConversionException ex)
+                                catch (MySql.Data.Types.MySqlConversionException ex)
 #pragma warning restore CS0168 // Variable is declared but never used
+                                {
+                                    if (sourceColumn.DbType == System.Data.DbType.DateTime2 ||
+                                        sourceColumn.DbType == System.Data.DbType.Date ||
+                                        sourceColumn.DbType == System.Data.DbType.DateTime ||
+                                        sourceColumn.DbType == System.Data.DbType.DateTimeOffset)
                                     {
-                                        if (sourceColumn.DbType == System.Data.DbType.DateTime2 ||
-                                            sourceColumn.DbType == System.Data.DbType.Date ||
-                                            sourceColumn.DbType == System.Data.DbType.DateTime ||
-                                            sourceColumn.DbType == System.Data.DbType.DateTimeOffset)
-                                        {
-                                            values[intIndex] = DateTime.MinValue;
-                                        }
-                                        else
-                                        {
-                                            throw;
-                                        }
+                                        value = DateTime.MinValue;
                                     }
-
+                                    else
+                                    {
+                                        throw;
+                                    }
                                 }
 
-                                list.Add(values);
-
-                                intRowIndex += 1;
-
+                                dataRow[i] = this.GetColumnValue(targetColumn, value, trimStrings);
                             }
+                         
+                            dataTable.Rows.Add(dataRow);
                         }
                     }
                 }
             }
 
-            return list;
+            return dataTable;
         }
 
         private IList<Models.ColumnModel> GetMatchedColumns(IList<Models.ColumnModel> sourceColumns, IList<Models.ColumnModel> targetColumns)

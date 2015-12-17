@@ -37,7 +37,7 @@ namespace DatabaseTools
                 command.Connection = dbConnection;
 
                 command.CommandTimeout = Math.Max(1800, command.CommandTimeout);
-               
+
                 if (Data.DbTransactionScope.Current != null && Data.DbTransactionScope.Current.Connection == dbConnection)
                 {
                     command.Transaction = Data.DbTransactionScope.Current;
@@ -65,7 +65,7 @@ namespace DatabaseTools
                 }
                 else if (dbType == Models.DatabaseType.MySql)
                 {
-                    var csb = new  MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connectionString.ConnectionString);
+                    var csb = new MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connectionString.ConnectionString);
                     csb.ConnectionTimeout = Math.Max(45, csb.ConnectionTimeout);
                     csb.DefaultCommandTimeout = Math.Max(1800, csb.ConnectionTimeout);
                     connection.ConnectionString = csb.ConnectionString;
@@ -268,7 +268,7 @@ namespace DatabaseTools
                         value = Convert.ToString(row[columnName]);
                     }
                 }
-                catch 
+                catch
                 {
 
                 }
@@ -288,7 +288,7 @@ namespace DatabaseTools
                         int.TryParse(strValue, out value);
                     }
                 }
-                catch 
+                catch
                 {
 
                 }
@@ -317,7 +317,7 @@ namespace DatabaseTools
                         bool.TryParse(strValue, out value);
                     }
                 }
-                catch 
+                catch
                 {
 
                 }
@@ -389,6 +389,7 @@ namespace DatabaseTools
                     case "DATETIME2":
                         return System.Data.DbType.DateTime2;
                     case "DECIMAL":
+                    case "FLOAT":
                         return System.Data.DbType.Decimal;
                     case "IMAGE":
                     case "BINARY":
@@ -408,6 +409,55 @@ namespace DatabaseTools
                         return DbType.Time;
                 }
                 return System.Data.DbType.String;
+            }
+
+            public static Type GetSystemType(System.Data.DbType dbType)
+            {
+                switch (dbType)
+                {
+                    case DbType.AnsiString:
+                    case DbType.AnsiStringFixedLength:
+                    case DbType.String:
+                    case DbType.StringFixedLength:
+                        return typeof(string);
+                    case DbType.Binary:
+                    case DbType.Byte:
+                        return typeof(byte);
+                    case DbType.Boolean:
+                        return typeof(bool);
+                    case DbType.Currency:
+                        return typeof(decimal);
+                    case DbType.Date:
+                    case DbType.DateTime:
+                    case DbType.DateTime2:
+                    case DbType.DateTimeOffset:
+                    case DbType.Time:
+                        return typeof(DateTime);
+                    case DbType.Decimal:
+                        return typeof(decimal);
+                    case DbType.Double:
+                        return typeof(double);
+                    case DbType.Guid:
+                        return typeof(Guid);
+                    case DbType.Int16:
+                    case DbType.UInt16:
+                        return typeof(Int16);
+                    case DbType.Int32:
+                    case DbType.UInt32:
+                        return typeof(Int32);
+                    case DbType.Int64:
+                    case DbType.UInt64:
+                        return typeof(Int64);
+                    case DbType.SByte:
+                        return typeof(byte);
+                    case DbType.Single:
+                        return typeof(Single);
+                    case DbType.VarNumeric:
+                        return typeof(decimal);
+                    case DbType.Xml:
+                        return typeof(string);
+                }
+                return typeof(string);
             }
 
             public static string GetProviderName(System.Data.Common.DbConnection connection)
