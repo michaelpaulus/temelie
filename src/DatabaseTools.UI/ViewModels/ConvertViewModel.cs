@@ -17,6 +17,8 @@ namespace DatabaseTools.ViewModels
         public ConvertViewModel()
         {
             this.ThreadCount = 5;
+            this.UseBulkCopy = true;
+            this.UseBulkCopyDataTable = true;
 
             this.ConvertCommand = new Command(() =>
             {
@@ -56,6 +58,7 @@ namespace DatabaseTools.ViewModels
         public string ErrorMessage { get; set; }
         public int ThreadCount { get; set; }
         public bool UseBulkCopy { get; set; }
+        public bool UseBulkCopyDataTable { get; set; }
         public bool TrimStrings { get; set; }
 
         private Stopwatch Stopwatch { get; set; }
@@ -80,6 +83,7 @@ namespace DatabaseTools.ViewModels
             settings.TargetTables = targetTables;
 
             settings.UseBulkCopy = this.UseBulkCopy;
+            settings.UseBulkCopyDataTable = this.UseBulkCopyDataTable;
             settings.TrimStrings = this.TrimStrings;
 
             return settings;

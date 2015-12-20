@@ -168,6 +168,7 @@ namespace DatabaseTools.Providers.MySql
                 dtIndexColumns.Columns.Add("key_ordinal");
                 dtIndexColumns.Columns.Add("is_primary_key");
                 dtIndexColumns.Columns.Add("index_type");
+                dtIndexColumns.Columns.Add("filter_definition");
 
                 foreach (DataRow row in dtIndexColumns.Rows)
                 {

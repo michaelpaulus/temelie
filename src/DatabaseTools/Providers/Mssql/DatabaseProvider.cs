@@ -159,7 +159,8 @@ SELECT
     sys.index_columns.is_included_column, 
     sys.index_columns.is_descending_key, 
     sys.index_columns.key_ordinal,
-    sys.indexes.is_primary_key
+    sys.indexes.is_primary_key,
+	sys.indexes.filter_definition
 FROM 
     sys.indexes INNER JOIN 
     sys.tables ON sys.indexes.object_id = sys.tables.object_id INNER JOIN 

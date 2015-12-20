@@ -740,6 +740,7 @@ namespace DatabaseTools
                                 TableName = indexGroup.TableName,
                                 IndexName = indexGroup.IndexName,
                                 IndexType = summaryRow["index_type"].ToString(),
+                                FilterDefinition =  summaryRow["filter_definition"] == DBNull.Value ? "" : summaryRow["filter_definition"].ToString(),
                                 IsUnique = Convert.ToBoolean(summaryRow["is_unique"]),
                                 FillFactor = Convert.ToInt32(summaryRow["fill_factor"]),
                                 IsPrimaryKey = Convert.ToBoolean(summaryRow["is_primary_key"])

@@ -19,6 +19,7 @@ namespace DatabaseTools
             public string TableName { get; set; }
             public string IndexName { get; set; }
             public string IndexType { get; set; }
+            public string FilterDefinition { get; set; }
             public bool IsUnique { get; set; }
             public int FillFactor { get; set; }
 
@@ -109,14 +110,10 @@ namespace DatabaseTools
                         strIndexType = "UNIQUE " + this.IndexType;
                     }
 
-                    string strRelationalIndexOptions = string.Empty;
-                    if (this.FillFactor != 0)
-                    {
-                        strRelationalIndexOptions = string.Format(" WITH (FILLFACTOR = {0})", this.FillFactor);
-                    }
+                    
 
                     sb.AppendLine($"IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE sys.indexes.name = '{this.IndexName}') AND EXISTS (SELECT 1 FROM sys.tables WHERE sys.tables.name = '{this.TableName}')");
-                    sb.AppendLine("\t" + $"CREATE {strIndexType} INDEX {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd} ON {quoteCharacterStart}dbo{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}{strRelationalIndexOptions}");
+                    sb.AppendLine("\t" + $"CREATE {strIndexType} INDEX {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd} ON {quoteCharacterStart}dbo{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
                     sb.AppendLine("\t" + "(");
 
                     bool blnHasColumns = false;
@@ -136,7 +133,7 @@ namespace DatabaseTools
 
                     if (this.IncludeColumns.Count > 0)
                     {
-                        sb.Append("\t" + "INCLUDE (");
+                        sb.Append("\tINCLUDE (");
 
                         bool blnHasIncludeColumns = false;
 
@@ -151,6 +148,16 @@ namespace DatabaseTools
                         }
 
                         sb.AppendLine(")");
+                    }
+
+                    if (!string.IsNullOrEmpty(this.FilterDefinition))
+                    {
+                        sb.AppendLine($"\tWHERE {this.FilterDefinition}");
+                    }
+
+                    if (this.FillFactor != 0)
+                    {
+                        sb.AppendLine($"\tWITH (FILLFACTOR = {this.FillFactor})");
                     }
 
                     sb.AppendLine("GO");

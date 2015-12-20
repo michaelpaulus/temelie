@@ -40,6 +40,10 @@ namespace DatabaseTools
             DatabaseComboBox.LostFocus += DatabaseComboBox_LostFocus;
             ServerTextBox.GotFocus += TextBox_GotFocus;
             ServerTextBox.LostFocus += TextBox_LostFocus;
+
+            MssqlTextBox.GotFocus += TextBox_GotFocus;
+            MssqlTextBox.LostFocus += TextBox_LostFocus;
+
             DSNTextBox.GotFocus += TextBox_GotFocus;
             DSNTextBox.LostFocus += TextBox_LostFocus;
             OLETextBox.GotFocus += TextBox_GotFocus;
@@ -81,12 +85,7 @@ namespace DatabaseTools
                     {
                         case Models.DatabaseType.MicrosoftSQLServer:
                             {
-                                System.Data.SqlClient.SqlConnectionStringBuilder builder = new System.Data.SqlClient.SqlConnectionStringBuilder(value.ConnectionString);
-
-                                builder.DataSource = this.ServerTextBox.Text;
-                                builder.InitialCatalog = this.DatabaseComboBox.Text;
-
-                                value.ConnectionString = builder.ConnectionString;
+                                value.ConnectionString = this.MssqlTextBox.Text;
                                 break;
                             }
                         case Models.DatabaseType.Odbc:
@@ -150,7 +149,7 @@ namespace DatabaseTools
                         }));
 
                     }
-                    catch 
+                    catch
                     {
 
                     }
@@ -169,7 +168,7 @@ namespace DatabaseTools
                 var columns = DatabaseTools.Processes.Database.GetTableColumns(connectionString);
                 tables = DatabaseTools.Processes.Database.GetTables(connectionString, columns);
             }
-            catch 
+            catch
             {
 
             }
@@ -186,7 +185,7 @@ namespace DatabaseTools
                 var columns = DatabaseTools.Processes.Database.GetViewColumns(connectionString);
                 tables = DatabaseTools.Processes.Database.GetViews(connectionString, columns);
             }
-            catch 
+            catch
             {
 
             }
@@ -223,20 +222,11 @@ namespace DatabaseTools
 
             if (this.IsSource)
             {
-                this.ServerTextBox.Text = Configuration.Preferences.UserSettingsContext.Current.SourceServer;
+                this.MssqlTextBox.Text = Configuration.Preferences.UserSettingsContext.Current.SourceMssql;
             }
             else
             {
-                this.ServerTextBox.Text = Configuration.Preferences.UserSettingsContext.Current.TargetServer;
-            }
-
-            if (this.IsSource)
-            {
-                this.DatabaseComboBox.Text = Configuration.Preferences.UserSettingsContext.Current.SourceDatabase;
-            }
-            else
-            {
-                this.DatabaseComboBox.Text = Configuration.Preferences.UserSettingsContext.Current.TargetDatabase;
+                this.MssqlTextBox.Text = Configuration.Preferences.UserSettingsContext.Current.TargetMssql;
             }
 
             if (this.IsSource)
@@ -283,6 +273,7 @@ namespace DatabaseTools
             }
 
             this.ConnectionStringComboBox.SelectionChanged += this.ConnectionStringComboBox_SelectionChanged;
+            this.MssqlTextBox.TextChanged += this.MssqlTextBox_TextChanged;
             this.ServerTextBox.TextChanged += this.ServerTextBox_TextChanged;
             this.DSNTextBox.TextChanged += this.DSNTextBox_TextChanged;
             this.OLETextBox.TextChanged += this.OLETextBox_TextChanged;
@@ -308,17 +299,25 @@ namespace DatabaseTools
             this.OnSelectionChanged(EventArgs.Empty);
         }
 
-        private void ServerTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void MssqlTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (this.IsSource)
             {
-                Configuration.Preferences.UserSettingsContext.Current.SourceServer = this.ServerTextBox.Text;
+                Configuration.Preferences.UserSettingsContext.Current.SourceMssql = this.MssqlTextBox.Text;
             }
             else
             {
-                Configuration.Preferences.UserSettingsContext.Current.TargetServer = this.ServerTextBox.Text;
+                Configuration.Preferences.UserSettingsContext.Current.TargetMssql = this.MssqlTextBox.Text;
             }
+
             Configuration.Preferences.UserSettingsContext.Save();
+        }
+
+        private void ServerTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var csb = new System.Data.SqlClient.SqlConnectionStringBuilder(this.MssqlTextBox.Text);
+            csb.DataSource = this.ServerTextBox.Text;
+            this.MssqlTextBox.Text = csb.ConnectionString;
         }
 
         private void DSNTextBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -380,15 +379,10 @@ namespace DatabaseTools
 
         private void DatabaseComboBox_LostFocus(object sender, RoutedEventArgs e)
         {
-            if (this.IsSource)
-            {
-                Configuration.Preferences.UserSettingsContext.Current.SourceDatabase = this.DatabaseComboBox.Text;
-            }
-            else
-            {
-                Configuration.Preferences.UserSettingsContext.Current.TargetDatabase = this.DatabaseComboBox.Text;
-            }
-            Configuration.Preferences.UserSettingsContext.Save();
+            var csb = new System.Data.SqlClient.SqlConnectionStringBuilder(this.MssqlTextBox.Text);
+            csb.InitialCatalog = this.DatabaseComboBox.Text;
+            this.MssqlTextBox.Text = csb.ConnectionString;
+
             if (!(this.DatabaseComboBox.Text.Equals(this.CurrentTextBoxText)))
             {
                 this.OnSelectionChanged(EventArgs.Empty);
@@ -426,18 +420,31 @@ namespace DatabaseTools
                 switch (DatabaseTools.Processes.Database.GetDatabaseType(connectionString))
                 {
                     case Models.DatabaseType.MicrosoftSQLServer:
-                        System.Data.SqlClient.SqlConnectionStringBuilder connectionStringBuilder = new System.Data.SqlClient.SqlConnectionStringBuilder(connectionString.ConnectionString);
-                        if (string.IsNullOrEmpty(this.ServerTextBox.Text))
+                        string value = connectionString.ConnectionString;
+
+                        if (!string.IsNullOrEmpty(this.MssqlTextBox.Text))
                         {
-                            this.ServerTextBox.Text = connectionStringBuilder.DataSource;
+                            value = this.MssqlTextBox.Text;
                         }
+
+                        System.Data.SqlClient.SqlConnectionStringBuilder csb;
+
+                        try
+                        {
+                            csb = new System.Data.SqlClient.SqlConnectionStringBuilder(value);
+                        }
+                        catch
+                        {
+                            csb = new System.Data.SqlClient.SqlConnectionStringBuilder(connectionString.ConnectionString);
+                        }  
+
+                        this.MssqlTextBox.Text = csb.ConnectionString;
+                        this.ServerTextBox.Text = csb.DataSource;
 
                         this.InitializeDatabases();
 
-                        if (string.IsNullOrEmpty(this.DatabaseComboBox.Text))
-                        {
-                            this.DatabaseComboBox.Text = connectionStringBuilder.InitialCatalog;
-                        }
+                        this.DatabaseComboBox.Text = csb.InitialCatalog;
+
                         blnServerVisible = true;
                         break;
                     case Models.DatabaseType.Odbc:
@@ -490,7 +497,7 @@ namespace DatabaseTools
 
         #endregion
 
-       
+
 
     }
 

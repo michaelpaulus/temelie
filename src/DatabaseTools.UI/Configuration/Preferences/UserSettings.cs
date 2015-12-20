@@ -43,29 +43,8 @@ namespace DatabaseTools.Configuration.Preferences
             }
         }
 
-        private System.Collections.Specialized.StringCollection _databases;
-        public System.Collections.Specialized.StringCollection Databases
-        {
-            get
-            {
-                if (this._databases == null)
-                {
-                    this._databases = new System.Collections.Specialized.StringCollection();
-                }
-                return this._databases;
-            }
-            set
-            {
-                this._databases = value;
-            }
-        }
-
-        public string TargetServer { get; set; }
-        public string SourceServer { get; set; }
-
-        public string TargetDatabase { get; set; }
-
-        public string SourceDatabase { get; set; }
+        public string TargetMssql { get; set; }
+        public string SourceMssql { get; set; }
 
         public string TargetDSN { get; set; }
         public string SourceDSN { get; set; }
@@ -83,38 +62,11 @@ namespace DatabaseTools.Configuration.Preferences
 
         #endregion
 
-        #region Methods
-
-        private void UpdateDatabases(string database)
-        {
-            if (!(string.IsNullOrEmpty(database)))
-            {
-                foreach (string d in this.Databases)
-                {
-                    if (d.Equals(database, StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        return;
-                    }
-                }
-                this.Databases.Add(database);
-            }
-        }
-
-        #endregion
+        
 
         protected override void OnPropertyChanged(string propertyName)
         {
             base.OnPropertyChanged(propertyName);
-            switch (propertyName)
-            {
-                case nameof(SourceDatabase):
-                    this.UpdateDatabases(this.SourceDatabase);
-                    break;
-                case nameof(TargetDatabase):
-                    this.UpdateDatabases(this.TargetDatabase);
-                    break;
-            }
-
         }
 
     }
