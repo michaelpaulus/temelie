@@ -192,7 +192,7 @@ namespace DatabaseTools
 
             #region Methods
 
-            public string ToString(string quoteCharacterStart, string quoteCharacterEnd)
+            public string FullColumnType()
             {
                 string strDataType = this.ColumnType;
 
@@ -216,6 +216,13 @@ namespace DatabaseTools
                         strDataType = string.Format("{0}({1})", this.ColumnType, strPrecision);
                         break;
                 }
+
+                return strDataType;
+            }
+
+            public string ToString(string quoteCharacterStart, string quoteCharacterEnd)
+            {
+                string strDataType = this.FullColumnType();
 
                 if (this.IsComputed)
                 {

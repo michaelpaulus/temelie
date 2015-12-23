@@ -11,6 +11,12 @@ namespace DatabaseTools.Providers.MySql
 {
     public class DatabaseProvider : IDatabaseProvider
     {
+
+        public System.Data.Common.DbProviderFactory CreateProvider()
+        {
+            return new global::MySql.Data.MySqlClient.MySqlClientFactory();
+        }
+
         public Models.ColumnTypeModel GetColumnType(Models.ColumnTypeModel sourceColumnType, Models.DatabaseType targetDatabaseType)
         {
             if (targetDatabaseType == Models.DatabaseType.MicrosoftSQLServer)
@@ -270,6 +276,8 @@ namespace DatabaseTools.Providers.MySql
 
         protected void UpdateSchemaColumns(DataTable table, DataTable dataTypes)
         {
+            
+
             if (table.Columns.Contains("ordinal_position"))
             {
                 table.Columns["ordinal_position"].ColumnName = "column_id";
@@ -280,7 +288,27 @@ namespace DatabaseTools.Providers.MySql
                 table.Columns["type_name"].ColumnName = "column_type";
             }
 
-            if (!table.Columns.Contains("is_identity"))
+            if (!table.Columns.Contains("is_primary_key"))
+            {
+                table.Columns.Add("is_primary_key", typeof(bool));
+
+                foreach (var row in table.Rows.OfType<System.Data.DataRow>())
+                {
+                    row["is_primary_key"] = false;
+
+                    if (table.Columns.Contains("COLUMN_KEY"))
+                    {
+                        string value = Convert.ToString(row["COLUMN_KEY"]);
+                        if (value != null &&
+                            value.EqualsIgnoreCase("PRI"))
+                        {
+                            row["is_primary_key"] = true;
+                        }
+                    }
+                }
+            }
+
+                if (!table.Columns.Contains("is_identity"))
             {
                 table.Columns.Add("is_identity", typeof(bool));
                 foreach (var row in table.Rows.OfType<System.Data.DataRow>())

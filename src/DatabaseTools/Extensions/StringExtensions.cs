@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Xml.Linq;
 
@@ -55,7 +56,56 @@ namespace DatabaseTools
 				return sbValue.ToString();
 			}
 
-			public static string FromPascalCase(this string value)
+            public static string ToCamelCase(this string value)
+            {
+                value = value.IsNull("");
+
+                value = value.Replace("ID", "Id");
+
+                var parts = value.Split(' ');
+
+                var returnValue = "";
+
+                foreach (var part in parts)
+                {
+                    if (!string.IsNullOrEmpty(part))
+                    {
+                        if (string.IsNullOrEmpty(returnValue))
+                        {
+                            returnValue = part.Substring(0, 1).ToLower() + part.Substring(1);
+                        }
+                        else
+                        {
+                            returnValue += part.ToPascalCase();
+                        }
+                    }
+                }
+
+                return returnValue;
+            }
+
+            public static string ToPascalCase(this string value)
+            {
+                value = value.IsNull("");
+
+                value = value.Replace("ID", "Id");
+
+                var parts = value.Split(' ');
+
+                var returnValue = "";
+
+                foreach (var part in parts)
+                {
+                    if (!string.IsNullOrEmpty(part))
+                    {
+                        returnValue += part.Substring(0, 1).ToUpper() + part.Substring(1);
+                    }
+                }
+
+                return returnValue;
+            }
+
+            public static string FromPascalCase(this string value)
 			{
 				if (2 > value.Length)
 				{
@@ -79,7 +129,7 @@ namespace DatabaseTools
 
 				sb.Append(chars[chars.Length - 1]);
 
-				return sb.ToString().Replace("E Payment", " ePayment").Trim();
+				return sb.ToString().Trim();
 			}
 
 			public static string ToPlural(this string value)

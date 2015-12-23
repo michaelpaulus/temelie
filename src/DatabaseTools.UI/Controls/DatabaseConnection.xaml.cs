@@ -161,7 +161,7 @@ namespace DatabaseTools
 
         public static IList<DatabaseTools.Models.TableModel> GetTables(System.Configuration.ConnectionStringSettings connectionString)
         {
-            List<DatabaseTools.Models.TableModel> tables = new List<DatabaseTools.Models.TableModel>();
+            IList<DatabaseTools.Models.TableModel> tables = new List<DatabaseTools.Models.TableModel>();
 
             try
             {
@@ -178,7 +178,7 @@ namespace DatabaseTools
 
         public static IList<DatabaseTools.Models.TableModel> GetViews(System.Configuration.ConnectionStringSettings connectionString)
         {
-            List<DatabaseTools.Models.TableModel> tables = new List<DatabaseTools.Models.TableModel>();
+            IList<DatabaseTools.Models.TableModel> tables = new List<DatabaseTools.Models.TableModel>();
 
             try
             {

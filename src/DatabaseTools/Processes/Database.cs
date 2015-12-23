@@ -103,6 +103,9 @@ namespace DatabaseTools
             {
                 switch (providerName)
                 {
+                    case "MySql.Data.MySqlClient":
+                        var mySqlProvider = new Providers.MySql.DatabaseProvider();
+                        return mySqlProvider.CreateProvider();
                     default:
                         return System.Data.Common.DbProviderFactories.GetFactory(providerName);
                 }
@@ -347,6 +350,10 @@ namespace DatabaseTools
                     }
                     return Models.DatabaseType.OLE;
                 }
+                else if (connection.GetType().FullName.StartsWith("MySql", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    return Models.DatabaseType.MySql;
+                }
                 return Models.DatabaseType.MicrosoftSQLServer;
             }
 
@@ -441,17 +448,17 @@ namespace DatabaseTools
                         return typeof(Guid);
                     case DbType.Int16:
                     case DbType.UInt16:
-                        return typeof(Int16);
+                        return typeof(short);
                     case DbType.Int32:
                     case DbType.UInt32:
-                        return typeof(Int32);
+                        return typeof(int);
                     case DbType.Int64:
                     case DbType.UInt64:
-                        return typeof(Int64);
+                        return typeof(long);
                     case DbType.SByte:
                         return typeof(byte);
                     case DbType.Single:
-                        return typeof(Single);
+                        return typeof(float);
                     case DbType.VarNumeric:
                         return typeof(decimal);
                     case DbType.Xml:
@@ -473,6 +480,8 @@ namespace DatabaseTools
                     case Models.DatabaseType.OLE:
                     case Models.DatabaseType.AccessOLE:
                         return "System.Data.OleDb";
+                    case Models.DatabaseType.MySql:
+                        return "MySql.Data.MySqlClient";
                 }
                 return "System.Data.SqlClient";
             }
@@ -486,9 +495,9 @@ namespace DatabaseTools
 
             #region Database Structure
 
-            private static List<Models.ColumnModel> GetColumns(DataTable dataTable, IDatabaseProvider provider)
+            private static IList<Models.ColumnModel> GetColumns(DataTable dataTable, IDatabaseProvider provider)
             {
-                List<Models.ColumnModel> list = new List<Models.ColumnModel>();
+                IList<Models.ColumnModel> list = new List<Models.ColumnModel>();
                 foreach (System.Data.DataRow row in dataTable.Rows)
                 {
                     Models.ColumnModel column = new Models.ColumnModel();
@@ -498,10 +507,10 @@ namespace DatabaseTools
                 return list;
             }
 
-            public static List<Models.ColumnModel> GetTableColumns(System.Configuration.ConnectionStringSettings connectionString)
+            public static IList<Models.ColumnModel> GetTableColumns(System.Configuration.ConnectionStringSettings connectionString)
             {
 
-                List<Models.ColumnModel> list = new List<Models.ColumnModel>();
+                IList<Models.ColumnModel> list = new List<Models.ColumnModel>();
 
                 var databaseType = GetDatabaseType(connectionString);
                 var provider = GetDatabaseProvider(databaseType);
@@ -521,9 +530,9 @@ namespace DatabaseTools
                 return list;
             }
 
-            public static List<Models.ColumnModel> GetViewColumns(System.Configuration.ConnectionStringSettings connectionString)
+            public static IList<Models.ColumnModel> GetViewColumns(System.Configuration.ConnectionStringSettings connectionString)
             {
-                List<Models.ColumnModel> list = new List<Models.ColumnModel>();
+                IList<Models.ColumnModel> list = new List<Models.ColumnModel>();
 
                 var databaseType = GetDatabaseType(connectionString);
                 var provider = GetDatabaseProvider(databaseType);
@@ -649,7 +658,7 @@ namespace DatabaseTools
 
             public static IList<Models.ForeignKeyModel> GetForeignKeys(System.Configuration.ConnectionStringSettings connectionString, IList<string> tables)
             {
-                List<Models.ForeignKeyModel> list = new List<Models.ForeignKeyModel>();
+                IList<Models.ForeignKeyModel> list = new List<Models.ForeignKeyModel>();
 
                 var databaseType = GetDatabaseType(connectionString);
                 var provider = GetDatabaseProvider(databaseType);
@@ -714,7 +723,7 @@ namespace DatabaseTools
 
             private static IList<Models.IndexModel> GetIndexes(System.Configuration.ConnectionStringSettings connectionString, IList<string> tables, bool isPrimaryKey)
             {
-                List<Models.IndexModel> list = new List<Models.IndexModel>();
+                IList<Models.IndexModel> list = new List<Models.IndexModel>();
                 var provider = GetDatabaseProvider(GetDatabaseType(connectionString));
                 System.Data.DataTable dtIndexes = null;
 
@@ -825,7 +834,7 @@ namespace DatabaseTools
                 return list;
             }
 
-            public static List<Models.TableModel> GetTables(System.Configuration.ConnectionStringSettings connectionString, IList<Models.ColumnModel> columns, bool withBackup = false)
+            public static IList<Models.TableModel> GetTables(System.Configuration.ConnectionStringSettings connectionString, IList<Models.ColumnModel> columns, bool withBackup = false)
             {
                 System.Data.DataTable dataTable = null;
 
@@ -838,7 +847,7 @@ namespace DatabaseTools
                     dataTable = provider.GetTables(connectionString);
                 }
 
-                List<Models.TableModel> list = new List<Models.TableModel>();
+                IList<Models.TableModel> list = new List<Models.TableModel>();
 
                 if (dataTable != null)
                 {
@@ -880,9 +889,9 @@ namespace DatabaseTools
                 return list;
             }
 
-            public static List<Models.TableModel> GetViews(System.Configuration.ConnectionStringSettings connectionString, IList<Models.ColumnModel> columns)
+            public static IList<Models.TableModel> GetViews(System.Configuration.ConnectionStringSettings connectionString, IList<Models.ColumnModel> columns)
             {
-                System.Data.DataTable dataTable = null;
+                IList<Models.TableModel> list = new List<Models.TableModel>();
 
                 var databaseType = GetDatabaseType(connectionString);
 
@@ -890,17 +899,19 @@ namespace DatabaseTools
 
                 if (provider != null)
                 {
-                    dataTable = provider.GetViews(connectionString);
+                    System.Data.DataTable dataTable = provider.GetViews(connectionString);
+                    if (dataTable != null)
+                    {
+                        list = GetTables(dataTable, columns);
+                    }
                 }
-
-                var list = GetTables(dataTable, columns);
 
                 return list;
             }
 
             public static IList<Models.TriggerModel> GetTriggers(System.Configuration.ConnectionStringSettings connectionString, IList<string> tables, string objectFilter)
             {
-                List<Models.TriggerModel> list = new List<Models.TriggerModel>();
+                IList<Models.TriggerModel> list = new List<Models.TriggerModel>();
 
                 var databaseType = GetDatabaseType(connectionString);
                 var provider = GetDatabaseProvider(databaseType);
