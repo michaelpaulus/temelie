@@ -93,18 +93,21 @@ namespace DatabaseTools.ViewModels
             {
                 case nameof(ScriptPath):
 
-                    Configuration.Preferences.UserSettingsContext.Current.CreateScriptsPath = this.ScriptPath;
-                    Configuration.Preferences.UserSettingsContext.Save();
-
-                    System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(this.ScriptPath);
-
-                    this.Files.Clear();
-
-                    foreach (var file in (from i in di.GetFiles("*.sql")
-                                         orderby i.Name
-                                         select i))
+                    if (System.IO.Directory.Exists(this.ScriptPath))
                     {
-                        this.Files.Add(file);
+                        Configuration.Preferences.UserSettingsContext.Current.CreateScriptsPath = this.ScriptPath;
+                        Configuration.Preferences.UserSettingsContext.Save();
+
+                        System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(this.ScriptPath);
+
+                        this.Files.Clear();
+
+                        foreach (var file in (from i in di.GetFiles("*.sql")
+                                              orderby i.Name
+                                              select i))
+                        {
+                            this.Files.Add(file);
+                        }
                     }
 
                     break;

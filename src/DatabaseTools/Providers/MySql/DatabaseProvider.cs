@@ -201,29 +201,41 @@ namespace DatabaseTools.Providers.MySql
                     }
                     else if (indexName.StartsWith("fk", StringComparison.InvariantCultureIgnoreCase))
                     {
-                        row["INDEX_NAME"] = "IDX_" + indexName;
+                        row["INDEX_NAME"] = "IX_" + indexName;
                     }
                     else if (indexName.StartsWith("index_", StringComparison.InvariantCultureIgnoreCase))
                     {
                         indexName = indexName.Substring(6);
                         if (indexName.StartsWith(tableName, StringComparison.InvariantCultureIgnoreCase))
                         {
-                            row["INDEX_NAME"] = "IDX_" + indexName;
+                            row["INDEX_NAME"] = "IX_" + indexName;
                         }
                         else
                         {
-                            row["INDEX_NAME"] = "IDX_" + tableName + "_" + indexName;
+                            row["INDEX_NAME"] = "IX_" + tableName + "_" + indexName;
                         }
                     }
-                    else if (!indexName.StartsWith("IDX", StringComparison.InvariantCultureIgnoreCase))
+                    else if (indexName.StartsWith("IDX_", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        indexName = indexName.Substring(4);
+                        if (indexName.StartsWith(tableName, StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            row["INDEX_NAME"] = "IX_" + indexName;
+                        }
+                        else
+                        {
+                            row["INDEX_NAME"] = "IX_" + tableName + "_" + indexName;
+                        }
+                    }
+                    else if (!indexName.StartsWith("IX", StringComparison.InvariantCultureIgnoreCase))
                     {
                         if (indexName.StartsWith(tableName, StringComparison.InvariantCultureIgnoreCase))
                         {
-                            row["INDEX_NAME"] = "IDX_" + indexName;
+                            row["INDEX_NAME"] = "IX_" + indexName;
                         }
                         else
                         {
-                            row["INDEX_NAME"] = "IDX_" + tableName + "_" + indexName;
+                            row["INDEX_NAME"] = "IX_" + tableName + "_" + indexName;
                         }
                     }
 
