@@ -18,7 +18,7 @@ namespace DatabaseTools.ViewModels
         {
             this.ThreadCount = 5;
             this.UseBulkCopy = true;
-            this.UseBulkCopyDataTable = true;
+            this.BatchSize = 10000;
 
             this.ConvertCommand = new Command(() =>
             {
@@ -58,7 +58,7 @@ namespace DatabaseTools.ViewModels
         public string ErrorMessage { get; set; }
         public int ThreadCount { get; set; }
         public bool UseBulkCopy { get; set; }
-        public bool UseBulkCopyDataTable { get; set; }
+        public int BatchSize { get; set; }
         public bool TrimStrings { get; set; }
 
         private Stopwatch Stopwatch { get; set; }
@@ -83,7 +83,7 @@ namespace DatabaseTools.ViewModels
             settings.TargetTables = targetTables;
 
             settings.UseBulkCopy = this.UseBulkCopy;
-            settings.UseBulkCopyDataTable = this.UseBulkCopyDataTable;
+            settings.BatchSize = this.BatchSize;
             settings.TrimStrings = this.TrimStrings;
 
             return settings;

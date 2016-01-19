@@ -11,7 +11,7 @@ namespace DatabaseTools.Processes
 
         public TableConverterSettings()
         {
-            this.UseBulkCopyDataTable = true;
+            
         }
 
         public System.Configuration.ConnectionStringSettings SourceConnectionString { get; set; }
@@ -21,7 +21,9 @@ namespace DatabaseTools.Processes
         public IList<DatabaseTools.Models.TableModel> TargetTables { get; set; }
 
         public bool UseBulkCopy { get; set; }
-        public bool UseBulkCopyDataTable { get; set; }
+
+        public int BatchSize { get; set; }
+
         public bool TrimStrings { get; set; }
     }
 }
