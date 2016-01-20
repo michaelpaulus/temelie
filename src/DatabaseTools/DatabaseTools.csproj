@@ -101,6 +101,7 @@
     <Compile Include="Configuration\ConnectionInfo.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Processes\ScriptProgress.cs" />
+    <Compile Include="Processes\TableConverterException.cs" />
     <Compile Include="Processes\TableConverter.cs" />
     <Compile Include="Processes\TableConverterReader.cs" />
     <Compile Include="Processes\TableConverterSettings.cs" />

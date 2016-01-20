@@ -121,130 +121,46 @@ namespace DatabaseTools.Providers.MySql
 
         public DataTable GetForeignKeys(ConnectionStringSettings connectionString)
         {
-            DataTable dataTable;
-            using (var conn = Processes.Database.CreateDbConnection(connectionString))
-            {
-                DataTable dtForeignKeys = conn.GetSchema("Foreign Keys");
-
-                dataTable = conn.GetSchema("Foreign Key Columns");
-
-                dtForeignKeys.Columns["constraint_name"].ColumnName = "foreign_key_name";
-                dataTable.Columns["constraint_name"].ColumnName = "foreign_key_name";
-
-                dataTable.Columns.Add("delete_action", typeof(string));
-                dataTable.Columns.Add("update_action", typeof(string));
-                dataTable.Columns.Add("is_not_for_replication", typeof(bool));
-
-                foreach (var row in dataTable.Rows.OfType<DataRow>())
-                {
-                    string tableName = row["table_name"].ToString();
-                    string fkName = row["foreign_key_name"].ToString();
-
-                    var fkRow = (from i in dtForeignKeys.Rows.OfType<DataRow>()
-                                 where 
-                                    i["table_name"].ToString() == tableName &&
-                                    i["foreign_key_name"].ToString() == fkName
-                                 select i).First();
-
-                    row["delete_action"] = fkRow["delete_rule"].ToString().Replace("RESTRICT", "NO ACTION");
-                    row["update_action"] = fkRow["update_rule"].ToString().Replace("RESTRICT", "NO ACTION");
-                    row["is_not_for_replication"] = false;
-
-                }
-
-
-            }
+            var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connectionString.ConnectionString);
+            var sql = $"SELECT KCU.table_name, KCU.constraint_name AS foreign_key_name, KCU.column_name, KCU.referenced_table_name, KCU.referenced_column_name, 0 AS is_not_for_replication, CASE WHEN RC.delete_rule = 'RESTRICT' THEN 'NO ACTION' ELSE RC.delete_rule END delete_action, CASE WHEN RC.update_rule = 'RESTRICT' THEN 'NO ACTION' ELSE RC.update_rule END update_action FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE KCU JOIN INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS RC ON KCU.CONSTRAINT_CATALOG = RC.CONSTRAINT_CATALOG AND KCU.CONSTRAINT_SCHEMA = RC.CONSTRAINT_SCHEMA AND KCU.CONSTRAINT_NAME = RC.CONSTRAINT_NAME WHERE RC.constraint_schema = '{csb.Database}' ORDER BY KCU.CONSTRAINT_NAME, KCU.ORDINAL_POSITION";
+            System.Data.DataSet ds = Processes.Database.Execute(connectionString, sql);
+            DataTable dataTable = ds.Tables[0];
             return dataTable;
         }
 
         public DataTable GetIndexes(ConnectionStringSettings connectionString)
         {
-            DataTable dtIndexColumns;
+            var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connectionString.ConnectionString);
+            var sql = $"SELECT statistics.table_name, statistics.index_name, statistics.column_name, statistics.seq_in_index AS key_ordinal, CASE WHEN statistics.non_unique = 0 THEN 1 ELSE 0 END AS is_unique FROM information_schema.statistics WHERE table_schema = '{csb.Database}'";
 
-            using (var conn = Processes.Database.CreateDbConnection(connectionString))
+            System.Data.DataSet ds = Processes.Database.Execute(connectionString, sql);
+            DataTable dataTable = ds.Tables[0];
+
+            dataTable.Columns.Add("is_descending_key");
+            dataTable.Columns.Add("is_included_column");
+            dataTable.Columns.Add("fill_factor");
+            dataTable.Columns.Add("is_primary_key");
+            dataTable.Columns.Add("index_type");
+            dataTable.Columns.Add("filter_definition");
+
+            foreach (var row in dataTable.Rows.OfType<DataRow>())
             {
-                var dtIndex = conn.GetSchema("Indexes");
 
-                dtIndexColumns = conn.GetSchema("IndexColumns");
+                row["is_descending_key"] = false;
+                row["is_included_column"] = false;
+                row["fill_factor"] = 0;
+                row["is_primary_key"] = row["index_name"].ToString().ToUpper() == "PRIMARY";
+                row["index_type"] = "NONCLUSTERED";
 
-                dtIndexColumns.Columns.Add("is_descending_key");
-                dtIndexColumns.Columns.Add("is_included_column");
-                dtIndexColumns.Columns.Add("is_unique");
-                dtIndexColumns.Columns.Add("fill_factor");
-                dtIndexColumns.Columns.Add("key_ordinal");
-                dtIndexColumns.Columns.Add("is_primary_key");
-                dtIndexColumns.Columns.Add("index_type");
-                dtIndexColumns.Columns.Add("filter_definition");
-
-                foreach (DataRow row in dtIndexColumns.Rows)
+                if (Convert.ToBoolean(row["is_primary_key"]))
                 {
-                    string indexName = row["INDEX_NAME"].ToString();
-                    string tableName = row["TABLE_NAME"].ToString();
-
-                    var indexRow = (from i in dtIndex.Rows.OfType<DataRow>()
-                                    where i["INDEX_NAME"].ToString() == indexName &&
-                                          i["TABLE_NAME"].ToString() == tableName
-                                    select i).Single();
-
-                    row["is_descending_key"] = row["SORT_ORDER"].ToString() == "D";
-                    row["is_included_column"] = false;
-                    row["is_unique"] = Convert.ToBoolean(indexRow["UNIQUE"]);
-                    row["fill_factor"] = 0;
-                    row["key_ordinal"] = (int)row["ORDINAL_POSITION"];
-                    row["is_primary_key"] = Convert.ToBoolean(indexRow["PRIMARY"]);
-                    row["index_type"] = "NONCLUSTERED";
-
-                    if (Convert.ToBoolean(indexRow["PRIMARY"]))
-                    {
-                        row["INDEX_NAME"] = "PK_" + tableName;
-                        row["index_type"] = "CLUSTERED";
-                    }
-                    else if (indexName.StartsWith("fk", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        row["INDEX_NAME"] = "IX_" + indexName;
-                    }
-                    else if (indexName.StartsWith("index_", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        indexName = indexName.Substring(6);
-                        if (indexName.StartsWith(tableName, StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            row["INDEX_NAME"] = "IX_" + indexName;
-                        }
-                        else
-                        {
-                            row["INDEX_NAME"] = "IX_" + tableName + "_" + indexName;
-                        }
-                    }
-                    else if (indexName.StartsWith("IDX_", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        indexName = indexName.Substring(4);
-                        if (indexName.StartsWith(tableName, StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            row["INDEX_NAME"] = "IX_" + indexName;
-                        }
-                        else
-                        {
-                            row["INDEX_NAME"] = "IX_" + tableName + "_" + indexName;
-                        }
-                    }
-                    else if (!indexName.StartsWith("IX", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        if (indexName.StartsWith(tableName, StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            row["INDEX_NAME"] = "IX_" + indexName;
-                        }
-                        else
-                        {
-                            row["INDEX_NAME"] = "IX_" + tableName + "_" + indexName;
-                        }
-                    }
-
-
+                    row["index_name"] = "PK_" + row["table_name"].ToString();
+                    row["index_type"] = "CLUSTERED";
                 }
 
             }
 
-            return dtIndexColumns;
+            return dataTable;
         }
 
         public DataTable GetTableColumns(ConnectionStringSettings connectionString)
@@ -288,7 +204,7 @@ namespace DatabaseTools.Providers.MySql
 
         protected void UpdateSchemaColumns(DataTable table, DataTable dataTypes)
         {
-            
+
 
             if (table.Columns.Contains("ordinal_position"))
             {
@@ -320,7 +236,7 @@ namespace DatabaseTools.Providers.MySql
                 }
             }
 
-                if (!table.Columns.Contains("is_identity"))
+            if (!table.Columns.Contains("is_identity"))
             {
                 table.Columns.Add("is_identity", typeof(bool));
                 foreach (var row in table.Rows.OfType<System.Data.DataRow>())
@@ -408,7 +324,7 @@ namespace DatabaseTools.Providers.MySql
             {
 
                 string columnDefault = Processes.Database.GetStringValue(row, "COLUMN_DEFAULT");
-                
+
                 if (!string.IsNullOrEmpty(columnDefault))
                 {
                     if (columnDefault == "NULL" ||
@@ -426,7 +342,7 @@ namespace DatabaseTools.Providers.MySql
                     }
                 }
 
-                row["COLUMN_DEFAULT"] = columnDefault;  
+                row["COLUMN_DEFAULT"] = columnDefault;
 
             }
 

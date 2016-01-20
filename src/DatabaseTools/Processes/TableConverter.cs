@@ -40,10 +40,7 @@ namespace DatabaseTools.Processes
             {
                 try
                 {
-                    if (progress != null)
-                    {
-                        progress.Report(new TableProgress() { ProgressPercentage = 0, Table = sourceTable });
-                    }
+
                     if (settings.UseBulkCopy)
                     {
                         this.ConvertBulk(progress, sourceTable, settings.SourceConnectionString, targetTable, settings.TargetConnectionString, settings.TrimStrings, settings.BatchSize);
@@ -52,7 +49,6 @@ namespace DatabaseTools.Processes
                     {
                         this.Convert(progress, sourceTable, settings.SourceConnectionString, targetTable, settings.TargetConnectionString, settings.TrimStrings);
                     }
-
                 }
                 catch (Exception ex)
                 {
@@ -61,12 +57,28 @@ namespace DatabaseTools.Processes
                     {
                         strException = ex.ToString();
                     }
-                    progress.Report(new TableProgress() { ProgressPercentage = 100, Table = sourceTable, ErrorMessage = strException });
+
+                    if (progress == null)
+                    {
+                        if (ex as TableConverterException == null)
+                        {
+                            throw;
+                        }
+                        else
+                        {
+                            throw new TableConverterException(sourceTable, strException, ex);
+                        }
+                    }
+                    else
+                    {
+                        progress.Report(new TableProgress() { ProgressPercentage = 100, Table = sourceTable, ErrorMessage = strException });
+                    }
+
                 }
             }
         }
 
-        public void ConvertBulk(IProgress<TableProgress> progress,
+        private void ConvertBulk(IProgress<TableProgress> progress,
             Models.TableModel sourceTable,
             System.Configuration.ConnectionStringSettings sourceConnectionString,
             Models.TableModel targetTable,
@@ -74,6 +86,12 @@ namespace DatabaseTools.Processes
             bool trimStrings,
             int batchSize)
         {
+            if (progress != null)
+            {
+                progress.Report(new TableProgress() { ProgressPercentage = 0, Table = sourceTable });
+            }
+
+
             System.Data.Common.DbProviderFactory sourceFactory = DatabaseTools.Processes.Database.CreateDbProviderFactory(sourceConnectionString);
             System.Data.Common.DbProviderFactory targetFactory = DatabaseTools.Processes.Database.CreateDbProviderFactory(targetConnectionString);
 
@@ -90,19 +108,21 @@ namespace DatabaseTools.Processes
 
             if (intTargetRowCount == 0)
             {
-                int intSourceRowCount = 0;
+                int? intSourceRowCount = null;
 
-                using (System.Data.Common.DbConnection sourceConnection = DatabaseTools.Processes.Database.CreateDbConnection(sourceFactory, sourceConnectionString))
+                if (progress != null)
                 {
+                    using (System.Data.Common.DbConnection sourceConnection = DatabaseTools.Processes.Database.CreateDbConnection(sourceFactory, sourceConnectionString))
+                    {
 
-                    intSourceRowCount = this.GetRowCount(sourceConnection, sourceTable.TableName, sourceDatabaseType);
+                        intSourceRowCount = this.GetRowCount(sourceConnection, sourceTable.TableName, sourceDatabaseType);
+                    }
                 }
 
-                if (intSourceRowCount > 0)
+                if (!intSourceRowCount.HasValue || intSourceRowCount.Value > 0)
                 {
 
                     int intRowIndex = 0;
-
 
                     System.Text.StringBuilder sbColumns = new System.Text.StringBuilder();
 
@@ -126,7 +146,6 @@ namespace DatabaseTools.Processes
                             command.CommandText = this.FormatCommandText($"SELECT {sbColumns.ToString()} FROM [{sourceTable.TableName}]", sourceDatabaseType);
                             using (var reader = command.ExecuteReader())
                             {
-
                                 var reader2 = new TableConverterReader(reader, sourceMatchedColumns, targetMatchedColumns, trimStrings);
 
                                 using (System.Data.SqlClient.SqlBulkCopy bcp = new System.Data.SqlClient.SqlBulkCopy(targetConnectionString.ConnectionString, SqlBulkCopyOptions.KeepIdentity))
@@ -138,19 +157,24 @@ namespace DatabaseTools.Processes
 
                                     bcp.SqlRowsCopied += (object sender, System.Data.SqlClient.SqlRowsCopiedEventArgs e) =>
                                     {
-                                        intRowIndex += bcp.BatchSize;
-
-                                        if (intRowIndex > intSourceRowCount)
+                                        if (progress != null &&
+                                            intSourceRowCount.HasValue)
                                         {
-                                            intRowIndex = intSourceRowCount;
-                                        }
+                                            intRowIndex += bcp.BatchSize;
 
-                                        int intNewProgress = System.Convert.ToInt32(intRowIndex / (double)intSourceRowCount * 100);
+                                            if (intRowIndex > intSourceRowCount)
+                                            {
+                                                intRowIndex = intSourceRowCount.Value;
+                                            }
 
-                                        if (intProgress != intNewProgress)
-                                        {
-                                            intProgress = intNewProgress;
-                                            progress.Report(new TableProgress() { ProgressPercentage = intProgress, Table = sourceTable });
+                                            int intNewProgress = System.Convert.ToInt32(intRowIndex / (double)intSourceRowCount * 100);
+
+                                            if (intProgress != intNewProgress &&
+                                                intNewProgress < 100)
+                                            {
+                                                intProgress = intNewProgress;
+                                                progress.Report(new TableProgress() { ProgressPercentage = intProgress, Table = sourceTable });
+                                            }
                                         }
                                     };
 
@@ -165,22 +189,26 @@ namespace DatabaseTools.Processes
             }
 
 
-            if (intProgress != 100)
+            if (progress != null &&
+                intProgress != 100)
             {
                 progress.Report(new TableProgress() { ProgressPercentage = 100, Table = sourceTable });
             }
 
         }
 
-
-
-        public void Convert(IProgress<TableProgress> progress,
+        private void Convert(IProgress<TableProgress> progress,
             Models.TableModel sourceTable,
             System.Configuration.ConnectionStringSettings sourceConnectionString,
             Models.TableModel targetTable,
             System.Configuration.ConnectionStringSettings targetConnectionString,
             bool trimStrings)
         {
+            if (progress != null)
+            {
+                progress.Report(new TableProgress() { ProgressPercentage = 0, Table = sourceTable });
+            }
+
             System.Data.Common.DbProviderFactory sourceFactory = DatabaseTools.Processes.Database.CreateDbProviderFactory(sourceConnectionString);
             System.Data.Common.DbProviderFactory targetFactory = DatabaseTools.Processes.Database.CreateDbProviderFactory(targetConnectionString);
 
@@ -211,11 +239,14 @@ namespace DatabaseTools.Processes
                     {
                         this.SetReadTimeout(sourceCommand);
 
-                        sourceCommand.CommandText = this.FormatCommandText($"SELECT COUNT(*) FROM [{sourceTable.TableName}]", sourceDatabaseType);
+                        int? intSourceRowCount = null;
 
-                        int rowCount = System.Convert.ToInt32(sourceCommand.ExecuteScalar());
+                        if (progress != null)
+                        {
+                            intSourceRowCount = this.GetRowCount(sourceConnection, sourceTable.TableName, sourceDatabaseType);
+                        }
 
-                        if (rowCount > 0)
+                        if (!intSourceRowCount.HasValue || intSourceRowCount.Value > 0)
                         {
 
                             System.Text.StringBuilder sbSelectColumns = new System.Text.StringBuilder();
@@ -308,15 +339,25 @@ namespace DatabaseTools.Processes
 
                                             rowIndex += 1;
 
-                                            int intNewProgress = System.Convert.ToInt32(rowIndex / (double)rowCount * 100);
+                                            int intNewProgress = intProgress;
+
+                                            if (intSourceRowCount.HasValue)
+                                            {
+                                                intNewProgress = System.Convert.ToInt32(rowIndex / (double)intSourceRowCount.Value * 100);
+                                            }
 
                                             try
                                             {
                                                 targetCommand.ExecuteNonQuery();
-                                                if (intProgress != intNewProgress)
+
+                                                if (progress != null)
                                                 {
-                                                    intProgress = intNewProgress;
-                                                    progress.Report(new TableProgress() { ProgressPercentage = intNewProgress, Table = sourceTable });
+                                                    if (intProgress != intNewProgress && 
+                                                        intNewProgress != 100)
+                                                    {
+                                                        intProgress = intNewProgress;
+                                                        progress.Report(new TableProgress() { ProgressPercentage = intNewProgress, Table = sourceTable });
+                                                    }
                                                 }
 
                                             }
@@ -326,8 +367,7 @@ namespace DatabaseTools.Processes
 
                                                 string strErrorMessage = string.Format("could not insert row on table: {0} at row: {1}", sourceTable.TableName, strRowErrorMessage);
 
-                                                progress.Report(new TableProgress() { ProgressPercentage = intNewProgress, Table = sourceTable, ErrorMessage = strErrorMessage });
-
+                                                throw new TableConverterException(sourceTable, strErrorMessage, ex);
                                             }
 
                                             intProgress = intNewProgress;
@@ -344,11 +384,12 @@ namespace DatabaseTools.Processes
 
             }
 
-
-            if (intProgress != 100)
+            if (progress != null &&
+                intProgress != 100)
             {
                 progress.Report(new TableProgress() { ProgressPercentage = 100, Table = sourceTable });
             }
+
         }
 
         private object GetColumnValue(Models.ColumnModel targetColumn, object value, bool trimStrings)

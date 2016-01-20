@@ -167,10 +167,36 @@ namespace DatabaseTools.Processes
         {
             object returnValue = value;
 
-            if (value != DBNull.Value)
-            {
-                var dbType = targetColumn.DbType;
+            var dbType = targetColumn.DbType;
 
+            if (value == DBNull.Value)
+            {
+                switch (dbType)
+                {
+                    case System.Data.DbType.Boolean:
+                        if (!targetColumn.IsNullable)
+                        {
+                            if (!string.IsNullOrEmpty(targetColumn.ColumnDefault))
+                            {
+                                if (targetColumn.ColumnDefault.Contains("1"))
+                                {
+                                    returnValue = true;
+                                }
+                                else
+                                {
+                                    returnValue = false;
+                                }
+                            }
+                            else
+                            {
+                                returnValue = false;
+                            }
+                        }
+                        break;
+                }
+            }
+            else
+            {
                 switch (dbType)
                 {
                     case System.Data.DbType.Date:
@@ -208,16 +234,6 @@ namespace DatabaseTools.Processes
                             returnValue = DateTime.MinValue;
                         }
                         break;
-                    case System.Data.DbType.Boolean:
-                        if (!targetColumn.IsNullable &&
-                            (
-                                value == null ||
-                                value == DBNull.Value
-                            ))
-                        {
-                            value = false;
-                        }
-                        break;  
                     case System.Data.DbType.Time:
                         {
                             if ((value) is TimeSpan)
@@ -247,6 +263,23 @@ namespace DatabaseTools.Processes
                             }
                             break;
                         }
+                    case DbType.Boolean:
+                        if (value.GetType() == typeof(string))
+                        {
+                            if (value.ToString() == "1" ||
+                                value.ToString().Equals("yes", StringComparison.InvariantCultureIgnoreCase) ||
+                                value.ToString().Equals("y", StringComparison.InvariantCultureIgnoreCase))
+                            {
+                                returnValue = true;
+                            }
+                            else if (value.ToString() == "0" ||
+                                value.ToString().Equals("no", StringComparison.InvariantCultureIgnoreCase) ||
+                                value.ToString().Equals("n", StringComparison.InvariantCultureIgnoreCase))
+                            {
+                                returnValue = false;
+                            }
+                        }
+                        break;
                     case System.Data.DbType.AnsiString:
                     case System.Data.DbType.AnsiStringFixedLength:
                     case System.Data.DbType.String:

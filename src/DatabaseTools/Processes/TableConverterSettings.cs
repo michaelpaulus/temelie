@@ -11,7 +11,6 @@ namespace DatabaseTools.Processes
 
         public TableConverterSettings()
         {
-            
         }
 
         public System.Configuration.ConnectionStringSettings SourceConnectionString { get; set; }
@@ -25,5 +24,6 @@ namespace DatabaseTools.Processes
         public int BatchSize { get; set; }
 
         public bool TrimStrings { get; set; }
+
     }
 }
