@@ -83,8 +83,14 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Configuration\Preferences\UserSettingsContext.cs" />
+    <Compile Include="Controls\Connection.xaml.cs">
+      <DependentUpon>Connection.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Models\DatabaseConnection.cs" />
+    <Compile Include="Models\DatabaseConnectionType.cs" />
     <Compile Include="ViewModels\AttachDatabaseViewModel.cs" />
     <Compile Include="ViewModels\Command.cs" />
+    <Compile Include="ViewModels\ConnectionViewModel.cs" />
     <Compile Include="ViewModels\ConvertViewModel.cs" />
     <Compile Include="ViewModels\CreateScriptsViewModel.cs" />
     <Compile Include="ViewModels\DatabaseConnectionViewModel.cs" />
@@ -112,6 +118,9 @@
     <Compile Include="Views\CreateScripts.xaml.cs">
       <DependentUpon>CreateScripts.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\DatabaseConnectionDialog.xaml.cs">
+      <DependentUpon>DatabaseConnectionDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\ExecuteScripts.xaml.cs">
       <DependentUpon>ExecuteScripts.xaml</DependentUpon>
     </Compile>
@@ -123,9 +132,9 @@
     </Compile>
     <Compile Include="_Project\AssemblyCopyright.cs" />
     <Compile Include="_Project\AssemblyVersion.cs" />
-    <Page Include="Controls\DatabaseConnection.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    <Page Include="Controls\Connection.xaml">
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\Progress.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -144,9 +153,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Configuration\Preferences\UserSettings.cs" />
-    <Compile Include="Controls\DatabaseConnection.xaml.cs">
-      <DependentUpon>DatabaseConnection.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Controls\Progress.xaml.cs">
       <DependentUpon>Progress.xaml</DependentUpon>
     </Compile>
@@ -197,6 +203,10 @@
     <Page Include="Views\CreateScripts.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\DatabaseConnectionDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\ExecuteScripts.xaml">
       <Generator>MSBuild:Compile</Generator>

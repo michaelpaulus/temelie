@@ -1,0 +1,52 @@
+﻿<Window x:Class="DatabaseTools.Views.DatabaseConnectionDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DatabaseTools.Views"
+        mc:Ignorable="d"
+        Title="Database Connections" Height="300" Width="600" >
+    <Grid Margin="8">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid Grid.RowSpan="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <ListBox ItemsSource="{Binding Connections}" DisplayMemberPath="Name"  Margin="4" SelectedItem="{Binding SelectedConnection}" />
+            <StackPanel Grid.Row="1" Orientation="Horizontal">
+                <Button Content="Add" Margin="4" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Command="{Binding AddCommand}"/>
+                <Button Content="Delete" Margin="4" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Command="{Binding DeleteCommand}"/>
+            </StackPanel>
+        </Grid>
+        <Grid Grid.Column="1" Margin="4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="61*"/>
+                <ColumnDefinition Width="407*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Label Content="Name" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" />
+            <TextBox Grid.Row="1" Grid.Column="0" Text="{Binding SelectedConnection.Name}" Grid.ColumnSpan="2"  />
+            <Label Content="Connection Type" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" />
+            <ComboBox Grid.Row="3" Grid.Column="0"  IsEditable="True" ItemsSource="{Binding ConnectionTypes}" SelectedValue="{Binding SelectedConnection.ConnectionType, Mode=TwoWay}" DisplayMemberPath="ConnectionType" SelectedValuePath="ConnectionType" Grid.ColumnSpan="2" />
+            <Label Content="Connection String" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" />
+            <TextBox Grid.Row="5" Grid.Column="0" Text="{Binding SelectedConnection.ConnectionString}" Grid.ColumnSpan="2" TextWrapping="WrapWithOverflow"   />
+
+        </Grid>
+        <Button Content="Save" Grid.Row="1" Grid.Column="1" Margin="4" HorizontalAlignment="Right" VerticalAlignment="Top" Width="75" Command="{Binding SaveCommand}" IsDefault="True" Click="Button_Click" />
+    </Grid>
+</Window>

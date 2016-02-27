@@ -49,6 +49,9 @@ namespace DatabaseTools
 
             this.SaveListComboBox.ItemsSource = list;
             SubscribeToEvents();
+
+            this.SourceDatabaseConnection.ViewModel.LoadConnections();
+
         }
 
         private void GenerateScriptButton_Click(object sender, System.Windows.RoutedEventArgs e)
@@ -244,7 +247,7 @@ namespace DatabaseTools
             GenerateScriptButton.Click += GenerateScriptButton_Click;
             ScriptBackgroundWorker.DoWork += ScriptBackgroundWorker_DoWork;
             ScriptBackgroundWorker.RunWorkerCompleted += ScriptBackgroundWorker_RunWorkerCompleted;
-            SourceDatabaseConnection.SelectionChanged += SourceDatabaseConnection_SelectionChanged;
+            SourceDatabaseConnection.ViewModel.SelectionChanged += SourceDatabaseConnection_SelectionChanged;
             SaveListButton.Click += SaveListButton_Click;
             SaveListComboBox.SelectionChanged += SaveListComboBox_SelectionChanged;
         }

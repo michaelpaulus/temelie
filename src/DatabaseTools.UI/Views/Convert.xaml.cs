@@ -32,6 +32,9 @@ namespace DatabaseTools
 
             this.DataContext = this.ViewModel;
 
+            this.SourceDatabaseConnection.ViewModel.LoadConnections();
+            this.TargetDatabaseConnection.ViewModel.LoadConnections();
+
         }
 
         private ViewModels.ConvertViewModel _viewModel;
@@ -96,8 +99,8 @@ namespace DatabaseTools
             ResultsListBox.SelectionChanged += ResultsListBox_SelectionChanged;
             ResultsListBox.SizeChanged += ResultsListBox_SizeChanged;
             ResultsListBox.SourceUpdated += ResultsListBox_SourceUpdated;
-            SourceDatabaseConnection.SelectionChanged += SourceDatabaseConnection_SelectionChanged;
-            TargetDatabaseConnection.SelectionChanged += TargetDatabaseConnection_SelectionChanged;
+            SourceDatabaseConnection.ViewModel.SelectionChanged += SourceDatabaseConnection_SelectionChanged;
+            TargetDatabaseConnection.ViewModel.SelectionChanged += TargetDatabaseConnection_SelectionChanged;
 
         }
 

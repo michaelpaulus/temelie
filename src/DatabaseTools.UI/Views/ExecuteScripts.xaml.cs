@@ -27,6 +27,9 @@ namespace DatabaseTools
             this.InitializeComponent();
             SubscribeToEvents();
             this.DataContext = this.ViewModel;
+
+            this.DatabaseConnection.ViewModel.LoadConnections();
+
         }
 
         private ViewModels.ExecuteScriptsViewModel _viewModel;
@@ -94,7 +97,7 @@ namespace DatabaseTools
 
             BrowseButton.Click += BrowseButton_Click;
             CustomScriptsBrowseButton.Click += CustomScriptsBrowseButton_Click;
-            DatabaseConnection.SelectionChanged += DatabaseConnection_SelectionChanged;
+            DatabaseConnection.ViewModel.SelectionChanged += DatabaseConnection_SelectionChanged;
         }
 
     }

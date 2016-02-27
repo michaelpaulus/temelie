@@ -28,8 +28,8 @@ namespace DatabaseTools
                 try
                 {
                     var connectionString = (System.Configuration.ConnectionStringSettings)obj;
-                    var tables = DatabaseConnection.GetTables(connectionString);
-                    var views = DatabaseConnection.GetViews(connectionString);
+                    var tables = Controls.DatabaseConnection.GetTables(connectionString);
+                    var views = Controls.DatabaseConnection.GetViews(connectionString);
 
                     var list = tables.Union(views).ToList();
 
@@ -58,9 +58,11 @@ namespace DatabaseTools
         {
             this.InitializeComponent();
             SubscribeToEvents();
+
+            this.DatabaseConnection.ViewModel.LoadConnections();
         }
 
-        
+
         private bool EventsSubscribed = false;
         private void SubscribeToEvents()
         {
@@ -69,7 +71,7 @@ namespace DatabaseTools
             else
                 EventsSubscribed = true;
 
-            DatabaseConnection.SelectionChanged += DatabaseConnection_SelectionChanged;
+            DatabaseConnection.ViewModel.SelectionChanged += DatabaseConnection_SelectionChanged;
             GenerateScriptButton.Click += GenerateScriptButton_Click;
         }
 

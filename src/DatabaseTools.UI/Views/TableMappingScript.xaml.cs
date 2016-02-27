@@ -29,6 +29,10 @@ namespace DatabaseTools
             // Add any initialization after the InitializeComponent() call.
             this.DataContext = this.ViewModel;
             SubscribeToEvents();
+
+            this.SourceDatabaseConnection.ViewModel.LoadConnections();
+            this.TargetDatabaseConnection.ViewModel.LoadConnections();
+
         }
 
         #region Properties
@@ -85,8 +89,8 @@ namespace DatabaseTools
             else
                 EventsSubscribed = true;
 
-            SourceDatabaseConnection.SelectionChanged += SourceDatabaseConnection_SelectionChanged;
-            TargetDatabaseConnection.SelectionChanged += TargetDatabaseConnection_SelectionChanged;
+            SourceDatabaseConnection.ViewModel.SelectionChanged += SourceDatabaseConnection_SelectionChanged;
+            TargetDatabaseConnection.ViewModel.SelectionChanged += TargetDatabaseConnection_SelectionChanged;
             CreateScriptButton.Click += CreateScriptButton_Click;
             CreateXmlButton.Click += CreateXmlButton_Click;
         }

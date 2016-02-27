@@ -43,26 +43,22 @@ namespace DatabaseTools.Configuration.Preferences
             }
         }
 
-        public string TargetMssql { get; set; }
-        public string SourceMssql { get; set; }
-
-        public string TargetDSN { get; set; }
-        public string SourceDSN { get; set; }
-
-        public string TargetOLE { get; set; }
-        public string SourceOLE { get; set; }
-
-        public string TargetMySql { get; set; }
-        public string SourceMySql { get; set; }
-
-        public string TargetAccessOLE { get; set; }
-        public string SourceAccessOLE { get; set; }
+        private IList<Models.DatabaseConnection> _connections;
+        public IList<Models.DatabaseConnection> Connections
+        {
+            get
+            {
+                if (_connections == null)
+                {
+                    _connections = new List<Models.DatabaseConnection>();
+                }
+                return _connections;
+            }
+        }
 
         public string MainWindowPlacement { get; set; }
 
         #endregion
-
-        
 
         protected override void OnPropertyChanged(string propertyName)
         {

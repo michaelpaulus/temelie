@@ -127,7 +127,7 @@ namespace DatabaseTools.ViewModels
         {
             try
             {
-                var tables = DatabaseConnection.GetTables(this.SourceDatabaseConnectionString);
+                var tables = Controls.DatabaseConnection.GetTables(this.SourceDatabaseConnectionString);
                 this.Tables.Clear();
                 foreach (var table in tables)
                 {
