@@ -72,7 +72,7 @@ namespace DatabaseTools.Providers.MySql
                         targetColumnType.ColumnType = "DECIMAL";
                         break;
                     case "TIMESTAMP":
-                        targetColumnType.ColumnType = "DATETIME";
+                        targetColumnType.ColumnType = "DATETIME2";
                         break;
                     case "DATETIME":
                         targetColumnType.ColumnType = "DATETIME2";
