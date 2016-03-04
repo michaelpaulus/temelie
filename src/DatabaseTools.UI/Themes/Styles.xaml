@@ -8,6 +8,7 @@
     </Style>
     <Style TargetType="{x:Type Button}">
         <Setter Property="MinHeight" Value="22" />
+        <Setter Property="MinWidth" Value="75" />
         <Setter Property="Padding" Value="12, 2" />
     </Style>
 </ResourceDictionary>

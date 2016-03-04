@@ -42,7 +42,7 @@
             <Label Content="Name" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" />
             <TextBox Grid.Row="1" Grid.Column="0" Text="{Binding SelectedConnection.Name}" Grid.ColumnSpan="2"  />
             <Label Content="Connection Type" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" />
-            <ComboBox Grid.Row="3" Grid.Column="0"  IsEditable="True" ItemsSource="{Binding ConnectionTypes}" SelectedValue="{Binding SelectedConnection.ConnectionType, Mode=TwoWay}" DisplayMemberPath="ConnectionType" SelectedValuePath="ConnectionType" Grid.ColumnSpan="2" />
+            <ComboBox Grid.Row="3" Grid.Column="0"  IsEditable="False" ItemsSource="{Binding ConnectionTypes}" SelectedValue="{Binding SelectedConnection.ConnectionType, Mode=TwoWay}" DisplayMemberPath="ConnectionType" SelectedValuePath="ConnectionType" Grid.ColumnSpan="2" />
             <Label Content="Connection String" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" />
             <TextBox Grid.Row="5" Grid.Column="0" Text="{Binding SelectedConnection.ConnectionString}" Grid.ColumnSpan="2" TextWrapping="WrapWithOverflow"   />
 

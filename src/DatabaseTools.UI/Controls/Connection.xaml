@@ -16,7 +16,7 @@
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         <Label Content="Connection" Grid.Row="0" Grid.Column="0" />
-        <ComboBox Grid.Row="1" Grid.Column="0" IsEditable="True" ItemsSource="{Binding Connections}" SelectedItem="{Binding SelectedConnection}" DisplayMemberPath="Name" SelectedValuePath="Name" VerticalAlignment="Center" />
-        <Button Content="Edit" Grid.Row="1" Grid.Column="1" Margin="4" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Command="{Binding EditCommand}"/>
+        <ComboBox Grid.Row="1" Grid.Column="0" IsEditable="False" ItemsSource="{Binding Connections}" SelectedItem="{Binding SelectedConnection}" DisplayMemberPath="Name" SelectedValuePath="Name" VerticalAlignment="Center" />
+        <Button Content="Edit" Grid.Row="1" Grid.Column="1" Margin="4,0,0,0" HorizontalAlignment="Right" VerticalAlignment="Top" Command="{Binding EditCommand}"/>
     </Grid>
 </UserControl>

@@ -21,7 +21,7 @@
         <local:DatabaseConnection x:Name="DatabaseConnection" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" IsSource="True" />
         <Label Content="Scripts Path" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"/>
         <TextBox x:Name="ScriptPathTextBox" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Text="{Binding ScriptPath}" />
-        <Button x:Name="BrowseButton" HorizontalAlignment="Right" Grid.Row="2" Grid.Column="1" Margin="4,0,0,0">Browse ...</Button>
+        <Button x:Name="BrowseButton" HorizontalAlignment="Right" Grid.Row="2" Grid.Column="1" Margin="4,0,0,0" >Browse ...</Button>
         <Label Content="Object Filter" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"/>
         <TextBox x:Name="ObjectFilterTextBox" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Center" Text="{Binding ObjectFilter}" ></TextBox>
         <ListBox x:Name="FilesListBox" Grid.Row="5" Grid.ColumnSpan="2" ItemsSource="{Binding Files}" Margin="0,8,0,0" SelectedValuePath="Name" >
