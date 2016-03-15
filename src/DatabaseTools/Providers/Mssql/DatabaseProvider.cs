@@ -293,8 +293,18 @@ ORDER BY
 	                        sys.views.name AS table_name, 
 	                        sys.columns.name AS column_name, 
 	                        UPPER(sys.types.name) AS column_type, 
-	                        CASE ISNULL(sys.columns.precision, 0) WHEN 0 THEN sys.columns.max_length ELSE ISNULL(sys.columns.precision, 0) END AS precision, 
-	                        ISNULL(sys.columns.scale, 0) AS scale, 
+                            CASE ISNULL(sys.columns.precision, 0) 
+								WHEN 0 THEN 
+									CASE WHEN sys.types.name = 'nvarchar' OR
+                                            sys.types.name = 'nchar' THEN 
+										sys.columns.max_length / 2
+									ELSE
+										sys.columns.max_length 
+									END 
+								ELSE 
+									ISNULL(sys.columns.precision, 0) 
+							END AS precision, 	                        
+                            ISNULL(sys.columns.scale, 0) AS scale, 
 	                        sys.columns.is_nullable, 
 	                        sys.columns.is_identity, 
 	                        sys.columns.is_computed, 
