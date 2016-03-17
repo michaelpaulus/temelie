@@ -280,6 +280,27 @@ namespace DatabaseTools.Processes
                             }
                         }
                         break;
+                    case DbType.Guid:
+                        if (value.GetType() == typeof(string))
+                        {
+                            var valueAsString = System.Convert.ToString(value);
+
+                            if (string.IsNullOrEmpty(valueAsString) &&
+                                targetColumn.IsNullable)
+                            {
+                                returnValue = DBNull.Value;
+                            }
+                            else if (string.IsNullOrEmpty(valueAsString))
+                            {
+                                returnValue = Guid.Empty;
+                            }
+                            else
+                            {
+                               returnValue = new Guid(valueAsString);
+                            }
+                            
+                        }
+                        break;
                     case System.Data.DbType.AnsiString:
                     case System.Data.DbType.AnsiStringFixedLength:
                     case System.Data.DbType.String:
