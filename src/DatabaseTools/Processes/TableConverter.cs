@@ -311,6 +311,12 @@ namespace DatabaseTools.Processes
                                                         ((System.Data.SqlClient.SqlParameter)paramater).SqlDbType = System.Data.SqlDbType.Time;
                                                     }
                                                     break;
+                                                case DbType.DateTime2:
+                                                    if ((paramater) is MySql.Data.MySqlClient.MySqlParameter)
+                                                    {
+                                                        ((MySql.Data.MySqlClient.MySqlParameter)paramater).MySqlDbType = MySql.Data.MySqlClient.MySqlDbType.DateTime;
+                                                    }
+                                                    break;
                                             }
 
                                             sbParamaters.Append(paramater.ParameterName);
