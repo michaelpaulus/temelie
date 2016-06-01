@@ -16,6 +16,8 @@ namespace DatabaseTools
         public class Database
         {
 
+            private const int DefaultCommandTimeout = 0;
+
             private Database()
             {
 
@@ -36,7 +38,7 @@ namespace DatabaseTools
                 System.Data.Common.DbCommand command = dbConnection.CreateCommand();
                 command.Connection = dbConnection;
 
-                command.CommandTimeout = Math.Max(1800, command.CommandTimeout);
+                command.CommandTimeout = DefaultCommandTimeout;
 
                 if (Data.DbTransactionScope.Current != null && Data.DbTransactionScope.Current.Connection == dbConnection)
                 {
@@ -60,15 +62,12 @@ namespace DatabaseTools
                 if (dbType == Models.DatabaseType.MicrosoftSQLServer)
                 {
                     System.Data.SqlClient.SqlConnectionStringBuilder csb = new System.Data.SqlClient.SqlConnectionStringBuilder(connectionString.ConnectionString);
-                    csb.ConnectTimeout = Math.Max(45, csb.ConnectTimeout);
                     connection.ConnectionString = csb.ConnectionString;
                 }
                 else if (dbType == Models.DatabaseType.MySql)
                 {
                     var csb = new MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connectionString.ConnectionString);
-                    csb.ConnectionTimeout = Math.Max(45, csb.ConnectionTimeout);
-                    csb.DefaultCommandTimeout = Convert.ToUInt32(new TimeSpan(1, 0, 0).TotalSeconds);
-                    csb.DefaultCommandTimeout = Math.Max(csb.DefaultCommandTimeout, csb.ConnectionTimeout);
+                    csb.DefaultCommandTimeout = DefaultCommandTimeout;
                     connection.ConnectionString = csb.ConnectionString;
                 }
                 else
