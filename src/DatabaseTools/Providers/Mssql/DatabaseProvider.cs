@@ -259,26 +259,49 @@ ORDER BY
         public DataTable GetTriggers(ConnectionStringSettings connectionString)
         {
             string sql = @"
-                        SELECT 
-	                    sys.tables.name AS table_name, 
-	                    sys.triggers.name AS trigger_name, 
-	                    ISNULL(sys.sql_modules.definition, sys.system_sql_modules.definition) AS definition 
-                    FROM 
-	                    sys.triggers INNER JOIN 
-	                    sys.tables ON 
-		                    sys.triggers.parent_id = sys.tables.object_id INNER JOIN 
-	                    sys.schemas ON 
-		                    sys.tables.schema_id = sys.schemas.schema_id LEFT OUTER JOIN 
-	                    sys.sql_modules ON 
-		                    sys.sql_modules.object_id = sys.triggers.object_id LEFT OUTER JOIN 
-	                    sys.system_sql_modules ON 
-		                    sys.system_sql_modules.object_id = sys.triggers.object_id 
-                    WHERE 
-	                    sys.tables.name NOT LIKE 'sys%' AND 
-	                    sys.schemas.name = 'dbo' 
-                    ORDER BY 
-	                    sys.tables.name, 
-	                    sys.triggers.name
+                    SELECT
+						*
+					FROM
+						(
+						SELECT 
+							sys.tables.name AS table_name, 
+							sys.triggers.name AS trigger_name, 
+							ISNULL(sys.sql_modules.definition, sys.system_sql_modules.definition) AS definition 
+						FROM 
+							sys.triggers INNER JOIN 
+							sys.tables ON 
+								sys.triggers.parent_id = sys.tables.object_id INNER JOIN 
+							sys.schemas ON 
+								sys.tables.schema_id = sys.schemas.schema_id LEFT OUTER JOIN 
+							sys.sql_modules ON 
+								sys.sql_modules.object_id = sys.triggers.object_id LEFT OUTER JOIN 
+							sys.system_sql_modules ON 
+								sys.system_sql_modules.object_id = sys.triggers.object_id 
+						WHERE 
+							sys.tables.name NOT LIKE 'sys%' AND 
+							sys.schemas.name = 'dbo' 
+						UNION ALL
+						SELECT 
+							sys.views.name AS table_name, 
+							sys.triggers.name AS trigger_name, 
+							ISNULL(sys.sql_modules.definition, sys.system_sql_modules.definition) AS definition 
+						FROM 
+							sys.triggers INNER JOIN 
+							sys.views ON 
+								sys.triggers.parent_id = sys.views.object_id INNER JOIN 
+							sys.schemas ON 
+								sys.views.schema_id = sys.schemas.schema_id LEFT OUTER JOIN 
+							sys.sql_modules ON 
+								sys.sql_modules.object_id = sys.triggers.object_id LEFT OUTER JOIN 
+							sys.system_sql_modules ON 
+								sys.system_sql_modules.object_id = sys.triggers.object_id 
+						WHERE 
+							sys.views.name NOT LIKE 'sys%' AND 
+							sys.schemas.name = 'dbo' 
+					) t1 
+					ORDER BY
+						t1.table_name,
+						t1.trigger_name
                         ";
 
             System.Data.DataSet ds = Processes.Database.Execute(connectionString, sql);

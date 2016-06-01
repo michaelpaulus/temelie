@@ -67,7 +67,8 @@ namespace DatabaseTools
                 {
                     var csb = new MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connectionString.ConnectionString);
                     csb.ConnectionTimeout = Math.Max(45, csb.ConnectionTimeout);
-                    csb.DefaultCommandTimeout = Math.Max(1800, csb.ConnectionTimeout);
+                    csb.DefaultCommandTimeout = Convert.ToUInt32(new TimeSpan(1, 0, 0).TotalSeconds);
+                    csb.DefaultCommandTimeout = Math.Max(csb.DefaultCommandTimeout, csb.ConnectionTimeout);
                     connection.ConnectionString = csb.ConnectionString;
                 }
                 else
@@ -909,7 +910,7 @@ namespace DatabaseTools
                 return list;
             }
 
-            public static IList<Models.TriggerModel> GetTriggers(System.Configuration.ConnectionStringSettings connectionString, IList<string> tables, string objectFilter)
+            public static IList<Models.TriggerModel> GetTriggers(System.Configuration.ConnectionStringSettings connectionString, IList<string> tables, IList<string> views, string objectFilter)
             {
                 IList<Models.TriggerModel> list = new List<Models.TriggerModel>();
 
@@ -928,7 +929,9 @@ namespace DatabaseTools
                             string strTriggerName = detailRow["trigger_name"].ToString();
                             string strDefinition = detailRow["definition"].ToString();
 
-                            if (ContainsTable(tables, strTableName) || (!(string.IsNullOrEmpty(objectFilter)) && strTriggerName.ToLower().Contains(objectFilter)))
+                            if (ContainsTable(tables, strTableName) ||
+                                ContainsTable(views, strTableName) ||
+                                (!(string.IsNullOrEmpty(objectFilter)) && strTriggerName.ToLower().Contains(objectFilter)))
                             {
                                 list.Add(new Models.TriggerModel { TableName = strTableName, TriggerName = strTriggerName, Definition = strDefinition });
                             }

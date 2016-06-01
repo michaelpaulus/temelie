@@ -148,39 +148,92 @@ namespace DatabaseTools.Processes
                             {
                                 var reader2 = new TableConverterReader(reader, sourceMatchedColumns, targetMatchedColumns, trimStrings);
 
-                                using (System.Data.SqlClient.SqlBulkCopy bcp = new System.Data.SqlClient.SqlBulkCopy(targetConnectionString.ConnectionString, SqlBulkCopyOptions.KeepIdentity))
+                                if (targetDatabaseType == Models.DatabaseType.MySql)
                                 {
-                                    bcp.DestinationTableName = $"[{targetTable.TableName}]";
-                                    bcp.BatchSize = batchSize == 0 ? 10000 : batchSize;
-                                    bcp.BulkCopyTimeout = 600;
-                                    bcp.NotifyAfter = bcp.BatchSize;
 
-                                    bcp.SqlRowsCopied += (object sender, System.Data.SqlClient.SqlRowsCopiedEventArgs e) =>
+                                    using (MySql.Data.MySqlClient.MySqlConnection targetConnection = (MySql.Data.MySqlClient.MySqlConnection)DatabaseTools.Processes.Database.CreateDbConnection(targetFactory, targetConnectionString))
                                     {
-                                        if (progress != null &&
-                                            intSourceRowCount.HasValue)
+
+                                        var tempFile = System.IO.Path.GetTempFileName();
+
+                                        using (System.IO.StreamWriter stringWriter = new System.IO.StreamWriter(tempFile))
                                         {
-                                            intRowIndex += bcp.BatchSize;
-
-                                            if (intRowIndex > intSourceRowCount)
+                                            while (reader2.Read())
                                             {
-                                                intRowIndex = intSourceRowCount.Value;
-                                            }
-
-                                            int intNewProgress = System.Convert.ToInt32(intRowIndex / (double)intSourceRowCount * 100);
-
-                                            if (intProgress != intNewProgress &&
-                                                intNewProgress < 100)
-                                            {
-                                                intProgress = intNewProgress;
-                                                progress.Report(new TableProgress() { ProgressPercentage = intProgress, Table = sourceTable });
+                                                foreach (var column in sourceMatchedColumns)
+                                                {
+                                                    int index = reader2.GetOrdinal(column.ColumnName);
+                                                    object value = reader2.GetValue(index);
+                                                    if (value == DBNull.Value)
+                                                    {
+                                                        value = "NULL";
+                                                    }
+                                                    stringWriter.Write($"{value.ToString()}\t");
+                                                }
+                                                stringWriter.WriteLine();
                                             }
                                         }
-                                    };
+                                        
+                                      
+                                        var bcp = new MySql.Data.MySqlClient.MySqlBulkLoader(targetConnection);
 
-                                    bcp.WriteToServer(reader2);
+                                        bcp.Columns.Clear();
+                                        foreach (var col in targetMatchedColumns)
+                                        {
+                                            bcp.Columns.Add(col.ColumnName);
+                                        }
+
+                                        bcp.TableName = sourceTable.TableName;
+                                        bcp.FieldTerminator = "\t";
+                                        bcp.LineTerminator = "\r\n";
+                                        bcp.FileName = tempFile;
+                                        bcp.NumberOfLinesToSkip = 0;
+
+                                        bcp.Load();
+
+                                        System.IO.File.Delete(tempFile);
+
+                                    }
 
                                 }
+                                else
+                                {
+                                    using (System.Data.SqlClient.SqlBulkCopy bcp = new System.Data.SqlClient.SqlBulkCopy(targetConnectionString.ConnectionString, SqlBulkCopyOptions.KeepIdentity))
+                                    {
+                                        bcp.DestinationTableName = $"[{targetTable.TableName}]";
+                                        bcp.BatchSize = batchSize == 0 ? 10000 : batchSize;
+                                        bcp.BulkCopyTimeout = 600;
+                                        bcp.NotifyAfter = bcp.BatchSize;
+
+                                        bcp.SqlRowsCopied += (object sender, System.Data.SqlClient.SqlRowsCopiedEventArgs e) =>
+                                        {
+                                            if (progress != null &&
+                                                intSourceRowCount.HasValue)
+                                            {
+                                                intRowIndex += bcp.BatchSize;
+
+                                                if (intRowIndex > intSourceRowCount)
+                                                {
+                                                    intRowIndex = intSourceRowCount.Value;
+                                                }
+
+                                                int intNewProgress = System.Convert.ToInt32(intRowIndex / (double)intSourceRowCount * 100);
+
+                                                if (intProgress != intNewProgress &&
+                                                    intNewProgress < 100)
+                                                {
+                                                    intProgress = intNewProgress;
+                                                    progress.Report(new TableProgress() { ProgressPercentage = intProgress, Table = sourceTable });
+                                                }
+                                            }
+                                        };
+
+                                        bcp.WriteToServer(reader2);
+
+                                    }
+                                }
+
+
                             }
                         }
                     }
@@ -281,7 +334,10 @@ namespace DatabaseTools.Processes
                                         {
                                             if (targetColumn.IsIdentity)
                                             {
-                                                blnContainsIdentity = true;
+                                                if (targetCommand as SqlCommand != null)
+                                                {
+                                                    blnContainsIdentity = true;
+                                                }
                                             }
 
                                             if (sbColumns.Length > 0)
@@ -358,7 +414,7 @@ namespace DatabaseTools.Processes
 
                                                 if (progress != null)
                                                 {
-                                                    if (intProgress != intNewProgress && 
+                                                    if (intProgress != intNewProgress &&
                                                         intNewProgress != 100)
                                                     {
                                                         intProgress = intNewProgress;

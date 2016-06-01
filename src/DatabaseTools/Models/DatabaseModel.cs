@@ -209,6 +209,16 @@ namespace DatabaseTools
                 }
             }
 
+            public IList<string> ViewNames
+            {
+                get
+                {
+                    return (
+                        from i in this.Views
+                        select i.TableName).ToList();
+                }
+            }
+
             private IList<Models.ColumnModel> _viewColumns;
             public IList<Models.ColumnModel> ViewColumns
             {
@@ -229,7 +239,7 @@ namespace DatabaseTools
                 {
                     if (this._triggers == null)
                     {
-                        this._triggers = Processes.Database.GetTriggers(this.ConnectionString, this.TableNames, this.ObjectFilter).OrderBy(i => i.TriggerName).ToList(); ;
+                        this._triggers = Processes.Database.GetTriggers(this.ConnectionString, this.TableNames, this.ViewNames, this.ObjectFilter).OrderBy(i => i.TriggerName).ToList(); ;
                     }
                     return this._triggers;
                 }
