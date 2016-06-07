@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Xml.Linq;
 
 namespace DatabaseTools
@@ -88,7 +89,7 @@ namespace DatabaseTools
                 {
                     if (this._definitions == null)
                     {
-                        this._definitions = Processes.Database.GetDefinitions(this.ConnectionString).OrderBy(i => i.DefinitionName).ToList(); ;
+                        this._definitions = Processes.Database.GetDefinitions(this.ConnectionString); ;
                     }
 
                     if (!(string.IsNullOrEmpty(this.ObjectFilter)))
@@ -433,6 +434,30 @@ namespace DatabaseTools
                 return sb.ToString();
             }
 
+            public Dictionary<ForeignKeyModel, string> GetFkDropScriptsIndividual()
+            {
+
+                var dictionary = new Dictionary<ForeignKeyModel, string>();
+
+                foreach (var foreignKeyGroup in (
+                    from i in this.ForeignKeys
+                    group i by i.TableName into g
+                    select new { TableName = g.Key, Items = g }))
+                {
+
+                    foreach (var foreignKey in foreignKeyGroup.Items)
+                    {
+                        var sb = new StringBuilder();
+
+                        foreignKey.AppendDropScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+
+                        dictionary.Add(foreignKey, sb.ToString());
+                    }
+                }
+
+                return dictionary;
+            }
+
             public string GetFkDropScripts()
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
@@ -483,6 +508,27 @@ namespace DatabaseTools
                 return sb.ToString();
             }
 
+            public Dictionary<ForeignKeyModel, string> GetFkScriptsIndividual()
+            {
+                var dictionary = new Dictionary<ForeignKeyModel, string>();
+
+                foreach (var foreignKeyGroup in (
+                    from i in this.ForeignKeys
+                    group i by i.TableName into g
+                    select new { TableName = g.Key, Items = g }))
+                {
+                   
+                    foreach (var foreignKey in foreignKeyGroup.Items)
+                    {
+                        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+                        foreignKey.AppendCreateScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                        dictionary.Add(foreignKey, sb.ToString());
+                    }
+                }
+
+                return dictionary;
+            }
+
             public string GetInsertDefaultScripts()
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
@@ -512,6 +558,26 @@ namespace DatabaseTools
                 }
 
                 return sb.ToString();
+            }
+
+            public Dictionary<TableModel, string> GetInsertDefaultScriptsIndividual()
+            {
+                var dictionary = new Dictionary<TableModel, string>();
+
+                foreach (Models.TableModel tableRow in this.Tables)
+                {
+                    if (tableRow.TableName.StartsWith("default_"))
+                    {
+                        string strScript = this.GetInsertScript(tableRow.TableName);
+
+                        if (!(string.IsNullOrEmpty(strScript)))
+                        {
+                            dictionary.Add(tableRow, strScript);
+                        }
+                    }
+                }
+               
+                return dictionary;
             }
 
             public string GetInsertScript(string tableName, bool includeGOAfterEachInsert = false)
@@ -634,6 +700,27 @@ namespace DatabaseTools
                 return sb.ToString();
             }
 
+            public Dictionary<IndexModel, string> GetIxPkScriptsIndividual()
+            {
+                var dictionary = new Dictionary<IndexModel, string>();
+
+                foreach (var pk in this.PrimaryKeys)
+                {
+                    var sb = new StringBuilder();
+                    pk.AppendCreateScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                    dictionary.Add(pk, sb.ToString());
+                }
+
+                foreach (var index in this.Indexes)
+                {
+                    var sb = new StringBuilder();
+                    index.AppendCreateScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                    dictionary.Add(index, sb.ToString());
+                }
+
+                return dictionary;
+            }
+
             public string GetIxPkScripts()
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
@@ -703,7 +790,7 @@ namespace DatabaseTools
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
-                sb.AppendLine(this.GetSpFnVwDropScripts());
+                sb.AppendLine(this.GetDefinitionDropScripts());
                 sb.AppendLine(this.GetTriggerDropScripts());
                 sb.AppendLine(this.GetFkDropScripts());
 
@@ -711,7 +798,7 @@ namespace DatabaseTools
 
                 sb.AppendLine(this.GetIxPkScripts());
 
-                sb.AppendLine(this.GetSpFnVwScripts());
+                sb.AppendLine(this.GetDefinitionScripts());
 
                 sb.AppendLine(this.GetTriggerScripts());
 
@@ -725,7 +812,7 @@ namespace DatabaseTools
                 return sb.ToString();
             }
 
-            public string GetSpFnVwDropScripts()
+            public string GetDefinitionDropScripts()
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
@@ -737,7 +824,23 @@ namespace DatabaseTools
                 return sb.ToString();
             }
 
-            public string GetSpFnVwScripts()
+            public Dictionary<DefinitionModel, string> GetDefinitionScriptsIndividual()
+            {
+
+                var dictionary = new Dictionary<DefinitionModel, string>();
+
+                foreach (var definition in this.Definitions)
+                {
+                    var sb = new System.Text.StringBuilder();
+                    definition.AppendDropScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                    definition.AppendCreateScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                    dictionary.Add(definition, sb.ToString());
+                }
+
+                return dictionary;
+            }
+
+            public string GetDefinitionScripts()
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
@@ -747,6 +850,20 @@ namespace DatabaseTools
                 }
 
                 return sb.ToString();
+            }
+
+            public Dictionary<Models.TableModel, string> GetTableScriptsIndividual(bool includeIfNotExists = true)
+            {
+                var dictionary = new Dictionary<Models.TableModel, string>();
+
+                foreach (Models.TableModel table in this.Tables)
+                {
+                    var sbTableScript = new StringBuilder();
+                    table.AppendCreateScript(sbTableScript, this.QuoteCharacterStart, this.QuoteCharacterEnd, includeIfNotExists);
+                    dictionary.Add(table, sbTableScript.ToString());
+                }
+
+                return dictionary;
             }
 
             public string GetTableScripts(bool includeIfNotExists = true)
@@ -759,6 +876,29 @@ namespace DatabaseTools
                 }
 
                 return sb.ToString();
+            }
+
+            public Dictionary<Models.TriggerModel, string> GetTriggerDropScriptsIndividual()
+            {
+                var dictionary = new Dictionary<Models.TriggerModel, string>();
+
+                foreach (var triggerGroup in (
+                    from i in this.Triggers
+                    group i by i.TableName into g
+                    select new { TableName = g.Key, Items = g }))
+                {
+                  
+                    foreach (var trigger in triggerGroup.Items)
+                    {
+                        var sb = new StringBuilder();
+
+                        trigger.AppendDropScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+
+                        dictionary.Add(trigger, sb.ToString());
+                    }
+                }
+
+                return dictionary;
             }
 
             public string GetTriggerDropScripts()
@@ -809,6 +949,27 @@ namespace DatabaseTools
                 }
 
                 return sb.ToString();
+            }
+
+            public Dictionary<TriggerModel, string> GetTriggerScriptsIndividual()
+            {
+                var dictionary = new Dictionary<TriggerModel, string>();
+
+                foreach (var triggerGroup in (
+                    from i in this.Triggers
+                    group i by i.TableName into g
+                    select new { TableName = g.Key, Items = g }))
+                {
+                    
+                    foreach (var trigger in triggerGroup.Items)
+                    {
+                        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+                        trigger.AppendScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                        dictionary.Add(trigger, sb.ToString());
+                    }
+                }
+
+                return dictionary;
             }
 
             private void SortTablesByDependencies(IList<TableModel> list)

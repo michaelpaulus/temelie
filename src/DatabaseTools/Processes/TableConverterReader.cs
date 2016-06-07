@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DatabaseTools.Providers;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -9,12 +10,18 @@ namespace DatabaseTools.Processes
 {
     public class TableConverterReader : System.Data.IDataReader
     {
-        public TableConverterReader(IDataReader parent, IList<Models.ColumnModel> sourceColumns, IList<Models.ColumnModel> targetColumns, bool trimStrings)
+
+        private IDatabaseProvider _sourceDatabaseProvider;
+
+        public TableConverterReader(IDataReader parent, IList<Models.ColumnModel> sourceColumns, IList<Models.ColumnModel> targetColumns, bool trimStrings, Models.DatabaseType sourceDatabasetype, Models.DatabaseType targetDatabaseType)
         {
             this._parent = parent;
             this._sourceColumns = sourceColumns;
             this._targetColumns = targetColumns;
             this.TrimStrings = trimStrings;
+            this.SourceDatabaseType = sourceDatabasetype;
+            this.TargetDatabaseType = targetDatabaseType;
+            _sourceDatabaseProvider = Processes.Database.GetDatabaseProvider(this.SourceDatabaseType);
         }
 
         private IDataReader _parent;
@@ -45,6 +52,9 @@ namespace DatabaseTools.Processes
         }
 
         public bool TrimStrings { get; set; }
+
+        public Models.DatabaseType SourceDatabaseType { get; set; }
+        public Models.DatabaseType TargetDatabaseType { get; set; }
 
         public object this[string name]
         {
@@ -127,23 +137,20 @@ namespace DatabaseTools.Processes
             {
                 value = this.Parent.GetValue(i);
             }
-#pragma warning disable CS0168 // Variable is declared but never used
-            catch (MySql.Data.Types.MySqlConversionException ex)
-#pragma warning restore CS0168 // Variable is declared but never used
+            catch (Exception ex)
             {
                 var sourceColumn = this.SourceColumns[i];
-
-                if (sourceColumn.DbType == System.Data.DbType.DateTime2 ||
-                    sourceColumn.DbType == System.Data.DbType.Date ||
-                    sourceColumn.DbType == System.Data.DbType.DateTime ||
-                    sourceColumn.DbType == System.Data.DbType.DateTimeOffset)
+                object newValue;
+                if (_sourceDatabaseProvider != null &&
+                    _sourceDatabaseProvider.TryHandleColumnValueLoadException(ex, sourceColumn, out newValue))
                 {
-                    value = DateTime.MinValue;
+                    value = newValue;
                 }
                 else
                 {
                     throw;
                 }
+
             }
 
             var targetColumn = this.TargetColumns[i];

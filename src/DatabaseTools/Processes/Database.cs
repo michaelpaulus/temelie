@@ -16,7 +16,14 @@ namespace DatabaseTools
         public class Database
         {
 
-            private const int DefaultCommandTimeout = 0;
+            public const int DefaultCommandTimeout = 0;
+
+            private static IEnumerable<IDatabaseProvider> _databaseProviders;
+
+            static Database()
+            {
+                _databaseProviders = Configuration.DependencyInjection.ResolveAll<IDatabaseProvider>();
+            }
 
             private Database()
             {
@@ -59,21 +66,14 @@ namespace DatabaseTools
 
                 var dbType = GetDatabaseType(connectionString);
 
-                if (dbType == Models.DatabaseType.MicrosoftSQLServer)
+                var databaseProvider = GetDatabaseProvider(dbType);
+
+                if (databaseProvider != null)
                 {
-                    System.Data.SqlClient.SqlConnectionStringBuilder csb = new System.Data.SqlClient.SqlConnectionStringBuilder(connectionString.ConnectionString);
-                    connection.ConnectionString = csb.ConnectionString;
+                    connection.ConnectionString = databaseProvider.TransformConnectionString(connection.ConnectionString);
                 }
-                else if (dbType == Models.DatabaseType.MySql)
-                {
-                    var csb = new MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connectionString.ConnectionString);
-                    csb.DefaultCommandTimeout = DefaultCommandTimeout;
-                    connection.ConnectionString = csb.ConnectionString;
-                }
-                else
-                {
-                    connection.ConnectionString = connectionString.ConnectionString;
-                }
+
+                connection.ConnectionString = connectionString.ConnectionString;
 
                 connection.Open();
                 return connection;
@@ -104,11 +104,15 @@ namespace DatabaseTools
                 switch (providerName)
                 {
                     case "MySql.Data.MySqlClient":
-                        var mySqlProvider = new Providers.MySql.DatabaseProvider();
-                        return mySqlProvider.CreateProvider();
-                    default:
-                        return System.Data.Common.DbProviderFactories.GetFactory(providerName);
+                        var provider = GetDatabaseProvider(Models.DatabaseType.MySql);
+                        if (provider != null)
+                        {
+                            return provider.CreateProvider();
+                        }
+                        break;
+
                 }
+                return System.Data.Common.DbProviderFactories.GetFactory(providerName);
             }
 
             #endregion
@@ -242,17 +246,10 @@ namespace DatabaseTools
                 return (from i in tables where i.EqualsIgnoreCase(table) select i).Any();
             }
 
-            private static IDatabaseProvider GetDatabaseProvider(Models.DatabaseType databaseType)
+
+            public static IDatabaseProvider GetDatabaseProvider(Models.DatabaseType databaseType)
             {
-                if (databaseType == Models.DatabaseType.MySql)
-                {
-                    return new DatabaseTools.Providers.MySql.DatabaseProvider();
-                }
-                else if (databaseType == Models.DatabaseType.MicrosoftSQLServer)
-                {
-                    return new DatabaseTools.Providers.Mssql.DatabaseProvider();
-                }
-                return null;
+                return (from i in _databaseProviders where i.ForDatabaseType == databaseType select i).FirstOrDefault();
             }
 
             public static System.Configuration.ConnectionStringSettings GetConnectionStringSetting(string connectionStringName)
@@ -749,7 +746,7 @@ namespace DatabaseTools
                                 TableName = indexGroup.TableName,
                                 IndexName = indexGroup.IndexName,
                                 IndexType = summaryRow["index_type"].ToString(),
-                                FilterDefinition =  summaryRow["filter_definition"] == DBNull.Value ? "" : summaryRow["filter_definition"].ToString(),
+                                FilterDefinition = summaryRow["filter_definition"] == DBNull.Value ? "" : summaryRow["filter_definition"].ToString(),
                                 IsUnique = Convert.ToBoolean(summaryRow["is_unique"]),
                                 FillFactor = Convert.ToInt32(summaryRow["fill_factor"]),
                                 IsPrimaryKey = Convert.ToBoolean(summaryRow["is_primary_key"])

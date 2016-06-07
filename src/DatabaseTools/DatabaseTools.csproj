@@ -66,10 +66,6 @@
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MySql.Data, Version=6.9.8.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
-      <HintPath>..\packages\MySql.Data.6.9.8\lib\net45\MySql.Data.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="PropertyChanged, Version=1.50.3.0, Culture=neutral, PublicKeyToken=ee3ee20bcf148ddd, processorArchitecture=MSIL">
       <HintPath>..\packages\PropertyChanged.Fody.1.50.3\lib\dotnet\PropertyChanged.dll</HintPath>
       <Private>False</Private>
@@ -99,6 +95,8 @@
   <ItemGroup>
     <Compile Include="Configuration\Configuration.cs" />
     <Compile Include="Configuration\ConnectionInfo.cs" />
+    <Compile Include="Configuration\DependencyInjection.cs" />
+    <Compile Include="Configuration\ExportAttribute.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Processes\ScriptProgress.cs" />
     <Compile Include="Processes\TableConverterException.cs" />
@@ -121,7 +119,6 @@
     <Compile Include="Models\TableMapping.cs" />
     <Compile Include="Models\TriggerModel.cs" />
     <Compile Include="Providers\Mssql\DatabaseProvider.cs" />
-    <Compile Include="Providers\MySql\DatabaseProvider.cs" />
     <Compile Include="Processes\Database.cs" />
     <Compile Include="Models\DatabaseType.cs" />
     <Compile Include="Models\TableModel.cs" />

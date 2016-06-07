@@ -2,15 +2,32 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
+using System.Data.Common;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DatabaseTools.Models;
+using DatabaseTools.Configuration;
 
 namespace DatabaseTools.Providers.Mssql
 {
+    [Export(typeof(IDatabaseProvider))]
     public class DatabaseProvider : IDatabaseProvider
     {
+
+        public DatabaseTools.Models.DatabaseType ForDatabaseType
+        {
+            get
+            {
+                return Models.DatabaseType.MicrosoftSQLServer;
+            }
+        }
+
+        public DbProviderFactory CreateProvider()
+        {
+            return System.Data.SqlClient.SqlClientFactory.Instance;
+        }
+
         public ColumnTypeModel GetColumnType(ColumnTypeModel sourceColumnType, DatabaseType targetDatabaseType)
         {
             if (targetDatabaseType == Models.DatabaseType.MicrosoftSQLServer)
@@ -381,6 +398,40 @@ ORDER BY
             DataSet ds = Processes.Database.Execute(connectionString, sql);
             DataTable dataTable = ds.Tables[0];
             return dataTable;
+        }
+
+        public void SetReadTimeout(DbCommand sourceCommand)
+        {
+            
+        }
+
+        public string TransformConnectionString(string connectionString)
+        {
+            System.Data.SqlClient.SqlConnectionStringBuilder csb = new System.Data.SqlClient.SqlConnectionStringBuilder(connectionString);
+            return csb.ConnectionString;
+        }
+
+        public bool TryHandleColumnValueLoadException(Exception ex, ColumnModel column, out object value)
+        {
+            value = null;
+            return false;
+        }
+
+        public void UpdateParameter(DbParameter parameter, ColumnModel column)
+        {
+            switch (parameter.DbType)
+            {
+                case System.Data.DbType.StringFixedLength:
+                case System.Data.DbType.String:
+                    parameter.Size = column.Precision;
+                    break;
+                case System.Data.DbType.Time:
+                    if ((parameter) is System.Data.SqlClient.SqlParameter)
+                    {
+                        ((System.Data.SqlClient.SqlParameter)parameter).SqlDbType = System.Data.SqlDbType.Time;
+                    }
+                    break;
+            }
         }
     }
 }

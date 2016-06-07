@@ -142,59 +142,15 @@ namespace DatabaseTools.Processes
                     {
                         using (var command = DatabaseTools.Processes.Database.CreateDbCommand(sourceConnection))
                         {
-                            this.SetReadTimeout(command);
+                            this.SetReadTimeout(sourceDatabaseType, command);
                             command.CommandText = this.FormatCommandText($"SELECT {sbColumns.ToString()} FROM [{sourceTable.TableName}]", sourceDatabaseType);
                             using (var reader = command.ExecuteReader())
                             {
-                                var reader2 = new TableConverterReader(reader, sourceMatchedColumns, targetMatchedColumns, trimStrings);
+                                var reader2 = new TableConverterReader(reader, sourceMatchedColumns, targetMatchedColumns, trimStrings, sourceDatabaseType, targetDatabaseType);
 
                                 if (targetDatabaseType == Models.DatabaseType.MySql)
                                 {
-
-                                    using (MySql.Data.MySqlClient.MySqlConnection targetConnection = (MySql.Data.MySqlClient.MySqlConnection)DatabaseTools.Processes.Database.CreateDbConnection(targetFactory, targetConnectionString))
-                                    {
-
-                                        var tempFile = System.IO.Path.GetTempFileName();
-
-                                        using (System.IO.StreamWriter stringWriter = new System.IO.StreamWriter(tempFile))
-                                        {
-                                            while (reader2.Read())
-                                            {
-                                                foreach (var column in sourceMatchedColumns)
-                                                {
-                                                    int index = reader2.GetOrdinal(column.ColumnName);
-                                                    object value = reader2.GetValue(index);
-                                                    if (value == DBNull.Value)
-                                                    {
-                                                        value = "NULL";
-                                                    }
-                                                    stringWriter.Write($"{value.ToString()}\t");
-                                                }
-                                                stringWriter.WriteLine();
-                                            }
-                                        }
-                                        
-                                      
-                                        var bcp = new MySql.Data.MySqlClient.MySqlBulkLoader(targetConnection);
-
-                                        bcp.Columns.Clear();
-                                        foreach (var col in targetMatchedColumns)
-                                        {
-                                            bcp.Columns.Add(col.ColumnName);
-                                        }
-
-                                        bcp.TableName = sourceTable.TableName;
-                                        bcp.FieldTerminator = "\t";
-                                        bcp.LineTerminator = "\r\n";
-                                        bcp.FileName = tempFile;
-                                        bcp.NumberOfLinesToSkip = 0;
-
-                                        bcp.Load();
-
-                                        System.IO.File.Delete(tempFile);
-
-                                    }
-
+                                    throw new NotImplementedException();
                                 }
                                 else
                                 {
@@ -268,6 +224,8 @@ namespace DatabaseTools.Processes
             var sourceDatabaseType = DatabaseTools.Processes.Database.GetDatabaseType(sourceConnectionString);
             var targetDatabaseType = DatabaseTools.Processes.Database.GetDatabaseType(targetConnectionString);
 
+            var targetDatabaseProvider = DatabaseTools.Processes.Database.GetDatabaseProvider(targetDatabaseType);
+
             int intProgress = 0;
 
             var intTargetRowCount = 0;
@@ -290,7 +248,7 @@ namespace DatabaseTools.Processes
 
                     using (System.Data.Common.DbCommand sourceCommand = DatabaseTools.Processes.Database.CreateDbCommand(sourceConnection))
                     {
-                        this.SetReadTimeout(sourceCommand);
+                        this.SetReadTimeout(sourceDatabaseType, sourceCommand);
 
                         int? intSourceRowCount = null;
 
@@ -318,7 +276,7 @@ namespace DatabaseTools.Processes
                             using (System.Data.Common.DbDataReader sourceReader = sourceCommand.ExecuteReader())
                             {
 
-                                var converterReader = new TableConverterReader(sourceReader, sourceMatchedColumns, targetMatchedColumns, trimStrings);
+                                var converterReader = new TableConverterReader(sourceReader, sourceMatchedColumns, targetMatchedColumns, trimStrings, sourceDatabaseType, targetDatabaseType);
 
                                 var intFieldCount = converterReader.FieldCount;
 
@@ -355,25 +313,7 @@ namespace DatabaseTools.Processes
 
                                             paramater.DbType = targetColumn.DbType;
 
-                                            switch (paramater.DbType)
-                                            {
-                                                case System.Data.DbType.StringFixedLength:
-                                                case System.Data.DbType.String:
-                                                    paramater.Size = targetColumn.Precision;
-                                                    break;
-                                                case System.Data.DbType.Time:
-                                                    if ((paramater) is System.Data.SqlClient.SqlParameter)
-                                                    {
-                                                        ((System.Data.SqlClient.SqlParameter)paramater).SqlDbType = System.Data.SqlDbType.Time;
-                                                    }
-                                                    break;
-                                                case DbType.DateTime2:
-                                                    if ((paramater) is MySql.Data.MySqlClient.MySqlParameter)
-                                                    {
-                                                        ((MySql.Data.MySqlClient.MySqlParameter)paramater).MySqlDbType = MySql.Data.MySqlClient.MySqlDbType.DateTime;
-                                                    }
-                                                    break;
-                                            }
+                                            targetDatabaseProvider.UpdateParameter(paramater, targetColumn);
 
                                             sbParamaters.Append(paramater.ParameterName);
 
@@ -555,6 +495,8 @@ namespace DatabaseTools.Processes
         {
             var sourceDatabaseType = DatabaseTools.Processes.Database.GetDatabaseType(sourceConnectionString);
 
+            var sourceDatabaseProvider = DatabaseTools.Processes.Database.GetDatabaseProvider(sourceDatabaseType);
+
             System.Text.StringBuilder sbColumns = new System.Text.StringBuilder();
             System.Text.StringBuilder sbKeyColumns = new System.Text.StringBuilder();
 
@@ -601,7 +543,7 @@ namespace DatabaseTools.Processes
 
                 using (System.Data.Common.DbCommand sourceCommand = DatabaseTools.Processes.Database.CreateDbCommand(sourceConnection))
                 {
-                    this.SetReadTimeout(sourceCommand);
+                    this.SetReadTimeout(sourceDatabaseType, sourceCommand);
 
                     if (take != 0)
                     {
@@ -640,22 +582,22 @@ namespace DatabaseTools.Processes
                                 {
                                     value = sourceReader.GetValue(i);
                                 }
-#pragma warning disable CS0168 // Variable is declared but never used
-                                catch (MySql.Data.Types.MySqlConversionException ex)
-#pragma warning restore CS0168 // Variable is declared but never used
+                                catch (Exception ex)
                                 {
-                                    if (sourceColumn.DbType == System.Data.DbType.DateTime2 ||
-                                        sourceColumn.DbType == System.Data.DbType.Date ||
-                                        sourceColumn.DbType == System.Data.DbType.DateTime ||
-                                        sourceColumn.DbType == System.Data.DbType.DateTimeOffset)
+                                    object newValue;
+                                   
+                                    if (sourceDatabaseProvider != null &&
+                                        sourceDatabaseProvider.TryHandleColumnValueLoadException(ex, sourceColumn, out newValue))
                                     {
-                                        value = DateTime.MinValue;
+                                        value = newValue;
                                     }
                                     else
                                     {
                                         throw;
                                     }
+
                                 }
+
 
                                 dataRow[i] = this.GetColumnValue(targetColumn, value, trimStrings);
                             }
@@ -691,13 +633,12 @@ namespace DatabaseTools.Processes
             return list;
         }
 
-        private void SetReadTimeout(System.Data.Common.DbCommand sourceCommand)
+        private void SetReadTimeout(Models.DatabaseType databaseType, System.Data.Common.DbCommand sourceCommand)
         {
-            var command = sourceCommand as MySql.Data.MySqlClient.MySqlCommand;
-            if (command != null)
+            var databaseProvider = DatabaseTools.Processes.Database.GetDatabaseProvider(databaseType);
+            if (databaseProvider != null)
             {
-                command.CommandText = "set net_write_timeout=99999;set net_read_timeout=99999;";
-                command.ExecuteNonQuery();
+                databaseProvider.SetReadTimeout(sourceCommand);
             }
         }
 
