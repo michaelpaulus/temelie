@@ -247,9 +247,15 @@ namespace DatabaseTools
             }
 
 
-            public static IDatabaseProvider GetDatabaseProvider(Models.DatabaseType databaseType)
+            public static IDatabaseProvider GetDatabaseProvider(Models.DatabaseType databaseType, bool throwOnNotFound = false)
             {
-                return (from i in _databaseProviders where i.ForDatabaseType == databaseType select i).FirstOrDefault();
+                var provider = (from i in _databaseProviders where i.ForDatabaseType == databaseType select i).FirstOrDefault();
+                if (throwOnNotFound &&
+                    provider == null)
+                {
+                    throw new ArgumentOutOfRangeException("databaseType", $"DatabaseType '{databaseType.ToString()}' has no provider.");
+                }
+                return provider;
             }
 
             public static System.Configuration.ConnectionStringSettings GetConnectionStringSetting(string connectionStringName)
@@ -510,14 +516,11 @@ namespace DatabaseTools
                 IList<Models.ColumnModel> list = new List<Models.ColumnModel>();
 
                 var databaseType = GetDatabaseType(connectionString);
-                var provider = GetDatabaseProvider(databaseType);
+                var provider = GetDatabaseProvider(databaseType, true);
 
                 DataTable dataTable = null;
 
-                if (provider != null)
-                {
-                    dataTable = GetDatabaseProvider(databaseType).GetTableColumns(connectionString);
-                }
+                dataTable = provider.GetTableColumns(connectionString);
 
                 if (dataTable != null)
                 {
@@ -532,18 +535,15 @@ namespace DatabaseTools
                 IList<Models.ColumnModel> list = new List<Models.ColumnModel>();
 
                 var databaseType = GetDatabaseType(connectionString);
-                var provider = GetDatabaseProvider(databaseType);
+                var provider = GetDatabaseProvider(databaseType, true);
 
                 DataTable dataTable = null;
 
-                if (provider != null)
-                {
-                    dataTable = GetDatabaseProvider(databaseType).GetViewColumns(connectionString);
-                }
+                dataTable = provider.GetViewColumns(connectionString);
 
                 if (dataTable != null)
                 {
-                    list = GetColumns(dataTable, GetDatabaseProvider(databaseType));
+                    list = GetColumns(dataTable, provider);
                 }
 
                 return list;
@@ -583,33 +583,28 @@ namespace DatabaseTools
                 List<Models.DefinitionModel> list = new List<Models.DefinitionModel>();
 
                 var databaseType = GetDatabaseType(connectionString);
-                var provider = GetDatabaseProvider(databaseType);
+                var provider = GetDatabaseProvider(databaseType, true);
 
-                if (provider != null)
+                var dtDefinitions = provider.GetDefinitions(connectionString);
+
+                var dtDependencies = provider.GetDefinitionDependencies(connectionString);
+
+                if (dtDefinitions != null)
                 {
-                    var dtDefinitions = provider.GetDefinitions(connectionString);
+                    list = (
+                        from i in dtDefinitions.Rows.OfType<System.Data.DataRow>()
+                        select new Models.DefinitionModel
+                        {
+                            Definition = i["definition"].ToString(),
+                            DefinitionName = i["name"].ToString(),
+                            XType = i["xtype"].ToString().Trim()
+                        }
+                        ).ToList();
+                }
 
-                    var dtDependencies = provider.GetDefinitionDependencies(connectionString);
-
-                    if (dtDefinitions != null)
-                    {
-                        list = (
-                            from i in dtDefinitions.Rows.OfType<System.Data.DataRow>()
-                            select new Models.DefinitionModel
-                            {
-                                Definition = i["definition"].ToString(),
-                                DefinitionName = i["name"].ToString(),
-                                XType = i["xtype"].ToString().Trim()
-                            }
-                            ).ToList();
-                    }
-
-                    if (dtDependencies != null)
-                    {
-                        VerifyDependencies(list, dtDependencies);
-                    }
-
-
+                if (dtDependencies != null)
+                {
+                    VerifyDependencies(list, dtDependencies);
                 }
 
                 return list;
@@ -658,56 +653,52 @@ namespace DatabaseTools
                 IList<Models.ForeignKeyModel> list = new List<Models.ForeignKeyModel>();
 
                 var databaseType = GetDatabaseType(connectionString);
-                var provider = GetDatabaseProvider(databaseType);
+                var provider = GetDatabaseProvider(databaseType, true);
 
-                if (provider != null)
+                DataTable dataTable = provider.GetForeignKeys(connectionString);
+
+                if (dataTable != null)
                 {
-                    DataTable dataTable = provider.GetForeignKeys(connectionString);
-
-                    if (dataTable != null)
+                    foreach (var tableGroup in (
+                   from i in dataTable.Rows.Cast<System.Data.DataRow>()
+                   group i by new
+                   {
+                       TableName = i["table_name"].ToString(),
+                       ForeignKeyName = i["foreign_key_name"].ToString()
+                   } into g
+                   select new
+                   {
+                       TableName = g.Key.TableName,
+                       ForeignKeyName = g.Key.ForeignKeyName,
+                       Items = g.ToList()
+                   }))
                     {
-                        foreach (var tableGroup in (
-                       from i in dataTable.Rows.Cast<System.Data.DataRow>()
-                       group i by new
-                       {
-                           TableName = i["table_name"].ToString(),
-                           ForeignKeyName = i["foreign_key_name"].ToString()
-                       } into g
-                       select new
-                       {
-                           TableName = g.Key.TableName,
-                           ForeignKeyName = g.Key.ForeignKeyName,
-                           Items = g.ToList()
-                       }))
+                        if (ContainsTable(tables, tableGroup.TableName))
                         {
-                            if (ContainsTable(tables, tableGroup.TableName))
+                            System.Data.DataRow summaryRow = tableGroup.Items[0];
+
+                            Models.ForeignKeyModel foreignKey = new Models.ForeignKeyModel
                             {
-                                System.Data.DataRow summaryRow = tableGroup.Items[0];
+                                ForeignKeyName = tableGroup.ForeignKeyName,
+                                TableName = tableGroup.TableName,
+                                ReferencedTableName = summaryRow["referenced_table_name"].ToString(),
+                                IsNotForReplication = Convert.ToBoolean(summaryRow["is_not_for_replication"]),
+                                DeleteAction = summaryRow["delete_action"].ToString().Replace("_", " "),
+                                UpdateAction = summaryRow["update_action"].ToString().Replace("_", " ")
+                            };
 
-                                Models.ForeignKeyModel foreignKey = new Models.ForeignKeyModel
+                            list.Add(foreignKey);
+
+                            foreach (System.Data.DataRow detailRow in tableGroup.Items)
+                            {
+                                foreignKey.Detail.Add(new Models.ForeignKeyDetailModel
                                 {
-                                    ForeignKeyName = tableGroup.ForeignKeyName,
-                                    TableName = tableGroup.TableName,
-                                    ReferencedTableName = summaryRow["referenced_table_name"].ToString(),
-                                    IsNotForReplication = Convert.ToBoolean(summaryRow["is_not_for_replication"]),
-                                    DeleteAction = summaryRow["delete_action"].ToString().Replace("_", " "),
-                                    UpdateAction = summaryRow["update_action"].ToString().Replace("_", " ")
-                                };
-
-                                list.Add(foreignKey);
-
-                                foreach (System.Data.DataRow detailRow in tableGroup.Items)
-                                {
-                                    foreignKey.Detail.Add(new Models.ForeignKeyDetailModel
-                                    {
-                                        Column = detailRow["column_name"].ToString(),
-                                        ReferencedColumn = detailRow["referenced_column_name"].ToString()
-                                    });
-                                }
+                                    Column = detailRow["column_name"].ToString(),
+                                    ReferencedColumn = detailRow["referenced_column_name"].ToString()
+                                });
                             }
                         }
                     }
-
                 }
 
                 return list;
@@ -721,13 +712,10 @@ namespace DatabaseTools
             private static IList<Models.IndexModel> GetIndexes(System.Configuration.ConnectionStringSettings connectionString, IList<string> tables, bool isPrimaryKey)
             {
                 IList<Models.IndexModel> list = new List<Models.IndexModel>();
-                var provider = GetDatabaseProvider(GetDatabaseType(connectionString));
+                var provider = GetDatabaseProvider(GetDatabaseType(connectionString), true);
                 System.Data.DataTable dtIndexes = null;
 
-                if (provider != null)
-                {
-                    dtIndexes = provider.GetIndexes(connectionString);
-                }
+                dtIndexes = provider.GetIndexes(connectionString);
 
                 if (dtIndexes != null)
                 {
@@ -837,12 +825,9 @@ namespace DatabaseTools
 
                 var databaseType = GetDatabaseType(connectionString);
 
-                var provider = GetDatabaseProvider(databaseType);
+                var provider = GetDatabaseProvider(databaseType, true);
 
-                if (provider != null)
-                {
-                    dataTable = provider.GetTables(connectionString);
-                }
+                dataTable = provider.GetTables(connectionString);
 
                 IList<Models.TableModel> list = new List<Models.TableModel>();
 
@@ -911,31 +896,27 @@ namespace DatabaseTools
                 IList<Models.TriggerModel> list = new List<Models.TriggerModel>();
 
                 var databaseType = GetDatabaseType(connectionString);
-                var provider = GetDatabaseProvider(databaseType);
+                var provider = GetDatabaseProvider(databaseType, true);
 
-                if (provider != null)
+                var dataTable = provider.GetTriggers(connectionString);
+
+                if (dataTable != null)
                 {
-                    var dataTable = provider.GetTriggers(connectionString);
-
-                    if (dataTable != null)
+                    foreach (System.Data.DataRow detailRow in dataTable.Rows)
                     {
-                        foreach (System.Data.DataRow detailRow in dataTable.Rows)
-                        {
-                            string strTableName = detailRow["table_name"].ToString();
-                            string strTriggerName = detailRow["trigger_name"].ToString();
-                            string strDefinition = detailRow["definition"].ToString();
+                        string strTableName = detailRow["table_name"].ToString();
+                        string strTriggerName = detailRow["trigger_name"].ToString();
+                        string strDefinition = detailRow["definition"].ToString();
 
-                            if (ContainsTable(tables, strTableName) ||
-                                ContainsTable(views, strTableName) ||
-                                (!(string.IsNullOrEmpty(objectFilter)) && strTriggerName.ToLower().Contains(objectFilter)))
-                            {
-                                list.Add(new Models.TriggerModel { TableName = strTableName, TriggerName = strTriggerName, Definition = strDefinition });
-                            }
+                        if (ContainsTable(tables, strTableName) ||
+                            ContainsTable(views, strTableName) ||
+                            (!(string.IsNullOrEmpty(objectFilter)) && strTriggerName.ToLower().Contains(objectFilter)))
+                        {
+                            list.Add(new Models.TriggerModel { TableName = strTableName, TriggerName = strTriggerName, Definition = strDefinition });
                         }
                     }
-
-
                 }
+
 
                 return list;
             }

@@ -79,7 +79,11 @@ namespace DatabaseTools.Configuration
         {
             var assemblies = new Dictionary<string, Assembly>();
 
-            foreach (string file in System.IO.Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "DatabaseTools*.dll", SearchOption.AllDirectories))
+            var assembly = typeof(DependencyInjection).Assembly;
+
+            assemblies.Add(assembly.FullName, typeof(DependencyInjection).Assembly);
+
+            foreach (string file in System.IO.Directory.GetFiles(System.IO.Path.GetDirectoryName(assembly.Location), "DatabaseTools*.dll", SearchOption.AllDirectories))
             {
                 try
                 {
