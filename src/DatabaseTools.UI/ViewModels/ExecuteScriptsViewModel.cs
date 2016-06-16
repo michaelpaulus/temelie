@@ -42,6 +42,7 @@ namespace DatabaseTools.ViewModels
 
         public int ProgressPercentage { get; set; }
         public string ProgressStatus { get; set; }
+        public string ErrorMessage { get; set; }
 
         #endregion
 
@@ -57,6 +58,7 @@ namespace DatabaseTools.ViewModels
         {
             this.ProgressPercentage = 0;
             this.ProgressStatus = "";
+            this.ErrorMessage = "";
             this.ExecuteScriptsCommand.IsEnabled = false;
 
             var progress = new Progress<ScriptProgress>(tableProgress =>
@@ -69,8 +71,30 @@ namespace DatabaseTools.ViewModels
                 this.ExecuteScriptsInternal(progress);
             }).ContinueWith((task) =>
             {
-                this.ProgressPercentage = 0;
-                this.ProgressStatus = "Completed";
+                if (task.IsFaulted)
+                {
+                    if (task.Exception != null)
+                    {
+                        if (task.Exception.InnerException != null)
+                        {
+                            this.ErrorMessage = task.Exception.InnerException.Message;
+                        }
+                        else
+                        {
+                            this.ErrorMessage = task.Exception.Message;
+                        }
+                    }
+                    else
+                    {
+                        this.ErrorMessage = "The task didn't complete";
+                    }
+                }
+                else
+                {
+                    this.ProgressPercentage = 0;
+                    this.ProgressStatus = "Completed";
+                }
+
                 this.ExecuteScriptsCommand.IsEnabled = true;
             }, TaskScheduler.FromCurrentSynchronizationContext());
         }

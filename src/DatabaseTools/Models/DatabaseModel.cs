@@ -449,7 +449,7 @@ namespace DatabaseTools
                     {
                         var sb = new StringBuilder();
 
-                        foreignKey.AppendDropScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                         foreignKey.AppendDropScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
 
                         dictionary.Add(foreignKey, sb.ToString());
                     }
@@ -521,6 +521,7 @@ namespace DatabaseTools
                     foreach (var foreignKey in foreignKeyGroup.Items)
                     {
                         System.Text.StringBuilder sb = new System.Text.StringBuilder();
+                        foreignKey.AppendDropScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                         foreignKey.AppendCreateScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                         dictionary.Add(foreignKey, sb.ToString());
                     }
@@ -964,7 +965,10 @@ namespace DatabaseTools
                     foreach (var trigger in triggerGroup.Items)
                     {
                         System.Text.StringBuilder sb = new System.Text.StringBuilder();
+
+                        trigger.AppendDropScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                         trigger.AppendScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+
                         dictionary.Add(trigger, sb.ToString());
                     }
                 }

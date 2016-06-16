@@ -353,7 +353,8 @@ namespace DatabaseTools
 
                     if (progress != null)
                     {
-                        progress.Report(new ScriptProgress() { ProgressPercentage = 0, ProgressStatus = file.Name });
+                        int percent = Convert.ToInt32((intFileCount / (double)fileList.Count) * 100);
+                        progress.Report(new ScriptProgress() { ProgressPercentage = percent, ProgressStatus = file.Name });
                     }
 
                     using (System.IO.Stream stream = System.IO.File.OpenRead(file.FullName))
@@ -369,12 +370,6 @@ namespace DatabaseTools
                     if (!(string.IsNullOrEmpty(strFile.Trim())))
                     {
                         Database.ExecuteFile(connectionString, strFile);
-                    }
-
-                    if (progress != null)
-                    {
-                        int percent = Convert.ToInt32((intFileCount / (double)fileList.Count) * 100);
-                        progress.Report(new ScriptProgress() { ProgressPercentage = percent, ProgressStatus = file.Name });
                     }
 
                     intFileCount += 1;
