@@ -89,7 +89,7 @@ namespace DatabaseTools
                 {
                     if (this._definitions == null)
                     {
-                        this._definitions = Processes.Database.GetDefinitions(this.ConnectionString); ;
+                        this._definitions = Processes.Database.GetDefinitions(this.ConnectionString);
                     }
 
                     if (!(string.IsNullOrEmpty(this.ObjectFilter)))

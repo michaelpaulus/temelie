@@ -82,13 +82,12 @@ namespace DatabaseTools.ViewModels
 
         private void Save()
         {
-            UserSettingsContext.Current.Connections.Clear();
+            ConnectionSettingsContext.Current.Connections.Clear();
             foreach (var item in this.Connections.OrderBy(i => i.Name))
             {
-                UserSettingsContext.Current.Connections.Add(item);
+                ConnectionSettingsContext.Current.Connections.Add(item);
             }
-            UserSettingsContext.Save();
-
+            ConnectionSettingsContext.Save();
         }
 
         private void LoadConnections()
@@ -102,7 +101,7 @@ namespace DatabaseTools.ViewModels
                 this.ConnectionTypes.Add(item);
             }
 
-            foreach (var item in UserSettingsContext.Current.Connections.OrderBy(i => i.Name))
+            foreach (var item in ConnectionSettingsContext.Current.Connections.OrderBy(i => i.Name))
             {
                 this.Connections.Add(item);
             }

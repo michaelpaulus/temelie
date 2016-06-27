@@ -602,9 +602,18 @@ namespace DatabaseTools
                         ).ToList();
                 }
 
+                list = list.OrderBy(i => i.XType).ThenBy(i => i.DefinitionName).ToList();
+
                 if (dtDependencies != null)
                 {
                     VerifyDependencies(list, dtDependencies);
+                }
+
+                int index = 1;
+                foreach (var item in list)
+                {
+                    item.SortOrder = index;
+                    index += 1;
                 }
 
                 return list;

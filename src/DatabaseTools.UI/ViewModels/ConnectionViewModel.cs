@@ -44,7 +44,7 @@ namespace DatabaseTools.ViewModels
         public void LoadConnections()
         {
             this.Connections.Clear();
-            foreach (var item in UserSettingsContext.Current.Connections.OrderBy(i => i.Name))
+            foreach (var item in ConnectionSettingsContext.Current.Connections.OrderBy(i => i.Name))
             {
                 this.Connections.Add(item);
             }
