@@ -149,6 +149,8 @@ namespace DatabaseTools
                 {
                     return (
                         from i in this.Tables
+                        where 
+                            !i.IsHistoryTable
                         select i.TableName).ToList();
                 }
             }
@@ -857,7 +859,7 @@ namespace DatabaseTools
             {
                 var dictionary = new Dictionary<Models.TableModel, string>();
 
-                foreach (Models.TableModel table in this.Tables.Where(i => i.TemporalType == 0))
+                foreach (Models.TableModel table in this.Tables.Where(i => !i.IsHistoryTable))
                 {
                     var sbTableScript = new StringBuilder();
                     table.AppendCreateScript(sbTableScript, this.QuoteCharacterStart, this.QuoteCharacterEnd, includeIfNotExists);
@@ -871,7 +873,7 @@ namespace DatabaseTools
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
-                foreach (Models.TableModel table in this.Tables.Where(i => i.TemporalType == 0))
+                foreach (Models.TableModel table in this.Tables.Where(i => !i.IsHistoryTable))
                 {
                     table.AppendCreateScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd, includeIfNotExists);
                 }

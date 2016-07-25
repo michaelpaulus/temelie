@@ -32,6 +32,8 @@ namespace DatabaseTools
 
             public int TemporalType { get; set; }
 
+            public bool IsHistoryTable { get { return TemporalType == 1; } }
+
             private IList<ColumnModel> _columns;
             public IList<ColumnModel> Columns
             {
