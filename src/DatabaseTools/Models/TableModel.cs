@@ -30,6 +30,8 @@ namespace DatabaseTools
            
             public string ErrorMessage { get; set; }
 
+            public int TemporalType { get; set; }
+
             private IList<ColumnModel> _columns;
             public IList<ColumnModel> Columns
             {

@@ -560,6 +560,7 @@ namespace DatabaseTools
                 column.IsNullable = GetBoolValue(row, "is_nullable");
                 column.IsIdentity = GetBoolValue(row, "is_identity");
                 column.IsComputed = GetBoolValue(row, "is_computed");
+                column.IsComputed = GetBoolValue(row, "is_hidden");
                 column.ComputedDefinition = GetStringValue(row, "computed_definition");
                 column.ColumnID = GetInt32Value(row, "column_id");
                 column.IsPrimaryKey = GetBoolValue(row, "is_primary_key");
@@ -806,6 +807,7 @@ namespace DatabaseTools
                 {
                     Models.TableModel table = new Models.TableModel();
                     table.TableName = Processes.Database.GetStringValue(row, "table_name");
+                    table.TemporalType = Processes.Database.GetInt32Value(row, "temporal_type");
                     if (!(tables.Contains(table.TableName.ToUpper())))
                     {
                         if (columnIndex.ContainsKey(table.TableName.ToUpper()))

@@ -857,7 +857,7 @@ namespace DatabaseTools
             {
                 var dictionary = new Dictionary<Models.TableModel, string>();
 
-                foreach (Models.TableModel table in this.Tables)
+                foreach (Models.TableModel table in this.Tables.Where(i => i.TemporalType == 0))
                 {
                     var sbTableScript = new StringBuilder();
                     table.AppendCreateScript(sbTableScript, this.QuoteCharacterStart, this.QuoteCharacterEnd, includeIfNotExists);
@@ -871,7 +871,7 @@ namespace DatabaseTools
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
-                foreach (Models.TableModel table in this.Tables)
+                foreach (Models.TableModel table in this.Tables.Where(i => i.TemporalType == 0))
                 {
                     table.AppendCreateScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd, includeIfNotExists);
                 }

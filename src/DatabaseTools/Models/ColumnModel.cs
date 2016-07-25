@@ -140,6 +140,20 @@ namespace DatabaseTools
                 }
             }
 
+            private bool _isHidden;
+            public bool IsHidden
+            {
+                get
+                {
+                    return _isHidden;
+                }
+                set
+                {
+                    _isHidden = value;
+                    this.OnPropertyChanged("IsHidden");
+                }
+            }
+
             private string _computedDefinition;
             public string ComputedDefinition
             {
