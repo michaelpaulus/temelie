@@ -31,6 +31,7 @@ namespace DatabaseTools
             public string ErrorMessage { get; set; }
 
             public int TemporalType { get; set; }
+            public string HistoryTableName { get; set; }
 
             public bool IsHistoryTable { get { return TemporalType == 1; } }
 
@@ -102,8 +103,20 @@ namespace DatabaseTools
                     intColumnCount += 1;
                 }
 
+                if (TemporalType == 2)
+                {
+                    if (intColumnCount != 0)
+                    {
+                        sb.AppendLine(",");
+                    }
+                    sb.Append($"\t\tPERIOD FOR SYSTEM_TIME ({Columns.Where(c => c.GeneratedAlwaysType == 1).First().ColumnName}, {Columns.Where(c => c.GeneratedAlwaysType == 2).First().ColumnName})");
+                }
+
                 sb.AppendLine();
-                sb.AppendLine("\t" + ")");
+                sb.Append("\t" + ")");
+
+                sb.AppendLine();
+
                 sb.AppendLine("GO");
             }
 

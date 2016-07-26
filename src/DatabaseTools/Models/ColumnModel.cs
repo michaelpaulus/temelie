@@ -154,6 +154,8 @@ namespace DatabaseTools
                 }
             }
 
+            public int GeneratedAlwaysType { get; set; }
+
             private string _computedDefinition;
             public string ComputedDefinition
             {
@@ -238,7 +240,8 @@ namespace DatabaseTools
             {
                 string strDataType = this.FullColumnType();
 
-                if (this.IsComputed)
+                if (this.IsComputed &&
+                    this.GeneratedAlwaysType == 0)
                 {
                     strDataType = "AS " + this.ComputedDefinition;
                 }
@@ -250,6 +253,20 @@ namespace DatabaseTools
                     strIdentity = " IDENTITY(1,1)";
                 }
 
+                string generatedAlwaysType = "";
+
+                if (this.GeneratedAlwaysType > 0)
+                {
+                    if (this.GeneratedAlwaysType == 1)
+                    {
+                        generatedAlwaysType += " GENERATED ALWAYS AS ROW START";
+                    }
+                    else if (this.GeneratedAlwaysType == 2)
+                    {
+                        generatedAlwaysType += " GENERATED ALWAYS AS ROW END";
+                    }
+                }
+
                 string strNull = " NULL";
 
                 if (!this.IsNullable)
@@ -257,12 +274,14 @@ namespace DatabaseTools
                     strNull = " NOT NULL";
                 }
 
-                if (this.IsComputed)
+                if (this.IsComputed &&
+                    this.GeneratedAlwaysType == 0)
                 {
                     strNull = string.Empty;
                 }
 
                 string defaultValue = "";
+
 
                 if (!string.IsNullOrEmpty(this.ColumnDefault))
                 {
@@ -293,7 +312,9 @@ namespace DatabaseTools
                     defaultValue = $" DEFAULT {columnDefault}";
                 }
 
-                return $"{quoteCharacterStart}{this.ColumnName}{quoteCharacterEnd} {strDataType}{strIdentity}{strNull}{defaultValue}".Trim();
+                var hiddentType = IsHidden ? " HIDDEN" : "";
+
+                return $"{quoteCharacterStart}{this.ColumnName}{quoteCharacterEnd} {strDataType}{generatedAlwaysType}{strIdentity}{hiddentType}{strNull}{defaultValue}".Trim();
             }
 
             public override string ToString()

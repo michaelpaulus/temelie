@@ -226,6 +226,7 @@ ORDER BY
 	                        ISNULL(sys.computed_columns.definition, '') computed_definition, 
 	                        sys.columns.column_id, 
 							0 is_hidden,
+                            0 generated_always_type,
 	                        ISNULL(sys.default_constraints.definition, '') column_default,
 	                        ISNULL((SELECT 1 FROM sys.indexes INNER JOIN sys.index_columns ON sys.indexes.object_id = sys.index_columns.object_id AND sys.indexes.index_id = sys.index_columns.index_id WHERE sys.indexes.is_primary_key = 1 AND sys.indexes.object_id = sys.tables.object_id AND sys.index_columns.object_id = sys.columns.object_id AND sys.index_columns.column_id = sys.columns.column_id), 0) is_primary_key 
                         FROM 
@@ -279,6 +280,7 @@ ORDER BY
 	                        ISNULL(sys.computed_columns.definition, '') computed_definition, 
 	                        sys.columns.column_id, 
 							sys.columns.is_hidden,
+                            sys.columns.generated_always_type,
 	                        ISNULL(sys.default_constraints.definition, '') column_default,
 	                        ISNULL((SELECT 1 FROM sys.indexes INNER JOIN sys.index_columns ON sys.indexes.object_id = sys.index_columns.object_id AND sys.indexes.index_id = sys.index_columns.index_id WHERE sys.indexes.is_primary_key = 1 AND sys.indexes.object_id = sys.tables.object_id AND sys.index_columns.object_id = sys.columns.object_id AND sys.index_columns.column_id = sys.columns.column_id), 0) is_primary_key 
                         FROM 
@@ -324,7 +326,8 @@ ORDER BY
             string sql2014 = @"
                         SELECT 
 	                        sys.tables.name AS table_name,
-                            0 temporal_type
+                            0 temporal_type,
+                            '' history_table_name
                         FROM 
 	                        sys.tables INNER JOIN 
 	                        sys.schemas ON 
@@ -339,7 +342,14 @@ ORDER BY
             string sql2016 = @"
                         SELECT 
 	                        sys.tables.name AS table_name,
-                            sys.tables.temporal_type
+                            sys.tables.temporal_type,
+							ISNULL((SELECT
+								t1.name
+							FROM
+								sys.tables t1
+							WHERE
+								t1.object_id = sys.tables.history_table_id
+							), '') history_table_name
                         FROM 
 	                        sys.tables INNER JOIN 
 	                        sys.schemas ON 

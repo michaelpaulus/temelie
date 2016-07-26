@@ -561,6 +561,7 @@ namespace DatabaseTools
                 column.IsIdentity = GetBoolValue(row, "is_identity");
                 column.IsComputed = GetBoolValue(row, "is_computed");
                 column.IsHidden = GetBoolValue(row, "is_hidden");
+                column.GeneratedAlwaysType = GetInt32Value(row, "generated_always_type");
                 column.ComputedDefinition = GetStringValue(row, "computed_definition");
                 column.ColumnID = GetInt32Value(row, "column_id");
                 column.IsPrimaryKey = GetBoolValue(row, "is_primary_key");
@@ -808,6 +809,7 @@ namespace DatabaseTools
                     Models.TableModel table = new Models.TableModel();
                     table.TableName = Processes.Database.GetStringValue(row, "table_name");
                     table.TemporalType = Processes.Database.GetInt32Value(row, "temporal_type");
+                    table.HistoryTableName = Processes.Database.GetStringValue(row, "history_table_name");
                     if (!(tables.Contains(table.TableName.ToUpper())))
                     {
                         if (columnIndex.ContainsKey(table.TableName.ToUpper()))
