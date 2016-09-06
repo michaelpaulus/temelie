@@ -15,6 +15,116 @@ namespace DatabaseTools
         public class Script
         {
 
+            private static void CreateDropScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
+            {
+                foreach (var item in database.GetTriggerDropScriptsIndividual())
+                {
+                    var fileName = MakeValidFileName($"01_10_{item.Key.TriggerName}.sql");
+                    if (string.IsNullOrEmpty(fileFilter) ||
+                       fileFilter.EqualsIgnoreCase(fileName))
+                    {
+                        System.IO.File.WriteAllText(System.IO.Path.Combine(directory.FullName, fileName), item.Value);
+                    }
+                }
+
+                foreach (var item in database.GetFkDropScriptsIndividual())
+                {
+                    var fileName = MakeValidFileName($"01_11_{item.Key.ForeignKeyName}.sql");
+                    if (string.IsNullOrEmpty(fileFilter) ||
+                      fileFilter.EqualsIgnoreCase(fileName))
+                    {
+                        System.IO.File.WriteAllText(System.IO.Path.Combine(directory.FullName, fileName), item.Value);
+                    }
+                }
+            }
+
+            private static void CreateTableScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
+            {
+                foreach (var item in database.GetTableScriptsIndividual())
+                {
+                    var fileName = MakeValidFileName($"02_10_{item.Key.TableName}.sql");
+                    if (string.IsNullOrEmpty(fileFilter) ||
+                        fileFilter.EqualsIgnoreCase(fileName))
+                    {
+                        System.IO.File.WriteAllText(System.IO.Path.Combine(directory.FullName, fileName), item.Value);
+                    }
+                }
+            }
+
+            private static void CreateIndexScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
+            {
+                foreach (var item in database.GetIxPkScriptsIndividual())
+                {
+                    var fileName = MakeValidFileName($"03_10_{item.Key.IndexName}.sql");
+                    if (string.IsNullOrEmpty(fileFilter) ||
+                        fileFilter.EqualsIgnoreCase(fileName))
+                    {
+                        System.IO.File.WriteAllText(System.IO.Path.Combine(directory.FullName, fileName), item.Value);
+                    }
+                }
+            }
+
+            private static void CreateViewsAndProgrammabilityScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
+            {
+                var sbExecutionOrder = new System.Text.StringBuilder();
+
+                foreach (var item in database.GetDefinitionScriptsIndividual())
+                {
+                    var fileName = MakeValidFileName($"05_{ item.Key.DefinitionName}.sql");
+                    sbExecutionOrder.AppendLine(fileName);
+                    if (string.IsNullOrEmpty(fileFilter) ||
+                        fileFilter.EqualsIgnoreCase(fileName))
+                    {
+                        System.IO.File.WriteAllText(System.IO.Path.Combine(directory.FullName, fileName), item.Value);
+                    }
+                }
+
+                if (string.IsNullOrEmpty(fileFilter))
+                {
+                    System.IO.File.WriteAllText(System.IO.Path.Combine(directory.FullName, "_executionOrder.txt"), sbExecutionOrder.ToString());
+                }
+            }
+
+            private static void CreateTriggerScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
+            {
+                foreach (var item in database.GetTriggerScriptsIndividual())
+                {
+                    var fileName = MakeValidFileName($"06_10_{ item.Key.TriggerName}.sql");
+                    if (string.IsNullOrEmpty(fileFilter) ||
+                        fileFilter.EqualsIgnoreCase(fileName))
+                    {
+                        System.IO.File.WriteAllText(System.IO.Path.Combine(directory.FullName, fileName), item.Value);
+                    }
+                }
+            }
+
+            private static void CreateInsertDefaultScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
+            {
+
+                foreach (var item in database.GetInsertDefaultScriptsIndividual())
+                {
+                    var fileName = MakeValidFileName($"07_10_{ item.Key.TableName}.sql");
+                    if (string.IsNullOrEmpty(fileFilter) ||
+                        fileFilter.EqualsIgnoreCase(fileName))
+                    {
+                        System.IO.File.WriteAllText(System.IO.Path.Combine(directory.FullName, fileName), item.Value);
+                    }
+                }
+            }
+
+            private static void CreateFkScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
+            {
+                foreach (var item in database.GetFkScriptsIndividual())
+                {
+                    var fileName = MakeValidFileName($"08_10_{ item.Key.ForeignKeyName}.sql");
+                    if (string.IsNullOrEmpty(fileFilter) ||
+                        fileFilter.EqualsIgnoreCase(fileName))
+                    {
+                        System.IO.File.WriteAllText(System.IO.Path.Combine(directory.FullName, fileName), item.Value);
+                    }
+                }
+            }
+
             public static void CreateScriptsIndividual(System.Configuration.ConnectionStringSettings connectionString, System.IO.DirectoryInfo directory, Models.DatabaseType targetDatabaseType, IProgress<ScriptProgress> progress, string objectFilter = "")
             {
                 Models.DatabaseModel database = new Models.DatabaseModel(connectionString, targetDatabaseType) { ObjectFilter = objectFilter };
@@ -41,7 +151,6 @@ namespace DatabaseTools
 
                     string subDirectoryPath = System.IO.Path.Combine(directory.FullName, subDirectoryName);
 
-
                     if (System.IO.Directory.Exists(subDirectoryPath))
                     {
                         var subDirectory = new System.IO.DirectoryInfo(subDirectoryPath);
@@ -59,15 +168,7 @@ namespace DatabaseTools
                                 file.Delete();
                             }
 
-                            foreach (var item in database.GetTriggerDropScriptsIndividual())
-                            {
-                                System.IO.File.WriteAllText(System.IO.Path.Combine(subDirectory.FullName, MakeValidFileName($"01_10_{ item.Key.TriggerName}.sql")), item.Value);
-                            }
-
-                            foreach (var item in database.GetFkDropScriptsIndividual())
-                            {
-                                System.IO.File.WriteAllText(System.IO.Path.Combine(subDirectory.FullName, MakeValidFileName($"01_11_{ item.Key.ForeignKeyName}.sql")), item.Value);
-                            }
+                            CreateDropScripts(database, subDirectory);
 
                         }
                         else if (subDirectory.Name.StartsWith("02_Tables", StringComparison.InvariantCultureIgnoreCase))
@@ -77,11 +178,7 @@ namespace DatabaseTools
                                 file.Delete();
                             }
 
-                            foreach (var item in database.GetTableScriptsIndividual())
-                            {
-                                System.IO.File.WriteAllText(System.IO.Path.Combine(subDirectory.FullName, MakeValidFileName($"02_10_{ item.Key.TableName}.sql")), item.Value);
-                            }
-
+                            CreateTableScripts(database, subDirectory);
                         }
                         else if (subDirectory.Name.StartsWith("03_Indexes", StringComparison.InvariantCultureIgnoreCase))
                         {
@@ -90,11 +187,7 @@ namespace DatabaseTools
                                 file.Delete();
                             }
 
-                            foreach (var item in database.GetIxPkScriptsIndividual())
-                            {
-                                System.IO.File.WriteAllText(System.IO.Path.Combine(subDirectory.FullName, MakeValidFileName($"03_10_{ item.Key.IndexName}.sql")), item.Value);
-                            }
-
+                            CreateIndexScripts(database, subDirectory);
                         }
                         else if (subDirectory.Name.StartsWith("05_ViewsAndProgrammability", StringComparison.InvariantCultureIgnoreCase))
                         {
@@ -103,16 +196,7 @@ namespace DatabaseTools
                                 file.Delete();
                             }
 
-                            var sbExecutionOrder = new System.Text.StringBuilder();
-
-                            foreach (var item in database.GetDefinitionScriptsIndividual())
-                            {
-                                var fileName = MakeValidFileName($"05_{ item.Key.DefinitionName}.sql");
-                                sbExecutionOrder.AppendLine(fileName);
-                                System.IO.File.WriteAllText(System.IO.Path.Combine(subDirectory.FullName, fileName), item.Value);
-                            }
-
-                            System.IO.File.WriteAllText(System.IO.Path.Combine(subDirectory.FullName, "_executionOrder.txt"), sbExecutionOrder.ToString());
+                            CreateViewsAndProgrammabilityScripts(database, subDirectory);
                         }
                         else if (subDirectory.Name.StartsWith("06_Triggers", StringComparison.InvariantCultureIgnoreCase))
                         {
@@ -121,10 +205,7 @@ namespace DatabaseTools
                                 file.Delete();
                             }
 
-                            foreach (var item in database.GetTriggerScriptsIndividual())
-                            {
-                                System.IO.File.WriteAllText(System.IO.Path.Combine(subDirectory.FullName, MakeValidFileName($"06_10_{ item.Key.TriggerName}.sql")), item.Value);
-                            }
+                            CreateTriggerScripts(database, subDirectory);
                         }
                         else if (subDirectory.Name.StartsWith("07_InsertDefaults", StringComparison.InvariantCultureIgnoreCase))
                         {
@@ -133,11 +214,7 @@ namespace DatabaseTools
                                 file.Delete();
                             }
 
-                            foreach (var item in database.GetInsertDefaultScriptsIndividual())
-                            {
-                                System.IO.File.WriteAllText(System.IO.Path.Combine(subDirectory.FullName, MakeValidFileName($"07_10_{ item.Key.TableName}.sql")), item.Value);
-                            }
-
+                            CreateInsertDefaultScripts(database, subDirectory);
                         }
                         else if (subDirectory.Name.StartsWith("08_ForeignKeys", StringComparison.InvariantCultureIgnoreCase))
                         {
@@ -146,10 +223,7 @@ namespace DatabaseTools
                                 file.Delete();
                             }
 
-                            foreach (var item in database.GetFkScriptsIndividual())
-                            {
-                                System.IO.File.WriteAllText(System.IO.Path.Combine(subDirectory.FullName, MakeValidFileName($"08_10_{ item.Key.ForeignKeyName}.sql")), item.Value);
-                            }
+                            CreateFkScripts(database, subDirectory);
                         }
                     }
 
@@ -191,6 +265,39 @@ namespace DatabaseTools
                     MergeScripts(mergeList, file.FullName);
                 }
 
+            }
+
+            public static void CreateScriptIndividual(System.Configuration.ConnectionStringSettings connectionString, System.IO.DirectoryInfo directory, Models.DatabaseType targetDatabaseType, string fileName)
+            {
+                Models.DatabaseModel database = new Models.DatabaseModel(connectionString, targetDatabaseType);
+                if (directory.Name.StartsWith("01_Drops", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    CreateDropScripts(database, directory, fileName);
+                }
+                else if (directory.Name.StartsWith("02_Tables", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    CreateTableScripts(database, directory, fileName);
+                }
+                else if (directory.Name.StartsWith("03_Indexes", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    CreateIndexScripts(database, directory, fileName);
+                }
+                else if (directory.Name.StartsWith("05_ViewsAndProgrammability", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    CreateViewsAndProgrammabilityScripts(database, directory, fileName);
+                }
+                else if (directory.Name.StartsWith("06_Triggers", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    CreateTriggerScripts(database, directory, fileName);
+                }
+                else if (directory.Name.StartsWith("07_InsertDefaults", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    CreateInsertDefaultScripts(database, directory, fileName);
+                }
+                else if (directory.Name.StartsWith("08_ForeignKeys", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    CreateFkScripts(database, directory, fileName);
+                }
             }
 
             private static string MakeValidFileName(string name)
