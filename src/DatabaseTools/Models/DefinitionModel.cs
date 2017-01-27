@@ -18,6 +18,7 @@ namespace DatabaseTools
             #region Properties
 
             public string DefinitionName { get; set; }
+            public string SchemaName { get; set; }
             public string Definition { get; set; }
             public string XType { get; set; }
 
@@ -68,9 +69,9 @@ namespace DatabaseTools
                 sb.AppendLine(string.Format("-- {0}", this.DefinitionName));
                 sb.AppendLine(string.Format("IF NOT EXISTS (SELECT 1 FROM sysobjects WHERE sysobjects.name = '{0}')", this.DefinitionName));
 
-                string strPattern = string.Format("(CREATE\\s*{0}\\s*[\\[]?)([\\[]?dbo[\\.]?[\\]]?[\\.]?[\\[]?)?({1})([\\]]?)", this.Type, this.DefinitionName);
+                string strPattern = $"(CREATE\\s*{this.Type}\\s*[\\[]?)([\\[]?{SchemaName}[\\.]?[\\]]?[\\.]?[\\[]?)?({this.DefinitionName})([\\]]?)";
 
-                string strDefinitionReplacement = string.Format("CREATE {0} dbo.{1}", this.Type, this.DefinitionName);
+                string strDefinitionReplacement = $"CREATE {this.Type} {SchemaName}.{this.DefinitionName}";
 
                 this.Definition = System.Text.RegularExpressions.Regex.Replace(this.Definition, strPattern, strDefinitionReplacement, System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Multiline);
 

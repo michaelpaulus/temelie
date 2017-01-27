@@ -17,6 +17,7 @@ namespace DatabaseTools
             #region Properties
 
             public string TableName { get; set; }
+            public string SchemaName { get; set; }
             public string IndexName { get; set; }
             public string IndexType { get; set; }
             public string FilterDefinition { get; set; }
@@ -61,12 +62,12 @@ namespace DatabaseTools
                 if (this.IsPrimaryKey)
                 {
                     sb.AppendLine($"IF EXISTS (SELECT 1 FROM sys.indexes WHERE sys.indexes.name = '{this.IndexName}')");
-                    sb.AppendLine($"\tALTER TABLE {quoteCharacterStart}dbo{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd} DROP CONSTRAINT {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd}");
+                    sb.AppendLine($"\tALTER TABLE {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd} DROP CONSTRAINT {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd}");
                 }
                 else
                 {
                     sb.AppendLine($"IF EXISTS (SELECT 1 FROM sys.indexes WHERE sys.indexes.name = '{this.IndexName}')");
-                    sb.AppendLine($"\tDROP INDEX {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd} ON {quoteCharacterStart}dbo{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
+                    sb.AppendLine($"\tDROP INDEX {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd} ON {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
                 }
                 sb.AppendLine("GO");
             }
@@ -81,7 +82,7 @@ namespace DatabaseTools
                 if (this.IsPrimaryKey)
                 {
                     sb.AppendLine($"IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE sys.indexes.name = '{this.IndexName}') AND EXISTS (SELECT 1 FROM sys.tables WHERE sys.tables.name = '{this.TableName}')");
-                    sb.AppendLine("\t" + $"ALTER TABLE {quoteCharacterStart}dbo{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd} ADD CONSTRAINT {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd} PRIMARY KEY { this.IndexType}");
+                    sb.AppendLine("\t" + $"ALTER TABLE {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd} ADD CONSTRAINT {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd} PRIMARY KEY { this.IndexType}");
                     sb.AppendLine("\t" + "(");
 
                     int intColumnCount = 0;
@@ -113,7 +114,7 @@ namespace DatabaseTools
                     
 
                     sb.AppendLine($"IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE sys.indexes.name = '{this.IndexName}') AND EXISTS (SELECT 1 FROM sys.tables WHERE sys.tables.name = '{this.TableName}')");
-                    sb.AppendLine("\t" + $"CREATE {strIndexType} INDEX {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd} ON {quoteCharacterStart}dbo{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
+                    sb.AppendLine("\t" + $"CREATE {strIndexType} INDEX {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd} ON {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
                     sb.AppendLine("\t" + "(");
 
                     bool blnHasColumns = false;

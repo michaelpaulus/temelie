@@ -23,9 +23,10 @@ namespace DatabaseTools
             #region Properties
 
            public bool Selected { get; set; }
-           
+
             public string TableName { get; set; }
-            
+            public string SchemaName { get; set; }
+
             public int ProgressPercentage { get; set; }
            
             public string ErrorMessage { get; set; }
@@ -55,7 +56,7 @@ namespace DatabaseTools
             public override void AppendDropScript(System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)
             {
                 sb.AppendLine(string.Format("IF EXISTS (SELECT 1 FROM sys.tables WHERE sys.tables.name = '{0}')", this.TableName));
-                sb.AppendLine($"\tDROP TABLE {quoteCharacterStart}dbo{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
+                sb.AppendLine($"\tDROP TABLE {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
                 sb.AppendLine("GO");
             }
 
@@ -83,7 +84,7 @@ namespace DatabaseTools
                 {
                     sb.AppendLine(string.Format("IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE sys.tables.name = '{0}')", this.TableName));
                 }
-                sb.AppendLine($"\tCREATE TABLE {quoteCharacterStart}dbo{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
+                sb.AppendLine($"\tCREATE TABLE {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
                 sb.AppendLine("\t" + "(");
 
                 int intColumnCount = 0;

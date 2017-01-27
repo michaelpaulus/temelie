@@ -18,6 +18,7 @@ namespace DatabaseTools
 
             public string ForeignKeyName { get; set; }
             public string TableName { get; set; }
+            public string SchemaName { get; set; }
             public bool IsNotForReplication { get; set; }
             public string DeleteAction { get; set; }
             public string UpdateAction { get; set; }

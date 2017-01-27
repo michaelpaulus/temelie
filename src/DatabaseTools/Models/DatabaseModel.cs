@@ -777,13 +777,13 @@ namespace DatabaseTools
                     sb.AppendLine();
 
                     sb.AppendLine("INSERT INTO");
-                    sb.AppendLine(string.Format("    {0}.dbo.{1}", targetDatabase.DatabaseName, table.TableName));
+                    sb.AppendLine($"    {targetDatabase.DatabaseName}.{table.SchemaName}.{table.TableName}");
                     sb.AppendLine("    SELECT");
                     sb.AppendLine("        *");
                     sb.AppendLine("    FROM");
-                    sb.AppendLine(string.Format("       {0}.dbo.{1} source_table", this.DatabaseName, table.TableName));
+                    sb.AppendLine($"       { this.DatabaseName}.{table.SchemaName}.{table.TableName} source_table");
                     sb.AppendLine("    WHERE");
-                    sb.AppendLine(string.Format("        NOT EXISTS (SELECT 1 FROM {0}.dbo.{1} target_table WHERE {2})", targetDatabase.DatabaseName, table.TableName, sbCriteria.ToString()));
+                    sb.AppendLine($"        NOT EXISTS (SELECT 1 FROM {targetDatabase.DatabaseName}.{table.SchemaName}.{table.TableName} target_table WHERE {sbCriteria.ToString()})");
                 }
 
                 return sb.ToString();

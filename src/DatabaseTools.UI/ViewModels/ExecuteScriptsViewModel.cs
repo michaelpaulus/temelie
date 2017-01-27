@@ -133,7 +133,9 @@ namespace DatabaseTools.ViewModels
             }
 
             foreach (var file in (from i in list
-                                  orderby i.Name
+                                  orderby 
+                                      i.DirectoryName,  
+                                      i.Name
                                   select i))
             {
                 this.Files.Add(file);

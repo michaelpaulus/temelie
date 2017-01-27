@@ -75,6 +75,7 @@ namespace DatabaseTools.Providers.Mssql
             string sql = @"
                         SELECT 
 	                        sysobjects.name, 
+                            sys.schemas.name schema_name,
 	                        r.referencing_entity_name 
                         FROM 
 	                        sysobjects INNER JOIN 
@@ -84,8 +85,7 @@ namespace DatabaseTools.Providers.Mssql
                         WHERE 
 	                        sysobjects.xtype IN ('P', 'V', 'FN', 'IF') AND 
 	                        sysobjects.category = 0 AND 
-	                        sysobjects.name NOT LIKE '%diagram%' AND 
-	                        sys.schemas.name = 'dbo' 
+	                        sysobjects.name NOT LIKE '%diagram%' 
                         ORDER BY 
 	                        sysobjects.name, 
 	                        r.referencing_entity_name
@@ -101,6 +101,7 @@ namespace DatabaseTools.Providers.Mssql
                         SELECT 
 	                        sysobjects.name, 
 	                        sysobjects.xtype, 
+                            sys.schemas.name schema_name,
 	                        ISNULL(sys.sql_modules.definition, sys.system_sql_modules.definition) AS definition 
                         FROM 
 	                        sysobjects INNER JOIN 
@@ -113,8 +114,7 @@ namespace DatabaseTools.Providers.Mssql
                         WHERE 
 	                        sysobjects.xtype IN ('P', 'V', 'FN', 'IF') AND 
 	                        sysobjects.category = 0 AND 
-	                        sysobjects.name NOT LIKE '%diagram%' AND 
-	                        sys.schemas.name = 'dbo' 
+	                        sysobjects.name NOT LIKE '%diagram%' 
                         ORDER BY 
 	                        sysobjects.xtype, 
 	                        sysobjects.name
@@ -129,6 +129,7 @@ namespace DatabaseTools.Providers.Mssql
             string sql = @"
                         SELECT 
 	                        sys.tables.name AS table_name, 
+	                        sys.schemas.name schema_name,
 	                        sys.foreign_keys.name AS foreign_key_name, 
 	                        parent_columns.name AS column_name, 
 	                        referenced_tables.name AS referenced_table_name, 
@@ -149,7 +150,9 @@ namespace DatabaseTools.Providers.Mssql
 		                        sys.foreign_key_columns.parent_column_id = parent_columns.column_id INNER JOIN 
 	                        sys.columns AS referenced_columns ON 
 		                        sys.foreign_key_columns.referenced_object_id = referenced_columns.object_id AND 
-		                        sys.foreign_key_columns.referenced_column_id = referenced_columns.column_id 
+		                        sys.foreign_key_columns.referenced_column_id = referenced_columns.column_id INNER JOIN 
+	                        sys.schemas on 
+	                            sys.tables.schema_id = sys.schemas.schema_id 
                         WHERE 
 	                        sys.tables.name NOT LIKE 'sys%' 
                         ORDER BY 
@@ -168,6 +171,7 @@ namespace DatabaseTools.Providers.Mssql
             var dtIndexes = Processes.Database.Execute(connectionString, @"
 SELECT 
     sys.tables.name AS table_name, 
+	sys.schemas.name schema_name,
     sys.indexes.name AS index_name, 
     sys.indexes.type_desc index_type, 
     sys.indexes.is_unique, 
@@ -183,7 +187,9 @@ FROM
     sys.tables ON sys.indexes.object_id = sys.tables.object_id INNER JOIN 
     sys.index_columns ON sys.indexes.object_id = sys.index_columns.object_id AND 
     sys.indexes.index_id = sys.index_columns.index_id INNER JOIN 
-    sys.columns ON sys.index_columns.object_id = sys.columns.object_id AND sys.index_columns.column_id = sys.columns.column_id 
+    sys.columns ON sys.index_columns.object_id = sys.columns.object_id AND sys.index_columns.column_id = sys.columns.column_id INNER JOIN 
+	sys.schemas on 
+	    sys.tables.schema_id = sys.schemas.schema_id 
 WHERE 
     sys.tables.name NOT LIKE 'sys%' AND 
     sys.indexes.name NOT LIKE 'MSmerge_index%' AND 
@@ -192,8 +198,7 @@ ORDER BY
     sys.tables.name, 
     sys.indexes.name, 
     sys.index_columns.key_ordinal, 
-    sys.index_columns.index_column_id
-").Tables[0];
+    sys.index_columns.index_column_id").Tables[0];
 
             return dtIndexes;
         }
@@ -203,6 +208,7 @@ ORDER BY
             string sql2014 = @"
                         SELECT
                         	sys.tables.name AS table_name, 
+                            sys.schemas.name schema_name,
 	                        sys.columns.name AS column_name, 
 	                        UPPER(sys.types.name) AS column_type, 
 	                        CASE ISNULL(sys.columns.precision, 0) 
@@ -245,8 +251,7 @@ ORDER BY
 		                        sys.columns.column_id = sys.default_constraints.parent_column_id
 
                         WHERE 
-	                        sys.tables.name NOT LIKE 'sys%' AND 
-	                        (sys.schemas.name = 'dbo') 
+	                        sys.tables.name NOT LIKE 'sys%'
                         ORDER BY 
 	                        sys.tables.name, 
 	                        sys.columns.column_id
@@ -256,7 +261,8 @@ ORDER BY
             string sql2016 = @"
                         SELECT
                         	sys.tables.name AS table_name, 
-	                        sys.columns.name AS column_name, 
+                            sys.schemas.name schema_name,
+                            sys.columns.name AS column_name, 
 	                        UPPER(sys.types.name) AS column_type, 
 	                        CASE ISNULL(sys.columns.precision, 0) 
 								WHEN 0 THEN 
@@ -299,8 +305,7 @@ ORDER BY
 		                        sys.columns.column_id = sys.default_constraints.parent_column_id
 
                         WHERE 
-	                        sys.tables.name NOT LIKE 'sys%' AND 
-	                        (sys.schemas.name = 'dbo') 
+	                        sys.tables.name NOT LIKE 'sys%'
                         ORDER BY 
 	                        sys.tables.name, 
 	                        sys.columns.column_id
@@ -326,6 +331,7 @@ ORDER BY
             string sql2014 = @"
                         SELECT 
 	                        sys.tables.name AS table_name,
+                            sys.schemas.name schema_name,
                             0 temporal_type,
                             '' history_table_name
                         FROM 
@@ -333,8 +339,7 @@ ORDER BY
 	                        sys.schemas ON 
 		                        sys.tables.schema_id = sys.schemas.schema_id 
                         WHERE 
-	                        sys.tables.name NOT LIKE 'sys%' AND 
-	                        sys.schemas.name = 'dbo' 
+	                        sys.tables.name NOT LIKE 'sys%'
                         ORDER BY 
 	                        sys.tables.name
                         ";
@@ -342,6 +347,7 @@ ORDER BY
             string sql2016 = @"
                         SELECT 
 	                        sys.tables.name AS table_name,
+                            sys.schemas.name schema_name,
                             sys.tables.temporal_type,
 							ISNULL((SELECT
 								t1.name
@@ -355,8 +361,7 @@ ORDER BY
 	                        sys.schemas ON 
 		                        sys.tables.schema_id = sys.schemas.schema_id 
                         WHERE 
-	                        sys.tables.name NOT LIKE 'sys%' AND 
-	                        sys.schemas.name = 'dbo' 
+	                        sys.tables.name NOT LIKE 'sys%'
                         ORDER BY 
 	                        sys.tables.name
                         ";
@@ -384,7 +389,8 @@ ORDER BY
 						(
 						SELECT 
 							sys.tables.name AS table_name, 
-							sys.triggers.name AS trigger_name, 
+                            sys.schemas.name schema_name,
+                            sys.triggers.name AS trigger_name, 
 							ISNULL(sys.sql_modules.definition, sys.system_sql_modules.definition) AS definition 
 						FROM 
 							sys.triggers INNER JOIN 
@@ -397,11 +403,11 @@ ORDER BY
 							sys.system_sql_modules ON 
 								sys.system_sql_modules.object_id = sys.triggers.object_id 
 						WHERE 
-							sys.tables.name NOT LIKE 'sys%' AND 
-							sys.schemas.name = 'dbo' 
+							sys.tables.name NOT LIKE 'sys%' 
 						UNION ALL
 						SELECT 
 							sys.views.name AS table_name, 
+                            sys.schemas.name schema_name,
 							sys.triggers.name AS trigger_name, 
 							ISNULL(sys.sql_modules.definition, sys.system_sql_modules.definition) AS definition 
 						FROM 
@@ -415,8 +421,7 @@ ORDER BY
 							sys.system_sql_modules ON 
 								sys.system_sql_modules.object_id = sys.triggers.object_id 
 						WHERE 
-							sys.views.name NOT LIKE 'sys%' AND 
-							sys.schemas.name = 'dbo' 
+							sys.views.name NOT LIKE 'sys%'
 					) t1 
 					ORDER BY
 						t1.table_name,
@@ -433,6 +438,7 @@ ORDER BY
             string sql = @"
                         SELECT 
 	                        sys.views.name AS table_name, 
+                            sys.schemas.name schema_name,
 	                        sys.columns.name AS column_name, 
 	                        UPPER(sys.types.name) AS column_type, 
                             CASE ISNULL(sys.columns.precision, 0) 
@@ -469,8 +475,7 @@ ORDER BY
 		                        sys.columns.object_id = sys.default_constraints.parent_object_id AND
 		                        sys.columns.column_id = sys.default_constraints.parent_column_id
                         WHERE 
-	                        sys.views.name NOT LIKE 'sys%' AND 
-	                        (sys.schemas.name = 'dbo') 
+	                        sys.views.name NOT LIKE 'sys%'
                         ORDER BY 
 	                        sys.views.name,
 	                        sys.columns.column_id
@@ -485,14 +490,14 @@ ORDER BY
         {
             string sql = @"
                         SELECT 
-	                        sys.views.name AS table_name 
+	                        sys.views.name AS table_name,
+                            sys.schemas.name schema_name
                         FROM 
 	                        sys.views INNER JOIN 
 	                        sys.schemas ON 
 		                        sys.views.schema_id = sys.schemas.schema_id 
                         WHERE 
-	                        sys.views.name NOT LIKE 'sys%' AND 
-	                        sys.schemas.name = 'dbo' 
+	                        sys.views.name NOT LIKE 'sys%' 
                         ORDER BY 
 	                        sys.views.name
                         ";

@@ -19,7 +19,7 @@ namespace DatabaseTools
             {
                 foreach (var item in database.GetTriggerDropScriptsIndividual())
                 {
-                    var fileName = MakeValidFileName($"01_10_{item.Key.TriggerName}.sql");
+                    var fileName = MakeValidFileName($"{item.Key.SchemaName}.{item.Key.TriggerName}.sql");
                     if (string.IsNullOrEmpty(fileFilter) ||
                        fileFilter.EqualsIgnoreCase(fileName))
                     {
@@ -29,7 +29,7 @@ namespace DatabaseTools
 
                 foreach (var item in database.GetFkDropScriptsIndividual())
                 {
-                    var fileName = MakeValidFileName($"01_11_{item.Key.ForeignKeyName}.sql");
+                    var fileName = MakeValidFileName($"{item.Key.ForeignKeyName}.sql");
                     if (string.IsNullOrEmpty(fileFilter) ||
                       fileFilter.EqualsIgnoreCase(fileName))
                     {
@@ -42,7 +42,7 @@ namespace DatabaseTools
             {
                 foreach (var item in database.GetTableScriptsIndividual())
                 {
-                    var fileName = MakeValidFileName($"02_10_{item.Key.TableName}.sql");
+                    var fileName = MakeValidFileName($"{item.Key.SchemaName}.{item.Key.TableName}.sql");
                     if (string.IsNullOrEmpty(fileFilter) ||
                         fileFilter.EqualsIgnoreCase(fileName))
                     {
@@ -55,7 +55,7 @@ namespace DatabaseTools
             {
                 foreach (var item in database.GetIxPkScriptsIndividual())
                 {
-                    var fileName = MakeValidFileName($"03_10_{item.Key.IndexName}.sql");
+                    var fileName = MakeValidFileName($"{item.Key.SchemaName}.{item.Key.IndexName}.sql");
                     if (string.IsNullOrEmpty(fileFilter) ||
                         fileFilter.EqualsIgnoreCase(fileName))
                     {
@@ -70,7 +70,7 @@ namespace DatabaseTools
 
                 foreach (var item in database.GetDefinitionScriptsIndividual())
                 {
-                    var fileName = MakeValidFileName($"05_{ item.Key.DefinitionName}.sql");
+                    var fileName = MakeValidFileName($"{item.Key.SchemaName}.{item.Key.DefinitionName}.sql");
                     sbExecutionOrder.AppendLine(fileName);
                     if (string.IsNullOrEmpty(fileFilter) ||
                         fileFilter.EqualsIgnoreCase(fileName))
@@ -89,7 +89,7 @@ namespace DatabaseTools
             {
                 foreach (var item in database.GetTriggerScriptsIndividual())
                 {
-                    var fileName = MakeValidFileName($"06_10_{ item.Key.TriggerName}.sql");
+                    var fileName = MakeValidFileName($"{item.Key.SchemaName}.{item.Key.TriggerName}.sql");
                     if (string.IsNullOrEmpty(fileFilter) ||
                         fileFilter.EqualsIgnoreCase(fileName))
                     {
@@ -103,7 +103,7 @@ namespace DatabaseTools
 
                 foreach (var item in database.GetInsertDefaultScriptsIndividual())
                 {
-                    var fileName = MakeValidFileName($"07_10_{ item.Key.TableName}.sql");
+                    var fileName = MakeValidFileName($"{item.Key.SchemaName}.{item.Key.TableName}.sql");
                     if (string.IsNullOrEmpty(fileFilter) ||
                         fileFilter.EqualsIgnoreCase(fileName))
                     {
@@ -116,7 +116,7 @@ namespace DatabaseTools
             {
                 foreach (var item in database.GetFkScriptsIndividual())
                 {
-                    var fileName = MakeValidFileName($"08_10_{ item.Key.ForeignKeyName}.sql");
+                    var fileName = MakeValidFileName($"{item.Key.SchemaName}.{item.Key.ForeignKeyName}.sql");
                     if (string.IsNullOrEmpty(fileFilter) ||
                         fileFilter.EqualsIgnoreCase(fileName))
                     {
@@ -163,7 +163,7 @@ namespace DatabaseTools
 
                         if (subDirectory.Name.StartsWith("01_Drops", StringComparison.InvariantCultureIgnoreCase))
                         {
-                            foreach (var file in subDirectory.GetFiles("01_*.sql"))
+                            foreach (var file in subDirectory.GetFiles("*.sql"))
                             {
                                 file.Delete();
                             }
@@ -173,7 +173,7 @@ namespace DatabaseTools
                         }
                         else if (subDirectory.Name.StartsWith("02_Tables", StringComparison.InvariantCultureIgnoreCase))
                         {
-                            foreach (var file in subDirectory.GetFiles("02_*.sql"))
+                            foreach (var file in subDirectory.GetFiles("*.sql"))
                             {
                                 file.Delete();
                             }
@@ -182,7 +182,7 @@ namespace DatabaseTools
                         }
                         else if (subDirectory.Name.StartsWith("03_Indexes", StringComparison.InvariantCultureIgnoreCase))
                         {
-                            foreach (var file in subDirectory.GetFiles("03_*.sql"))
+                            foreach (var file in subDirectory.GetFiles("*.sql"))
                             {
                                 file.Delete();
                             }
@@ -191,7 +191,7 @@ namespace DatabaseTools
                         }
                         else if (subDirectory.Name.StartsWith("05_ViewsAndProgrammability", StringComparison.InvariantCultureIgnoreCase))
                         {
-                            foreach (var file in subDirectory.GetFiles("05_*.sql"))
+                            foreach (var file in subDirectory.GetFiles("*.sql"))
                             {
                                 file.Delete();
                             }
@@ -200,7 +200,7 @@ namespace DatabaseTools
                         }
                         else if (subDirectory.Name.StartsWith("06_Triggers", StringComparison.InvariantCultureIgnoreCase))
                         {
-                            foreach (var file in subDirectory.GetFiles("06_*.sql"))
+                            foreach (var file in subDirectory.GetFiles("*.sql"))
                             {
                                 file.Delete();
                             }
@@ -209,7 +209,7 @@ namespace DatabaseTools
                         }
                         else if (subDirectory.Name.StartsWith("07_InsertDefaults", StringComparison.InvariantCultureIgnoreCase))
                         {
-                            foreach (var file in subDirectory.GetFiles("07_*.sql"))
+                            foreach (var file in subDirectory.GetFiles("*.sql"))
                             {
                                 file.Delete();
                             }
@@ -218,7 +218,7 @@ namespace DatabaseTools
                         }
                         else if (subDirectory.Name.StartsWith("08_ForeignKeys", StringComparison.InvariantCultureIgnoreCase))
                         {
-                            foreach (var file in subDirectory.GetFiles("08_*.sql"))
+                            foreach (var file in subDirectory.GetFiles("*.sql"))
                             {
                                 file.Delete();
                             }

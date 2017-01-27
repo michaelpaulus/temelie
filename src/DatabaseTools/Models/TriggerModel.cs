@@ -18,6 +18,7 @@ namespace DatabaseTools
             #region Properties
 
             public string TriggerName { get; set; }
+            public string SchemaName { get; set; }
             public string Definition { get; set; }
             public string TableName { get; set; }
 
@@ -33,7 +34,7 @@ namespace DatabaseTools
                 }
 
                 sb.AppendLine(string.Format("IF EXISTS (SELECT 1 FROM sysobjects WHERE sysobjects.name = '{0}')", this.TriggerName));
-                sb.AppendLine($"\tDROP TRIGGER {quoteCharacterStart}dbo{quoteCharacterEnd}.{quoteCharacterStart}{this.TriggerName}{quoteCharacterEnd}");
+                sb.AppendLine($"\tDROP TRIGGER {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TriggerName}{quoteCharacterEnd}");
                 sb.AppendLine("GO");
             }
 

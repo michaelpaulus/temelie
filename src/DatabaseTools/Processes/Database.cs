@@ -599,6 +599,7 @@ namespace DatabaseTools
                         {
                             Definition = i["definition"].ToString(),
                             DefinitionName = i["name"].ToString(),
+                            SchemaName = i["schema_name"].ToString(),
                             XType = i["xtype"].ToString().Trim()
                         }
                         ).ToList();
@@ -674,12 +675,14 @@ namespace DatabaseTools
                    from i in dataTable.Rows.Cast<System.Data.DataRow>()
                    group i by new
                    {
+                       SchemaName = i["schema_name"].ToString(),
                        TableName = i["table_name"].ToString(),
                        ForeignKeyName = i["foreign_key_name"].ToString()
                    } into g
                    select new
                    {
                        TableName = g.Key.TableName,
+                       SchemaName = g.Key.SchemaName,
                        ForeignKeyName = g.Key.ForeignKeyName,
                        Items = g.ToList()
                    }))
@@ -692,6 +695,7 @@ namespace DatabaseTools
                             {
                                 ForeignKeyName = tableGroup.ForeignKeyName,
                                 TableName = tableGroup.TableName,
+                                SchemaName = tableGroup.SchemaName,
                                 ReferencedTableName = summaryRow["referenced_table_name"].ToString(),
                                 IsNotForReplication = Convert.ToBoolean(summaryRow["is_not_for_replication"]),
                                 DeleteAction = summaryRow["delete_action"].ToString().Replace("_", " "),
@@ -733,8 +737,8 @@ namespace DatabaseTools
 
                     foreach (var indexGroup in (
                         from i in dtIndexes.Rows.Cast<System.Data.DataRow>()
-                        group i by new { IndexName = i["index_name"].ToString(), TableName = i["table_name"].ToString() } into g
-                        select new { IndexName = g.Key.IndexName, TableName = g.Key.TableName, Items = g.ToList() }))
+                        group i by new { IndexName = i["index_name"].ToString(), TableName = i["table_name"].ToString(), SchemaName = i["schema_name"].ToString() } into g
+                        select new { IndexName = g.Key.IndexName, TableName = g.Key.TableName, SchemaName = g.Key.SchemaName, Items = g.ToList() }))
                     {
                         if (ContainsTable(tables, indexGroup.TableName))
                         {
@@ -744,6 +748,7 @@ namespace DatabaseTools
                             {
                                 TableName = indexGroup.TableName,
                                 IndexName = indexGroup.IndexName,
+                                SchemaName = indexGroup.SchemaName,
                                 IndexType = summaryRow["index_type"].ToString(),
                                 FilterDefinition = summaryRow["filter_definition"] == DBNull.Value ? "" : summaryRow["filter_definition"].ToString(),
                                 IsUnique = Convert.ToBoolean(summaryRow["is_unique"]),
@@ -808,6 +813,7 @@ namespace DatabaseTools
                 {
                     Models.TableModel table = new Models.TableModel();
                     table.TableName = Processes.Database.GetStringValue(row, "table_name");
+                    table.SchemaName = Processes.Database.GetStringValue(row, "schema_name");
                     table.TemporalType = Processes.Database.GetInt32Value(row, "temporal_type");
                     table.HistoryTableName = Processes.Database.GetStringValue(row, "history_table_name");
                     if (!(tables.Contains(table.TableName.ToUpper())))
@@ -925,7 +931,13 @@ namespace DatabaseTools
                             ContainsTable(views, strTableName) ||
                             (!(string.IsNullOrEmpty(objectFilter)) && strTriggerName.ToLower().Contains(objectFilter)))
                         {
-                            list.Add(new Models.TriggerModel { TableName = strTableName, TriggerName = strTriggerName, Definition = strDefinition });
+                            list.Add(new Models.TriggerModel
+                            {
+                                TableName = strTableName,
+                                TriggerName = strTriggerName,
+                                SchemaName = detailRow["schema_name"].ToString(),
+                                Definition = strDefinition
+                            });
                         }
                     }
                 }
