@@ -30,6 +30,8 @@ namespace DatabaseTools
                 }
             }
 
+            public string SchemaName { get; set; }
+
             private string _columnName;
             public string ColumnName
             {

@@ -553,6 +553,7 @@ namespace DatabaseTools
             {
 
                 column.TableName = GetStringValue(row, "table_name");
+                column.SchemaName = GetStringValue(row, "schema_name");
                 column.ColumnName = GetStringValue(row, "column_name");
                 column.Precision = GetInt32Value(row, "precision");
                 column.Scale = GetInt32Value(row, "scale");
@@ -803,10 +804,10 @@ namespace DatabaseTools
 
                 foreach (var columnGroup in (
                     from i in columns
-                    group i by i.TableName into g
-                    select new { TableName = g.Key, Items = g.ToList() }))
+                    group i by new { i.TableName, i.SchemaName } into g
+                    select new { TableName = g.Key.TableName, SchemaName = g.Key.SchemaName, Items = g.ToList() }))
                 {
-                    columnIndex.Add(columnGroup.TableName.ToUpper(), columnGroup.Items);
+                    columnIndex.Add($"{columnGroup.SchemaName}.{columnGroup.TableName}".ToUpper(), columnGroup.Items);
                 }
 
                 foreach (System.Data.DataRow row in dataTable.Rows)
@@ -818,9 +819,9 @@ namespace DatabaseTools
                     table.HistoryTableName = Processes.Database.GetStringValue(row, "history_table_name");
                     if (!(tables.Contains(table.TableName.ToUpper())))
                     {
-                        if (columnIndex.ContainsKey(table.TableName.ToUpper()))
+                        if (columnIndex.ContainsKey($"{table.SchemaName}.{table.TableName}".ToUpper()))
                         {
-                            var tableColumns = columnIndex[table.TableName.ToUpper()];
+                            var tableColumns = columnIndex[$"{table.SchemaName}.{table.TableName}".ToUpper()];
                             foreach (var column in (
                                         from i in tableColumns
                                         where i.TableName.EqualsIgnoreCase(table.TableName)
