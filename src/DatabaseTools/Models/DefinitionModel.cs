@@ -55,7 +55,7 @@ namespace DatabaseTools
 
                 sb.AppendLine(string.Format("-- {0}", this.DefinitionName));
                 sb.AppendLine(string.Format("IF EXISTS (SELECT 1 FROM sysobjects WHERE sysobjects.name = '{0}')", this.DefinitionName));
-                sb.AppendLine("\t" + string.Format("DROP {0} {1}", this.Type, this.DefinitionName));
+                sb.AppendLine($"\tDROP {this.Type} {this.SchemaName}.{this.DefinitionName}");
                 sb.AppendLine("GO");
             }
 

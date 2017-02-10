@@ -589,6 +589,11 @@ namespace DatabaseTools
 
                 System.Text.StringBuilder sbOrderBy = new System.Text.StringBuilder();
 
+                var table = (
+                    from i in this.Tables
+                    where i.TableName.EqualsIgnoreCase(tableName)
+                    select i).FirstOrDefault();
+
                 var blnIsView = (
                     from i in this.Views
                     where i.TableName.EqualsIgnoreCase(tableName)
@@ -624,6 +629,11 @@ namespace DatabaseTools
                 }
 
                 string strQualifiedTableName = tableName;
+
+                if (table != null)
+                {
+                    strQualifiedTableName = $"{table.SchemaName}.{table.TableName}";
+                }
 
                 string strOrderBy = string.Empty;
 
