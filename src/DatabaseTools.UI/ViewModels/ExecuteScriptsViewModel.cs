@@ -43,6 +43,7 @@ namespace DatabaseTools.ViewModels
         public int ProgressPercentage { get; set; }
         public string ProgressStatus { get; set; }
         public string ErrorMessage { get; set; }
+        public bool ContinueOnError { get; set; }
 
         #endregion
 
@@ -101,13 +102,25 @@ namespace DatabaseTools.ViewModels
 
         private void ExecuteScriptsInternal(IProgress<ScriptProgress> progress)
         {
-            Script.ExecuteScripts(this.DatabaseConnectionString, this.Files, progress);
+            Script.ExecuteScripts(this.DatabaseConnectionString, this.Files, this.ContinueOnError, progress);
         }
 
         private void ReportProgress(ScriptProgress progress)
         {
             this.ProgressPercentage = progress.ProgressPercentage;
             this.ProgressStatus = progress.ProgressStatus;
+            if (!string.IsNullOrEmpty(progress.ErrorMessage))
+            {
+                if (string.IsNullOrEmpty(this.ErrorMessage))
+                {
+                    ErrorMessage = "";
+                }
+                else
+                {
+                    ErrorMessage += "\n";
+                }
+                ErrorMessage += progress.ErrorMessage;
+            }
         }
 
         private void UpdateScripts()

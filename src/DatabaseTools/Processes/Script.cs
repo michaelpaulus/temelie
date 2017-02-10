@@ -450,7 +450,7 @@ namespace DatabaseTools
 
             }
 
-            public static void ExecuteScripts(System.Configuration.ConnectionStringSettings connectionString, IList<System.IO.FileInfo> fileList, IProgress<ScriptProgress> progress)
+            public static void ExecuteScripts(System.Configuration.ConnectionStringSettings connectionString, IList<System.IO.FileInfo> fileList, bool continueOnError, IProgress<ScriptProgress> progress)
             {
                 int intFileCount = 1;
 
@@ -476,7 +476,25 @@ namespace DatabaseTools
 
                     if (!(string.IsNullOrEmpty(strFile.Trim())))
                     {
-                        Database.ExecuteFile(connectionString, strFile);
+                        try
+                        {
+                            Database.ExecuteFile(connectionString, strFile);
+                        }
+                        catch (Exception ex)
+                        {
+                            if (continueOnError)
+                            {
+                                if (progress != null)
+                                {
+                                    int percent = Convert.ToInt32((intFileCount / (double)fileList.Count) * 100);
+                                    progress.Report(new ScriptProgress() { ProgressPercentage = percent, ProgressStatus = file.Name, ErrorMessage = ex.Message });
+                                }
+                            }
+                            else
+                            {
+                                throw;
+                            }
+                        }
                     }
 
                     intFileCount += 1;
