@@ -127,38 +127,41 @@ namespace DatabaseTools.Providers.Mssql
         public DataTable GetForeignKeys(ConnectionStringSettings connectionString)
         {
             string sql = @"
-                        SELECT 
-	                        sys.tables.name AS table_name, 
-	                        sys.schemas.name schema_name,
-	                        sys.foreign_keys.name AS foreign_key_name, 
-	                        parent_columns.name AS column_name, 
-	                        referenced_tables.name AS referenced_table_name, 
-	                        referenced_columns.name AS referenced_column_name, 
-	                        sys.foreign_keys.is_not_for_replication, 
-	                        sys.foreign_keys.delete_referential_action_desc delete_action, 
-	                        sys.foreign_keys.update_referential_action_desc update_action 
-                        FROM 
-	                        sys.foreign_keys INNER JOIN 
-	                        sys.tables ON 
-		                        sys.foreign_keys.parent_object_id = sys.tables.object_id INNER JOIN 
-	                        sys.tables AS referenced_tables ON 
-		                        sys.foreign_keys.referenced_object_id = referenced_tables.object_id INNER JOIN 
-	                        sys.foreign_key_columns ON 
-		                        sys.foreign_keys.object_id = sys.foreign_key_columns.constraint_object_id INNER JOIN 
-	                        sys.columns AS parent_columns ON 
-		                        sys.foreign_key_columns.parent_object_id = parent_columns.object_id AND 
-		                        sys.foreign_key_columns.parent_column_id = parent_columns.column_id INNER JOIN 
-	                        sys.columns AS referenced_columns ON 
-		                        sys.foreign_key_columns.referenced_object_id = referenced_columns.object_id AND 
-		                        sys.foreign_key_columns.referenced_column_id = referenced_columns.column_id INNER JOIN 
-	                        sys.schemas on 
-	                            sys.tables.schema_id = sys.schemas.schema_id 
-                        WHERE 
-	                        sys.tables.name NOT LIKE 'sys%' 
-                        ORDER BY 
-	                        sys.tables.name, 
-	                        sys.foreign_keys.name, 
-	                        sys.foreign_key_columns.constraint_column_id
+SELECT 
+    sys.tables.name AS table_name, 
+    sys.schemas.name schema_name,
+    sys.foreign_keys.name AS foreign_key_name, 
+    parent_columns.name AS column_name, 
+    referenced_schemas.name referenced_schema_name,
+    referenced_tables.name AS referenced_table_name, 
+    referenced_columns.name AS referenced_column_name, 
+    sys.foreign_keys.is_not_for_replication, 
+    sys.foreign_keys.delete_referential_action_desc delete_action, 
+    sys.foreign_keys.update_referential_action_desc update_action 
+FROM 
+    sys.foreign_keys INNER JOIN 
+    sys.tables ON 
+        sys.foreign_keys.parent_object_id = sys.tables.object_id INNER JOIN 
+    sys.tables AS referenced_tables ON 
+        sys.foreign_keys.referenced_object_id = referenced_tables.object_id INNER JOIN 
+    sys.foreign_key_columns ON 
+        sys.foreign_keys.object_id = sys.foreign_key_columns.constraint_object_id INNER JOIN 
+    sys.columns AS parent_columns ON 
+        sys.foreign_key_columns.parent_object_id = parent_columns.object_id AND 
+        sys.foreign_key_columns.parent_column_id = parent_columns.column_id INNER JOIN 
+    sys.columns AS referenced_columns ON 
+        sys.foreign_key_columns.referenced_object_id = referenced_columns.object_id AND 
+        sys.foreign_key_columns.referenced_column_id = referenced_columns.column_id INNER JOIN 
+    sys.schemas on 
+        sys.tables.schema_id = sys.schemas.schema_id INNER JOIN 
+    sys.schemas referenced_schemas on 
+        referenced_tables.schema_id = referenced_schemas.schema_id 
+WHERE 
+    sys.tables.name NOT LIKE 'sys%' 
+ORDER BY 
+    sys.tables.name, 
+    sys.foreign_keys.name, 
+    sys.foreign_key_columns.constraint_column_id
                         ";
 
             System.Data.DataSet ds = Processes.Database.Execute(connectionString, sql);

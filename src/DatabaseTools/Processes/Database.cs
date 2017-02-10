@@ -697,6 +697,7 @@ namespace DatabaseTools
                                 ForeignKeyName = tableGroup.ForeignKeyName,
                                 TableName = tableGroup.TableName,
                                 SchemaName = tableGroup.SchemaName,
+                                ReferencedSchemaName = summaryRow["referenced_schema_name"].ToString(),
                                 ReferencedTableName = summaryRow["referenced_table_name"].ToString(),
                                 IsNotForReplication = Convert.ToBoolean(summaryRow["is_not_for_replication"]),
                                 DeleteAction = summaryRow["delete_action"].ToString().Replace("_", " "),

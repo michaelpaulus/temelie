@@ -119,7 +119,7 @@ namespace DatabaseTools.ViewModels
                 {
                     ErrorMessage += "\n";
                 }
-                ErrorMessage += progress.ErrorMessage;
+                ErrorMessage += $"{progress.ProgressStatus}: {progress.ErrorMessage}";
             }
         }
 
@@ -146,8 +146,8 @@ namespace DatabaseTools.ViewModels
             }
 
             foreach (var file in (from i in list
-                                  orderby 
-                                      i.DirectoryName,  
+                                  orderby
+                                      i.DirectoryName,
                                       i.Name
                                   select i))
             {

@@ -803,10 +803,6 @@ namespace DatabaseTools
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
-                sb.AppendLine(this.GetDefinitionDropScripts());
-                sb.AppendLine(this.GetTriggerDropScripts());
-                sb.AppendLine(this.GetFkDropScripts());
-
                 sb.AppendLine(this.GetTableScripts());
 
                 sb.AppendLine(this.GetIxPkScripts());
