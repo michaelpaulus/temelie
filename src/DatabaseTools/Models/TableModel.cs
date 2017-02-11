@@ -104,12 +104,10 @@ namespace DatabaseTools
                     intColumnCount += 1;
                 }
 
-                if (TemporalType == 2)
+                if (Columns.Where(c => c.GeneratedAlwaysType == 1).Any() &&
+                    Columns.Where(c => c.GeneratedAlwaysType == 2).Any())
                 {
-                    if (intColumnCount != 0)
-                    {
-                        sb.AppendLine(",");
-                    }
+                    sb.AppendLine(",");
                     sb.Append($"\t\tPERIOD FOR SYSTEM_TIME ({Columns.Where(c => c.GeneratedAlwaysType == 1).First().ColumnName}, {Columns.Where(c => c.GeneratedAlwaysType == 2).First().ColumnName})");
                 }
 
