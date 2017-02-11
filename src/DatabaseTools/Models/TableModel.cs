@@ -55,7 +55,7 @@ namespace DatabaseTools
 
             public override void AppendDropScript(System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)
             {
-                sb.AppendLine(string.Format("IF EXISTS (SELECT 1 FROM sys.tables WHERE sys.tables.name = '{0}')", this.TableName));
+                sb.AppendLine($"IF EXISTS (SELECT 1 FROM sys.tables INNER JOIN sys.schemas ON sys.tables.schema_id = sys.schemas.schema_id WHERE sys.tables.name = '{this.TableName}' AND sys.schemas.name = '{this.SchemaName}')");
                 sb.AppendLine($"\tDROP TABLE {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
                 sb.AppendLine("GO");
             }
@@ -73,7 +73,7 @@ namespace DatabaseTools
                 {
                     if (includeIfNotExists)
                     {
-                        sb.AppendLine(string.Format("IF EXISTS (SELECT 1 FROM sys.tables WHERE sys.tables.name = '{0}')", this.TableName));
+                        sb.AppendLine($"IF EXISTS (SELECT 1 FROM sys.tables INNER JOIN sys.schemas ON sys.tables.schema_id = sys.schemas.schema_id WHERE sys.tables.name = '{this.TableName}' AND sys.schemas.name = '{this.SchemaName}')");
                     }
                     sb.AppendLine($"\tDROP TABLE {quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
                     sb.AppendLine("GO");
@@ -82,7 +82,7 @@ namespace DatabaseTools
 
                 if (includeIfNotExists)
                 {
-                    sb.AppendLine(string.Format("IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE sys.tables.name = '{0}')", this.TableName));
+                    sb.AppendLine($"IF NOT EXISTS (SELECT 1 FROM sys.tables INNER JOIN sys.schemas ON sys.tables.schema_id = sys.schemas.schema_id WHERE sys.tables.name = '{this.TableName}' AND sys.schemas.name = '{this.SchemaName}')");
                 }
                 sb.AppendLine($"\tCREATE TABLE {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
                 sb.AppendLine("\t" + "(");

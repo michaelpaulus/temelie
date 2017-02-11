@@ -44,7 +44,7 @@ namespace DatabaseTools
 
             public override void AppendDropScript(System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)
             {
-                sb.AppendLine(string.Format("IF EXISTS (SELECT 1 FROM sysobjects WHERE sysobjects.name = '{0}')", this.ForeignKeyName));
+                sb.AppendLine($"IF EXISTS (SELECT 1 FROM sys.objects INNER JOIN sys.schemas ON sys.objects.schema_id = sys.schemas.schema_id WHERE sys.objects.name = '{ForeignKeyName}' AND sys.schemas.name = '{SchemaName}')");
                 sb.AppendLine($"\tALTER TABLE {quoteCharacterStart}{this.SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd} DROP CONSTRAINT {quoteCharacterStart}{this.ForeignKeyName}{quoteCharacterEnd}");
                 sb.AppendLine("GO");
             }
@@ -76,7 +76,7 @@ namespace DatabaseTools
 
                 sb.AppendLine();
 
-                sb.AppendLine(string.Format("IF NOT EXISTS (SELECT 1 FROM sysobjects WHERE sysobjects.name = '{0}')", this.ForeignKeyName));
+                sb.AppendLine($"IF NOT EXISTS (SELECT 1 FROM sys.objects INNER JOIN sys.schemas ON sys.objects.schema_id = sys.schemas.schema_id WHERE sys.objects.name = '{ForeignKeyName}' AND sys.schemas.name = '{SchemaName}')");
                 sb.AppendLine($"\tALTER TABLE {quoteCharacterStart}{this.SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd} WITH CHECK ADD CONSTRAINT {quoteCharacterStart}{this.ForeignKeyName}{quoteCharacterEnd} FOREIGN KEY ({strColumnNames})");
                 sb.AppendLine($"\tREFERENCES {quoteCharacterStart}{this.ReferencedSchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.ReferencedTableName}{quoteCharacterEnd} ({strReferencedColumnNames})");
 

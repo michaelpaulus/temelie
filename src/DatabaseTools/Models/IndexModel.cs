@@ -61,12 +61,12 @@ namespace DatabaseTools
             {
                 if (this.IsPrimaryKey)
                 {
-                    sb.AppendLine($"IF EXISTS (SELECT 1 FROM sys.indexes WHERE sys.indexes.name = '{this.IndexName}')");
+                    sb.AppendLine($"IF EXISTS (SELECT 1 FROM sys.indexes INNER JOIN sys.tables ON sys.indexes.object_id = sys.tables.object_id INNER JOIN sys.schemas ON sys.tables.schema_id = sys.schemas.schema_id WHERE sys.indexes.name = '{this.IndexName}' AND sys.schemas.name = '{this.SchemaName}')");
                     sb.AppendLine($"\tALTER TABLE {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd} DROP CONSTRAINT {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd}");
                 }
                 else
                 {
-                    sb.AppendLine($"IF EXISTS (SELECT 1 FROM sys.indexes WHERE sys.indexes.name = '{this.IndexName}')");
+                    sb.AppendLine($"IF EXISTS (SELECT 1 FROM sys.indexes INNER JOIN sys.tables ON sys.indexes.object_id = sys.tables.object_id INNER JOIN sys.schemas ON sys.tables.schema_id = sys.schemas.schema_id WHERE sys.indexes.name = '{this.IndexName}' AND sys.schemas.name = '{this.SchemaName}')");
                     sb.AppendLine($"\tDROP INDEX {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd} ON {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
                 }
                 sb.AppendLine("GO");
@@ -81,7 +81,7 @@ namespace DatabaseTools
 
                 if (this.IsPrimaryKey)
                 {
-                    sb.AppendLine($"IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE sys.indexes.name = '{this.IndexName}') AND EXISTS (SELECT 1 FROM sys.tables WHERE sys.tables.name = '{this.TableName}')");
+                    sb.AppendLine($"IF NOT EXISTS (SELECT 1 FROM sys.indexes INNER JOIN sys.tables ON sys.indexes.object_id = sys.tables.object_id INNER JOIN sys.schemas ON sys.tables.schema_id = sys.schemas.schema_id WHERE sys.indexes.name = '{this.IndexName}' AND sys.schemas.name = '{this.SchemaName}')");
                     sb.AppendLine("\t" + $"ALTER TABLE {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd} ADD CONSTRAINT {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd} PRIMARY KEY { this.IndexType}");
                     sb.AppendLine("\t" + "(");
 
@@ -111,9 +111,9 @@ namespace DatabaseTools
                         strIndexType = "UNIQUE " + this.IndexType;
                     }
 
-                    
 
-                    sb.AppendLine($"IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE sys.indexes.name = '{this.IndexName}') AND EXISTS (SELECT 1 FROM sys.tables WHERE sys.tables.name = '{this.TableName}')");
+
+                    sb.AppendLine($"IF NOT EXISTS (SELECT 1 FROM sys.indexes INNER JOIN sys.tables ON sys.indexes.object_id = sys.tables.object_id INNER JOIN sys.schemas ON sys.tables.schema_id = sys.schemas.schema_id WHERE sys.indexes.name = '{this.IndexName}' AND sys.schemas.name = '{this.SchemaName}')");
                     sb.AppendLine("\t" + $"CREATE {strIndexType} INDEX {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd} ON {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
                     sb.AppendLine("\t" + "(");
 
