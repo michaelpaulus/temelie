@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Xml.Linq;
 
 namespace DatabaseTools
@@ -33,6 +34,8 @@ namespace DatabaseTools
 
             public int TemporalType { get; set; }
             public string HistoryTableName { get; set; }
+            public bool IsMemoryOptimized { get; set; }
+            public string DurabilityDesc { get; set; }
 
             public bool IsHistoryTable { get { return TemporalType == 1; } }
 
@@ -46,6 +49,19 @@ namespace DatabaseTools
                         this._columns = new List<ColumnModel>();
                     }
                     return this._columns;
+                }
+            }
+
+            private IList<IndexModel> _indexes; 
+            public IList<IndexModel> Indexes
+            {
+                get
+                {
+                    if (this._indexes == null)
+                    {
+                        this._indexes = new List<IndexModel>();
+                    }
+                    return this._indexes;
                 }
             }
 
@@ -111,12 +127,37 @@ namespace DatabaseTools
                     sb.Append($"\t\tPERIOD FOR SYSTEM_TIME ({Columns.Where(c => c.GeneratedAlwaysType == 1).First().ColumnName}, {Columns.Where(c => c.GeneratedAlwaysType == 2).First().ColumnName})");
                 }
 
-                sb.AppendLine();
+                if (IsMemoryOptimized)
+                {
+                    var pkIndex = (from i in Indexes where i.IsPrimaryKey select i).FirstOrDefault();
+                    if (pkIndex != null)
+                    {
+                        sb.AppendLine(",");
+                        pkIndex.AppendTableInlineCreateScript(sb, quoteCharacterStart, quoteCharacterEnd);
+                    }
+                }
+                else
+                {
+                    sb.AppendLine();
+                }
+
                 sb.Append("\t" + ")");
 
                 sb.AppendLine();
 
+                AddOptions(sb);
+
                 sb.AppendLine("GO");
+            }
+
+            private void AddOptions(StringBuilder sb)
+            {
+                if (IsMemoryOptimized)
+                {
+                    var sbOptions = new StringBuilder();
+                    sbOptions.Append($"MEMORY_OPTIMIZED = ON, DURABILITY = {DurabilityDesc}");
+                    sb.AppendLine($"\tWITH ({sbOptions.ToString()})");
+                }
             }
 
             public override void AppendCreateScript(System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)

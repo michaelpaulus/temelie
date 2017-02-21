@@ -241,7 +241,7 @@ namespace DatabaseTools
 
             #region Helper Methods
 
-            private static bool ContainsTable(IList<string> tables, string table)
+            private static bool ContainsTable(IEnumerable<string> tables, string table)
             {
                 return (from i in tables where i.EqualsIgnoreCase(table) select i).Any();
             }
@@ -721,12 +721,12 @@ namespace DatabaseTools
                 return list;
             }
 
-            public static IList<Models.IndexModel> GetIndexes(System.Configuration.ConnectionStringSettings connectionString, IList<string> tables)
+            public static IList<Models.IndexModel> GetIndexes(System.Configuration.ConnectionStringSettings connectionString, IEnumerable<string> tables)
             {
                 return GetIndexes(connectionString, tables, false);
             }
 
-            private static IList<Models.IndexModel> GetIndexes(System.Configuration.ConnectionStringSettings connectionString, IList<string> tables, bool isPrimaryKey)
+            private static IList<Models.IndexModel> GetIndexes(System.Configuration.ConnectionStringSettings connectionString, IEnumerable<string> tables, bool isPrimaryKey)
             {
                 IList<Models.IndexModel> list = new List<Models.IndexModel>();
                 var provider = GetDatabaseProvider(GetDatabaseType(connectionString), true);
@@ -755,7 +755,8 @@ namespace DatabaseTools
                                 FilterDefinition = summaryRow["filter_definition"] == DBNull.Value ? "" : summaryRow["filter_definition"].ToString(),
                                 IsUnique = Convert.ToBoolean(summaryRow["is_unique"]),
                                 FillFactor = Convert.ToInt32(summaryRow["fill_factor"]),
-                                IsPrimaryKey = Convert.ToBoolean(summaryRow["is_primary_key"])
+                                IsPrimaryKey = Convert.ToBoolean(summaryRow["is_primary_key"]),
+                                TotalBucketCount = Processes.Database.GetInt32Value(summaryRow, "total_bucket_count")
                             };
 
                             if (index.IsPrimaryKey == isPrimaryKey)
@@ -790,7 +791,7 @@ namespace DatabaseTools
                 return list;
             }
 
-            public static IList<Models.IndexModel> GetPrimaryKeys(System.Configuration.ConnectionStringSettings connectionString, IList<string> tables)
+            public static IList<Models.IndexModel> GetPrimaryKeys(System.Configuration.ConnectionStringSettings connectionString, IEnumerable<string> tables)
             {
                 return GetIndexes(connectionString, tables, true);
             }
@@ -818,6 +819,8 @@ namespace DatabaseTools
                     table.SchemaName = Processes.Database.GetStringValue(row, "schema_name");
                     table.TemporalType = Processes.Database.GetInt32Value(row, "temporal_type");
                     table.HistoryTableName = Processes.Database.GetStringValue(row, "history_table_name");
+                    table.IsMemoryOptimized = Processes.Database.GetBoolValue(row, "is_memory_optimized");
+                    table.DurabilityDesc = Processes.Database.GetStringValue(row, "durability_desc");
                     if (!(tables.Contains(table.TableName.ToUpper())))
                     {
                         if (columnIndex.ContainsKey($"{table.SchemaName}.{table.TableName}".ToUpper()))

@@ -124,7 +124,7 @@ namespace DatabaseTools
                 {
                     if (this._indexes == null)
                     {
-                        this._indexes = (from i in Processes.Database.GetIndexes(this.ConnectionString, this.TableNames) orderby i.TableName, i.IndexName select i).ToList(); 
+                        this._indexes = (from i in Processes.Database.GetIndexes(this.ConnectionString, this.TableNames) orderby i.TableName, i.IndexName select i).ToList();
                     }
                     return this._indexes;
                 }
@@ -137,11 +137,12 @@ namespace DatabaseTools
                 {
                     if (this._primaryKeys == null)
                     {
-                        this._primaryKeys = (from i in Processes.Database.GetPrimaryKeys(this.ConnectionString, this.TableNames) orderby i.TableName, i.IndexName  select i).ToList();
+                        this._primaryKeys = (from i in Processes.Database.GetPrimaryKeys(this.ConnectionString, this.TableNames) orderby i.TableName, i.IndexName select i).ToList();
                     }
                     return this._primaryKeys;
                 }
             }
+
 
             public IList<string> TableNames
             {
@@ -149,10 +150,24 @@ namespace DatabaseTools
                 {
                     return (
                         from i in this.Tables
-                        where 
+                        where
                             !i.IsHistoryTable
                         select i.TableName).ToList();
                 }
+            }
+
+            private IList<Models.TableModel> GetFilteredTables()
+            {
+                if (!(string.IsNullOrEmpty(this.ObjectFilter)))
+                {
+                    return (
+                        from i in this._tables
+                        where i.TableName.ToLower().Contains(this.ObjectFilter.ToLower()) &&
+                        !i.TableName.StartsWith("__")
+                        select i).ToList();
+                }
+
+                return this._tables.Where(i => !i.TableName.StartsWith("__")).ToList();
             }
 
             private IList<Models.TableModel> _tables;
@@ -163,17 +178,29 @@ namespace DatabaseTools
                     if (this._tables == null)
                     {
                         this._tables = Processes.Database.GetTables(this.ConnectionString, this.TableColumns).OrderBy(i => i.TableName).ToList();
+                        var tableNames = this.GetFilteredTables().Select(i => i.TableName);
+                        if (this._indexes == null)
+                        {
+                            this._indexes = (from i in Processes.Database.GetIndexes(this.ConnectionString, tableNames) orderby i.TableName, i.IndexName select i).ToList();
+                        }
+                        if (this._primaryKeys == null)
+                        {
+                            this._primaryKeys = (from i in Processes.Database.GetPrimaryKeys(this.ConnectionString, tableNames) orderby i.TableName, i.IndexName select i).ToList();
+                        }
+                        foreach (var table in _tables)
+                        {
+                            foreach (var index in _indexes.Where(i => i.TableName.EqualsIgnoreCase(table.TableName) && i.SchemaName.EqualsIgnoreCase(table.SchemaName)))
+                            {
+                                table.Indexes.Add(index);
+                            }
+                            foreach (var index in _primaryKeys.Where(i => i.TableName.EqualsIgnoreCase(table.TableName) && i.SchemaName.EqualsIgnoreCase(table.SchemaName)))
+                            {
+                                table.Indexes.Add(index);
+                            }
+                        }
                     }
 
-                    if (!(string.IsNullOrEmpty(this.ObjectFilter)))
-                    {
-                        return (
-                            from i in this._tables
-                            where i.TableName.ToLower().Contains(this.ObjectFilter.ToLower())
-                            select i).ToList();
-                    }
-
-                    return this._tables;
+                    return GetFilteredTables();
                 }
             }
 
@@ -451,7 +478,7 @@ namespace DatabaseTools
                     {
                         var sb = new StringBuilder();
 
-                         foreignKey.AppendDropScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                        foreignKey.AppendDropScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
 
                         dictionary.Add(foreignKey, sb.ToString());
                     }
@@ -519,7 +546,7 @@ namespace DatabaseTools
                     group i by i.TableName into g
                     select new { TableName = g.Key, Items = g }))
                 {
-                   
+
                     foreach (var foreignKey in foreignKeyGroup.Items)
                     {
                         System.Text.StringBuilder sb = new System.Text.StringBuilder();
@@ -579,7 +606,7 @@ namespace DatabaseTools
                         }
                     }
                 }
-               
+
                 return dictionary;
             }
 
@@ -896,7 +923,7 @@ namespace DatabaseTools
                     group i by i.TableName into g
                     select new { TableName = g.Key, Items = g }))
                 {
-                  
+
                     foreach (var trigger in triggerGroup.Items)
                     {
                         var sb = new StringBuilder();
@@ -969,7 +996,7 @@ namespace DatabaseTools
                     group i by i.TableName into g
                     select new { TableName = g.Key, Items = g }))
                 {
-                    
+
                     foreach (var trigger in triggerGroup.Items)
                     {
                         System.Text.StringBuilder sb = new System.Text.StringBuilder();

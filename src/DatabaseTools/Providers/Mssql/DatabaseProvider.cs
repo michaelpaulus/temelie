@@ -184,7 +184,8 @@ SELECT
     sys.index_columns.is_descending_key, 
     sys.index_columns.key_ordinal,
     sys.indexes.is_primary_key,
-	sys.indexes.filter_definition
+	sys.indexes.filter_definition,
+    dm_db_xtp_hash_index_stats.total_bucket_count
 FROM 
     sys.indexes INNER JOIN 
     sys.tables ON sys.indexes.object_id = sys.tables.object_id INNER JOIN 
@@ -192,7 +193,10 @@ FROM
     sys.indexes.index_id = sys.index_columns.index_id INNER JOIN 
     sys.columns ON sys.index_columns.object_id = sys.columns.object_id AND sys.index_columns.column_id = sys.columns.column_id INNER JOIN 
 	sys.schemas on 
-	    sys.tables.schema_id = sys.schemas.schema_id 
+	    sys.tables.schema_id = sys.schemas.schema_id LEFT OUTER JOIN
+    sys.dm_db_xtp_hash_index_stats ON
+	   indexes.index_id = dm_db_xtp_hash_index_stats.index_id AND 
+	   indexes.object_id = dm_db_xtp_hash_index_stats.object_id 
 WHERE 
     sys.tables.name NOT LIKE 'sys%' AND 
     sys.indexes.name NOT LIKE 'MSmerge_index%' AND 
@@ -336,7 +340,9 @@ ORDER BY
 	                        sys.tables.name AS table_name,
                             sys.schemas.name schema_name,
                             0 temporal_type,
-                            '' history_table_name
+                            '' history_table_name,
+					       sys.tables.is_memory_optimized,
+					       sys.tables.durability_desc
                         FROM 
 	                        sys.tables INNER JOIN 
 	                        sys.schemas ON 
@@ -358,7 +364,9 @@ ORDER BY
 								sys.tables t1
 							WHERE
 								t1.object_id = sys.tables.history_table_id
-							), '') history_table_name
+							), '') history_table_name,
+					       sys.tables.is_memory_optimized,
+					       sys.tables.durability_desc
                         FROM 
 	                        sys.tables INNER JOIN 
 	                        sys.schemas ON 
