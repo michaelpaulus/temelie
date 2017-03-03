@@ -452,5 +452,10 @@ namespace DatabaseTools.Providers.MySql
                 command.ExecuteNonQuery();
             }
         }
+
+        public DataTable GetIndexeBucketCounts(ConnectionStringSettings connectionString)
+        {
+            return null;
+        }
     }
 }

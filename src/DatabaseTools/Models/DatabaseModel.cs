@@ -117,6 +117,19 @@ namespace DatabaseTools
                 }
             }
 
+            private IList<Models.IndexModel> _allIndexes;
+            private IList<Models.IndexModel> AllIndexes
+            {
+                get
+                {
+                    if (this._allIndexes == null)
+                    {
+                        this._allIndexes = (from i in Processes.Database.GetIndexes(this.ConnectionString, this.TableNames, null) orderby i.TableName, i.IndexName select i).ToList();
+                    }
+                    return this._allIndexes;
+                }
+            }
+
             private IList<Models.IndexModel> _indexes;
             public IList<Models.IndexModel> Indexes
             {
@@ -124,7 +137,7 @@ namespace DatabaseTools
                 {
                     if (this._indexes == null)
                     {
-                        this._indexes = (from i in Processes.Database.GetIndexes(this.ConnectionString, this.TableNames) orderby i.TableName, i.IndexName select i).ToList();
+                        this._indexes = (from i in AllIndexes where !i.IsPrimaryKey select i).ToList();
                     }
                     return this._indexes;
                 }
@@ -137,7 +150,7 @@ namespace DatabaseTools
                 {
                     if (this._primaryKeys == null)
                     {
-                        this._primaryKeys = (from i in Processes.Database.GetPrimaryKeys(this.ConnectionString, this.TableNames) orderby i.TableName, i.IndexName select i).ToList();
+                        this._primaryKeys = (from i in AllIndexes where i.IsPrimaryKey select i).ToList();
                     }
                     return this._primaryKeys;
                 }
@@ -178,28 +191,7 @@ namespace DatabaseTools
                     if (this._tables == null)
                     {
                         this._tables = Processes.Database.GetTables(this.ConnectionString, this.TableColumns).OrderBy(i => i.TableName).ToList();
-                        var tableNames = this.GetFilteredTables().Select(i => i.TableName);
-                        if (this._indexes == null)
-                        {
-                            this._indexes = (from i in Processes.Database.GetIndexes(this.ConnectionString, tableNames) orderby i.TableName, i.IndexName select i).ToList();
-                        }
-                        if (this._primaryKeys == null)
-                        {
-                            this._primaryKeys = (from i in Processes.Database.GetPrimaryKeys(this.ConnectionString, tableNames) orderby i.TableName, i.IndexName select i).ToList();
-                        }
-                        foreach (var table in _tables)
-                        {
-                            foreach (var index in _indexes.Where(i => i.TableName.EqualsIgnoreCase(table.TableName) && i.SchemaName.EqualsIgnoreCase(table.SchemaName)))
-                            {
-                                table.Indexes.Add(index);
-                            }
-                            foreach (var index in _primaryKeys.Where(i => i.TableName.EqualsIgnoreCase(table.TableName) && i.SchemaName.EqualsIgnoreCase(table.SchemaName)))
-                            {
-                                table.Indexes.Add(index);
-                            }
-                        }
                     }
-
                     return GetFilteredTables();
                 }
             }
@@ -335,7 +327,7 @@ namespace DatabaseTools
                         select i2).Count() == 0
                     select i))
                 {
-                    definition.AppendDropScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                    definition.AppendDropScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 foreach (var foreignKey in (
@@ -346,7 +338,7 @@ namespace DatabaseTools
                         select i2).Count() == 0
                     select i))
                 {
-                    foreignKey.AppendDropScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                    foreignKey.AppendDropScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 foreach (var index in (
@@ -357,7 +349,7 @@ namespace DatabaseTools
                         select i2).Count() == 0
                     select i))
                 {
-                    index.AppendDropScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                    index.AppendDropScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 foreach (var primaryKey in (
@@ -368,7 +360,7 @@ namespace DatabaseTools
                         select i2).Count() == 0
                     select i))
                 {
-                    primaryKey.AppendDropScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                    primaryKey.AppendDropScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 foreach (var trigger in (
@@ -390,7 +382,7 @@ namespace DatabaseTools
                         select i2).Count() == 0
                     select i))
                 {
-                    table.AppendDropScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                    table.AppendDropScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 //Find objects that have been created (in the changedDatabase but not in me)
@@ -402,7 +394,7 @@ namespace DatabaseTools
                         select i2).Count() == 0
                     select i))
                 {
-                    table.AppendCreateScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                    table.AppendCreateScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 foreach (var trigger in (
@@ -424,7 +416,7 @@ namespace DatabaseTools
                         select i2).Count() == 0
                     select i))
                 {
-                    primaryKey.AppendCreateScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                    primaryKey.AppendCreateScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 foreach (var index in (
@@ -435,7 +427,7 @@ namespace DatabaseTools
                         select i2).Count() == 0
                     select i))
                 {
-                    index.AppendCreateScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                    index.AppendCreateScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 foreach (var foreignKey in (
@@ -446,7 +438,7 @@ namespace DatabaseTools
                         select i2).Count() == 0
                     select i))
                 {
-                    foreignKey.AppendCreateScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                    foreignKey.AppendCreateScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 foreach (var definition in (
@@ -457,7 +449,7 @@ namespace DatabaseTools
                         select i2).Count() == 0
                     select i))
                 {
-                    definition.AppendCreateScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                    definition.AppendCreateScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 return sb.ToString();
@@ -478,7 +470,7 @@ namespace DatabaseTools
                     {
                         var sb = new StringBuilder();
 
-                        foreignKey.AppendDropScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                        foreignKey.AppendDropScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
 
                         dictionary.Add(foreignKey, sb.ToString());
                     }
@@ -505,7 +497,7 @@ namespace DatabaseTools
 
                     foreach (var foreignKey in foreignKeyGroup.Items)
                     {
-                        foreignKey.AppendDropScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                        foreignKey.AppendDropScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                     }
                 }
 
@@ -530,7 +522,7 @@ namespace DatabaseTools
 
                     foreach (var foreignKey in foreignKeyGroup.Items)
                     {
-                        foreignKey.AppendCreateScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                        foreignKey.AppendCreateScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                     }
                 }
 
@@ -550,8 +542,8 @@ namespace DatabaseTools
                     foreach (var foreignKey in foreignKeyGroup.Items)
                     {
                         System.Text.StringBuilder sb = new System.Text.StringBuilder();
-                        foreignKey.AppendDropScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
-                        foreignKey.AppendCreateScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                        foreignKey.AppendDropScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                        foreignKey.AppendCreateScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                         dictionary.Add(foreignKey, sb.ToString());
                     }
                 }
@@ -747,14 +739,14 @@ namespace DatabaseTools
                 foreach (var pk in this.PrimaryKeys)
                 {
                     var sb = new StringBuilder();
-                    pk.AppendCreateScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                    pk.AppendCreateScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                     dictionary.Add(pk, sb.ToString());
                 }
 
                 foreach (var index in this.Indexes)
                 {
                     var sb = new StringBuilder();
-                    index.AppendCreateScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                    index.AppendCreateScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                     dictionary.Add(index, sb.ToString());
                 }
 
@@ -767,12 +759,12 @@ namespace DatabaseTools
 
                 foreach (var pk in this.PrimaryKeys)
                 {
-                    pk.AppendCreateScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                    pk.AppendCreateScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 foreach (var index in this.Indexes)
                 {
-                    index.AppendCreateScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                    index.AppendCreateScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 return sb.ToString();
@@ -854,7 +846,7 @@ namespace DatabaseTools
 
                 foreach (var definition in this.Definitions)
                 {
-                    definition.AppendDropScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                    definition.AppendDropScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 return sb.ToString();
@@ -868,8 +860,8 @@ namespace DatabaseTools
                 foreach (var definition in this.Definitions)
                 {
                     var sb = new System.Text.StringBuilder();
-                    definition.AppendDropScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
-                    definition.AppendCreateScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                    definition.AppendDropScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                    definition.AppendCreateScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                     dictionary.Add(definition, sb.ToString());
                 }
 
@@ -882,7 +874,7 @@ namespace DatabaseTools
 
                 foreach (var definition in this.Definitions)
                 {
-                    definition.AppendCreateScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                    definition.AppendCreateScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 return sb.ToString();
@@ -895,7 +887,7 @@ namespace DatabaseTools
                 foreach (Models.TableModel table in this.Tables.Where(i => !i.IsHistoryTable))
                 {
                     var sbTableScript = new StringBuilder();
-                    table.AppendCreateScript(sbTableScript, this.QuoteCharacterStart, this.QuoteCharacterEnd, includeIfNotExists);
+                    table.AppendCreateScript(this, sbTableScript, this.QuoteCharacterStart, this.QuoteCharacterEnd, includeIfNotExists);
                     dictionary.Add(table, sbTableScript.ToString());
                 }
 
@@ -908,7 +900,7 @@ namespace DatabaseTools
 
                 foreach (Models.TableModel table in this.Tables.Where(i => !i.IsHistoryTable))
                 {
-                    table.AppendCreateScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd, includeIfNotExists);
+                    table.AppendCreateScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd, includeIfNotExists);
                 }
 
                 return sb.ToString();

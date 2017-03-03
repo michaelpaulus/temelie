@@ -52,31 +52,18 @@ namespace DatabaseTools
                 }
             }
 
-            private IList<IndexModel> _indexes; 
-            public IList<IndexModel> Indexes
-            {
-                get
-                {
-                    if (this._indexes == null)
-                    {
-                        this._indexes = new List<IndexModel>();
-                    }
-                    return this._indexes;
-                }
-            }
-
             #endregion
 
             #region Methods
 
-            public override void AppendDropScript(System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)
+            public override void AppendDropScript(DatabaseModel database, System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)
             {
                 sb.AppendLine($"IF EXISTS (SELECT 1 FROM sys.tables INNER JOIN sys.schemas ON sys.tables.schema_id = sys.schemas.schema_id WHERE sys.tables.name = '{this.TableName}' AND sys.schemas.name = '{this.SchemaName}')");
                 sb.AppendLine($"\tDROP TABLE {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
                 sb.AppendLine("GO");
             }
 
-            public void AppendCreateScript(System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd, bool includeIfNotExists)
+            public void AppendCreateScript(DatabaseModel database, System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd, bool includeIfNotExists)
             {
                 if (sb.Length > 0)
                 {
@@ -129,11 +116,11 @@ namespace DatabaseTools
 
                 if (IsMemoryOptimized)
                 {
-                    var pkIndex = (from i in Indexes where i.IsPrimaryKey select i).FirstOrDefault();
+                    var pkIndex = (from i in database.PrimaryKeys where i.SchemaName == SchemaName && i.TableName == TableName select i).FirstOrDefault();
                     if (pkIndex != null)
                     {
                         sb.AppendLine(",");
-                        pkIndex.AppendTableInlineCreateScript(sb, quoteCharacterStart, quoteCharacterEnd);
+                        pkIndex.AppendTableInlineCreateScript(database, sb, quoteCharacterStart, quoteCharacterEnd);
                     }
                 }
                 else
@@ -160,9 +147,9 @@ namespace DatabaseTools
                 }
             }
 
-            public override void AppendCreateScript(System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)
+            public override void AppendCreateScript(DatabaseModel database, System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)
             {
-                this.AppendCreateScript(sb, quoteCharacterStart, quoteCharacterEnd, true);
+                this.AppendCreateScript(database, sb, quoteCharacterStart, quoteCharacterEnd, true);
             }
 
             #endregion

@@ -721,21 +721,26 @@ namespace DatabaseTools
                 return list;
             }
 
-            public static IList<Models.IndexModel> GetIndexes(System.Configuration.ConnectionStringSettings connectionString, IEnumerable<string> tables)
-            {
-                return GetIndexes(connectionString, tables, false);
-            }
-
-            private static IList<Models.IndexModel> GetIndexes(System.Configuration.ConnectionStringSettings connectionString, IEnumerable<string> tables, bool isPrimaryKey)
+            public static IList<Models.IndexModel> GetIndexes(System.Configuration.ConnectionStringSettings connectionString, IEnumerable<string> tables, bool? isPrimaryKey = null)
             {
                 IList<Models.IndexModel> list = new List<Models.IndexModel>();
                 var provider = GetDatabaseProvider(GetDatabaseType(connectionString), true);
                 System.Data.DataTable dtIndexes = null;
 
                 dtIndexes = provider.GetIndexes(connectionString);
+                var dtIndexBucketCounts = provider.GetIndexeBucketCounts(connectionString);
 
                 if (dtIndexes != null)
                 {
+
+                    var indexBucketCounts = (from i in dtIndexBucketCounts.Rows.OfType<System.Data.DataRow>()
+                                             select new
+                                             {
+                                                 TableName = i["table_name"].ToString(),
+                                                 IndexName = i["index_name"].ToString(),
+                                                 SchemaName = i["schema_name"].ToString(),
+                                                 BucketCount = Convert.ToInt32(i["total_bucket_count"])
+                                             }).ToList();
 
                     foreach (var indexGroup in (
                         from i in dtIndexes.Rows.Cast<System.Data.DataRow>()
@@ -746,6 +751,7 @@ namespace DatabaseTools
                         {
                             System.Data.DataRow summaryRow = indexGroup.Items[0];
 
+
                             Models.IndexModel index = new Models.IndexModel
                             {
                                 TableName = indexGroup.TableName,
@@ -755,32 +761,41 @@ namespace DatabaseTools
                                 FilterDefinition = summaryRow["filter_definition"] == DBNull.Value ? "" : summaryRow["filter_definition"].ToString(),
                                 IsUnique = Convert.ToBoolean(summaryRow["is_unique"]),
                                 FillFactor = Convert.ToInt32(summaryRow["fill_factor"]),
-                                IsPrimaryKey = Convert.ToBoolean(summaryRow["is_primary_key"]),
-                                TotalBucketCount = Processes.Database.GetInt32Value(summaryRow, "total_bucket_count")
+                                IsPrimaryKey = Convert.ToBoolean(summaryRow["is_primary_key"])
                             };
 
-                            if (index.IsPrimaryKey == isPrimaryKey)
+                            var indexBucketCount = (from i in indexBucketCounts where i.SchemaName == index.SchemaName &&
+                                                   i.TableName == index.TableName &&
+                                                   i.IndexName == index.IndexName
+                                                   select i).FirstOrDefault();
+
+                            if (indexBucketCount != null)
                             {
-                                foreach (var detialRow in indexGroup.Items.OrderBy(i => Convert.ToInt32(i["key_ordinal"])))
+                                index.TotalBucketCount = indexBucketCount.BucketCount;
+                            }
+
+                            foreach (var detialRow in indexGroup.Items.OrderBy(i => Convert.ToInt32(i["key_ordinal"])))
+                            {
+                                bool blnIsDescending = Convert.ToBoolean(detialRow["is_descending_key"]);
+                                bool blnIsIncludeColumn = Convert.ToBoolean(detialRow["is_included_column"]);
+                                string strColumnName = detialRow["column_name"].ToString();
+
+                                if (blnIsIncludeColumn)
                                 {
-                                    bool blnIsDescending = Convert.ToBoolean(detialRow["is_descending_key"]);
-                                    bool blnIsIncludeColumn = Convert.ToBoolean(detialRow["is_included_column"]);
-                                    string strColumnName = detialRow["column_name"].ToString();
-
-                                    if (blnIsIncludeColumn)
-                                    {
-                                        index.IncludeColumns.Add(strColumnName);
-                                    }
-                                    else if (blnIsDescending)
-                                    {
-                                        index.Columns.Add(strColumnName + " DESC");
-                                    }
-                                    else
-                                    {
-                                        index.Columns.Add(strColumnName);
-                                    }
+                                    index.IncludeColumns.Add(strColumnName);
                                 }
+                                else if (blnIsDescending)
+                                {
+                                    index.Columns.Add(strColumnName + " DESC");
+                                }
+                                else
+                                {
+                                    index.Columns.Add(strColumnName);
+                                }
+                            }
 
+                            if (!isPrimaryKey.HasValue || index.IsPrimaryKey == isPrimaryKey)
+                            {
                                 list.Add(index);
                             }
 
@@ -789,11 +804,6 @@ namespace DatabaseTools
                 }
 
                 return list;
-            }
-
-            public static IList<Models.IndexModel> GetPrimaryKeys(System.Configuration.ConnectionStringSettings connectionString, IEnumerable<string> tables)
-            {
-                return GetIndexes(connectionString, tables, true);
             }
 
             private static List<Models.TableModel> GetTables(DataTable dataTable, IList<Models.ColumnModel> columns)

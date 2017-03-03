@@ -169,6 +169,28 @@ ORDER BY
             return dataTable;
         }
 
+        public DataTable GetIndexeBucketCounts(ConnectionStringSettings connectionString)
+        {
+            var dtIndexes = Processes.Database.Execute(connectionString, @"
+SELECT
+    sys.tables.name AS table_name, 
+    sys.schemas.name schema_name,
+    sys.indexes.name AS index_name, 
+    dm_db_xtp_hash_index_stats.total_bucket_count
+FROM
+    sys.indexes INNER JOIN
+    sys.tables ON 
+	   sys.indexes.object_id = sys.tables.object_id INNER JOIN 
+   sys.dm_db_xtp_hash_index_stats  ON
+	   indexes.index_id = dm_db_xtp_hash_index_stats.index_id AND 
+	   indexes.object_id = dm_db_xtp_hash_index_stats.object_id INNER JOIN 
+    sys.schemas on 
+	    sys.tables.schema_id = sys.schemas.schema_id
+").Tables[0];
+
+            return dtIndexes;
+        }
+
         public DataTable GetIndexes(ConnectionStringSettings connectionString)
         {
             var dtIndexes = Processes.Database.Execute(connectionString, @"
@@ -184,8 +206,7 @@ SELECT
     sys.index_columns.is_descending_key, 
     sys.index_columns.key_ordinal,
     sys.indexes.is_primary_key,
-	sys.indexes.filter_definition,
-    dm_db_xtp_hash_index_stats.total_bucket_count
+	sys.indexes.filter_definition
 FROM 
     sys.indexes INNER JOIN 
     sys.tables ON sys.indexes.object_id = sys.tables.object_id INNER JOIN 
@@ -193,10 +214,7 @@ FROM
     sys.indexes.index_id = sys.index_columns.index_id INNER JOIN 
     sys.columns ON sys.index_columns.object_id = sys.columns.object_id AND sys.index_columns.column_id = sys.columns.column_id INNER JOIN 
 	sys.schemas on 
-	    sys.tables.schema_id = sys.schemas.schema_id LEFT OUTER JOIN
-    sys.dm_db_xtp_hash_index_stats ON
-	   indexes.index_id = dm_db_xtp_hash_index_stats.index_id AND 
-	   indexes.object_id = dm_db_xtp_hash_index_stats.object_id 
+	    sys.tables.schema_id = sys.schemas.schema_id
 WHERE 
     sys.tables.name NOT LIKE 'sys%' AND 
     sys.indexes.name NOT LIKE 'MSmerge_index%' AND 
