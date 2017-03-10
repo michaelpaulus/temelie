@@ -123,6 +123,28 @@ namespace DatabaseTools.Providers.Mssql
             DataTable dataTable = ds.Tables[0];
             return dataTable;
         }
+        public DataTable GetSecurityPolicies(ConnectionStringSettings connectionString)
+        {
+            string sql = @"
+       SELECT policySchema.name PolicySchema,
+       sys.security_policies.name PolicyName,
+       predicate_type_desc PredicateType,
+       predicate_definition PredicateDefinition,
+       targetSchema.name TargetSchema,
+       [target].name TargetName,
+       is_enabled IsEnabled,
+       operation_desc Operation,
+       is_schema_bound IsSchemaBound
+FROM sys.security_policies
+     INNER JOIN sys.schemas policySchema ON policySchema.schema_id = sys.security_policies.schema_id
+     INNER JOIN sys.security_predicates ON sys.security_policies.object_id = sys.security_predicates.object_id
+     INNER JOIN sys.sysobjects [target] ON [target].id = target_object_id
+     INNER JOIN sys.schemas targetSchema ON targetSchema.schema_id = [target].uid
+                        ";
+            System.Data.DataSet ds = Processes.Database.Execute(connectionString, sql);
+            DataTable dataTable = ds.Tables[0];
+            return dataTable;
+        }
 
         public DataTable GetForeignKeys(ConnectionStringSettings connectionString)
         {

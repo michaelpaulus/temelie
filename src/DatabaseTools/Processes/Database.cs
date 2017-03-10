@@ -610,7 +610,7 @@ namespace DatabaseTools
 
                 if (dtDependencies != null)
                 {
-                    VerifyDependencies(list, dtDependencies);
+                    VerifyDefinitionsDependencies(list, dtDependencies);
                 }
 
                 int index = 1;
@@ -622,8 +622,36 @@ namespace DatabaseTools
 
                 return list;
             }
+            public static IList<Models.SecurityPolicyModel> GetSecurityPolicies(System.Configuration.ConnectionStringSettings connectionString)
+            {
+                var list = new List<Models.SecurityPolicyModel>();
 
-            private static void VerifyDependencies(IList<Models.DefinitionModel> list, DataTable dependencies)
+                var databaseType = GetDatabaseType(connectionString);
+                var provider = GetDatabaseProvider(databaseType, true);
+
+                var dtDefinitions = provider.GetSecurityPolicies(connectionString);
+
+                var dtDependencies = provider.GetDefinitionDependencies(connectionString);
+
+                if (dtDefinitions != null)
+                {
+                    list = (
+                        from i in dtDefinitions.Rows.OfType<System.Data.DataRow>()
+                        group new Models.SecurityPolicyPredicate { TargetSchema = i["TargetSchema"].ToString(), Operation = i["Operation"].ToString(), PredicateDefinition = i["PredicateDefinition"].ToString(), PredicateType = i["PredicateType"].ToString(), TargetName = i["TargetName"].ToString() }
+                        by new { PolicySchema = i["PolicySchema"].ToString(), PolicyName = i["PolicyName"].ToString(), isEnabled = i["IsEnabled"].ToString(), IsSchemaBound=i["IsSchemaBound"].ToString() } into g
+                        select new Models.SecurityPolicyModel
+                        {
+                            IsEnabled = g.Key.isEnabled == "1",
+                            PolicyName = g.Key.PolicyName,
+                            PolicySchema = g.Key.PolicySchema,
+                            Predicates = g.ToList(),
+                            IsSchemaBound=g.Key.IsSchemaBound=="1"
+                        }
+                        ).ToList();
+                }
+                return list;
+            }
+            private static void VerifyDefinitionsDependencies(IList<Models.DefinitionModel> list, DataTable dependencies)
             {
                 bool blnListChanged = false;
                 foreach (System.Data.DataRow row in dependencies.Rows)
@@ -657,7 +685,7 @@ namespace DatabaseTools
                 }
                 if (blnListChanged)
                 {
-                    VerifyDependencies(list, dependencies);
+                    VerifyDefinitionsDependencies(list, dependencies);
                 }
             }
 

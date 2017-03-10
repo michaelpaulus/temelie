@@ -98,6 +98,8 @@
     <Compile Include="Configuration\DependencyInjection.cs" />
     <Compile Include="Configuration\ExportAttribute.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Models\SecurityPolicyModel.cs" />
+    <Compile Include="Models\SecurityPolicyPredicate.cs" />
     <Compile Include="Processes\ScriptProgress.cs" />
     <Compile Include="Processes\TableConverterException.cs" />
     <Compile Include="Processes\TableConverter.cs" />

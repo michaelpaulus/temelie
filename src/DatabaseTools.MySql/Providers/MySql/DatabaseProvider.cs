@@ -457,5 +457,10 @@ namespace DatabaseTools.Providers.MySql
         {
             return null;
         }
+
+        public DataTable GetSecurityPolicies(ConnectionStringSettings connectionString)
+        {
+            return null;
+        }
     }
 }

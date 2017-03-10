@@ -50,7 +50,18 @@ namespace DatabaseTools
                     }
                 }
             }
-
+            private static void CreateSecurityPolicyScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
+            {
+                foreach (var item in database.GetSecurityPolicyScriptsIndividual())
+                {
+                    var fileName = MakeValidFileName($"{item.Key.PolicySchema}.{item.Key.PolicyName}.sql");
+                    if (string.IsNullOrEmpty(fileFilter) ||
+                        fileFilter.EqualsIgnoreCase(fileName))
+                    {
+                        System.IO.File.WriteAllText(System.IO.Path.Combine(directory.FullName, fileName), item.Value);
+                    }
+                }
+            }
             private static void CreateIndexScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
             {
                 foreach (var item in database.GetIxPkScriptsIndividual())
@@ -137,7 +148,8 @@ namespace DatabaseTools
                     "05_ViewsAndProgrammability",
                     "06_Triggers",
                     "07_InsertDefaults",
-                    "08_ForeignKeys"
+                    "08_ForeignKeys",
+                    "09_SecurityPolicies"
                 };
 
                 int intIndex = 1;
@@ -225,6 +237,15 @@ namespace DatabaseTools
 
                             CreateFkScripts(database, subDirectory);
                         }
+                        else if (subDirectory.Name.StartsWith("09_SecurityPolicies", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            foreach (var file in subDirectory.GetFiles("*.sql"))
+                            {
+                                file.Delete();
+                            }
+
+                            CreateSecurityPolicyScripts(database, subDirectory);
+                        }
                     }
 
                     intProgress = Convert.ToInt32((intIndex / (double)intTotalCount) * 100);
@@ -297,6 +318,10 @@ namespace DatabaseTools
                 else if (directory.Name.StartsWith("08_ForeignKeys", StringComparison.InvariantCultureIgnoreCase))
                 {
                     CreateFkScripts(database, directory, fileName);
+                }
+                else if (directory.Name.StartsWith("09_SecurityPolicies", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    CreateSecurityPolicyScripts(database, directory, fileName);
                 }
             }
 
@@ -437,8 +462,12 @@ namespace DatabaseTools
                 {
                     sbFile.AppendLine(database.GetInsertDefaultScripts());
                 }
+                else if (file.Name.EndsWith("_create_security_policies.sql", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    sbFile.AppendLine(database.GetSecurityPolicyScripts());
+                }
 
-                sbFile.AppendLine("-- END GENERATED SQL");
+                    sbFile.AppendLine("-- END GENERATED SQL");
 
                 if (sbPostGenerated.Length > 0)
                 {

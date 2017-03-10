@@ -266,6 +266,18 @@ namespace DatabaseTools
                     return this._triggers;
                 }
             }
+            private IList<Models.SecurityPolicyModel> _securityPolicies;
+            public IList<Models.SecurityPolicyModel>SecurityPolicies
+            {
+                get
+                {
+                    if (this._securityPolicies == null)
+                    {
+                        this._securityPolicies = Processes.Database.GetSecurityPolicies(this.ConnectionString).OrderBy(i => i.PolicyName).ToList();
+                    }
+                    return this._securityPolicies;
+                }
+            }
 
             public string ObjectFilter { get; set; }
 
@@ -832,6 +844,8 @@ namespace DatabaseTools
 
                 sb.AppendLine(this.GetFkScripts());
 
+                sb.AppendLine(this.GetSecurityPolicyScripts());
+
                 if (Processes.Database.GetDatabaseType(this.ConnectionString) == Models.DatabaseType.MicrosoftSQLServer)
                 {
                     sb.AppendLine(this.GetInsertDefaultScripts());
@@ -905,7 +919,31 @@ namespace DatabaseTools
 
                 return sb.ToString();
             }
+            public Dictionary<Models.SecurityPolicyModel, string> GetSecurityPolicyScriptsIndividual(bool includeIfNotExists = true)
+            {
+                var dictionary = new Dictionary<Models.SecurityPolicyModel, string>();
 
+                foreach (var securityPolicy in this.SecurityPolicies)
+                {
+                    var sbSecurityPolicyScript = new StringBuilder();
+                    securityPolicy.AppendCreateScript(this, sbSecurityPolicyScript, this.QuoteCharacterStart, this.QuoteCharacterEnd, includeIfNotExists);
+                    dictionary.Add(securityPolicy, sbSecurityPolicyScript.ToString());
+                }
+
+                return dictionary;
+            }
+
+            public string GetSecurityPolicyScripts(bool includeIfNotExists = true)
+            {
+                System.Text.StringBuilder sb = new System.Text.StringBuilder();
+
+                foreach (var securityPolicy in this.SecurityPolicies)
+                {
+                    securityPolicy.AppendCreateScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd, includeIfNotExists);
+                }
+
+                return sb.ToString();
+            }
             public Dictionary<Models.TriggerModel, string> GetTriggerDropScriptsIndividual()
             {
                 var dictionary = new Dictionary<Models.TriggerModel, string>();

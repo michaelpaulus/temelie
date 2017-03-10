@@ -34,5 +34,6 @@ namespace DatabaseTools.Providers
         DbProviderFactory CreateProvider();
 
         bool TryHandleColumnValueLoadException(Exception ex, Models.ColumnModel column, out object value);
+        DataTable GetSecurityPolicies(ConnectionStringSettings connectionString);
     }
 }
