@@ -16,22 +16,21 @@ namespace DatabaseTools.Models
 
         public void AppendCreateScript(DatabaseModel database, System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd, bool includeIfNotExists)
         {
-
             if (sb.Length > 0)
             {
                 sb.AppendLine();
             }
             if (includeIfNotExists)
             {
-                sb.AppendLine($"IF NOT EXISTS (SELECT 1 FROM sys.security_policies INNER JOIN sys.schemas ON sys.schemas.schema_id= sys.security_policies.schema_id WHERE sys.schemas.name='{this.PolicySchema}' and security_policies.name='{this.PolicyName}')");
+                sb.AppendLine($"IF NOT EXISTS (SELECT 1 FROM sys.security_policies INNER JOIN sys.schemas ON sys.schemas.schema_id = sys.security_policies.schema_id WHERE sys.schemas.name = '{this.PolicySchema}' and security_policies.name = '{this.PolicyName}')");
             }
-            sb.AppendLine($"CREATE SECURITY POLICY {quoteCharacterStart}{PolicySchema}{quoteCharacterEnd}.{quoteCharacterStart}{PolicyName}{quoteCharacterEnd}");
-            var predicateScripts = new List<StringBuilder>(); 
+            sb.AppendLine($"\tCREATE SECURITY POLICY {quoteCharacterStart}{PolicySchema}{quoteCharacterEnd}.{quoteCharacterStart}{PolicyName}{quoteCharacterEnd}");
+            var predicateScripts = new List<StringBuilder>();
             foreach (var predicate in Predicates)
             {
                 var predicateSql = new StringBuilder();
-                predicateSql.AppendLine($"ADD  {predicate.PredicateType} Predicate {predicate.PredicateDefinition.Substring(1,predicate.PredicateDefinition.Length-2)}");
-                predicateSql.Append($"ON {quoteCharacterStart}{predicate.TargetSchema}{quoteCharacterEnd}.{quoteCharacterStart}{predicate.TargetName}{quoteCharacterEnd}");
+                predicateSql.AppendLine($"\tADD {predicate.PredicateType} PREDICATE {predicate.PredicateDefinition.Substring(1, predicate.PredicateDefinition.Length - 2)}");
+                predicateSql.Append($"\tON {quoteCharacterStart}{predicate.TargetSchema}{quoteCharacterEnd}.{quoteCharacterStart}{predicate.TargetName}{quoteCharacterEnd}");
                 if (predicate.Operation != null && predicate.Operation.Length > 0)
                 {
                     predicateSql.AppendLine();
@@ -46,10 +45,10 @@ namespace DatabaseTools.Models
                 suffixes.Add("STATE = OFF");
             if (!IsSchemaBound)
                 suffixes.Add("SCHEMABINDING = OFF");
-            if (suffixes.Count>0)
-            sb.AppendLine("WITH (" +string.Join(", ", suffixes) +")");
+            if (suffixes.Count > 0)
+                sb.AppendLine("\tWITH (" + string.Join(", ", suffixes) + ")");
+            sb.AppendLine("GO");
         }
-
 
         public override void AppendCreateScript(DatabaseModel database, StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)
         {
@@ -58,8 +57,9 @@ namespace DatabaseTools.Models
 
         public override void AppendDropScript(DatabaseModel database, StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)
         {
-            sb.AppendLine($"IF EXISTS (SELECT 1 FROM sys.security_policies INNER JOIN sys.schemas policySchema ON policySchema.schema_id= sys.security_policies.schema_id WHERE policySchema.name='{this.PolicySchema}' and security_policies.name='{this.PolicyName}')");
-            sb.AppendLine($"DROP SECURITY POLICY  {quoteCharacterStart}{PolicySchema}{quoteCharacterEnd}.{quoteCharacterStart}{PolicyName}{quoteCharacterEnd}");
+            sb.AppendLine($"IF EXISTS (SELECT 1 FROM sys.security_policies INNER JOIN sys.schemas ON sys.schemas.schema_id = sys.security_policies.schema_id WHERE sys.schemas.name = '{this.PolicySchema}' and security_policies.name = '{this.PolicyName}')");
+            sb.AppendLine($"\tDROP SECURITY POLICY  {quoteCharacterStart}{PolicySchema}{quoteCharacterEnd}.{quoteCharacterStart}{PolicyName}{quoteCharacterEnd}");
+            sb.AppendLine("GO");
         }
     }
 }

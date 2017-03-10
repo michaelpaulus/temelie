@@ -926,6 +926,7 @@ namespace DatabaseTools
                 foreach (var securityPolicy in this.SecurityPolicies)
                 {
                     var sbSecurityPolicyScript = new StringBuilder();
+                    securityPolicy.AppendDropScript(this, sbSecurityPolicyScript, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                     securityPolicy.AppendCreateScript(this, sbSecurityPolicyScript, this.QuoteCharacterStart, this.QuoteCharacterEnd, includeIfNotExists);
                     dictionary.Add(securityPolicy, sbSecurityPolicyScript.ToString());
                 }
