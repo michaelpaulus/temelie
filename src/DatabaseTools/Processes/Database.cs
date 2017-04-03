@@ -638,14 +638,14 @@ namespace DatabaseTools
                     list = (
                         from i in dtDefinitions.Rows.OfType<System.Data.DataRow>()
                         group new Models.SecurityPolicyPredicate { TargetSchema = i["TargetSchema"].ToString(), Operation = i["Operation"].ToString(), PredicateDefinition = i["PredicateDefinition"].ToString(), PredicateType = i["PredicateType"].ToString(), TargetName = i["TargetName"].ToString() }
-                        by new { PolicySchema = i["PolicySchema"].ToString(), PolicyName = i["PolicyName"].ToString(), isEnabled = i["IsEnabled"].ToString(), IsSchemaBound=i["IsSchemaBound"].ToString() } into g
+                        by new { PolicySchema = i["PolicySchema"].ToString(), PolicyName = i["PolicyName"].ToString(), IsEnabled = (bool)i["IsEnabled"], IsSchemaBound=(bool)i["IsSchemaBound"] } into g
                         select new Models.SecurityPolicyModel
                         {
-                            IsEnabled = g.Key.isEnabled == "1",
+                            IsEnabled = g.Key.IsEnabled,
                             PolicyName = g.Key.PolicyName,
                             PolicySchema = g.Key.PolicySchema,
                             Predicates = g.ToList(),
-                            IsSchemaBound=g.Key.IsSchemaBound=="1"
+                            IsSchemaBound=g.Key.IsSchemaBound
                         }
                         ).ToList();
                 }
