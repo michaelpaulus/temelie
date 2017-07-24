@@ -267,7 +267,7 @@ namespace DatabaseTools
                 }
             }
             private IList<Models.SecurityPolicyModel> _securityPolicies;
-            public IList<Models.SecurityPolicyModel>SecurityPolicies
+            public IList<Models.SecurityPolicyModel> SecurityPolicies
             {
                 get
                 {
@@ -614,7 +614,7 @@ namespace DatabaseTools
                 return dictionary;
             }
 
-            public string GetInsertScript(string tableName, bool includeGOAfterEachInsert = false)
+            public string GetInsertScript(string tableName)
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
@@ -690,55 +690,86 @@ namespace DatabaseTools
                         sb.AppendLine();
                     }
 
-                    foreach (System.Data.DataRow valueRow in dsValues.Tables[0].Rows)
+                    System.Text.StringBuilder sbFields = new System.Text.StringBuilder();
+                    foreach (Models.ColumnModel item in columns)
                     {
-                        System.Text.StringBuilder sbIfNotExists = new System.Text.StringBuilder();
-                        System.Text.StringBuilder sbFields = new System.Text.StringBuilder();
-                        System.Text.StringBuilder sbValues = new System.Text.StringBuilder();
-                        foreach (Models.ColumnModel item in columns)
+
+                        if (sbFields.Length != 0)
                         {
-                            if (!item.IsNullable)
-                            {
-                                if (sbIfNotExists.Length != 0)
-                                {
-                                    sbIfNotExists.Append(" AND ");
-                                }
-                                sbIfNotExists.Append(string.Format("{0} = {1}", item.ColumnName, this.FormatValue(item.DbType, valueRow[item.ColumnName])));
-                            }
-                            if (sbFields.Length != 0)
-                            {
-                                sbFields.Append(", ");
-                            }
-                            if (sbValues.Length != 0)
-                            {
-                                sbValues.Append(", ");
-                            }
-                            sbFields.Append(string.Format("{0}", item.ColumnName));
-                            switch (item.ColumnName)
-                            {
-                                case "changed_date":
-                                    sbValues.Append("GETDATE()");
-                                    break;
-                                case "changed_user_id":
-                                    sbValues.Append("'SYSTEM'");
-                                    break;
-                                default:
-                                    sbValues.Append(string.Format("{0}", this.FormatValue(item.DbType, valueRow[item.ColumnName])));
-                                    break;
-                            }
+                            sbFields.Append(", ");
                         }
 
-                        sb.AppendLine(string.Format("INSERT INTO {0} ({1}) VALUES ({2})", strQualifiedTableName, sbFields.ToString(), sbValues.ToString()));
+                        sbFields.Append(string.Format("{0}", item.ColumnName));
 
-                        if (includeGOAfterEachInsert)
-                        {
-                            sb.AppendLine("GO");
-                        }
                     }
 
-                    if (!includeGOAfterEachInsert)
+                    int page = 0;
+                    int rowsPerPage = 500;
+
+                    var rows = dsValues.Tables[0].Rows.OfType<System.Data.DataRow>().ToList();
+
+                    while (true)
                     {
-                        sb.AppendLine("GO");
+                        var pagedRows = rows.Skip(rowsPerPage * page).Take(rowsPerPage).ToList();
+
+                        if (pagedRows.Count == 0)
+                        {
+                            break;
+                        }
+
+                        System.Text.StringBuilder sbValues = new System.Text.StringBuilder();
+
+                        foreach (var pagedRow in pagedRows)
+                        {
+                            if (sbValues.Length > 0 )
+                            {
+                                sbValues.AppendLine(",");
+                            }
+
+                            sbValues.Append("    (");
+
+                            var sbColumnValues = new StringBuilder();
+
+                            foreach (Models.ColumnModel item in columns)
+                            {
+                                if (sbColumnValues.Length != 0)
+                                {
+                                    sbColumnValues.Append(", ");
+                                }
+                                switch (item.ColumnName.ToLower())
+                                {
+                                    case "changed_date":
+                                    case "ModifiedDate":
+                                    case "CreatedDate":
+                                        sbValues.Append("GETDATE()");
+                                        break;
+                                    case "changed_user_id":
+                                    case "ModifiedBy":
+                                    case "CreatedBy":
+                                        sbValues.Append("'SYSTEM'");
+                                        break;
+                                    default:
+                                        sbColumnValues.Append(string.Format("{0}", this.FormatValue(item.DbType, pagedRow[item.ColumnName])));
+                                        break;
+                                }
+                            }
+
+                            sbValues.Append($"{sbColumnValues.ToString()})");
+
+                        }
+
+                        sb.AppendLine($@"
+INSERT INTO 
+    {strQualifiedTableName} 
+    (
+        {sbFields.ToString()}
+    ) 
+    VALUES 
+{sbValues.ToString()}
+GO
+");
+
+                        page += 1;
                     }
                 }
                 return sb.ToString();
