@@ -14,6 +14,8 @@ using System.Windows.Shapes;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
+using Microsoft.Win32;
+using System.IO;
 
 namespace DatabaseTools
 {
@@ -38,7 +40,7 @@ namespace DatabaseTools
                         this.TableComboBox.ItemsSource = results;
                     }), list);
                 }
-                catch 
+                catch
                 {
 
                 }
@@ -53,6 +55,16 @@ namespace DatabaseTools
             this.ResultTextBox.Text = database.GetInsertScript(this.TableComboBox.Text);
         }
 
+        private void SaveToFile_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new SaveFileDialog();
+            dialog.Filter = "Sql Files (*.sql)|*.sql|All Files (*.*)|*.*";
+            dialog.DefaultExt = "sql";
+            if (dialog.ShowDialog().GetValueOrDefault())
+            {
+                File.WriteAllText(dialog.FileName, ResultTextBox.Text, System.Text.Encoding.UTF8);
+            }
+        }
 
         public CreateInsertScript()
         {
@@ -73,6 +85,7 @@ namespace DatabaseTools
 
             DatabaseConnection.ViewModel.SelectionChanged += DatabaseConnection_SelectionChanged;
             GenerateScriptButton.Click += GenerateScriptButton_Click;
+            SaveToFile.Click += SaveToFile_Click;
         }
 
     }

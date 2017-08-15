@@ -12,6 +12,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <GroupBox Header="Database" Grid.Row="0" >
             <local:DatabaseConnection x:Name="DatabaseConnection" />
@@ -21,5 +22,6 @@
         </GroupBox>
         <Button x:Name="GenerateScriptButton" Content="Generate Scripts" Grid.Row="2" HorizontalAlignment="Right" Margin="0,8,0,0" />
         <TextBox x:Name="ResultTextBox" AcceptsReturn="True" AcceptsTab="True" Grid.Row="3"  Margin="0,8,0,0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" />
+        <Button x:Name="SaveToFile" Content="Save to File" Grid.Row="4" HorizontalAlignment="Right" Margin="0,8,0,0" />
     </Grid>
 </UserControl>
