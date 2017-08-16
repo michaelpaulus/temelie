@@ -321,6 +321,9 @@ namespace DatabaseTools
                     case System.Data.DbType.UInt32:
                     case System.Data.DbType.UInt64:
                         return value.ToString();
+                    case DbType.DateTime:
+                    case DbType.DateTime2:
+                        return string.Format("'{0}'", ((DateTime)value).ToString("yyyy-MM-dd HH:mm:ss.fffffff"));
                     default:
                         return string.Format("'{0}'", value.ToString().Trim().Replace("'", "''").Replace(Environment.NewLine, "' + CHAR(13) + CHAR(10) + '"));
                 }
@@ -739,14 +742,14 @@ namespace DatabaseTools
                                 switch (item.ColumnName.ToLower())
                                 {
                                     case "changed_date":
-                                    case "ModifiedDate":
-                                    case "CreatedDate":
+                                    case "modifieddate":
+                                    case "createddate":
                                         sbValues.Append("GETDATE()");
                                         break;
                                     case "changed_user_id":
-                                    case "ModifiedBy":
-                                    case "CreatedBy":
-                                        sbValues.Append("'SYSTEM'");
+                                    case "modifiedby":
+                                    case "createdby":
+                                        sbValues.Append("''");
                                         break;
                                     default:
                                         sbColumnValues.Append(string.Format("{0}", this.FormatValue(item.DbType, pagedRow[item.ColumnName])));
