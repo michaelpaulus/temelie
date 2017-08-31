@@ -812,13 +812,9 @@ namespace DatabaseTools
                                 {
                                     index.IncludeColumns.Add(strColumnName);
                                 }
-                                else if (blnIsDescending)
-                                {
-                                    index.Columns.Add(strColumnName + " DESC");
-                                }
                                 else
                                 {
-                                    index.Columns.Add(strColumnName);
+                                    index.Columns.Add(new Models.IndexColumnModel { ColumnName = strColumnName, IsDescending = blnIsDescending });
                                 }
                             }
 

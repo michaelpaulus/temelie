@@ -28,14 +28,14 @@ namespace DatabaseTools
             public bool IsPrimaryKey { get; set; }
             public int TotalBucketCount { get; set; }
 
-            private IList<string> _columns;
-            public IList<string> Columns
+            private IList<IndexColumnModel> _columns;
+            public IList<IndexColumnModel> Columns
             {
                 get
                 {
                     if (this._columns == null)
                     {
-                        this._columns = new List<string>();
+                        this._columns = new List<IndexColumnModel>();
                     }
                     return this._columns;
                 }
@@ -90,7 +90,7 @@ namespace DatabaseTools
                             sb.AppendLine(",");
                         }
 
-                        sb.Append($"\t\t\t{quoteCharacterStart}{column}{quoteCharacterEnd}");
+                        sb.Append($"\t\t\t{quoteCharacterStart}{column.ColumnName}{quoteCharacterEnd}{(column.IsDescending ? " DESC" : "")}");
 
                         intColumnCount += 1;
                     }
@@ -119,7 +119,7 @@ namespace DatabaseTools
                         {
                             sb.AppendLine(",");
                         }
-                        sb.Append($"\t\t\t{quoteCharacterStart}{column}{quoteCharacterEnd}");
+                        sb.Append($"\t\t\t{quoteCharacterStart}{column.ColumnName}{quoteCharacterEnd}{(column.IsDescending ? " DESC" : "")}");
                         blnHasColumns = true;
                     }
 
@@ -176,7 +176,7 @@ namespace DatabaseTools
                             sb.AppendLine(",");
                         }
 
-                        sb.Append($"\t\t{quoteCharacterStart}{column}{quoteCharacterEnd}");
+                        sb.Append($"\t\t{quoteCharacterStart}{column.ColumnName}{quoteCharacterEnd}{(column.IsDescending ? " DESC" : "")}");
 
                         intColumnCount += 1;
                     }
@@ -202,7 +202,7 @@ namespace DatabaseTools
                             sb.AppendLine(",");
                         }
 
-                        sb.Append($"\t\t{quoteCharacterStart}{column}{quoteCharacterEnd}");
+                        sb.Append($"\t\t{quoteCharacterStart}{column.ColumnName}{quoteCharacterEnd}{(column.IsDescending ? " DESC" : "")}");
 
                         intColumnCount += 1;
                     }
@@ -236,7 +236,7 @@ namespace DatabaseTools
                         {
                             sb.AppendLine(",");
                         }
-                        sb.Append($"\t\t{quoteCharacterStart}{column}{quoteCharacterEnd}");
+                        sb.Append($"\t\t{quoteCharacterStart}{column.ColumnName}{quoteCharacterEnd}{(column.IsDescending ? " DESC" : "")}");
                         blnHasColumns = true;
                     }
 
