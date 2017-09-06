@@ -30,12 +30,17 @@ namespace DatabaseTools.Processes
 
         public void ConvertTable(TableConverterSettings settings, Models.TableModel sourceTable, IProgress<TableProgress> progress)
         {
-
+            
             var targetTable = (
                        from i in settings.TargetTables
                        where i.TableName.Equals(sourceTable.TableName, StringComparison.InvariantCultureIgnoreCase)
                        select i).FirstOrDefault();
 
+            ConvertTable(settings, sourceTable, targetTable, progress);
+        }
+
+        public void ConvertTable(TableConverterSettings settings, Models.TableModel sourceTable, Models.TableModel targetTable, IProgress<TableProgress> progress)
+        {
             if (targetTable != null)
             {
                 try
@@ -143,7 +148,7 @@ namespace DatabaseTools.Processes
                         using (var command = DatabaseTools.Processes.Database.CreateDbCommand(sourceConnection))
                         {
                             this.SetReadTimeout(sourceDatabaseType, command);
-                            command.CommandText = this.FormatCommandText($"SELECT {sbColumns.ToString()} FROM [{sourceTable.TableName}]", sourceDatabaseType);
+                            command.CommandText = this.FormatCommandText($"SELECT {sbColumns.ToString()} FROM [{sourceTable.SchemaName}].[{sourceTable.TableName}]", sourceDatabaseType);
                             using (var reader = command.ExecuteReader())
                             {
                                 var reader2 = new TableConverterReader(reader, sourceMatchedColumns, targetMatchedColumns, trimStrings, sourceDatabaseType, targetDatabaseType);
@@ -271,7 +276,7 @@ namespace DatabaseTools.Processes
                                 sbSelectColumns.AppendFormat("[{0}]", sourceColumn.ColumnName);
                             }
 
-                            sourceCommand.CommandText = this.FormatCommandText($"SELECT {sbSelectColumns.ToString()} FROM [{sourceTable.TableName}]", sourceDatabaseType);
+                            sourceCommand.CommandText = this.FormatCommandText($"SELECT {sbSelectColumns.ToString()} FROM [{sourceTable.SchemaName}].[{sourceTable.TableName}]", sourceDatabaseType);
 
                             using (System.Data.Common.DbDataReader sourceReader = sourceCommand.ExecuteReader())
                             {
@@ -549,16 +554,16 @@ namespace DatabaseTools.Processes
                     {
                         if (sourceDatabaseType == Models.DatabaseType.MySql)
                         {
-                            sourceCommand.CommandText = this.FormatCommandText($"SELECT {sbColumns.ToString()} FROM [{sourceTable.TableName}] LIMIT {take} OFFSET {skip}", sourceDatabaseType);
+                            sourceCommand.CommandText = this.FormatCommandText($"SELECT {sbColumns.ToString()} FROM [{sourceTable.SchemaName}].[{sourceTable.TableName}] LIMIT {take} OFFSET {skip}", sourceDatabaseType);
                         }
                         else
                         {
-                            sourceCommand.CommandText = this.FormatCommandText($"SELECT {sbColumns.ToString()} FROM [{sourceTable.TableName}] ORDER BY {sbKeyColumns.ToString()} OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY", sourceDatabaseType);
+                            sourceCommand.CommandText = this.FormatCommandText($"SELECT {sbColumns.ToString()} FROM [{sourceTable.SchemaName}].[{sourceTable.TableName}] ORDER BY {sbKeyColumns.ToString()} OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY", sourceDatabaseType);
                         }
                     }
                     else
                     {
-                        sourceCommand.CommandText = this.FormatCommandText($"SELECT {sbColumns.ToString()} FROM [{sourceTable.TableName}]", sourceDatabaseType);
+                        sourceCommand.CommandText = this.FormatCommandText($"SELECT {sbColumns.ToString()} FROM [{sourceTable.SchemaName}].[{sourceTable.TableName}]", sourceDatabaseType);
                     }
 
                     using (System.Data.Common.DbDataReader sourceReader = sourceCommand.ExecuteReader())
