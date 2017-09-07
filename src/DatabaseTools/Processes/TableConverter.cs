@@ -108,7 +108,7 @@ namespace DatabaseTools.Processes
 
             using (System.Data.Common.DbConnection targetConnection = DatabaseTools.Processes.Database.CreateDbConnection(targetFactory, targetConnectionString))
             {
-                intTargetRowCount = this.GetRowCount(targetConnection, targetTable.TableName, targetDatabaseType);
+                intTargetRowCount = this.GetRowCount(targetConnection, targetTable.SchemaName, targetTable.TableName, targetDatabaseType);
             }
 
             if (intTargetRowCount == 0)
@@ -120,7 +120,7 @@ namespace DatabaseTools.Processes
                     using (System.Data.Common.DbConnection sourceConnection = DatabaseTools.Processes.Database.CreateDbConnection(sourceFactory, sourceConnectionString))
                     {
 
-                        intSourceRowCount = this.GetRowCount(sourceConnection, sourceTable.TableName, sourceDatabaseType);
+                        intSourceRowCount = this.GetRowCount(sourceConnection, sourceTable.SchemaName, sourceTable.TableName, sourceDatabaseType);
                     }
                 }
 
@@ -237,7 +237,7 @@ namespace DatabaseTools.Processes
 
             using (System.Data.Common.DbConnection targetConnection = DatabaseTools.Processes.Database.CreateDbConnection(targetFactory, targetConnectionString))
             {
-                intTargetRowCount = this.GetRowCount(targetConnection, targetTable.TableName, targetDatabaseType);
+                intTargetRowCount = this.GetRowCount(targetConnection, targetTable.SchemaName, targetTable.TableName, targetDatabaseType);
             }
 
             if (intTargetRowCount == 0)
@@ -259,7 +259,7 @@ namespace DatabaseTools.Processes
 
                         if (progress != null)
                         {
-                            intSourceRowCount = this.GetRowCount(sourceConnection, sourceTable.TableName, sourceDatabaseType);
+                            intSourceRowCount = this.GetRowCount(sourceConnection, sourceTable.SchemaName, sourceTable.TableName, sourceDatabaseType);
                         }
 
                         if (!intSourceRowCount.HasValue || intSourceRowCount.Value > 0)
@@ -667,7 +667,7 @@ namespace DatabaseTools.Processes
             return commandText;
         }
 
-        private int GetRowCount(System.Data.Common.DbConnection connection, string tableName, DatabaseTools.Models.DatabaseType databaseType)
+        private int GetRowCount(System.Data.Common.DbConnection connection, string schemaName, string tableName, DatabaseTools.Models.DatabaseType databaseType)
         {
             int rowCount = 0;
 
@@ -675,17 +675,17 @@ namespace DatabaseTools.Processes
             {
                 using (var command = DatabaseTools.Processes.Database.CreateDbCommand(connection))
                 {
-
-                    switch (databaseType)
+                    if (databaseType == DatabaseTools.Models.DatabaseType.MicrosoftSQLServer)
                     {
-                        case DatabaseTools.Models.DatabaseType.MicrosoftSQLServer:
-                            command.CommandText = string.Format("(SELECT sys.sysindexes.rows FROM sys.tables INNER JOIN sys.sysindexes ON sys.tables.object_id = sys.sysindexes.id AND sys.sysindexes.indid < 2 WHERE sys.tables.name = '{0}')", tableName);
-                            break;
-                        default:
-                            command.CommandText = this.FormatCommandText(string.Format("SELECT COUNT(1) FROM [{0}]", tableName), databaseType);
-                            break;
+                        command.CommandText = string.Format("(SELECT sys.sysindexes.rows FROM sys.tables INNER JOIN sys.sysindexes ON sys.tables.object_id = sys.sysindexes.id AND sys.sysindexes.indid < 2 WHERE sys.tables.name = '{0}')", tableName);
+                        rowCount = System.Convert.ToInt32(command.ExecuteScalar());
                     }
-                    rowCount = System.Convert.ToInt32(command.ExecuteScalar());
+
+                    if (rowCount == 0)
+                    {
+                        command.CommandText = this.FormatCommandText(string.Format("SELECT COUNT(1) FROM [{0}].[{1}]", schemaName, tableName), databaseType);
+                        rowCount = System.Convert.ToInt32(command.ExecuteScalar());
+                    }
                 }
             }
             catch
