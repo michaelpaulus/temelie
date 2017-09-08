@@ -417,6 +417,8 @@ namespace DatabaseTools
                         return System.Data.DbType.String;
                     case "TIME":
                         return DbType.Time;
+                    case "HIERARCHYID":
+                        return DbType.Object;
                 }
                 return System.Data.DbType.String;
             }
