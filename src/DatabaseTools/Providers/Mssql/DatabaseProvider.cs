@@ -381,8 +381,8 @@ ORDER BY
                             sys.schemas.name schema_name,
                             0 temporal_type,
                             '' history_table_name,
-					       sys.tables.is_memory_optimized,
-					       sys.tables.durability_desc
+					       0 is_memory_optimized,
+					       '' durability_desc
                         FROM 
 	                        sys.tables INNER JOIN 
 	                        sys.schemas ON 
