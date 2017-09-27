@@ -34,7 +34,9 @@ namespace DatabaseTools.Processes
 
             var targetTable = (
                        from i in settings.TargetTables
-                       where i.TableName.Equals(sourceTable.TableName, StringComparison.InvariantCultureIgnoreCase)
+                       where
+                       i.SchemaName.Equals(sourceTable.SchemaName, StringComparison.InvariantCultureIgnoreCase) &&
+                       i.TableName.Equals(sourceTable.TableName, StringComparison.InvariantCultureIgnoreCase)
                        select i).FirstOrDefault();
 
             ConvertTable(settings, sourceTable, targetTable, progress);
@@ -142,7 +144,7 @@ namespace DatabaseTools.Processes
                     {
                         using (System.Data.SqlClient.SqlBulkCopy bcp = new System.Data.SqlClient.SqlBulkCopy(targetConnectionString.ConnectionString, SqlBulkCopyOptions.KeepIdentity))
                         {
-                            bcp.DestinationTableName = $"[{targetTable.TableName}]";
+                            bcp.DestinationTableName = $"[{targetTable.SchemaName}].[{targetTable.TableName}]";
                             bcp.BatchSize = batchSize == 0 ? 10000 : batchSize;
                             bcp.BulkCopyTimeout = 600;
                             bcp.NotifyAfter = bcp.BatchSize;
@@ -359,11 +361,11 @@ namespace DatabaseTools.Processes
 
                                         }
 
-                                        targetCommand.CommandText = this.FormatCommandText(string.Format("INSERT INTO [{0}] ({1}) VALUES ({2})", targetTable.TableName, sbColumns.ToString(), sbParamaters.ToString()), targetDatabaseType);
+                                        targetCommand.CommandText = this.FormatCommandText(string.Format("INSERT INTO [{0}].[{1}] ({2}) VALUES ({3})", targetTable.SchemaName, targetTable.TableName, sbColumns.ToString(), sbParamaters.ToString()), targetDatabaseType);
 
                                         if (blnContainsIdentity)
                                         {
-                                            targetCommand.CommandText = this.FormatCommandText(string.Format("SET IDENTITY_INSERT [{0}] ON;" + Environment.NewLine + targetCommand.CommandText + Environment.NewLine + "SET IDENTITY_INSERT [{0}] OFF;", targetTable.TableName), targetDatabaseType);
+                                            targetCommand.CommandText = this.FormatCommandText(string.Format("SET IDENTITY_INSERT [{0}].[{1}] ON;" + Environment.NewLine + targetCommand.CommandText + Environment.NewLine + "SET IDENTITY_INSERT [{0}].[{1}] OFF;", targetTable.SchemaName, targetTable.TableName), targetDatabaseType);
                                         }
 
                                         int rowIndex = 0;
