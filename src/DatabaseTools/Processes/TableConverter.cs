@@ -29,7 +29,7 @@ namespace DatabaseTools.Processes
             });
         }
 
-        public void ConvertTable(TableConverterSettings settings, Models.TableModel sourceTable, IProgress<TableProgress> progress)
+        public void ConvertTable(TableConverterSettings settings, Models.TableModel sourceTable, IProgress<TableProgress> progress, Action<IDbConnection> connectionCreatedCallback = null)
         {
 
             var targetTable = (
@@ -39,10 +39,10 @@ namespace DatabaseTools.Processes
                        i.TableName.Equals(sourceTable.TableName, StringComparison.InvariantCultureIgnoreCase)
                        select i).FirstOrDefault();
 
-            ConvertTable(settings, sourceTable, targetTable, progress);
+            ConvertTable(settings, sourceTable, targetTable, progress, connectionCreatedCallback);
         }
 
-        public void ConvertTable(TableConverterSettings settings, Models.TableModel sourceTable, Models.TableModel targetTable, IProgress<TableProgress> progress)
+        public void ConvertTable(TableConverterSettings settings, Models.TableModel sourceTable, Models.TableModel targetTable, IProgress<TableProgress> progress, Action<IDbConnection> connectionCreatedCallback = null)
         {
             if (targetTable != null)
             {
@@ -51,11 +51,11 @@ namespace DatabaseTools.Processes
 
                     if (settings.UseBulkCopy)
                     {
-                        this.ConvertBulk(progress, sourceTable, settings.SourceConnectionString, targetTable, settings.TargetConnectionString, settings.TrimStrings, settings.BatchSize);
+                        this.ConvertBulk(progress, sourceTable, settings.SourceConnectionString, targetTable, settings.TargetConnectionString, settings.TrimStrings, settings.BatchSize, connectionCreatedCallback);
                     }
                     else
                     {
-                        this.Convert(progress, sourceTable, settings.SourceConnectionString, targetTable, settings.TargetConnectionString, settings.TrimStrings);
+                        this.Convert(progress, sourceTable, settings.SourceConnectionString, targetTable, settings.TargetConnectionString, settings.TrimStrings, connectionCreatedCallback);
                     }
                 }
                 catch (Exception ex)
@@ -192,7 +192,8 @@ namespace DatabaseTools.Processes
             Models.TableModel targetTable,
             System.Configuration.ConnectionStringSettings targetConnectionString,
             bool trimStrings,
-            int batchSize)
+            int batchSize,
+            Action<IDbConnection> connectionCreatedCallback = null)
         {
             if (progress != null)
             {
@@ -232,6 +233,10 @@ namespace DatabaseTools.Processes
 
                 using (System.Data.Common.DbConnection sourceConnection = DatabaseTools.Processes.Database.CreateDbConnection(sourceFactory, sourceConnectionString))
                 {
+                    if (connectionCreatedCallback != null)
+                    {
+                        connectionCreatedCallback.Invoke(sourceConnection);
+                    }
                     using (var command = DatabaseTools.Processes.Database.CreateDbCommand(sourceConnection))
                     {
                         this.SetReadTimeout(sourceDatabaseType, command);
@@ -251,7 +256,8 @@ namespace DatabaseTools.Processes
             System.Configuration.ConnectionStringSettings sourceConnectionString,
             Models.TableModel targetTable,
             System.Configuration.ConnectionStringSettings targetConnectionString,
-            bool trimStrings)
+            bool trimStrings,
+            Action<IDbConnection> connectionCreatedCallback = null)
         {
             if (progress != null)
             {
@@ -285,6 +291,12 @@ namespace DatabaseTools.Processes
 
                 using (System.Data.Common.DbConnection sourceConnection = DatabaseTools.Processes.Database.CreateDbConnection(sourceFactory, sourceConnectionString))
                 {
+
+                    if (connectionCreatedCallback != null)
+                    {
+                        connectionCreatedCallback.Invoke(sourceConnection);
+                    }
+
 
                     using (System.Data.Common.DbCommand sourceCommand = DatabaseTools.Processes.Database.CreateDbCommand(sourceConnection))
                     {
