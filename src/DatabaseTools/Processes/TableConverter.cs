@@ -79,7 +79,7 @@ namespace DatabaseTools.Processes
                     }
                     else
                     {
-                        progress.Report(new TableProgress() { ProgressPercentage = 100, Table = sourceTable, ErrorMessage = strException });
+                        progress.Report(new TableProgress() { ProgressPercentage = 100, Table = sourceTable, ErrorMessage = strException , Exception = ex});
                     }
 
                 }
@@ -114,69 +114,65 @@ namespace DatabaseTools.Processes
 
             if (intTargetRowCount == 0)
             {
-                int? intSourceRowCount = null;
 
-                if (!intSourceRowCount.HasValue || intSourceRowCount.Value > 0)
+                int intRowIndex = 0;
+
+                System.Text.StringBuilder sbColumns = new System.Text.StringBuilder();
+
+                var sourceMatchedColumns = this.GetMatchedColumns(sourceTable.Columns, targetTable.Columns);
+                var targetMatchedColumns = this.GetMatchedColumns(targetTable.Columns, sourceTable.Columns);
+
+                foreach (var sourceColumn in sourceMatchedColumns)
                 {
-
-                    int intRowIndex = 0;
-
-                    System.Text.StringBuilder sbColumns = new System.Text.StringBuilder();
-
-                    var sourceMatchedColumns = this.GetMatchedColumns(sourceTable.Columns, targetTable.Columns);
-                    var targetMatchedColumns = this.GetMatchedColumns(targetTable.Columns, sourceTable.Columns);
-
-                    foreach (var sourceColumn in sourceMatchedColumns)
+                    if (sbColumns.Length > 0)
                     {
-                        if (sbColumns.Length > 0)
-                        {
-                            sbColumns.Append(", ");
-                        }
-                        sbColumns.AppendFormat("[{0}]", sourceColumn.ColumnName);
+                        sbColumns.Append(", ");
                     }
+                    sbColumns.AppendFormat("[{0}]", sourceColumn.ColumnName);
+                }
 
 
-                    if (targetDatabaseType == Models.DatabaseType.MySql)
+                if (targetDatabaseType == Models.DatabaseType.MySql)
+                {
+                    throw new NotImplementedException();
+                }
+                else
+                {
+                    using (System.Data.SqlClient.SqlBulkCopy bcp = new System.Data.SqlClient.SqlBulkCopy(targetConnectionString.ConnectionString, SqlBulkCopyOptions.KeepIdentity))
                     {
-                        throw new NotImplementedException();
-                    }
-                    else
-                    {
-                        using (System.Data.SqlClient.SqlBulkCopy bcp = new System.Data.SqlClient.SqlBulkCopy(targetConnectionString.ConnectionString, SqlBulkCopyOptions.KeepIdentity))
+                        bcp.DestinationTableName = $"[{targetTable.SchemaName}].[{targetTable.TableName}]";
+                        bcp.BatchSize = batchSize == 0 ? 10000 : batchSize;
+                        bcp.BulkCopyTimeout = 600;
+                        bcp.NotifyAfter = bcp.BatchSize;
+
+                        bcp.SqlRowsCopied += (object sender, System.Data.SqlClient.SqlRowsCopiedEventArgs e) =>
                         {
-                            bcp.DestinationTableName = $"[{targetTable.SchemaName}].[{targetTable.TableName}]";
-                            bcp.BatchSize = batchSize == 0 ? 10000 : batchSize;
-                            bcp.BulkCopyTimeout = 600;
-                            bcp.NotifyAfter = bcp.BatchSize;
-
-                            bcp.SqlRowsCopied += (object sender, System.Data.SqlClient.SqlRowsCopiedEventArgs e) =>
+                            if (progress != null &&
+                                sourceRowCount > 0)
                             {
-                                if (progress != null &&
-                                    intSourceRowCount.HasValue)
+                                intRowIndex += bcp.BatchSize;
+
+                                if (intRowIndex > sourceRowCount)
                                 {
-                                    intRowIndex += bcp.BatchSize;
-
-                                    if (intRowIndex > intSourceRowCount)
-                                    {
-                                        intRowIndex = intSourceRowCount.Value;
-                                    }
-
-                                    int intNewProgress = System.Convert.ToInt32(intRowIndex / (double)intSourceRowCount * 100);
-
-                                    if (intProgress != intNewProgress &&
-                                        intNewProgress < 100)
-                                    {
-                                        intProgress = intNewProgress;
-                                        progress.Report(new TableProgress() { ProgressPercentage = intProgress, Table = sourceTable });
-                                    }
+                                    intRowIndex = sourceRowCount;
                                 }
-                            };
 
-                            bcp.WriteToServer(sourceReader);
+                                int intNewProgress = System.Convert.ToInt32(intRowIndex / (double)sourceRowCount * 100);
 
-                        }
+                                if (intProgress != intNewProgress &&
+                                    intNewProgress < 100)
+                                {
+                                    intProgress = intNewProgress;
+                                    progress.Report(new TableProgress() { ProgressPercentage = intProgress, Table = sourceTable });
+                                }
+                            }
+                        };
+
+                        bcp.WriteToServer(sourceReader);
+
                     }
                 }
+
             }
 
             if (progress != null &&
