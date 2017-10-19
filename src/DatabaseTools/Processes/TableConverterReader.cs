@@ -330,6 +330,11 @@ namespace DatabaseTools.Processes
             return returnValue;
         }
 
+        public bool IsDBNull(int i)
+        {
+            return this.Parent.IsDBNull(i);
+        }
+
         #region Not Implemented
 
         public bool GetBoolean(int i)
@@ -418,11 +423,6 @@ namespace DatabaseTools.Processes
         }
 
         public int GetValues(object[] values)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool IsDBNull(int i)
         {
             throw new NotImplementedException();
         }

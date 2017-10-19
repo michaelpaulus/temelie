@@ -744,12 +744,12 @@ namespace DatabaseTools
                                     case "changed_date":
                                     case "modifieddate":
                                     case "createddate":
-                                        sbValues.Append("GETDATE()");
+                                        sbColumnValues.Append("GETDATE()");
                                         break;
                                     case "changed_user_id":
                                     case "modifiedby":
                                     case "createdby":
-                                        sbValues.Append("''");
+                                        sbColumnValues.Append("''");
                                         break;
                                     default:
                                         sbColumnValues.Append(string.Format("{0}", this.FormatValue(item.DbType, pagedRow[item.ColumnName])));
