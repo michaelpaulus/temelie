@@ -264,10 +264,6 @@
     <Resource Include="FodyWeavers.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DatabaseTools.MySql\DatabaseTools.MySql.csproj">
-      <Project>{79c8655c-1ce2-4e5d-92b7-86fc33fb1b67}</Project>
-      <Name>DatabaseTools.MySql</Name>
-    </ProjectReference>
     <ProjectReference Include="..\DatabaseTools\DatabaseTools.csproj">
       <Project>{110f043f-c886-4f78-9782-0d0a01416b82}</Project>
       <Name>DatabaseTools</Name>

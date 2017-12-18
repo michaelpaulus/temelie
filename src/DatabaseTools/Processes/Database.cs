@@ -16,6 +16,8 @@ namespace DatabaseTools
         public class Database
         {
 
+            public static Action<IDbConnection> ConnectionCreatedCallback { get; set; }
+
             public const int DefaultCommandTimeout = 0;
 
             private static IEnumerable<IDatabaseProvider> _databaseProviders;
@@ -36,7 +38,11 @@ namespace DatabaseTools
             {
                 System.Data.Common.DbConnection connection = CreateDbProviderFactory(dbConnection).CreateConnection();
                 connection.ConnectionString = dbConnection.ConnectionString;
-                connection.Open();
+                NotifyConnections(connection);
+                if (connection.State != ConnectionState.Open)
+                {
+                    connection.Open();
+                }
                 return connection;
             }
 
@@ -75,7 +81,12 @@ namespace DatabaseTools
 
                 connection.ConnectionString = connectionString.ConnectionString;
 
-                connection.Open();
+                NotifyConnections(connection);
+                if (connection.State != ConnectionState.Open)
+                {
+                    connection.Open();
+                }
+
                 return connection;
             }
 
@@ -240,6 +251,18 @@ namespace DatabaseTools
             #endregion
 
             #region Helper Methods
+
+            private static void NotifyConnections(IDbConnection connection)
+            {
+                if (ConnectionCreatedCallback != null)
+                {
+                    ConnectionCreatedCallback.Invoke(connection);
+                }
+                foreach (var notification in Configuration.DependencyInjection.ResolveAll<IConnectionCreatedNotification>())
+                {
+                    notification.Notify(connection);
+                }
+            }
 
             private static bool ContainsTable(IEnumerable<string> tables, string table)
             {
