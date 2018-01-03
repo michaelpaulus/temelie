@@ -163,8 +163,6 @@ namespace DatabaseTools
                 {
                     return (
                         from i in this.Tables
-                        where
-                            !i.IsHistoryTable
                         select i.TableName).ToList();
                 }
             }
