@@ -79,7 +79,7 @@ namespace DatabaseTools.Processes
                     }
                     else
                     {
-                        progress.Report(new TableProgress() { ProgressPercentage = 100, Table = sourceTable, ErrorMessage = strException , Exception = ex});
+                        progress.Report(new TableProgress() { ProgressPercentage = 100, Table = sourceTable, ErrorMessage = strException, Exception = ex });
                     }
 
                 }
@@ -110,69 +110,74 @@ namespace DatabaseTools.Processes
             using (System.Data.Common.DbConnection targetConnection = DatabaseTools.Processes.Database.CreateDbConnection(targetFactory, targetConnectionString))
             {
                 intTargetRowCount = this.GetRowCount(targetConnection, targetTable.SchemaName, targetTable.TableName, targetDatabaseType);
-            }
 
-            if (intTargetRowCount == 0)
-            {
 
-                int intRowIndex = 0;
-
-                System.Text.StringBuilder sbColumns = new System.Text.StringBuilder();
-
-                var sourceMatchedColumns = this.GetMatchedColumns(sourceTable.Columns, targetTable.Columns);
-                var targetMatchedColumns = this.GetMatchedColumns(targetTable.Columns, sourceTable.Columns);
-
-                foreach (var sourceColumn in sourceMatchedColumns)
+                if (intTargetRowCount == 0)
                 {
-                    if (sbColumns.Length > 0)
+
+                    int intRowIndex = 0;
+
+                    System.Text.StringBuilder sbColumns = new System.Text.StringBuilder();
+
+                    var sourceMatchedColumns = this.GetMatchedColumns(sourceTable.Columns, targetTable.Columns);
+                    var targetMatchedColumns = this.GetMatchedColumns(targetTable.Columns, sourceTable.Columns);
+
+                    foreach (var sourceColumn in sourceMatchedColumns)
                     {
-                        sbColumns.Append(", ");
-                    }
-                    sbColumns.AppendFormat("[{0}]", sourceColumn.ColumnName);
-                }
-
-
-                if (targetDatabaseType == Models.DatabaseType.MySql)
-                {
-                    throw new NotImplementedException();
-                }
-                else
-                {
-                    using (System.Data.SqlClient.SqlBulkCopy bcp = new System.Data.SqlClient.SqlBulkCopy(targetConnectionString.ConnectionString, SqlBulkCopyOptions.KeepIdentity))
-                    {
-                        bcp.DestinationTableName = $"[{targetTable.SchemaName}].[{targetTable.TableName}]";
-                        bcp.BatchSize = batchSize == 0 ? 10000 : batchSize;
-                        bcp.BulkCopyTimeout = 600;
-                        bcp.NotifyAfter = bcp.BatchSize;
-
-                        bcp.SqlRowsCopied += (object sender, System.Data.SqlClient.SqlRowsCopiedEventArgs e) =>
+                        if (sbColumns.Length > 0)
                         {
-                            if (progress != null &&
-                                sourceRowCount > 0)
-                            {
-                                intRowIndex += bcp.BatchSize;
-
-                                if (intRowIndex > sourceRowCount)
-                                {
-                                    intRowIndex = sourceRowCount;
-                                }
-
-                                int intNewProgress = System.Convert.ToInt32(intRowIndex / (double)sourceRowCount * 100);
-
-                                if (intProgress != intNewProgress &&
-                                    intNewProgress < 100)
-                                {
-                                    intProgress = intNewProgress;
-                                    progress.Report(new TableProgress() { ProgressPercentage = intProgress, Table = sourceTable });
-                                }
-                            }
-                        };
-
-                        bcp.WriteToServer(sourceReader);
-
+                            sbColumns.Append(", ");
+                        }
+                        sbColumns.AppendFormat("[{0}]", sourceColumn.ColumnName);
                     }
-                }
 
+
+                    if (targetDatabaseType == Models.DatabaseType.MySql)
+                    {
+                        throw new NotImplementedException();
+                    }
+                    else
+                    {
+                        using (var transaction = targetConnection.BeginTransaction())
+                        {
+                            using (System.Data.SqlClient.SqlBulkCopy bcp = new System.Data.SqlClient.SqlBulkCopy((SqlConnection)targetConnection, SqlBulkCopyOptions.KeepIdentity, (SqlTransaction)transaction))
+                            {
+                                bcp.DestinationTableName = $"[{targetTable.SchemaName}].[{targetTable.TableName}]";
+                                bcp.BatchSize = batchSize == 0 ? 10000 : batchSize;
+                                bcp.BulkCopyTimeout = 600;
+                                bcp.NotifyAfter = bcp.BatchSize;
+
+                                bcp.SqlRowsCopied += (object sender, System.Data.SqlClient.SqlRowsCopiedEventArgs e) =>
+                                {
+                                    if (progress != null &&
+                                        sourceRowCount > 0)
+                                    {
+                                        intRowIndex += bcp.BatchSize;
+
+                                        if (intRowIndex > sourceRowCount)
+                                        {
+                                            intRowIndex = sourceRowCount;
+                                        }
+
+                                        int intNewProgress = System.Convert.ToInt32(intRowIndex / (double)sourceRowCount * 100);
+
+                                        if (intProgress != intNewProgress &&
+                                            intNewProgress < 100)
+                                        {
+                                            intProgress = intNewProgress;
+                                            progress.Report(new TableProgress() { ProgressPercentage = intProgress, Table = sourceTable });
+                                        }
+                                    }
+                                };
+
+                                bcp.WriteToServer(sourceReader);
+
+                            }
+                            transaction.Commit();
+                        }
+                    }
+
+                }
             }
 
             if (progress != null &&
