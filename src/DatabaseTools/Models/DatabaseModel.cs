@@ -1,5 +1,6 @@
 ﻿
 using DatabaseTools.Extensions;
+using DatabaseTools.Processes;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -89,7 +90,10 @@ namespace DatabaseTools
                 {
                     if (this._definitions == null)
                     {
-                        this._definitions = Processes.Database.GetDefinitions(this.ConnectionString);
+                        using (var conn = Database.CreateDbConnection(this.ConnectionString))
+                        {
+                            this._definitions = Processes.Database.GetDefinitions(conn);
+                        }
                     }
 
                     if (!(string.IsNullOrEmpty(this.ObjectFilter)))
@@ -111,7 +115,10 @@ namespace DatabaseTools
                 {
                     if (this._foreignKeys == null)
                     {
-                        this._foreignKeys = (from i in Processes.Database.GetForeignKeys(this.ConnectionString, this.TableNames) orderby i.TableName, i.ForeignKeyName select i).ToList();
+                        using (var conn = Database.CreateDbConnection(this.ConnectionString))
+                        {
+                            this._foreignKeys = (from i in Processes.Database.GetForeignKeys(conn, this.TableNames) orderby i.TableName, i.ForeignKeyName select i).ToList();
+                        }
                     }
                     return this._foreignKeys;
                 }
@@ -124,7 +131,10 @@ namespace DatabaseTools
                 {
                     if (this._allIndexes == null)
                     {
-                        this._allIndexes = (from i in Processes.Database.GetIndexes(this.ConnectionString, this.TableNames, null) orderby i.TableName, i.IndexName select i).ToList();
+                        using (var conn = Database.CreateDbConnection(this.ConnectionString))
+                        {
+                            this._allIndexes = (from i in Processes.Database.GetIndexes(conn, this.TableNames, null) orderby i.TableName, i.IndexName select i).ToList();
+                        }
                     }
                     return this._allIndexes;
                 }
@@ -188,7 +198,10 @@ namespace DatabaseTools
                 {
                     if (this._tables == null)
                     {
-                        this._tables = Processes.Database.GetTables(this.ConnectionString, this.TableColumns).OrderBy(i => i.TableName).ToList();
+                        using (var conn = Database.CreateDbConnection(this.ConnectionString))
+                        {
+                            this._tables = Processes.Database.GetTables(conn, this.TableColumns).OrderBy(i => i.TableName).ToList();
+                        }
                     }
                     return GetFilteredTables();
                 }
@@ -201,7 +214,10 @@ namespace DatabaseTools
                 {
                     if (this._tableColumns == null)
                     {
-                        this._tableColumns = Processes.Database.GetTableColumns(this.ConnectionString);
+                        using (var conn = Database.CreateDbConnection(this.ConnectionString))
+                        {
+                            this._tableColumns = Processes.Database.GetTableColumns(conn);
+                        }
                     }
                     return this._tableColumns;
                 }
@@ -214,7 +230,10 @@ namespace DatabaseTools
                 {
                     if (this._views == null)
                     {
-                        this._views = Processes.Database.GetViews(this.ConnectionString, this.ViewColumns).OrderBy(i => i.TableName).ToList();
+                        using (var conn = Database.CreateDbConnection(this.ConnectionString))
+                        {
+                            this._views = Processes.Database.GetViews(conn, this.ViewColumns).OrderBy(i => i.TableName).ToList();
+                        }
                     }
 
                     if (!(string.IsNullOrEmpty(this.ObjectFilter)))
@@ -246,7 +265,10 @@ namespace DatabaseTools
                 {
                     if (this._viewColumns == null)
                     {
-                        this._viewColumns = Processes.Database.GetViewColumns(this.ConnectionString);
+                        using (var conn = Database.CreateDbConnection(this.ConnectionString))
+                        {
+                            this._viewColumns = Processes.Database.GetViewColumns(conn);
+                        }
                     }
                     return this._viewColumns;
                 }
@@ -259,7 +281,10 @@ namespace DatabaseTools
                 {
                     if (this._triggers == null)
                     {
-                        this._triggers = Processes.Database.GetTriggers(this.ConnectionString, this.TableNames, this.ViewNames, this.ObjectFilter).OrderBy(i => i.TriggerName).ToList(); ;
+                        using (var conn = Database.CreateDbConnection(this.ConnectionString))
+                        {
+                            this._triggers = Processes.Database.GetTriggers(conn, this.TableNames, this.ViewNames, this.ObjectFilter).OrderBy(i => i.TriggerName).ToList(); ;
+                        }
                     }
                     return this._triggers;
                 }
@@ -271,7 +296,10 @@ namespace DatabaseTools
                 {
                     if (this._securityPolicies == null)
                     {
-                        this._securityPolicies = Processes.Database.GetSecurityPolicies(this.ConnectionString).OrderBy(i => i.PolicyName).ToList();
+                        using (var conn = Database.CreateDbConnection(this.ConnectionString))
+                        {
+                            this._securityPolicies = Processes.Database.GetSecurityPolicies(conn).OrderBy(i => i.PolicyName).ToList();
+                        }
                     }
                     return this._securityPolicies;
                 }

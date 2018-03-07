@@ -5,8 +5,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
+using System.Transactions;
 using System.Xml.Linq;
 
 namespace DatabaseTools
@@ -535,17 +537,17 @@ namespace DatabaseTools
                 return list;
             }
 
-            public static IList<Models.ColumnModel> GetTableColumns(System.Configuration.ConnectionStringSettings connectionString)
+            public static IList<Models.ColumnModel> GetTableColumns(DbConnection connection)
             {
 
                 IList<Models.ColumnModel> list = new List<Models.ColumnModel>();
 
-                var databaseType = GetDatabaseType(connectionString);
+                var databaseType = GetDatabaseType(connection);
                 var provider = GetDatabaseProvider(databaseType, true);
 
                 DataTable dataTable = null;
 
-                dataTable = provider.GetTableColumns(connectionString);
+                dataTable = provider.GetTableColumns(connection);
 
                 if (dataTable != null)
                 {
@@ -555,16 +557,16 @@ namespace DatabaseTools
                 return list;
             }
 
-            public static IList<Models.ColumnModel> GetViewColumns(System.Configuration.ConnectionStringSettings connectionString)
+            public static IList<Models.ColumnModel> GetViewColumns(DbConnection connection)
             {
                 IList<Models.ColumnModel> list = new List<Models.ColumnModel>();
 
-                var databaseType = GetDatabaseType(connectionString);
+                var databaseType = GetDatabaseType(connection);
                 var provider = GetDatabaseProvider(databaseType, true);
 
                 DataTable dataTable = null;
 
-                dataTable = provider.GetViewColumns(connectionString);
+                dataTable = provider.GetViewColumns(connection);
 
                 if (dataTable != null)
                 {
@@ -606,16 +608,16 @@ namespace DatabaseTools
 
             }
 
-            public static IList<Models.DefinitionModel> GetDefinitions(System.Configuration.ConnectionStringSettings connectionString)
+            public static IList<Models.DefinitionModel> GetDefinitions(DbConnection connection)
             {
                 List<Models.DefinitionModel> list = new List<Models.DefinitionModel>();
 
-                var databaseType = GetDatabaseType(connectionString);
+                var databaseType = GetDatabaseType(connection);
                 var provider = GetDatabaseProvider(databaseType, true);
 
-                var dtDefinitions = provider.GetDefinitions(connectionString);
+                var dtDefinitions = provider.GetDefinitions(connection);
 
-                var dtDependencies = provider.GetDefinitionDependencies(connectionString);
+                var dtDependencies = provider.GetDefinitionDependencies(connection);
 
                 if (dtDefinitions != null)
                 {
@@ -647,16 +649,16 @@ namespace DatabaseTools
 
                 return list;
             }
-            public static IList<Models.SecurityPolicyModel> GetSecurityPolicies(System.Configuration.ConnectionStringSettings connectionString)
+            public static IList<Models.SecurityPolicyModel> GetSecurityPolicies(DbConnection connection)
             {
                 var list = new List<Models.SecurityPolicyModel>();
 
-                var databaseType = GetDatabaseType(connectionString);
+                var databaseType = GetDatabaseType(connection);
                 var provider = GetDatabaseProvider(databaseType, true);
 
-                var dtDefinitions = provider.GetSecurityPolicies(connectionString);
+                var dtDefinitions = provider.GetSecurityPolicies(connection);
 
-                var dtDependencies = provider.GetDefinitionDependencies(connectionString);
+                var dtDependencies = provider.GetDefinitionDependencies(connection);
 
                 if (dtDefinitions != null)
                 {
@@ -714,14 +716,14 @@ namespace DatabaseTools
                 }
             }
 
-            public static IList<Models.ForeignKeyModel> GetForeignKeys(System.Configuration.ConnectionStringSettings connectionString, IList<string> tables)
+            public static IList<Models.ForeignKeyModel> GetForeignKeys(DbConnection connection, IList<string> tables)
             {
                 IList<Models.ForeignKeyModel> list = new List<Models.ForeignKeyModel>();
 
-                var databaseType = GetDatabaseType(connectionString);
+                var databaseType = GetDatabaseType(connection);
                 var provider = GetDatabaseProvider(databaseType, true);
 
-                DataTable dataTable = provider.GetForeignKeys(connectionString);
+                DataTable dataTable = provider.GetForeignKeys(connection);
 
                 if (dataTable != null)
                 {
@@ -774,14 +776,14 @@ namespace DatabaseTools
                 return list;
             }
 
-            public static IList<Models.IndexModel> GetIndexes(System.Configuration.ConnectionStringSettings connectionString, IEnumerable<string> tables, bool? isPrimaryKey = null)
+            public static IList<Models.IndexModel> GetIndexes(DbConnection connection, IEnumerable<string> tables, bool? isPrimaryKey = null)
             {
                 IList<Models.IndexModel> list = new List<Models.IndexModel>();
-                var provider = GetDatabaseProvider(GetDatabaseType(connectionString), true);
+                var provider = GetDatabaseProvider(GetDatabaseType(connection), true);
                 System.Data.DataTable dtIndexes = null;
 
-                dtIndexes = provider.GetIndexes(connectionString);
-                var dtIndexBucketCounts = provider.GetIndexeBucketCounts(connectionString);
+                dtIndexes = provider.GetIndexes(connection);
+                var dtIndexBucketCounts = provider.GetIndexeBucketCounts(connection);
 
                 if (dtIndexes != null)
                 {
@@ -902,15 +904,15 @@ namespace DatabaseTools
                 return list;
             }
 
-            public static IList<Models.TableModel> GetTables(System.Configuration.ConnectionStringSettings connectionString, IList<Models.ColumnModel> columns, bool withBackup = false)
+            public static IList<Models.TableModel> GetTables(DbConnection connection, IList<Models.ColumnModel> columns, bool withBackup = false)
             {
                 System.Data.DataTable dataTable = null;
 
-                var databaseType = GetDatabaseType(connectionString);
+                var databaseType = GetDatabaseType(connection);
 
                 var provider = GetDatabaseProvider(databaseType, true);
 
-                dataTable = provider.GetTables(connectionString);
+                dataTable = provider.GetTables(connection);
 
                 IList<Models.TableModel> list = new List<Models.TableModel>();
 
@@ -921,7 +923,7 @@ namespace DatabaseTools
                     if (list.Count == 0 && databaseType == Models.DatabaseType.Odbc)
                     {
 
-                        list = GetViews(connectionString, columns);
+                        list = GetViews(connection, columns);
                     }
 
                     //Remove PowerBuilder Tables
@@ -954,17 +956,17 @@ namespace DatabaseTools
                 return list;
             }
 
-            public static IList<Models.TableModel> GetViews(System.Configuration.ConnectionStringSettings connectionString, IList<Models.ColumnModel> columns)
+            public static IList<Models.TableModel> GetViews(DbConnection connection, IList<Models.ColumnModel> columns)
             {
                 IList<Models.TableModel> list = new List<Models.TableModel>();
 
-                var databaseType = GetDatabaseType(connectionString);
+                var databaseType = GetDatabaseType(connection);
 
                 var provider = GetDatabaseProvider(databaseType);
 
                 if (provider != null)
                 {
-                    System.Data.DataTable dataTable = provider.GetViews(connectionString);
+                    System.Data.DataTable dataTable = provider.GetViews(connection);
                     if (dataTable != null)
                     {
                         list = GetTables(dataTable, columns);
@@ -974,14 +976,14 @@ namespace DatabaseTools
                 return list;
             }
 
-            public static IList<Models.TriggerModel> GetTriggers(System.Configuration.ConnectionStringSettings connectionString, IList<string> tables, IList<string> views, string objectFilter)
+            public static IList<Models.TriggerModel> GetTriggers(DbConnection connection, IList<string> tables, IList<string> views, string objectFilter)
             {
                 IList<Models.TriggerModel> list = new List<Models.TriggerModel>();
 
-                var databaseType = GetDatabaseType(connectionString);
+                var databaseType = GetDatabaseType(connection);
                 var provider = GetDatabaseProvider(databaseType, true);
 
-                var dataTable = provider.GetTriggers(connectionString);
+                var dataTable = provider.GetTriggers(connection);
 
                 if (dataTable != null)
                 {

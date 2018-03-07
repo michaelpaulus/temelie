@@ -17,23 +17,23 @@ namespace DatabaseTools.Providers
 
         void UpdateParameter(DbParameter parameter, Models.ColumnModel column);
 
-        DataTable GetTables(System.Configuration.ConnectionStringSettings connectionString);
-        DataTable GetViews(System.Configuration.ConnectionStringSettings connectionString);
+        DataTable GetTables(DbConnection connection);
+        DataTable GetViews(DbConnection connection);
 
-        DataTable GetTriggers(System.Configuration.ConnectionStringSettings connectionString);
-        DataTable GetForeignKeys(System.Configuration.ConnectionStringSettings connectionString);
-        DataTable GetDefinitions(System.Configuration.ConnectionStringSettings connectionString);
-        DataTable GetDefinitionDependencies(System.Configuration.ConnectionStringSettings connectionString);
+        DataTable GetTriggers(DbConnection connection);
+        DataTable GetForeignKeys(DbConnection connection);
+        DataTable GetDefinitions(DbConnection connection);
+        DataTable GetDefinitionDependencies(DbConnection connection);
 
-        DataTable GetTableColumns(System.Configuration.ConnectionStringSettings connectionString);
-        DataTable GetViewColumns(System.Configuration.ConnectionStringSettings connectionString);
-        DataTable GetIndexeBucketCounts(ConnectionStringSettings connectionString);
-        DataTable GetIndexes(System.Configuration.ConnectionStringSettings connectionString);
+        DataTable GetTableColumns(DbConnection connection);
+        DataTable GetViewColumns(DbConnection connection);
+        DataTable GetIndexeBucketCounts(DbConnection connection);
+        DataTable GetIndexes(DbConnection connection);
 
         Models.ColumnTypeModel GetColumnType(Models.ColumnTypeModel sourceColumnType, Models.DatabaseType targetDatabaseType);
         DbProviderFactory CreateProvider();
 
         bool TryHandleColumnValueLoadException(Exception ex, Models.ColumnModel column, out object value);
-        DataTable GetSecurityPolicies(ConnectionStringSettings connectionString);
+        DataTable GetSecurityPolicies(DbConnection connection);
     }
 }

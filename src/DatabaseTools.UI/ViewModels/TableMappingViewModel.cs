@@ -16,6 +16,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 
 using System.Collections.ObjectModel;
+using DatabaseTools.Processes;
 
 namespace DatabaseTools
 {
@@ -286,40 +287,47 @@ namespace DatabaseTools
 
             public void UpdateTargetTables()
             {
-                var columns = DatabaseTools.Processes.Database.GetTableColumns(this.TargetDatabaseConnectionString);
-                var viewColumns = DatabaseTools.Processes.Database.GetViewColumns(this.TargetDatabaseConnectionString);
-                var tables = DatabaseTools.Processes.Database.GetTables(this.TargetDatabaseConnectionString, columns, true);
-                var views = DatabaseTools.Processes.Database.GetViews(this.TargetDatabaseConnectionString, viewColumns);
-                this.TargetTables.Clear();
-                foreach (var item in tables)
+                using (var conn = Database.CreateDbConnection(TargetDatabaseConnectionString))
                 {
-                    this.TargetTables.Add(item);
+                    var columns = DatabaseTools.Processes.Database.GetTableColumns(conn);
+                    var viewColumns = DatabaseTools.Processes.Database.GetViewColumns(conn);
+                    var tables = DatabaseTools.Processes.Database.GetTables(conn, columns, true);
+                    var views = DatabaseTools.Processes.Database.GetViews(conn, viewColumns);
+                    this.TargetTables.Clear();
+                    foreach (var item in tables)
+                    {
+                        this.TargetTables.Add(item);
+                    }
+                    foreach (var item in views)
+                    {
+                        this.TargetTables.Add(item);
+                    }
+                    this.TargetTable = null;
+                    this.ColumnMappings.Clear();
                 }
-                foreach (var item in views)
-                {
-                    this.TargetTables.Add(item);
-                }
-                this.TargetTable = null;
-                this.ColumnMappings.Clear();
+                
             }
 
             public void UpdateSourceTables()
             {
-                var columns = DatabaseTools.Processes.Database.GetTableColumns(this.SourceDatabaseConnectionString);
-                var viewColumns = DatabaseTools.Processes.Database.GetViewColumns(this.SourceDatabaseConnectionString);
-                var tables = DatabaseTools.Processes.Database.GetTables(this.SourceDatabaseConnectionString, columns, true);
-                var views = DatabaseTools.Processes.Database.GetViews(this.SourceDatabaseConnectionString, viewColumns);
-                this.SourceTables.Clear();
-                foreach (var item in tables)
+                using (var conn = Database.CreateDbConnection(SourceDatabaseConnectionString))
                 {
-                    this.SourceTables.Add(item);
+                    var columns = DatabaseTools.Processes.Database.GetTableColumns(conn);
+                    var viewColumns = DatabaseTools.Processes.Database.GetViewColumns(conn);
+                    var tables = DatabaseTools.Processes.Database.GetTables(conn, columns, true);
+                    var views = DatabaseTools.Processes.Database.GetViews(conn, viewColumns);
+                    this.SourceTables.Clear();
+                    foreach (var item in tables)
+                    {
+                        this.SourceTables.Add(item);
+                    }
+                    foreach (var item in views)
+                    {
+                        this.SourceTables.Add(item);
+                    }
+                    this.SourceTable = null;
+                    this.ColumnMappings.Clear();
                 }
-                foreach (var item in views)
-                {
-                    this.SourceTables.Add(item);
-                }
-                this.SourceTable = null;
-                this.ColumnMappings.Clear();
             }
 
             #endregion

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DatabaseTools.Processes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -73,8 +74,11 @@ namespace DatabaseTools.Controls
 
             try
             {
-                var columns = DatabaseTools.Processes.Database.GetTableColumns(connectionString);
-                tables = DatabaseTools.Processes.Database.GetTables(connectionString, columns);
+                using (var conn = Database.CreateDbConnection(connectionString))
+                {
+                    var columns = DatabaseTools.Processes.Database.GetTableColumns(conn);
+                    tables = DatabaseTools.Processes.Database.GetTables(conn, columns);
+                }
             }
             catch
             {
@@ -90,8 +94,11 @@ namespace DatabaseTools.Controls
 
             try
             {
-                var columns = DatabaseTools.Processes.Database.GetViewColumns(connectionString);
-                tables = DatabaseTools.Processes.Database.GetViews(connectionString, columns);
+                using (var conn = Database.CreateDbConnection(connectionString))
+                {
+                    var columns = DatabaseTools.Processes.Database.GetTableColumns(conn);
+                    tables = DatabaseTools.Processes.Database.GetTables(conn, columns);
+                }
             }
             catch
             {

@@ -71,16 +71,21 @@ namespace DatabaseTools.ViewModels
         {
             var selectedTables = (from i in this.Tables where i.Selected select i).ToList();
 
-            var targetColumns = DatabaseTools.Processes.Database.GetTableColumns(this.TargetDatabaseConnectionString);
-            var targetTables = DatabaseTools.Processes.Database.GetTables(this.TargetDatabaseConnectionString, targetColumns);
-
             TableConverterSettings settings = new TableConverterSettings();
+
+            using (var conn = Database.CreateDbConnection(TargetDatabaseConnectionString))
+            {
+                var targetColumns = DatabaseTools.Processes.Database.GetTableColumns(conn);
+                var targetTables = DatabaseTools.Processes.Database.GetTables(conn, targetColumns);
+                settings.TargetTables = targetTables;
+            }
+
 
             settings.SourceConnectionString = this.SourceDatabaseConnectionString;
             settings.TargetConnectionString = this.TargetDatabaseConnectionString;
 
             settings.SourceTables = selectedTables;
-            settings.TargetTables = targetTables;
+           
 
             settings.UseBulkCopy = this.UseBulkCopy;
             settings.BatchSize = this.BatchSize;
@@ -97,14 +102,14 @@ namespace DatabaseTools.ViewModels
 
             this.Stopwatch = new Stopwatch();
             this.Stopwatch.Start();
-            
+
             var progress = new Progress<TableProgress>(tableProgress =>
             {
                 this.ReportProgress(tableProgress);
             });
 
             var settings = this.GetTableConverterSettings();
-            
+
             Task.Factory.StartNew(() =>
             {
                 var converter = new TableConverter();
@@ -174,7 +179,7 @@ namespace DatabaseTools.ViewModels
 
         #endregion
 
-        
+
 
 
     }

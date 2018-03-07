@@ -70,7 +70,7 @@ namespace DatabaseTools.Providers.Mssql
             return null;
         }
 
-        public DataTable GetDefinitionDependencies(ConnectionStringSettings connectionString)
+        public DataTable GetDefinitionDependencies(DbConnection connection)
         {
             string sql = @"
                         SELECT 
@@ -90,12 +90,12 @@ namespace DatabaseTools.Providers.Mssql
 	                        sysobjects.name, 
 	                        r.referencing_entity_name
                         ";
-            System.Data.DataSet ds = Processes.Database.Execute(connectionString, sql);
+            System.Data.DataSet ds = Processes.Database.Execute(connection, sql);
             DataTable dataTable = ds.Tables[0];
             return dataTable;
         }
 
-        public DataTable GetDefinitions(ConnectionStringSettings connectionString)
+        public DataTable GetDefinitions(DbConnection connection)
         {
             string sql = @"
                         SELECT 
@@ -119,11 +119,11 @@ namespace DatabaseTools.Providers.Mssql
 	                        sysobjects.xtype, 
 	                        sysobjects.name
                         ";
-            System.Data.DataSet ds = Processes.Database.Execute(connectionString, sql);
+            System.Data.DataSet ds = Processes.Database.Execute(connection, sql);
             DataTable dataTable = ds.Tables[0];
             return dataTable;
         }
-        public DataTable GetSecurityPolicies(ConnectionStringSettings connectionString)
+        public DataTable GetSecurityPolicies(DbConnection connection)
         {
             string sql = @"
        SELECT policySchema.name PolicySchema,
@@ -141,12 +141,12 @@ FROM sys.security_policies
      INNER JOIN sys.sysobjects [target] ON [target].id = target_object_id
      INNER JOIN sys.schemas targetSchema ON targetSchema.schema_id = [target].uid
                         ";
-            System.Data.DataSet ds = Processes.Database.Execute(connectionString, sql);
+            System.Data.DataSet ds = Processes.Database.Execute(connection, sql);
             DataTable dataTable = ds.Tables[0];
             return dataTable;
         }
 
-        public DataTable GetForeignKeys(ConnectionStringSettings connectionString)
+        public DataTable GetForeignKeys(DbConnection connection)
         {
             string sql = @"
 SELECT 
@@ -186,14 +186,14 @@ ORDER BY
     sys.foreign_key_columns.constraint_column_id
                         ";
 
-            System.Data.DataSet ds = Processes.Database.Execute(connectionString, sql);
+            System.Data.DataSet ds = Processes.Database.Execute(connection, sql);
             DataTable dataTable = ds.Tables[0];
             return dataTable;
         }
 
-        public DataTable GetIndexeBucketCounts(ConnectionStringSettings connectionString)
+        public DataTable GetIndexeBucketCounts(DbConnection connection)
         {
-            var dtIndexes = Processes.Database.Execute(connectionString, @"
+            var dtIndexes = Processes.Database.Execute(connection, @"
 SELECT
     sys.tables.name AS table_name, 
     sys.schemas.name schema_name,
@@ -213,9 +213,9 @@ FROM
             return dtIndexes;
         }
 
-        public DataTable GetIndexes(ConnectionStringSettings connectionString)
+        public DataTable GetIndexes(DbConnection connection)
         {
-            var dtIndexes = Processes.Database.Execute(connectionString, @"
+            var dtIndexes = Processes.Database.Execute(connection, @"
 SELECT 
     sys.tables.name AS table_name, 
 	sys.schemas.name schema_name,
@@ -250,7 +250,7 @@ ORDER BY
             return dtIndexes;
         }
 
-        public DataTable GetTableColumns(ConnectionStringSettings connectionString)
+        public DataTable GetTableColumns(DbConnection connection)
         {
             string sql2014 = @"
                         SELECT
@@ -362,18 +362,18 @@ ORDER BY
 
             try
             {
-                ds = Processes.Database.Execute(connectionString, sql2016);
+                ds = Processes.Database.Execute(connection, sql2016);
             }
             catch
             {
-                ds = Processes.Database.Execute(connectionString, sql2014);
+                ds = Processes.Database.Execute(connection, sql2014);
             }
 
             DataTable dataTable = ds.Tables[0];
             return dataTable;
         }
 
-        public DataTable GetTables(ConnectionStringSettings connectionString)
+        public DataTable GetTables(DbConnection connection)
         {
             string sql2014 = @"
                         SELECT 
@@ -420,18 +420,18 @@ ORDER BY
             DataSet ds = null;
             try
             {
-                ds = Processes.Database.Execute(connectionString, sql2016);
+                ds = Processes.Database.Execute(connection, sql2016);
             }
             catch
             {
-                ds = Processes.Database.Execute(connectionString, sql2014);
+                ds = Processes.Database.Execute(connection, sql2014);
             }
 
             DataTable dataTable = ds.Tables[0];
             return dataTable;
         }
 
-        public DataTable GetTriggers(ConnectionStringSettings connectionString)
+        public DataTable GetTriggers(DbConnection connection)
         {
             string sql = @"
                     SELECT
@@ -479,12 +479,12 @@ ORDER BY
 						t1.trigger_name
                         ";
 
-            System.Data.DataSet ds = Processes.Database.Execute(connectionString, sql);
+            System.Data.DataSet ds = Processes.Database.Execute(connection, sql);
             DataTable dataTable = ds.Tables[0];
             return dataTable;
         }
 
-        public DataTable GetViewColumns(ConnectionStringSettings connectionString)
+        public DataTable GetViewColumns(DbConnection connection)
         {
             string sql = @"
                         SELECT 
@@ -532,12 +532,12 @@ ORDER BY
 	                        sys.columns.column_id
                         ";
 
-            DataSet ds = Processes.Database.Execute(connectionString, sql);
+            DataSet ds = Processes.Database.Execute(connection, sql);
             DataTable dataTable = ds.Tables[0];
             return dataTable;
         }
 
-        public DataTable GetViews(ConnectionStringSettings connectionString)
+        public DataTable GetViews(DbConnection connection)
         {
             string sql = @"
                         SELECT 
@@ -553,7 +553,7 @@ ORDER BY
 	                        sys.views.name
                         ";
 
-            DataSet ds = Processes.Database.Execute(connectionString, sql);
+            DataSet ds = Processes.Database.Execute(connection, sql);
             DataTable dataTable = ds.Tables[0];
             return dataTable;
         }

@@ -144,31 +144,31 @@ namespace DatabaseTools.Providers.MySql
 
         }
 
-        public DataTable GetDefinitionDependencies(ConnectionStringSettings connectionString)
+        public DataTable GetDefinitionDependencies(DbConnection connection)
         {
             return null;
         }
 
-        public DataTable GetDefinitions(ConnectionStringSettings connectionString)
+        public DataTable GetDefinitions(DbConnection connection)
         {
             return null;
         }
 
-        public DataTable GetForeignKeys(ConnectionStringSettings connectionString)
+        public DataTable GetForeignKeys(DbConnection connection)
         {
-            var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connectionString.ConnectionString);
+            var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connection.ConnectionString);
             var sql = $"SELECT KCU.table_name, KCU.constraint_name AS foreign_key_name, KCU.column_name, KCU.referenced_table_name, KCU.referenced_column_name, 0 AS is_not_for_replication, CASE WHEN RC.delete_rule = 'RESTRICT' THEN 'NO ACTION' ELSE RC.delete_rule END delete_action, CASE WHEN RC.update_rule = 'RESTRICT' THEN 'NO ACTION' ELSE RC.update_rule END update_action FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE KCU JOIN INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS RC ON KCU.CONSTRAINT_CATALOG = RC.CONSTRAINT_CATALOG AND KCU.CONSTRAINT_SCHEMA = RC.CONSTRAINT_SCHEMA AND KCU.CONSTRAINT_NAME = RC.CONSTRAINT_NAME WHERE RC.constraint_schema = '{csb.Database}' ORDER BY KCU.table_name, KCU.CONSTRAINT_NAME, KCU.ORDINAL_POSITION";
-            System.Data.DataSet ds = Processes.Database.Execute(connectionString, sql);
+            System.Data.DataSet ds = Processes.Database.Execute(connection, sql);
             DataTable dataTable = ds.Tables[0];
             return dataTable;
         }
 
-        public DataTable GetIndexes(ConnectionStringSettings connectionString)
+        public DataTable GetIndexes(DbConnection connection)
         {
-            var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connectionString.ConnectionString);
+            var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connection.ConnectionString);
             var sql = $"SELECT statistics.table_name, statistics.index_name, statistics.column_name, statistics.seq_in_index AS key_ordinal, CASE WHEN statistics.non_unique = 0 THEN 1 ELSE 0 END AS is_unique FROM information_schema.statistics WHERE table_schema = '{csb.Database}'";
 
-            System.Data.DataSet ds = Processes.Database.Execute(connectionString, sql);
+            System.Data.DataSet ds = Processes.Database.Execute(connection, sql);
             DataTable dataTable = ds.Tables[0];
 
             dataTable.Columns.Add("is_descending_key");
@@ -198,41 +198,40 @@ namespace DatabaseTools.Providers.MySql
             return dataTable;
         }
 
-        public DataTable GetTableColumns(ConnectionStringSettings connectionString)
+        public DataTable GetTableColumns(DbConnection connection)
         {
-            var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connectionString.ConnectionString);
+            var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connection.ConnectionString);
             var sql = $"SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE table_schema = '{csb.Database}'";
-            System.Data.DataSet ds = Processes.Database.Execute(connectionString, sql);
+            System.Data.DataSet ds = Processes.Database.Execute(connection, sql);
             DataTable dataTable = ds.Tables[0];
             DataTable dataTypes;
-            using (var conn = Processes.Database.CreateDbConnection(connectionString))
-            {
-                dataTypes = conn.GetSchema("DataTypes");
-            }
+
+            dataTypes = connection.GetSchema("DataTypes");
+
             this.UpdateSchemaColumns(dataTable, dataTypes);
             return dataTable;
         }
 
-        public DataTable GetTables(ConnectionStringSettings connectionString)
+        public DataTable GetTables(DbConnection connection)
         {
-            var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connectionString.ConnectionString);
+            var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connection.ConnectionString);
             var sql = $"SELECT table_name FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = '{csb.Database}'";
-            System.Data.DataSet ds = Processes.Database.Execute(connectionString, sql);
+            System.Data.DataSet ds = Processes.Database.Execute(connection, sql);
             DataTable dataTable = ds.Tables[0];
             return dataTable;
         }
 
-        public DataTable GetTriggers(ConnectionStringSettings connectionString)
+        public DataTable GetTriggers(DbConnection connection)
         {
             return null;
         }
 
-        public DataTable GetViewColumns(ConnectionStringSettings connectionString)
+        public DataTable GetViewColumns(DbConnection connection)
         {
             return null;
         }
 
-        public DataTable GetViews(ConnectionStringSettings connectionString)
+        public DataTable GetViews(DbConnection connection)
         {
             return null;
         }
@@ -453,12 +452,12 @@ namespace DatabaseTools.Providers.MySql
             }
         }
 
-        public DataTable GetIndexeBucketCounts(ConnectionStringSettings connectionString)
+        public DataTable GetIndexeBucketCounts(DbConnection connection)
         {
             return null;
         }
 
-        public DataTable GetSecurityPolicies(ConnectionStringSettings connectionString)
+        public DataTable GetSecurityPolicies(DbConnection connection)
         {
             return null;
         }

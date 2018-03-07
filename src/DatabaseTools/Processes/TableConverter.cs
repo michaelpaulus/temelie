@@ -1,17 +1,19 @@
 ﻿using DatabaseTools.Models;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
+using System.Data.Common;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace DatabaseTools.Processes
 {
     public class TableConverter
     {
-
 
         public void ConvertTables(TableConverterSettings settings,
             IProgress<TableProgress> progress,
@@ -87,97 +89,112 @@ namespace DatabaseTools.Processes
         }
 
         public void ConvertBulk(IProgress<TableProgress> progress,
-        Models.TableModel sourceTable,
-        IDataReader sourceReader,
-        int sourceRowCount,
-        Models.TableModel targetTable,
-        System.Configuration.ConnectionStringSettings targetConnectionString,
-        bool trimStrings,
-        int batchSize)
+          Models.TableModel sourceTable,
+          IDataReader sourceReader,
+          int sourceRowCount,
+          Models.TableModel targetTable,
+          ConnectionStringSettings targetConnectionString,
+          bool trimStrings,
+          int batchSize)
+        {
+            System.Data.Common.DbProviderFactory targetFactory = DatabaseTools.Processes.Database.CreateDbProviderFactory(targetConnectionString);
+            var targetDatabaseType = DatabaseTools.Processes.Database.GetDatabaseType(targetConnectionString);
+            using (System.Data.Common.DbConnection targetConnection = DatabaseTools.Processes.Database.CreateDbConnection(targetFactory, targetConnectionString))
+            {
+                ConvertBulk(progress, sourceTable, sourceReader, sourceRowCount, targetTable, targetConnection, trimStrings, batchSize);
+            }
+        }
+
+        public void ConvertBulk(IProgress<TableProgress> progress,
+            Models.TableModel sourceTable,
+            IDataReader sourceReader,
+            int sourceRowCount,
+            Models.TableModel targetTable,
+            DbConnection targetConnection,
+            bool trimStrings,
+            int batchSize)
         {
             if (progress != null)
             {
                 progress.Report(new TableProgress() { ProgressPercentage = 0, Table = sourceTable });
             }
 
-            System.Data.Common.DbProviderFactory targetFactory = DatabaseTools.Processes.Database.CreateDbProviderFactory(targetConnectionString);
-
-            var targetDatabaseType = DatabaseTools.Processes.Database.GetDatabaseType(targetConnectionString);
+            var targetDatabaseType = DatabaseTools.Processes.Database.GetDatabaseType(targetConnection);
 
             int intProgress = 0;
-            int intTargetRowCount = 0;
+            int intTargetRowCount = this.GetRowCount(targetConnection, targetTable.SchemaName, targetTable.TableName, targetDatabaseType);
 
-            using (System.Data.Common.DbConnection targetConnection = DatabaseTools.Processes.Database.CreateDbConnection(targetFactory, targetConnectionString))
+            if (intTargetRowCount == 0)
             {
-                intTargetRowCount = this.GetRowCount(targetConnection, targetTable.SchemaName, targetTable.TableName, targetDatabaseType);
-
-
-                if (intTargetRowCount == 0)
+                if (targetDatabaseType == Models.DatabaseType.MySql)
                 {
-
-                    int intRowIndex = 0;
-
-                    System.Text.StringBuilder sbColumns = new System.Text.StringBuilder();
-
-                    var sourceMatchedColumns = this.GetMatchedColumns(sourceTable.Columns, targetTable.Columns);
-                    var targetMatchedColumns = this.GetMatchedColumns(targetTable.Columns, sourceTable.Columns);
-
-                    foreach (var sourceColumn in sourceMatchedColumns)
+                    throw new NotImplementedException();
+                }
+                else
+                {
+                    void bulkCopy(SqlTransaction transaction1)
                     {
-                        if (sbColumns.Length > 0)
+                        int intRowIndex = 0;
+
+                        var sourceMatchedColumns = this.GetMatchedColumns(sourceTable.Columns, targetTable.Columns);
+                        var targetMatchedColumns = this.GetMatchedColumns(targetTable.Columns, sourceTable.Columns);
+
+                        using (System.Data.SqlClient.SqlBulkCopy bcp = new System.Data.SqlClient.SqlBulkCopy((SqlConnection)targetConnection, SqlBulkCopyOptions.KeepIdentity, transaction1))
                         {
-                            sbColumns.Append(", ");
+                            bcp.DestinationTableName = $"[{targetTable.SchemaName}].[{targetTable.TableName}]";
+                            bcp.BatchSize = batchSize == 0 ? 10000 : batchSize;
+                            bcp.BulkCopyTimeout = 600;
+                            bcp.NotifyAfter = bcp.BatchSize;
+
+                            foreach (var targetColumn in targetMatchedColumns)
+                            {
+                                bcp.ColumnMappings.Add(targetColumn.ColumnName, targetColumn.ColumnName);
+                            }
+
+                            bcp.SqlRowsCopied += (object sender, System.Data.SqlClient.SqlRowsCopiedEventArgs e) =>
+                            {
+                                if (progress != null &&
+                                    sourceRowCount > 0)
+                                {
+                                    intRowIndex += bcp.BatchSize;
+
+                                    if (intRowIndex > sourceRowCount)
+                                    {
+                                        intRowIndex = sourceRowCount;
+                                    }
+
+                                    int intNewProgress = System.Convert.ToInt32(intRowIndex / (double)sourceRowCount * 100);
+
+                                    if (intProgress != intNewProgress &&
+                                        intNewProgress < 100)
+                                    {
+                                        intProgress = intNewProgress;
+                                        progress.Report(new TableProgress() { ProgressPercentage = intProgress, Table = sourceTable });
+                                    }
+                                }
+                            };
+
+                            bcp.WriteToServer(sourceReader);
+
                         }
-                        sbColumns.AppendFormat("[{0}]", sourceColumn.ColumnName);
+
                     }
 
-
-                    if (targetDatabaseType == Models.DatabaseType.MySql)
-                    {
-                        throw new NotImplementedException();
-                    }
-                    else
+                    if (System.Transactions.Transaction.Current == null)
                     {
                         using (var transaction = targetConnection.BeginTransaction())
                         {
-                            using (System.Data.SqlClient.SqlBulkCopy bcp = new System.Data.SqlClient.SqlBulkCopy((SqlConnection)targetConnection, SqlBulkCopyOptions.KeepIdentity, (SqlTransaction)transaction))
-                            {
-                                bcp.DestinationTableName = $"[{targetTable.SchemaName}].[{targetTable.TableName}]";
-                                bcp.BatchSize = batchSize == 0 ? 10000 : batchSize;
-                                bcp.BulkCopyTimeout = 600;
-                                bcp.NotifyAfter = bcp.BatchSize;
-
-                                bcp.SqlRowsCopied += (object sender, System.Data.SqlClient.SqlRowsCopiedEventArgs e) =>
-                                {
-                                    if (progress != null &&
-                                        sourceRowCount > 0)
-                                    {
-                                        intRowIndex += bcp.BatchSize;
-
-                                        if (intRowIndex > sourceRowCount)
-                                        {
-                                            intRowIndex = sourceRowCount;
-                                        }
-
-                                        int intNewProgress = System.Convert.ToInt32(intRowIndex / (double)sourceRowCount * 100);
-
-                                        if (intProgress != intNewProgress &&
-                                            intNewProgress < 100)
-                                        {
-                                            intProgress = intNewProgress;
-                                            progress.Report(new TableProgress() { ProgressPercentage = intProgress, Table = sourceTable });
-                                        }
-                                    }
-                                };
-
-                                bcp.WriteToServer(sourceReader);
-
-                            }
+                            bulkCopy((SqlTransaction)transaction);
                             transaction.Commit();
                         }
                     }
-
+                    else
+                    {
+                        bulkCopy(null);
+                    }
+                    
                 }
+
             }
 
             if (progress != null &&
@@ -185,6 +202,39 @@ namespace DatabaseTools.Processes
             {
                 progress.Report(new TableProgress() { ProgressPercentage = 100, Table = sourceTable });
             }
+        }
+
+        public DbCommand CreateSourceCommand(Models.TableModel sourceTable, Models.TableModel targetTable, System.Data.Common.DbConnection sourceConnection)
+        {
+            var sourceDatabaseType = DatabaseTools.Processes.Database.GetDatabaseType(sourceConnection);
+
+            StringBuilder sbColumns = new System.Text.StringBuilder();
+
+            var sourceMatchedColumns = this.GetMatchedColumns(sourceTable.Columns, targetTable.Columns);
+            var targetMatchedColumns = this.GetMatchedColumns(targetTable.Columns, sourceTable.Columns);
+
+            foreach (var sourceColumn in sourceMatchedColumns)
+            {
+                if (sbColumns.Length > 0)
+                {
+                    sbColumns.Append(", ");
+                }
+                sbColumns.AppendFormat("[{0}]", sourceColumn.ColumnName);
+            }
+
+            using (var command = DatabaseTools.Processes.Database.CreateDbCommand(sourceConnection))
+            {
+                this.SetReadTimeout(sourceDatabaseType, command);
+                command.CommandText = this.FormatCommandText($"SELECT {sbColumns.ToString()} FROM [{sourceTable.SchemaName}].[{sourceTable.TableName}]", sourceDatabaseType);
+                return command;
+            }
+
+        }
+
+        public int GetRowCount(Models.TableModel table, System.Data.Common.DbConnection connection)
+        {
+            var databaseType = DatabaseTools.Processes.Database.GetDatabaseType(connection);
+            return this.GetRowCount(connection, table.SchemaName, table.TableName, databaseType);
         }
 
         private void ConvertBulk(IProgress<TableProgress> progress,
@@ -211,34 +261,20 @@ namespace DatabaseTools.Processes
             {
                 using (System.Data.Common.DbConnection sourceConnection = DatabaseTools.Processes.Database.CreateDbConnection(sourceFactory, sourceConnectionString))
                 {
-                    intSourceRowCount = this.GetRowCount(sourceConnection, sourceTable.SchemaName, sourceTable.TableName, sourceDatabaseType);
+                    intSourceRowCount = GetRowCount(sourceTable, sourceConnection);
                 }
             }
 
             if (!intSourceRowCount.HasValue || intSourceRowCount.Value > 0)
             {
-                System.Text.StringBuilder sbColumns = new System.Text.StringBuilder();
-
-                var sourceMatchedColumns = this.GetMatchedColumns(sourceTable.Columns, targetTable.Columns);
-                var targetMatchedColumns = this.GetMatchedColumns(targetTable.Columns, sourceTable.Columns);
-
-                foreach (var sourceColumn in sourceMatchedColumns)
-                {
-                    if (sbColumns.Length > 0)
-                    {
-                        sbColumns.Append(", ");
-                    }
-                    sbColumns.AppendFormat("[{0}]", sourceColumn.ColumnName);
-                }
-
                 using (System.Data.Common.DbConnection sourceConnection = DatabaseTools.Processes.Database.CreateDbConnection(sourceFactory, sourceConnectionString))
                 {
-                    using (var command = DatabaseTools.Processes.Database.CreateDbCommand(sourceConnection))
+                    using (var command = CreateSourceCommand(sourceTable, targetTable, sourceConnection))
                     {
-                        this.SetReadTimeout(sourceDatabaseType, command);
-                        command.CommandText = this.FormatCommandText($"SELECT {sbColumns.ToString()} FROM [{sourceTable.SchemaName}].[{sourceTable.TableName}]", sourceDatabaseType);
                         using (var reader = command.ExecuteReader())
                         {
+                            var sourceMatchedColumns = this.GetMatchedColumns(sourceTable.Columns, targetTable.Columns);
+                            var targetMatchedColumns = this.GetMatchedColumns(targetTable.Columns, sourceTable.Columns);
                             var reader2 = new TableConverterReader(reader, sourceMatchedColumns, targetMatchedColumns, trimStrings, sourceDatabaseType, targetDatabaseType);
                             ConvertBulk(progress, sourceTable, reader2, intSourceRowCount.GetValueOrDefault(), targetTable, targetConnectionString, trimStrings, batchSize);
                         }
