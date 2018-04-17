@@ -44,7 +44,7 @@ namespace DatabaseTools.Processes
             ConvertTable(settings, sourceTable, targetTable, progress);
         }
 
-        public void ConvertTable(TableConverterSettings settings, Models.TableModel sourceTable, Models.TableModel targetTable, IProgress<TableProgress> progress)
+        public void ConvertTable(TableConverterSettings settings, Models.TableModel sourceTable, Models.TableModel targetTable, IProgress<TableProgress> progress, bool throwOnFailure = false)
         {
             if (targetTable != null)
             {
@@ -68,7 +68,7 @@ namespace DatabaseTools.Processes
                         strException = ex.ToString();
                     }
 
-                    if (progress == null)
+                    if (progress == null || throwOnFailure)
                     {
                         if (ex as TableConverterException == null)
                         {
