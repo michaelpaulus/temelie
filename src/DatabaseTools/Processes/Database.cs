@@ -468,8 +468,9 @@ namespace DatabaseTools
                     case DbType.DateTime:
                     case DbType.DateTime2:
                     case DbType.DateTimeOffset:
-                    case DbType.Time:
                         return typeof(DateTime);
+                    case DbType.Time:
+                        return typeof(TimeSpan);
                     case DbType.Decimal:
                         return typeof(decimal);
                     case DbType.Double:

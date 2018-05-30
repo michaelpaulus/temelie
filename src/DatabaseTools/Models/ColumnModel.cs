@@ -233,6 +233,9 @@ namespace DatabaseTools
                         }
                         strDataType = string.Format("{0}({1})", this.ColumnType, strPrecision);
                         break;
+                    case "TIME":
+                        strDataType = string.Format("{0}({1})", this.ColumnType, this.Scale);
+                        break;
                 }
 
                 return strDataType;
