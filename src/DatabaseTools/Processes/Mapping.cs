@@ -47,7 +47,17 @@ namespace DatabaseTools
 								strColumnMapping = "%CHAR_TO_BOOLEAN%";
 							}
 
-							matchedMappings.Add(new Models.ColumnMappingModel { SourceColumnName = column.ColumnName, TargetColumnName = targetColumn.ColumnName, IsTargetColumnIdentity = targetColumn.IsIdentity, ColumnMapping = strColumnMapping});
+							matchedMappings.Add(new Models.ColumnMappingModel
+                            {
+                                SourceColumnName = column.ColumnName,
+                                TargetColumnName = targetColumn.ColumnName,
+                                IsTargetColumnIdentity = targetColumn.IsIdentity,
+                                ColumnMapping = strColumnMapping,
+                                WrapInIsNull = Database.GetSystemType(targetColumn.DbType) == typeof(string) &&
+                                    Database.GetSystemType(column.DbType) == typeof(string) &&
+                                    !targetColumn.IsNullable &&
+                                    column.IsNullable
+                            });
 						}
 					}
 				}

@@ -41,6 +41,8 @@ namespace DatabaseTools
 				}
 			}
 
+            public bool WrapInIsNull { get; set; }
+
 			private string _columnMapping;
 			public string ColumnMapping
 			{
@@ -96,7 +98,7 @@ namespace DatabaseTools
 					{
 						strColumnMapping = "{0}";
 					}
-				
+
 					string strColumnName = this.SourceColumnName;
 
 					if (strColumnName.Contains(" ") || strColumnName.Contains("-"))
@@ -104,8 +106,15 @@ namespace DatabaseTools
 						strColumnName = "[" + strColumnName + "]";
 					}
 
-					return string.Format(strColumnMapping, strColumnName);
-				}
+                    var value = string.Format(strColumnMapping, strColumnName);
+
+                    if (WrapInIsNull)
+                    {
+                        value = $"ISNULL({value}, '')";
+                    }
+
+                    return value;
+                }
 			}
 
 			public override string ToString()

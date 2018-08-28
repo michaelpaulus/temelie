@@ -191,6 +191,20 @@ namespace DatabaseTools
                 return this._tables.Where(i => !i.TableName.StartsWith("__")).ToList();
             }
 
+            private IList<Models.TableModel> GetFilteredViews()
+            {
+                if (!(string.IsNullOrEmpty(this.ObjectFilter)))
+                {
+                    return (
+                        from i in this._views
+                        where i.TableName.ToLower().Contains(this.ObjectFilter.ToLower()) &&
+                        !i.TableName.StartsWith("__")
+                        select i).ToList();
+                }
+
+                return this._views.Where(i => !i.TableName.StartsWith("__")).ToList();
+            }
+
             private IList<Models.TableModel> _tables;
             public IList<Models.TableModel> Tables
             {
@@ -236,15 +250,7 @@ namespace DatabaseTools
                         }
                     }
 
-                    if (!(string.IsNullOrEmpty(this.ObjectFilter)))
-                    {
-                        return (
-                            from i in this._views
-                            where i.TableName.ToLower().Contains(this.ObjectFilter.ToLower())
-                            select i).ToList();
-                    }
-
-                    return this._views;
+                    return GetFilteredViews();
                 }
             }
 

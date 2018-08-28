@@ -159,7 +159,18 @@ namespace DatabaseTools
                         strSourceColumnName = this.SourceColumn.ColumnName;
                     }
 
-                    var mapping = new DatabaseTools.Models.ColumnMappingModel { SourceColumnName = strSourceColumnName, TargetColumnName = this.TargetColumn.ColumnName, IsTargetColumnIdentity = this.TargetColumn.IsIdentity, ColumnMapping = this.ColumnMapping };
+                    var mapping = new DatabaseTools.Models.ColumnMappingModel
+                    {
+                        SourceColumnName = strSourceColumnName,
+                        TargetColumnName = this.TargetColumn.ColumnName,
+                        IsTargetColumnIdentity = this.TargetColumn.IsIdentity,
+                        ColumnMapping = this.ColumnMapping,
+                        WrapInIsNull = SourceColumn != null &&
+                                    Database.GetSystemType(TargetColumn.DbType) == typeof(string) &&
+                                    Database.GetSystemType(SourceColumn.DbType) == typeof(string) &&
+                                    !TargetColumn.IsNullable &&
+                                    SourceColumn.IsNullable
+                    };
 
                     this.AddMapping(mapping);
                 }
