@@ -96,15 +96,17 @@ namespace DatabaseTools
                         }
                     }
 
+                    var filteredList = this._definitions.ToList();
+
                     if (!(string.IsNullOrEmpty(this.ObjectFilter)))
                     {
-                        return (
-                            from i in this._definitions
+                        filteredList = (
+                            from i in filteredList
                             where i.DefinitionName.ToLower().Contains(this.ObjectFilter.ToLower())
                             select i).ToList();
                     }
 
-                    return this._definitions;
+                    return filteredList.Where(i => !i.DefinitionName.StartsWith("__")).ToList();
                 }
             }
 
@@ -179,30 +181,33 @@ namespace DatabaseTools
 
             private IList<Models.TableModel> GetFilteredTables()
             {
+                var filteredList = this._tables.ToList();
+
                 if (!(string.IsNullOrEmpty(this.ObjectFilter)))
                 {
-                    return (
-                        from i in this._tables
-                        where i.TableName.ToLower().Contains(this.ObjectFilter.ToLower()) &&
-                        !i.TableName.StartsWith("__")
+                    filteredList = (
+                        from i in filteredList
+                        where i.TableName.ToLower().Contains(this.ObjectFilter.ToLower()) 
                         select i).ToList();
                 }
 
-                return this._tables.Where(i => !i.TableName.StartsWith("__")).ToList();
+                return filteredList.Where(i => !i.TableName.StartsWith("__")).ToList();
             }
 
             private IList<Models.TableModel> GetFilteredViews()
             {
+                var filteredList = this._views.ToList();
+
                 if (!(string.IsNullOrEmpty(this.ObjectFilter)))
                 {
-                    return (
-                        from i in this._views
+                    filteredList = (
+                        from i in filteredList
                         where i.TableName.ToLower().Contains(this.ObjectFilter.ToLower()) &&
                         !i.TableName.StartsWith("__")
                         select i).ToList();
                 }
 
-                return this._views.Where(i => !i.TableName.StartsWith("__")).ToList();
+                return filteredList.Where(i => !i.TableName.StartsWith("__")).ToList();
             }
 
             private IList<Models.TableModel> _tables;
