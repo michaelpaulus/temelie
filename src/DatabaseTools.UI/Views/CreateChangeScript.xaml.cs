@@ -47,8 +47,8 @@ namespace DatabaseTools
 			var sourceConnectionString = (System.Configuration.ConnectionStringSettings)args[0];
 			var targetConnectionString = (System.Configuration.ConnectionStringSettings)args[1];
 
-			DatabaseTools.Models.DatabaseModel sourceDatabase = new DatabaseTools.Models.DatabaseModel(sourceConnectionString);
-			DatabaseTools.Models.DatabaseModel targetDatabase = new DatabaseTools.Models.DatabaseModel(targetConnectionString);
+			DatabaseTools.Models.DatabaseModel sourceDatabase = new DatabaseTools.Models.DatabaseModel(sourceConnectionString) { ExcludeDoubleUnderscoreObjects = true };
+			DatabaseTools.Models.DatabaseModel targetDatabase = new DatabaseTools.Models.DatabaseModel(targetConnectionString) { ExcludeDoubleUnderscoreObjects = true };
 
 			e.Result = targetDatabase.GetChangeScript(sourceDatabase);
 		}

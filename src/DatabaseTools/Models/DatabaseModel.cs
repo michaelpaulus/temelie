@@ -106,7 +106,12 @@ namespace DatabaseTools
                             select i).ToList();
                     }
 
-                    return filteredList.Where(i => !i.DefinitionName.StartsWith("__")).ToList();
+                    if (ExcludeDoubleUnderscoreObjects)
+                    {
+                        filteredList = filteredList.Where(i => !i.DefinitionName.StartsWith("__")).ToList();
+                    }
+
+                    return filteredList.ToList();
                 }
             }
 
@@ -191,7 +196,12 @@ namespace DatabaseTools
                         select i).ToList();
                 }
 
-                return filteredList.Where(i => !i.TableName.StartsWith("__")).ToList();
+                if (ExcludeDoubleUnderscoreObjects)
+                {
+                    filteredList = filteredList.Where(i => !i.TableName.StartsWith("__")).ToList();
+                }
+
+                return filteredList.ToList();
             }
 
             private IList<Models.TableModel> GetFilteredViews()
@@ -202,12 +212,16 @@ namespace DatabaseTools
                 {
                     filteredList = (
                         from i in filteredList
-                        where i.TableName.ToLower().Contains(this.ObjectFilter.ToLower()) &&
-                        !i.TableName.StartsWith("__")
+                        where i.TableName.ToLower().Contains(this.ObjectFilter.ToLower()) 
                         select i).ToList();
                 }
 
-                return filteredList.Where(i => !i.TableName.StartsWith("__")).ToList();
+                if (ExcludeDoubleUnderscoreObjects)
+                {
+                    filteredList = filteredList.Where(i => !i.TableName.StartsWith("__")).ToList();
+                }
+
+                return filteredList.ToList();
             }
 
             private IList<Models.TableModel> _tables;
@@ -317,6 +331,7 @@ namespace DatabaseTools
             }
 
             public string ObjectFilter { get; set; }
+            public bool ExcludeDoubleUnderscoreObjects { get; set; } 
 
             public string QuoteCharacterStart { get; set; }
             public string QuoteCharacterEnd { get; set; }

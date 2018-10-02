@@ -45,7 +45,7 @@ namespace DatabaseTools
 
 		private void SourceBackgroundWorker_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
 		{
-			var sourceDatabase = new DatabaseTools.Models.DatabaseModel((System.Configuration.ConnectionStringSettings)e.Argument);
+			var sourceDatabase = new DatabaseTools.Models.DatabaseModel((System.Configuration.ConnectionStringSettings)e.Argument) { ExcludeDoubleUnderscoreObjects = true };
 			e.Result = sourceDatabase.GetScript("");
 		}
 
@@ -60,7 +60,7 @@ namespace DatabaseTools
 
 		private void TargetBackgroundWorker_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
 		{
-			var targetDatabase = new DatabaseTools.Models.DatabaseModel((System.Configuration.ConnectionStringSettings)e.Argument);
+			var targetDatabase = new DatabaseTools.Models.DatabaseModel((System.Configuration.ConnectionStringSettings)e.Argument) { ExcludeDoubleUnderscoreObjects = true };
 			e.Result = targetDatabase.GetScript("");
 		}
 

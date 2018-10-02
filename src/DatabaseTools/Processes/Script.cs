@@ -138,7 +138,7 @@ namespace DatabaseTools
 
             public static void CreateScriptsIndividual(System.Configuration.ConnectionStringSettings connectionString, System.IO.DirectoryInfo directory, Models.DatabaseType targetDatabaseType, IProgress<ScriptProgress> progress, string objectFilter = "")
             {
-                Models.DatabaseModel database = new Models.DatabaseModel(connectionString, targetDatabaseType) { ObjectFilter = objectFilter };
+                Models.DatabaseModel database = new Models.DatabaseModel(connectionString, targetDatabaseType) { ObjectFilter = objectFilter, ExcludeDoubleUnderscoreObjects = true };
 
                 var directoryList = new List<string>()
                 {
@@ -290,7 +290,7 @@ namespace DatabaseTools
 
             public static void CreateScriptIndividual(System.Configuration.ConnectionStringSettings connectionString, System.IO.DirectoryInfo directory, Models.DatabaseType targetDatabaseType, string fileName)
             {
-                Models.DatabaseModel database = new Models.DatabaseModel(connectionString, targetDatabaseType);
+                Models.DatabaseModel database = new Models.DatabaseModel(connectionString, targetDatabaseType) { ExcludeDoubleUnderscoreObjects = true };
                 if (directory.Name.StartsWith("01_Drops", StringComparison.InvariantCultureIgnoreCase))
                 {
                     CreateDropScripts(database, directory, fileName);
@@ -341,7 +341,7 @@ namespace DatabaseTools
 
                 fileList = (from i in fileList orderby i.FullName select i).ToList();
 
-                Models.DatabaseModel database = new Models.DatabaseModel(connectionString, targetDatabaseType) { ObjectFilter = objectFilter };
+                Models.DatabaseModel database = new Models.DatabaseModel(connectionString, targetDatabaseType) { ObjectFilter = objectFilter, ExcludeDoubleUnderscoreObjects = true };
 
                 foreach (System.IO.FileInfo file in fileList)
                 {
