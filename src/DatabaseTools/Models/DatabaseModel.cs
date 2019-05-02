@@ -224,6 +224,27 @@ namespace DatabaseTools
                 return filteredList.ToList();
             }
 
+            private IList<Models.TriggerModel> GetFilteredTriggers()
+            {
+                var filteredList = this._triggers.ToList();
+
+                if (!(string.IsNullOrEmpty(this.ObjectFilter)))
+                {
+                    filteredList = (
+                        from i in filteredList
+                        where i.TriggerName.ToLower().Contains(this.ObjectFilter.ToLower())
+                        select i).ToList();
+                }
+
+                if (ExcludeDoubleUnderscoreObjects)
+                {
+                    filteredList = filteredList.Where(i => !i.TriggerName.StartsWith("__")).ToList();
+                }
+
+                return filteredList.ToList();
+            }
+
+
             private IList<Models.TableModel> _tables;
             public IList<Models.TableModel> Tables
             {
@@ -311,7 +332,7 @@ namespace DatabaseTools
                             this._triggers = Processes.Database.GetTriggers(conn, this.TableNames, this.ViewNames, this.ObjectFilter).OrderBy(i => i.TriggerName).ToList(); ;
                         }
                     }
-                    return this._triggers;
+                    return GetFilteredTriggers();
                 }
             }
             private IList<Models.SecurityPolicyModel> _securityPolicies;
