@@ -41,6 +41,15 @@ namespace DatabaseTools.Processes
                        i.TableName.Equals(sourceTable.TableName, StringComparison.InvariantCultureIgnoreCase)
                        select i).FirstOrDefault();
 
+            if (targetTable == null && sourceTable.SchemaName == "dbo")
+            {
+                targetTable = (
+                     from i in settings.TargetTables
+                     where
+                     i.TableName.Equals(sourceTable.TableName, StringComparison.InvariantCultureIgnoreCase)
+                     select i).FirstOrDefault();
+            }
+
             ConvertTable(settings, sourceTable, targetTable, progress);
         }
 
