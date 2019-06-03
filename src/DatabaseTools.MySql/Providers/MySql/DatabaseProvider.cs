@@ -80,6 +80,7 @@ namespace DatabaseTools.Providers.MySql
                 {
                     case "LONG VARCHAR":
                     case "TEXT":
+                    case "MEDIUMTEXT":
                     case "LONGTEXT":
                         targetColumnType.ColumnType = "NVARCHAR";
                         if (targetColumnType.Precision.GetValueOrDefault() < 4000)
@@ -201,7 +202,7 @@ namespace DatabaseTools.Providers.MySql
         public DataTable GetTableColumns(DbConnection connection)
         {
             var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connection.ConnectionString);
-            var sql = $"SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE table_schema = '{csb.Database}'";
+            var sql = $"SELECT *, table_schema schema_name FROM INFORMATION_SCHEMA.COLUMNS WHERE table_schema = '{csb.Database}'";
             System.Data.DataSet ds = Processes.Database.Execute(connection, sql);
             DataTable dataTable = ds.Tables[0];
             DataTable dataTypes;
@@ -215,7 +216,7 @@ namespace DatabaseTools.Providers.MySql
         public DataTable GetTables(DbConnection connection)
         {
             var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connection.ConnectionString);
-            var sql = $"SELECT table_name FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = '{csb.Database}'";
+            var sql = $"SELECT table_name, table_schema schema_name FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = '{csb.Database}'";
             System.Data.DataSet ds = Processes.Database.Execute(connection, sql);
             DataTable dataTable = ds.Tables[0];
             return dataTable;
