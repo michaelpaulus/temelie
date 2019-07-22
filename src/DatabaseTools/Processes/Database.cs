@@ -883,11 +883,14 @@ namespace DatabaseTools
                     table.HistoryTableName = Processes.Database.GetStringValue(row, "history_table_name");
                     table.IsMemoryOptimized = Processes.Database.GetBoolValue(row, "is_memory_optimized");
                     table.DurabilityDesc = Processes.Database.GetStringValue(row, "durability_desc");
-                    if (!(tables.Contains(table.TableName.ToUpper())))
+
+                    var tableKey = $"{table.SchemaName}.{table.TableName}".ToUpper();
+
+                    if (!(tables.Contains(tableKey)))
                     {
-                        if (columnIndex.ContainsKey($"{table.SchemaName}.{table.TableName}".ToUpper()))
+                        if (columnIndex.ContainsKey(tableKey))
                         {
-                            var tableColumns = columnIndex[$"{table.SchemaName}.{table.TableName}".ToUpper()];
+                            var tableColumns = columnIndex[tableKey];
                             foreach (var column in (
                                         from i in tableColumns
                                         where i.TableName.EqualsIgnoreCase(table.TableName)
@@ -897,7 +900,7 @@ namespace DatabaseTools
                                 table.Columns.Add(column);
                             }
                         }
-                        tables.Add(table.TableName.ToUpper());
+                        tables.Add(tableKey);
                         list.Add(table);
                     }
                 }
