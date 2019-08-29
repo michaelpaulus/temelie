@@ -618,8 +618,6 @@ namespace DatabaseTools
 
                 var dtDefinitions = provider.GetDefinitions(connection);
 
-                var dtDependencies = provider.GetDefinitionDependencies(connection);
-
                 if (dtDefinitions != null)
                 {
                     list = (
@@ -635,18 +633,6 @@ namespace DatabaseTools
                 }
 
                 list = list.OrderBy(i => i.XType).ThenBy(i => i.DefinitionName).ToList();
-
-                if (dtDependencies != null)
-                {
-                    VerifyDefinitionsDependencies(list, dtDependencies);
-                }
-
-                int index = 1;
-                foreach (var item in list)
-                {
-                    item.SortOrder = index;
-                    index += 1;
-                }
 
                 return list;
             }

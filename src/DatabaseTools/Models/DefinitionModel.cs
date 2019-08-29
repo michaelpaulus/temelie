@@ -40,8 +40,6 @@ namespace DatabaseTools
                 }
             }
 
-            public int SortOrder { get; set; }
-
             #endregion
 
             #region Methods
