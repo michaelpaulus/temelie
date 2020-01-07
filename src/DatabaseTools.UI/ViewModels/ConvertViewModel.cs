@@ -58,6 +58,7 @@ namespace DatabaseTools.ViewModels
         public string ErrorMessage { get; set; }
         public int ThreadCount { get; set; }
         public bool UseBulkCopy { get; set; }
+        public bool UseTransaction { get; set; } = true;
         public int BatchSize { get; set; }
         public bool TrimStrings { get; set; }
 
@@ -85,8 +86,9 @@ namespace DatabaseTools.ViewModels
             settings.TargetConnectionString = this.TargetDatabaseConnectionString;
 
             settings.SourceTables = selectedTables;
-           
 
+
+            settings.UseTransaction = this.UseTransaction;
             settings.UseBulkCopy = this.UseBulkCopy;
             settings.BatchSize = this.BatchSize;
             settings.TrimStrings = this.TrimStrings;

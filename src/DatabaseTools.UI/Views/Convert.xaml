@@ -58,6 +58,7 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
@@ -68,8 +69,9 @@
             <TextBox x:Name="ThreadsTextBox" Grid.Row="0"  Grid.Column="1" Margin="8, 8" Width="50" Text="{Binding ThreadCount}" />
             <CheckBox x:Name="TrimStringsCheckBox" Grid.Row="0" Grid.Column="2" Margin="8, 8" Content="Trim Strings" IsChecked="{Binding TrimStrings}" />
             <CheckBox x:Name="UseBulkCopyCheckBox" Grid.Row="0" Grid.Column="3" Margin="8, 8" Content="Use Bulk Copy" IsChecked="{Binding UseBulkCopy}" />
-            <TextBox Grid.Row="0"  Grid.Column="4" Margin="8, 8" Width="50" Text="{Binding BatchSize}" />
-            <Button x:Name="ConvertButton" Grid.Row="0" HorizontalAlignment="Right" Grid.Column="6" Margin="8, 8" Command="{Binding ConvertCommand}">Convert</Button>
+            <CheckBox Grid.Row="0" Grid.Column="4" Margin="8, 8" Content="Use Transaction" IsChecked="{Binding UseTransaction}" />
+            <TextBox Grid.Row="0"  Grid.Column="5" Margin="8, 8" Width="50" Text="{Binding BatchSize}" />
+            <Button x:Name="ConvertButton" Grid.Row="0" HorizontalAlignment="Right" Grid.Column="7" Margin="8, 8" Command="{Binding ConvertCommand}">Convert</Button>
         </Grid>
     </Grid>
 </UserControl>

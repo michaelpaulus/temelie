@@ -62,7 +62,7 @@ namespace DatabaseTools.Processes
 
                     if (settings.UseBulkCopy)
                     {
-                        this.ConvertBulk(progress, sourceTable, settings.SourceConnectionString, targetTable, settings.TargetConnectionString, settings.TrimStrings, settings.BatchSize);
+                        this.ConvertBulk(progress, sourceTable, settings.SourceConnectionString, targetTable, settings.TargetConnectionString, settings.TrimStrings, settings.BatchSize, settings.UseTransaction);
                     }
                     else
                     {
@@ -104,13 +104,14 @@ namespace DatabaseTools.Processes
           Models.TableModel targetTable,
           ConnectionStringSettings targetConnectionString,
           bool trimStrings,
-          int batchSize)
+          int batchSize,
+          bool useTransaction = true)
         {
             System.Data.Common.DbProviderFactory targetFactory = DatabaseTools.Processes.Database.CreateDbProviderFactory(targetConnectionString);
             var targetDatabaseType = DatabaseTools.Processes.Database.GetDatabaseType(targetConnectionString);
             using (System.Data.Common.DbConnection targetConnection = DatabaseTools.Processes.Database.CreateDbConnection(targetFactory, targetConnectionString))
             {
-                ConvertBulk(progress, sourceTable, sourceReader, sourceRowCount, targetTable, targetConnection, trimStrings, batchSize);
+                ConvertBulk(progress, sourceTable, sourceReader, sourceRowCount, targetTable, targetConnection, trimStrings, batchSize, useTransaction);
             }
         }
 
@@ -121,7 +122,8 @@ namespace DatabaseTools.Processes
             Models.TableModel targetTable,
             DbConnection targetConnection,
             bool trimStrings,
-            int batchSize)
+            int batchSize,
+            bool useTransaction = true)
         {
             if (progress != null)
             {
@@ -189,7 +191,7 @@ namespace DatabaseTools.Processes
 
                     }
 
-                    if (System.Transactions.Transaction.Current == null)
+                    if (System.Transactions.Transaction.Current == null && useTransaction)
                     {
                         using (var transaction = targetConnection.BeginTransaction())
                         {
@@ -252,7 +254,8 @@ namespace DatabaseTools.Processes
             Models.TableModel targetTable,
             System.Configuration.ConnectionStringSettings targetConnectionString,
             bool trimStrings,
-            int batchSize)
+            int batchSize,
+            bool useTransaction = true)
         {
             if (progress != null)
             {
@@ -285,7 +288,7 @@ namespace DatabaseTools.Processes
                             var sourceMatchedColumns = this.GetMatchedColumns(sourceTable.Columns, targetTable.Columns);
                             var targetMatchedColumns = this.GetMatchedColumns(targetTable.Columns, sourceTable.Columns);
                             var reader2 = new TableConverterReader(reader, sourceMatchedColumns, targetMatchedColumns, trimStrings, sourceDatabaseType, targetDatabaseType);
-                            ConvertBulk(progress, sourceTable, reader2, intSourceRowCount.GetValueOrDefault(), targetTable, targetConnectionString, trimStrings, batchSize);
+                            ConvertBulk(progress, sourceTable, reader2, intSourceRowCount.GetValueOrDefault(), targetTable, targetConnectionString, trimStrings, batchSize, useTransaction);
                         }
                     }
                 }

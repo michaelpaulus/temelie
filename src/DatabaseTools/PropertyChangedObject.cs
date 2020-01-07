@@ -8,7 +8,7 @@ using PropertyChanged;
 
 namespace DatabaseTools
 {
-    [ImplementPropertyChanged()]
+    [AddINotifyPropertyChangedInterface()]
     public class PropertyChangedObject : INotifyPropertyChanged
     {
         protected virtual void OnPropertyChanged(string propertyName)

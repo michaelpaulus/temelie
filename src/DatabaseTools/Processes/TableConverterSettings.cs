@@ -25,6 +25,7 @@ namespace DatabaseTools.Processes
         public int BatchSize { get; set; }
 
         public bool TrimStrings { get; set; }
+        public bool UseTransaction { get; set; } = true;
 
     }
 }

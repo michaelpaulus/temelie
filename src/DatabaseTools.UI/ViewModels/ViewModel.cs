@@ -22,7 +22,7 @@ namespace DatabaseTools
     
 	namespace ViewModels
 	{
-        [ImplementPropertyChanged()]
+        [AddINotifyPropertyChangedInterface()]
         public class ViewModel : PropertyChangedObject
 		{
 		}

@@ -114,18 +114,26 @@ namespace DatabaseTools
 
             public static System.Data.Common.DbProviderFactory CreateDbProviderFactory(string providerName)
             {
+                IDatabaseProvider provider = null;
+
                 switch (providerName)
                 {
                     case "MySql.Data.MySqlClient":
-                        var provider = GetDatabaseProvider(Models.DatabaseType.MySql);
+                        provider = GetDatabaseProvider(Models.DatabaseType.MySql);
                         if (provider != null)
                         {
                             return provider.CreateProvider();
                         }
                         break;
-
+                    case "System.Data.SqlClient":
+                        provider = GetDatabaseProvider(Models.DatabaseType.MicrosoftSQLServer);
+                        if (provider != null)
+                        {
+                            return provider.CreateProvider();
+                        }
+                        break;
                 }
-                return System.Data.Common.DbProviderFactories.GetFactory(providerName);
+                return null;
             }
 
             #endregion
@@ -358,7 +366,7 @@ namespace DatabaseTools
 
             public static Models.DatabaseType GetDatabaseType(System.Data.Common.DbConnection connection)
             {
-                if ((connection) is System.Data.Odbc.OdbcConnection)
+                if (connection.GetType().FullName.StartsWith("System.Data.Odbc.OdbcConnection"))
                 {
                     return Models.DatabaseType.Odbc;
                 }
