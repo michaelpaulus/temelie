@@ -4,6 +4,7 @@
     <FileVersion>1.0.0.0</FileVersion>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <SignAssembly>true</SignAssembly>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
   <PropertyGroup Label="Globals">
     <SccProjectName>SAK</SccProjectName>
@@ -16,8 +17,11 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="PropertyChanged.Fody" Version="3.2.1" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
+    <PackageReference Include="PropertyChanged.Fody" Version="3.2.1">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0">
+    </PackageReference>
     <PackageReference Include="System.Data.SqlClient" Version="4.8.0" />
   </ItemGroup>
 </Project>
