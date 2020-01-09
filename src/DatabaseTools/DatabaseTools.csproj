@@ -12,6 +12,8 @@
     <SccAuxPath>SAK</SccAuxPath>
     <SccLocalPath>SAK</SccLocalPath>
     <AssemblyOriginatorKeyFile>databasetools.snk</AssemblyOriginatorKeyFile>
+    <Authors>Michael Paulus</Authors>
+    <Company />
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
