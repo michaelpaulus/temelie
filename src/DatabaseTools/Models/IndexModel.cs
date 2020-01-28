@@ -64,12 +64,12 @@ namespace DatabaseTools
                 if (this.IsPrimaryKey)
                 {
                     sb.AppendLine($"IF EXISTS (SELECT 1 FROM sys.indexes INNER JOIN sys.tables ON sys.indexes.object_id = sys.tables.object_id INNER JOIN sys.schemas ON sys.tables.schema_id = sys.schemas.schema_id WHERE sys.indexes.name = '{this.IndexName}' AND sys.schemas.name = '{this.SchemaName}')");
-                    sb.AppendLine($"\tALTER TABLE {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd} DROP CONSTRAINT {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd}");
+                    sb.AppendLine($"    ALTER TABLE {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd} DROP CONSTRAINT {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd}");
                 }
                 else
                 {
                     sb.AppendLine($"IF EXISTS (SELECT 1 FROM sys.indexes INNER JOIN sys.tables ON sys.indexes.object_id = sys.tables.object_id INNER JOIN sys.schemas ON sys.tables.schema_id = sys.schemas.schema_id WHERE sys.indexes.name = '{this.IndexName}' AND sys.schemas.name = '{this.SchemaName}')");
-                    sb.AppendLine($"\tDROP INDEX {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd} ON {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
+                    sb.AppendLine($"    DROP INDEX {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd} ON {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
                 }
                 sb.AppendLine("GO");
             }
@@ -78,8 +78,8 @@ namespace DatabaseTools
             {
                 if (IsPrimaryKey)
                 {
-                    sb.AppendLine($"\t\tCONSTRAINT {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd} {(IsPrimaryKey ? "PRIMARY KEY" : "")} {this.IndexType}");
-                    sb.AppendLine("\t\t(");
+                    sb.AppendLine($"        CONSTRAINT {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd} {(IsPrimaryKey ? "PRIMARY KEY" : "")} {this.IndexType}");
+                    sb.AppendLine("        (");
 
                     int intColumnCount = 0;
 
@@ -90,12 +90,12 @@ namespace DatabaseTools
                             sb.AppendLine(",");
                         }
 
-                        sb.Append($"\t\t\t{quoteCharacterStart}{column.ColumnName}{quoteCharacterEnd}{(column.IsDescending ? " DESC" : "")}");
+                        sb.Append($"            {quoteCharacterStart}{column.ColumnName}{quoteCharacterEnd}{(column.IsDescending ? " DESC" : "")}");
 
                         intColumnCount += 1;
                     }
                     sb.AppendLine();
-                    sb.AppendLine("\t\t)");
+                    sb.AppendLine("        )");
 
                     AddOptions(sb, 2);
                 }
@@ -108,8 +108,8 @@ namespace DatabaseTools
                         indexType = "UNIQUE " + this.IndexType;
                     }
 
-                    sb.AppendLine($"\t\tINDEX {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd} {indexType}");
-                    sb.AppendLine("\t\t(");
+                    sb.AppendLine($"        INDEX {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd} {indexType}");
+                    sb.AppendLine("        (");
 
                     bool blnHasColumns = false;
 
@@ -119,16 +119,16 @@ namespace DatabaseTools
                         {
                             sb.AppendLine(",");
                         }
-                        sb.Append($"\t\t\t{quoteCharacterStart}{column.ColumnName}{quoteCharacterEnd}{(column.IsDescending ? " DESC" : "")}");
+                        sb.Append($"            {quoteCharacterStart}{column.ColumnName}{quoteCharacterEnd}{(column.IsDescending ? " DESC" : "")}");
                         blnHasColumns = true;
                     }
 
                     sb.AppendLine();
-                    sb.AppendLine("\t\t)");
+                    sb.AppendLine("        )");
 
                     if (this.IncludeColumns.Count > 0)
                     {
-                        sb.Append("\t\tINCLUDE (");
+                        sb.Append("        INCLUDE (");
 
                         bool blnHasIncludeColumns = false;
 
@@ -142,12 +142,12 @@ namespace DatabaseTools
                             blnHasIncludeColumns = true;
                         }
 
-                        sb.AppendLine("\t\t)");
+                        sb.AppendLine("        )");
                     }
 
                     if (!string.IsNullOrEmpty(this.FilterDefinition))
                     {
-                        sb.AppendLine($"\t\tWHERE {this.FilterDefinition}");
+                        sb.AppendLine($"        WHERE {this.FilterDefinition}");
                     }
 
                     AddOptions(sb, 2);
@@ -164,8 +164,8 @@ namespace DatabaseTools
                 if (IndexType.Contains("HASH"))
                 {
                     sb.AppendLine($"IF NOT EXISTS (SELECT 1 FROM sys.indexes INNER JOIN sys.tables ON sys.indexes.object_id = sys.tables.object_id INNER JOIN sys.schemas ON sys.tables.schema_id = sys.schemas.schema_id WHERE sys.indexes.name = '{this.IndexName}' AND sys.schemas.name = '{this.SchemaName}')");
-                    sb.AppendLine("\t" + $"ALTER TABLE {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd} ADD INDEX {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd} {this.IndexType}");
-                    sb.AppendLine("\t" + "(");
+                    sb.AppendLine("    " + $"ALTER TABLE {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd} ADD INDEX {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd} {this.IndexType}");
+                    sb.AppendLine("    " + "(");
 
                     int intColumnCount = 0;
 
@@ -176,12 +176,12 @@ namespace DatabaseTools
                             sb.AppendLine(",");
                         }
 
-                        sb.Append($"\t\t{quoteCharacterStart}{column.ColumnName}{quoteCharacterEnd}{(column.IsDescending ? " DESC" : "")}");
+                        sb.Append($"        {quoteCharacterStart}{column.ColumnName}{quoteCharacterEnd}{(column.IsDescending ? " DESC" : "")}");
 
                         intColumnCount += 1;
                     }
                     sb.AppendLine();
-                    sb.AppendLine("\t" + ")");
+                    sb.AppendLine("    " + ")");
 
                     AddOptions(sb);
 
@@ -190,8 +190,8 @@ namespace DatabaseTools
                 else if (this.IsPrimaryKey)
                 {
                     sb.AppendLine($"IF NOT EXISTS (SELECT 1 FROM sys.indexes INNER JOIN sys.tables ON sys.indexes.object_id = sys.tables.object_id INNER JOIN sys.schemas ON sys.tables.schema_id = sys.schemas.schema_id WHERE sys.indexes.name = '{this.IndexName}' AND sys.schemas.name = '{this.SchemaName}')");
-                    sb.AppendLine("\t" + $"ALTER TABLE {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd} ADD CONSTRAINT {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd} PRIMARY KEY { this.IndexType}");
-                    sb.AppendLine("\t" + "(");
+                    sb.AppendLine("    " + $"ALTER TABLE {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd} ADD CONSTRAINT {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd} PRIMARY KEY { this.IndexType}");
+                    sb.AppendLine("    " + "(");
 
                     int intColumnCount = 0;
 
@@ -202,12 +202,12 @@ namespace DatabaseTools
                             sb.AppendLine(",");
                         }
 
-                        sb.Append($"\t\t{quoteCharacterStart}{column.ColumnName}{quoteCharacterEnd}{(column.IsDescending ? " DESC" : "")}");
+                        sb.Append($"        {quoteCharacterStart}{column.ColumnName}{quoteCharacterEnd}{(column.IsDescending ? " DESC" : "")}");
 
                         intColumnCount += 1;
                     }
                     sb.AppendLine();
-                    sb.AppendLine("\t" + ")");
+                    sb.AppendLine("    " + ")");
 
                     AddOptions(sb);
 
@@ -225,8 +225,8 @@ namespace DatabaseTools
 
 
                     sb.AppendLine($"IF NOT EXISTS (SELECT 1 FROM sys.indexes INNER JOIN sys.tables ON sys.indexes.object_id = sys.tables.object_id INNER JOIN sys.schemas ON sys.tables.schema_id = sys.schemas.schema_id WHERE sys.indexes.name = '{this.IndexName}' AND sys.schemas.name = '{this.SchemaName}')");
-                    sb.AppendLine("\t" + $"CREATE {indexType} INDEX {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd} ON {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
-                    sb.AppendLine("\t" + "(");
+                    sb.AppendLine("    " + $"CREATE {indexType} INDEX {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd} ON {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
+                    sb.AppendLine("    " + "(");
 
                     bool blnHasColumns = false;
 
@@ -236,16 +236,16 @@ namespace DatabaseTools
                         {
                             sb.AppendLine(",");
                         }
-                        sb.Append($"\t\t{quoteCharacterStart}{column.ColumnName}{quoteCharacterEnd}{(column.IsDescending ? " DESC" : "")}");
+                        sb.Append($"        {quoteCharacterStart}{column.ColumnName}{quoteCharacterEnd}{(column.IsDescending ? " DESC" : "")}");
                         blnHasColumns = true;
                     }
 
                     sb.AppendLine();
-                    sb.AppendLine("\t" + ")");
+                    sb.AppendLine("    " + ")");
 
                     if (this.IncludeColumns.Count > 0)
                     {
-                        sb.Append("\tINCLUDE (");
+                        sb.Append("    INCLUDE (");
 
                         bool blnHasIncludeColumns = false;
 
@@ -264,7 +264,7 @@ namespace DatabaseTools
 
                     if (!string.IsNullOrEmpty(this.FilterDefinition))
                     {
-                        sb.AppendLine($"\tWHERE {this.FilterDefinition}");
+                        sb.AppendLine($"    WHERE {this.FilterDefinition}");
                     }
 
                     AddOptions(sb);
@@ -290,7 +290,7 @@ namespace DatabaseTools
                         }
                         sbOptions.Append($"BUCKET_COUNT = {this.TotalBucketCount}");
                     }
-                    sb.AppendLine($"{new string("\t"[0], indentCount)}WITH({sbOptions.ToString()})");
+                    sb.AppendLine($"{new string("    "[0], indentCount)}WITH({sbOptions.ToString()})");
                 }
             }
 

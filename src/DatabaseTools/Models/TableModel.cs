@@ -59,7 +59,7 @@ namespace DatabaseTools
             public override void AppendDropScript(DatabaseModel database, System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)
             {
                 sb.AppendLine($"IF EXISTS (SELECT 1 FROM sys.tables INNER JOIN sys.schemas ON sys.tables.schema_id = sys.schemas.schema_id WHERE sys.tables.name = '{this.TableName}' AND sys.schemas.name = '{this.SchemaName}')");
-                sb.AppendLine($"\tDROP TABLE {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
+                sb.AppendLine($"    DROP TABLE {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
                 sb.AppendLine("GO");
             }
 
@@ -78,7 +78,7 @@ namespace DatabaseTools
                     {
                         sb.AppendLine($"IF EXISTS (SELECT 1 FROM sys.tables INNER JOIN sys.schemas ON sys.tables.schema_id = sys.schemas.schema_id WHERE sys.tables.name = '{this.TableName}' AND sys.schemas.name = '{this.SchemaName}')");
                     }
-                    sb.AppendLine($"\tDROP TABLE {quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
+                    sb.AppendLine($"    DROP TABLE {quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
                     sb.AppendLine("GO");
                 }
                 sb.AppendLine();
@@ -87,8 +87,8 @@ namespace DatabaseTools
                 {
                     sb.AppendLine($"IF NOT EXISTS (SELECT 1 FROM sys.tables INNER JOIN sys.schemas ON sys.tables.schema_id = sys.schemas.schema_id WHERE sys.tables.name = '{this.TableName}' AND sys.schemas.name = '{this.SchemaName}')");
                 }
-                sb.AppendLine($"\tCREATE TABLE {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
-                sb.AppendLine("\t" + "(");
+                sb.AppendLine($"    CREATE TABLE {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
+                sb.AppendLine("    " + "(");
 
                 int intColumnCount = 0;
 
@@ -102,7 +102,7 @@ namespace DatabaseTools
                         sb.AppendLine(",");
                     }
 
-                    sb.Append("\t" + "\t" + column.ToString(quoteCharacterStart, quoteCharacterEnd ));
+                    sb.Append("    " + "    " + column.ToString(quoteCharacterStart, quoteCharacterEnd ));
 
                     intColumnCount += 1;
                 }
@@ -111,7 +111,7 @@ namespace DatabaseTools
                     Columns.Where(c => c.GeneratedAlwaysType == 2).Any())
                 {
                     sb.AppendLine(",");
-                    sb.Append($"\t\tPERIOD FOR SYSTEM_TIME ({Columns.Where(c => c.GeneratedAlwaysType == 1).First().ColumnName}, {Columns.Where(c => c.GeneratedAlwaysType == 2).First().ColumnName})");
+                    sb.Append($"        PERIOD FOR SYSTEM_TIME ({Columns.Where(c => c.GeneratedAlwaysType == 1).First().ColumnName}, {Columns.Where(c => c.GeneratedAlwaysType == 2).First().ColumnName})");
                 }
 
                 if (IsMemoryOptimized)
@@ -128,7 +128,7 @@ namespace DatabaseTools
                     sb.AppendLine();
                 }
 
-                sb.Append("\t" + ")");
+                sb.Append("    " + ")");
 
                 sb.AppendLine();
 
@@ -143,7 +143,7 @@ namespace DatabaseTools
                 {
                     var sbOptions = new StringBuilder();
                     sbOptions.Append($"MEMORY_OPTIMIZED = ON, DURABILITY = {DurabilityDesc}");
-                    sb.AppendLine($"\tWITH ({sbOptions.ToString()})");
+                    sb.AppendLine($"    WITH ({sbOptions.ToString()})");
                 }
             }
 

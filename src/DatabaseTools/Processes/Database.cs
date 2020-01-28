@@ -750,8 +750,8 @@ namespace DatabaseTools
                                 ReferencedSchemaName = summaryRow["referenced_schema_name"].ToString(),
                                 ReferencedTableName = summaryRow["referenced_table_name"].ToString(),
                                 IsNotForReplication = Convert.ToBoolean(summaryRow["is_not_for_replication"]),
-                                DeleteAction = summaryRow["delete_action"].ToString().Replace("_", " "),
-                                UpdateAction = summaryRow["update_action"].ToString().Replace("_", " ")
+                                DeleteAction = summaryRow["delete_action"].ToString(),
+                                UpdateAction = summaryRow["update_action"].ToString()
                             };
 
                             list.Add(foreignKey);

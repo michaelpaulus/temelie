@@ -143,7 +143,7 @@ namespace DatabaseTools
 
 						if (sbSourceColumns.Length == 0)
 						{
-							sbSourceColumns.AppendFormat("{0}{0}", "\t");
+							sbSourceColumns.AppendFormat("{0}{0}", "    ");
 						}
 						else
 						{
@@ -153,14 +153,14 @@ namespace DatabaseTools
 						if (intColumnCount == 4)
 						{
 							sbSourceColumns.AppendLine();
-							sbSourceColumns.AppendFormat("{0}{0}", "\t");
+							sbSourceColumns.AppendFormat("{0}{0}", "    ");
 						}
 
 						sbSourceColumns.Append(mapping.SourceColumnNameWithMapping);
 
 						if (sbTargetColumns.Length == 0)
 						{
-							sbTargetColumns.AppendFormat("{0}{0}", "\t");
+							sbTargetColumns.AppendFormat("{0}{0}", "    ");
 						}
 						else
 						{
@@ -170,7 +170,7 @@ namespace DatabaseTools
 						if (intColumnCount == 4)
 						{
 							sbTargetColumns.AppendLine();
-							sbTargetColumns.AppendFormat("{0}{0}", "\t");
+							sbTargetColumns.AppendFormat("{0}{0}", "    ");
 						}
 
 						sbTargetColumns.Append(mapping.TargetColumnNameWithMapping);
@@ -182,28 +182,28 @@ namespace DatabaseTools
 					}
 
 					sbScript.AppendLine("INSERT INTO");
-					sbScript.AppendFormat("{0}{1}", "\t", strTargetTableName);
+					sbScript.AppendFormat("{0}{1}", "    ", strTargetTableName);
 					sbScript.AppendLine();
-					sbScript.AppendFormat("{0}(", "\t");
+					sbScript.AppendFormat("{0}(", "    ");
 					sbScript.AppendLine();
 					sbScript.AppendLine(sbTargetColumns.ToString());
-					sbScript.AppendFormat("{0})", "\t");
+					sbScript.AppendFormat("{0})", "    ");
 					sbScript.AppendLine();
-					sbScript.AppendFormat("{0}(SELECT", "\t");
+					sbScript.AppendFormat("{0}(SELECT", "    ");
 					sbScript.AppendLine();
 					sbScript.AppendLine(sbSourceColumns.ToString());
-					sbScript.AppendFormat("{0}FROM", "\t");
+					sbScript.AppendFormat("{0}FROM", "    ");
 					sbScript.AppendLine();
-					sbScript.AppendFormat("{0}{0}{1}", "\t", strSourceTableName);
+					sbScript.AppendFormat("{0}{0}{1}", "    ", strSourceTableName);
 					if (!(string.IsNullOrEmpty(tableMapping.SelectCriteria)))
 					{
 						sbScript.AppendLine();
-						sbScript.AppendFormat("{0}WHERE", "\t");
+						sbScript.AppendFormat("{0}WHERE", "    ");
 						sbScript.AppendLine();
-						sbScript.AppendFormat("{0}{0}{1}", "\t", tableMapping.SelectCriteria);
+						sbScript.AppendFormat("{0}{0}{1}", "    ", tableMapping.SelectCriteria);
 					}
 					sbScript.AppendLine();
-					sbScript.AppendFormat("{0})", "\t");
+					sbScript.AppendFormat("{0})", "    ");
 					sbScript.AppendLine();
 
 					if (blnHasIdentity)

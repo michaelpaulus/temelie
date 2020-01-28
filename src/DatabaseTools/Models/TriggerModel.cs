@@ -34,7 +34,7 @@ namespace DatabaseTools
                 }
 
                 sb.AppendLine($"IF EXISTS (SELECT 1 FROM sys.objects INNER JOIN sys.schemas ON sys.objects.schema_id = sys.schemas.schema_id WHERE sys.objects.name = '{TriggerName}' AND sys.schemas.name = '{SchemaName}')");
-                sb.AppendLine($"\tDROP TRIGGER {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TriggerName}{quoteCharacterEnd}");
+                sb.AppendLine($"    DROP TRIGGER {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TriggerName}{quoteCharacterEnd}");
                 sb.AppendLine("GO");
             }
 

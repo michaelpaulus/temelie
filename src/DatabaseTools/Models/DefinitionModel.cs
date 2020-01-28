@@ -53,7 +53,7 @@ namespace DatabaseTools
 
                 sb.AppendLine(string.Format("-- {0}", this.DefinitionName));
                 sb.AppendLine($"IF EXISTS (SELECT 1 FROM sys.objects INNER JOIN sys.schemas ON sys.objects.schema_id = sys.schemas.schema_id WHERE sys.objects.name = '{DefinitionName}' AND sys.schemas.name = '{SchemaName}')");
-                sb.AppendLine($"\tDROP {this.Type} {quoteCharacterStart}{this.SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.DefinitionName}{quoteCharacterEnd}");
+                sb.AppendLine($"    DROP {this.Type} {quoteCharacterStart}{this.SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.DefinitionName}{quoteCharacterEnd}");
                 sb.AppendLine("GO");
             }
 
