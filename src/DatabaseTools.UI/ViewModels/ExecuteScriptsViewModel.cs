@@ -59,7 +59,7 @@ namespace DatabaseTools.ViewModels
         {
             this.ProgressPercentage = 0;
             this.ProgressStatus = "";
-            this.ErrorMessage = "";
+            this.ErrorMessage = $"Started: {DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss")}";
             this.ExecuteScriptsCommand.IsEnabled = false;
 
             var progress = new Progress<ScriptProgress>(tableProgress =>
@@ -93,6 +93,7 @@ namespace DatabaseTools.ViewModels
                 else
                 {
                     this.ProgressPercentage = 0;
+                    this.ErrorMessage += $"Completed: {DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss")}";
                     this.ProgressStatus = "Completed";
                 }
 
