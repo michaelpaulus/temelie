@@ -236,6 +236,12 @@ namespace DatabaseTools
                     case "TIME":
                         strDataType = string.Format("{0}({1})", this.ColumnType, this.Scale);
                         break;
+                    case "DATETIME2":
+                        if (Scale != 7)
+                        {
+                            strDataType = string.Format("{0}({1})", this.ColumnType, this.Scale);
+                        }
+                        break;
                 }
 
                 return strDataType;

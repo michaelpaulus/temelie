@@ -14,7 +14,7 @@
     <AssemblyOriginatorKeyFile>databasetools.snk</AssemblyOriginatorKeyFile>
     <Authors>Michael Paulus</Authors>
     <Company />
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
