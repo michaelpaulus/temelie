@@ -179,7 +179,7 @@ FROM
     sys.schemas referenced_schemas on 
         referenced_tables.schema_id = referenced_schemas.schema_id 
 WHERE 
-    sys.tables.name NOT LIKE 'sys%' 
+    sys.tables.name <> 'sysdiagrams'
 ORDER BY 
     sys.tables.name, 
     sys.foreign_keys.name, 
@@ -238,7 +238,7 @@ FROM
 	sys.schemas on 
 	    sys.tables.schema_id = sys.schemas.schema_id
 WHERE 
-    sys.tables.name NOT LIKE 'sys%' AND 
+    sys.tables.name <> 'sysdiagrams' AND 
     sys.indexes.name NOT LIKE 'MSmerge_index%' AND 
     sys.indexes.name IS NOT NULL 
 ORDER BY 
@@ -298,7 +298,7 @@ ORDER BY
 		                        sys.columns.column_id = sys.default_constraints.parent_column_id
 
                         WHERE 
-	                        sys.tables.name NOT LIKE 'sys%'
+	                        sys.tables.name <> 'sysdiagrams'
                         ORDER BY 
 	                        sys.tables.name, 
 	                        sys.columns.column_id
@@ -352,7 +352,7 @@ ORDER BY
 		                        sys.columns.column_id = sys.default_constraints.parent_column_id
 
                         WHERE 
-	                        sys.tables.name NOT LIKE 'sys%'
+	                        sys.tables.name <> 'sysdiagrams'
                         ORDER BY 
 	                        sys.tables.name, 
 	                        sys.columns.column_id
@@ -388,7 +388,7 @@ ORDER BY
 	                        sys.schemas ON 
 		                        sys.tables.schema_id = sys.schemas.schema_id 
                         WHERE 
-	                        sys.tables.name NOT LIKE 'sys%'
+	                        sys.tables.name <> 'sysdiagrams'
                         ORDER BY 
 	                        sys.tables.name
                         ";
@@ -412,7 +412,7 @@ ORDER BY
 	                        sys.schemas ON 
 		                        sys.tables.schema_id = sys.schemas.schema_id 
                         WHERE 
-	                        sys.tables.name NOT LIKE 'sys%'
+	                        sys.tables.name <> 'sysdiagrams'
                         ORDER BY 
 	                        sys.tables.name
                         ";
@@ -454,7 +454,7 @@ ORDER BY
 							sys.system_sql_modules ON 
 								sys.system_sql_modules.object_id = sys.triggers.object_id 
 						WHERE 
-							sys.tables.name NOT LIKE 'sys%' 
+							sys.tables.name <> 'sysdiagrams'
 						UNION ALL
 						SELECT 
 							sys.views.name AS table_name, 
@@ -472,7 +472,7 @@ ORDER BY
 							sys.system_sql_modules ON 
 								sys.system_sql_modules.object_id = sys.triggers.object_id 
 						WHERE 
-							sys.views.name NOT LIKE 'sys%'
+							sys.views.name <> 'sysdiagrams'
 					) t1 
 					ORDER BY
 						t1.table_name,
@@ -526,7 +526,7 @@ ORDER BY
 		                        sys.columns.object_id = sys.default_constraints.parent_object_id AND
 		                        sys.columns.column_id = sys.default_constraints.parent_column_id
                         WHERE 
-	                        sys.views.name NOT LIKE 'sys%'
+	                        sys.views.name <> 'sysdiagrams'
                         ORDER BY 
 	                        sys.views.name,
 	                        sys.columns.column_id
@@ -548,7 +548,7 @@ ORDER BY
 	                        sys.schemas ON 
 		                        sys.views.schema_id = sys.schemas.schema_id 
                         WHERE 
-	                        sys.views.name NOT LIKE 'sys%' 
+	                        sys.views.name <> 'sysdiagrams'
                         ORDER BY 
 	                        sys.views.name
                         ";
