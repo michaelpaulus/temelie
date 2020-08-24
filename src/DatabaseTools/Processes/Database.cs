@@ -8,6 +8,7 @@ using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Transactions;
 using System.Xml.Linq;
 
@@ -771,6 +772,14 @@ namespace DatabaseTools
                 return list;
             }
 
+            private class IndexBucket
+            {
+                public string TableName { get; set; }
+                public string IndexName { get; set; } 
+                public string SchemaName { get; set; }
+                public int BucketCount { get; set; }
+            }
+
             public static IList<Models.IndexModel> GetIndexes(DbConnection connection, IEnumerable<string> tables, bool? isPrimaryKey = null)
             {
                 IList<Models.IndexModel> list = new List<Models.IndexModel>();
@@ -778,19 +787,24 @@ namespace DatabaseTools
                 System.Data.DataTable dtIndexes = null;
 
                 dtIndexes = provider.GetIndexes(connection);
-                var dtIndexBucketCounts = provider.GetIndexeBucketCounts(connection);
 
                 if (dtIndexes != null)
                 {
 
-                    var indexBucketCounts = (from i in dtIndexBucketCounts.Rows.OfType<System.Data.DataRow>()
-                                             select new
-                                             {
-                                                 TableName = i["table_name"].ToString(),
-                                                 IndexName = i["index_name"].ToString(),
-                                                 SchemaName = i["schema_name"].ToString(),
-                                                 BucketCount = Convert.ToInt32(i["total_bucket_count"])
-                                             }).ToList();
+                    var indexBucketCounts = new List<IndexBucket>();
+
+                    var dtIndexBucketCounts = provider.GetIndexeBucketCounts(connection);
+                    if (dtIndexBucketCounts != null)
+                    {
+                        indexBucketCounts = (from i in dtIndexBucketCounts.Rows.OfType<System.Data.DataRow>()
+                           select new IndexBucket
+                           {
+                               TableName = i["table_name"].ToString(),
+                               IndexName = i["index_name"].ToString(),
+                               SchemaName = i["schema_name"].ToString(),
+                               BucketCount = Convert.ToInt32(i["total_bucket_count"])
+                           }).ToList();
+                    }
 
                     foreach (var indexGroup in (
                         from i in dtIndexes.Rows.Cast<System.Data.DataRow>()

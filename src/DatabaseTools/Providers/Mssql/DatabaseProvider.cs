@@ -193,7 +193,9 @@ ORDER BY
 
         public DataTable GetIndexeBucketCounts(DbConnection connection)
         {
-            var dtIndexes = Processes.Database.Execute(connection, @"
+            try
+            {
+                var dtIndexes = Processes.Database.Execute(connection, @"
 SELECT
     sys.tables.name AS table_name, 
     sys.schemas.name schema_name,
@@ -210,7 +212,13 @@ FROM
 	    sys.tables.schema_id = sys.schemas.schema_id
 ").Tables[0];
 
-            return dtIndexes;
+                return dtIndexes;
+            }
+            catch
+            {
+
+            }
+            return null;
         }
 
         public DataTable GetIndexes(DbConnection connection)

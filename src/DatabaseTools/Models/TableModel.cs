@@ -52,6 +52,8 @@ namespace DatabaseTools
                 }
             }
 
+            public string Options { get; set; }
+
             #endregion
 
             #region Methods
@@ -139,11 +141,19 @@ namespace DatabaseTools
 
             private void AddOptions(StringBuilder sb)
             {
+                var options = Options;
                 if (IsMemoryOptimized)
                 {
-                    var sbOptions = new StringBuilder();
-                    sbOptions.Append($"MEMORY_OPTIMIZED = ON, DURABILITY = {DurabilityDesc}");
-                    sb.AppendLine($"    WITH ({sbOptions.ToString()})");
+                    if (!string.IsNullOrEmpty(options))
+                    {
+                        options += ", ";
+                    }
+                    options += $"MEMORY_OPTIMIZED = ON, DURABILITY = {DurabilityDesc}";
+                }
+
+                if (!string.IsNullOrEmpty(options))
+                {
+                    sb.AppendLine($"    WITH ({options})");
                 }
             }
 
