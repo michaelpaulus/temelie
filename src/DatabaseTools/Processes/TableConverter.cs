@@ -203,7 +203,7 @@ namespace DatabaseTools.Processes
                     {
                         bulkCopy(null);
                     }
-                    
+
                 }
 
             }
@@ -762,26 +762,33 @@ namespace DatabaseTools.Processes
         {
             int rowCount = 0;
 
-            try
+            using (var command = DatabaseTools.Processes.Database.CreateDbCommand(connection))
             {
-                using (var command = DatabaseTools.Processes.Database.CreateDbCommand(connection))
+                try
                 {
                     if (databaseType == DatabaseTools.Models.DatabaseType.MicrosoftSQLServer)
                     {
                         command.CommandText = string.Format("(SELECT sys.sysindexes.rows FROM sys.tables INNER JOIN sys.sysindexes ON sys.tables.object_id = sys.sysindexes.id AND sys.sysindexes.indid < 2 WHERE sys.tables.name = '{0}')", tableName);
                         rowCount = System.Convert.ToInt32(command.ExecuteScalar());
                     }
+                }
+                catch
+                {
 
+                }
+
+                try
+                {
                     if (rowCount == 0)
                     {
                         command.CommandText = this.FormatCommandText(string.Format("SELECT COUNT(1) FROM [{0}].[{1}]", schemaName, tableName), databaseType);
                         rowCount = System.Convert.ToInt32(command.ExecuteScalar());
                     }
                 }
-            }
-            catch
-            {
+                catch
+                {
 
+                }
             }
 
             return rowCount;
