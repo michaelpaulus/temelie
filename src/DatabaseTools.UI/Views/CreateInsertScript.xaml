@@ -11,6 +11,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
@@ -20,8 +21,11 @@
         <GroupBox Header="Table" Grid.Row="1" Grid.Column="2">
             <ComboBox x:Name="TableComboBox" IsEditable="True" DisplayMemberPath="TableName" SelectedValuePath="TableName" />
         </GroupBox>
-        <Button x:Name="GenerateScriptButton" Content="Generate Scripts" Grid.Row="2" HorizontalAlignment="Right" Margin="0,8,0,0" />
-        <TextBox x:Name="ResultTextBox" AcceptsReturn="True" AcceptsTab="True" Grid.Row="3"  Margin="0,8,0,0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" />
-        <Button x:Name="SaveToFile" Content="Save to File" Grid.Row="4" HorizontalAlignment="Right" Margin="0,8,0,0" />
+        <GroupBox Header="Where" Grid.Row="2" Grid.Column="2">
+            <TextBox x:Name="WhereTextBox" AcceptsReturn="True" AcceptsTab="True" Grid.Row="3"  Margin="0,8,0,0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Height="50" />
+        </GroupBox>
+        <Button x:Name="GenerateScriptButton" Content="Generate Scripts" Grid.Row="3" HorizontalAlignment="Right" Margin="0,8,0,0" />
+        <TextBox x:Name="ResultTextBox" AcceptsReturn="True" AcceptsTab="True" Grid.Row="4"  Margin="0,8,0,0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" />
+        <Button x:Name="SaveToFile" Content="Save to File" Grid.Row="5" HorizontalAlignment="Right" Margin="0,8,0,0" />
     </Grid>
 </UserControl>

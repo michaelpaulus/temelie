@@ -690,7 +690,7 @@ namespace DatabaseTools
                 return dictionary;
             }
 
-            public string GetInsertScript(string tableName)
+            public string GetInsertScript(string tableName, string where = "")
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
@@ -749,7 +749,7 @@ namespace DatabaseTools
                     strOrderBy = "ORDER BY " + sbOrderBy.ToString();
                 }
 
-                System.Data.DataSet dsValues = Processes.Database.Execute(this.ConnectionString, string.Format("SELECT * FROM {0} {1}", strQualifiedTableName, strOrderBy));
+                var dsValues = Processes.Database.Execute(this.ConnectionString, $"SELECT * FROM {strQualifiedTableName} {(string.IsNullOrEmpty(where) ? "" : "WHERE " + where)} {strOrderBy}");
 
                 if (dsValues.Tables[0].Rows.Count > 0)
                 {
