@@ -36,7 +36,8 @@ namespace DatabaseTools
             public string HistoryTableName { get; set; }
             public bool IsMemoryOptimized { get; set; }
             public string DurabilityDesc { get; set; }
-
+            public bool IsExternal { get; set; }
+            public string DataSourceName { get; set; }
             public bool IsHistoryTable { get { return TemporalType == 1; } }
 
             private IList<ColumnModel> _columns;
@@ -61,7 +62,7 @@ namespace DatabaseTools
             public override void AppendDropScript(DatabaseModel database, System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)
             {
                 sb.AppendLine($"IF EXISTS (SELECT 1 FROM sys.tables INNER JOIN sys.schemas ON sys.tables.schema_id = sys.schemas.schema_id WHERE sys.tables.name = '{this.TableName}' AND sys.schemas.name = '{this.SchemaName}')");
-                sb.AppendLine($"    DROP TABLE {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
+                sb.AppendLine($"    DROP{(IsExternal ? " EXTERNAL " : " ")}TABLE {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
                 sb.AppendLine("GO");
             }
 
@@ -80,7 +81,7 @@ namespace DatabaseTools
                     {
                         sb.AppendLine($"IF EXISTS (SELECT 1 FROM sys.tables INNER JOIN sys.schemas ON sys.tables.schema_id = sys.schemas.schema_id WHERE sys.tables.name = '{this.TableName}' AND sys.schemas.name = '{this.SchemaName}')");
                     }
-                    sb.AppendLine($"    DROP TABLE {quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
+                    sb.AppendLine($"    DROP{(IsExternal ? " EXTERNAL " : " ")}TABLE {quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
                     sb.AppendLine("GO");
                 }
                 sb.AppendLine();
@@ -89,7 +90,7 @@ namespace DatabaseTools
                 {
                     sb.AppendLine($"IF NOT EXISTS (SELECT 1 FROM sys.tables INNER JOIN sys.schemas ON sys.tables.schema_id = sys.schemas.schema_id WHERE sys.tables.name = '{this.TableName}' AND sys.schemas.name = '{this.SchemaName}')");
                 }
-                sb.AppendLine($"    CREATE TABLE {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
+                sb.AppendLine($"    CREATE{(IsExternal ? " EXTERNAL " : " ")}TABLE {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
                 sb.AppendLine("    " + "(");
 
                 int intColumnCount = 0;
@@ -150,7 +151,14 @@ namespace DatabaseTools
                     }
                     options += $"MEMORY_OPTIMIZED = ON, DURABILITY = {DurabilityDesc}";
                 }
-
+                if (!string.IsNullOrEmpty(DataSourceName))
+                {
+                    if (!string.IsNullOrEmpty(options))
+                    {
+                        options += ", ";
+                    }
+                    options += $"DATA_SOURCE = {DataSourceName}";
+                }
                 if (!string.IsNullOrEmpty(options))
                 {
                     sb.AppendLine($"    WITH ({options})");

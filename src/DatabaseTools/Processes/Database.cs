@@ -891,6 +891,8 @@ namespace DatabaseTools
                     table.HistoryTableName = Processes.Database.GetStringValue(row, "history_table_name");
                     table.IsMemoryOptimized = Processes.Database.GetBoolValue(row, "is_memory_optimized");
                     table.DurabilityDesc = Processes.Database.GetStringValue(row, "durability_desc");
+                    table.IsExternal = Processes.Database.GetBoolValue(row, "is_external");
+                    table.DataSourceName = Processes.Database.GetStringValue(row, "data_source_name");
 
                     var tableKey = $"{table.SchemaName}.{table.TableName}".ToUpper();
 

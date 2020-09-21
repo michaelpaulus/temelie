@@ -385,44 +385,52 @@ ORDER BY
         {
             string sql2014 = @"
                         SELECT 
-	                        sys.tables.name AS table_name,
-                            sys.schemas.name schema_name,
+	                        tables.name AS table_name,
+                            schemas.name schema_name,
                             0 temporal_type,
                             '' history_table_name,
 					       0 is_memory_optimized,
-					       '' durability_desc
+					       '' durability_desc,
+                           0 is_external,
+                           '' data_source_name
                         FROM 
 	                        sys.tables INNER JOIN 
 	                        sys.schemas ON 
-		                        sys.tables.schema_id = sys.schemas.schema_id 
+		                        tables.schema_id = schemas.schema_id 
                         WHERE 
-	                        sys.tables.name <> 'sysdiagrams'
+	                        tables.name <> 'sysdiagrams'
                         ORDER BY 
-	                        sys.tables.name
+	                        tables.name
                         ";
 
             string sql2016 = @"
                         SELECT 
-	                        sys.tables.name AS table_name,
-                            sys.schemas.name schema_name,
-                            sys.tables.temporal_type,
+	                        tables.name AS table_name,
+                            schemas.name schema_name,
+                            tables.temporal_type,
 							ISNULL((SELECT
 								t1.name
 							FROM
 								sys.tables t1
 							WHERE
-								t1.object_id = sys.tables.history_table_id
+								t1.object_id = tables.history_table_id
 							), '') history_table_name,
-					       sys.tables.is_memory_optimized,
-					       sys.tables.durability_desc
+					       tables.is_memory_optimized,
+					       tables.durability_desc,
+                           tables.is_external,
+                           external_data_sources.name data_source_name
                         FROM 
 	                        sys.tables INNER JOIN 
 	                        sys.schemas ON 
-		                        sys.tables.schema_id = sys.schemas.schema_id 
+		                        tables.schema_id = schemas.schema_id LEFT JOIN
+	                        sys.external_tables ON
+		                        tables.object_id = external_tables.object_id LEFT JOIN
+	                        sys.external_data_sources ON
+		                        external_tables.data_source_id = external_data_sources.data_source_id
                         WHERE 
-	                        sys.tables.name <> 'sysdiagrams'
+	                        tables.name <> 'sysdiagrams'
                         ORDER BY 
-	                        sys.tables.name
+	                        tables.name
                         ";
 
             DataSet ds = null;
