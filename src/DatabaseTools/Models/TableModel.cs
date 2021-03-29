@@ -1,5 +1,6 @@
 ﻿
 using DatabaseTools.Extensions;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -23,13 +24,16 @@ namespace DatabaseTools
 
             #region Properties
 
-           public bool Selected { get; set; }
+            [JsonIgnore]
+            public bool Selected { get; set; }
 
             public string TableName { get; set; }
             public string SchemaName { get; set; }
 
+            [JsonIgnore]
             public int ProgressPercentage { get; set; }
-           
+
+            [JsonIgnore]
             public string ErrorMessage { get; set; }
 
             public int TemporalType { get; set; }
@@ -78,6 +82,12 @@ namespace DatabaseTools
 
                 sb.AppendLine(string.Format("-- {0}", this.TableName));
 
+                var settings = new JsonSerializerSettings();
+                settings.ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver();
+                var json = JsonConvert.SerializeObject(this, Formatting.None, settings);
+                sb.AppendLine();
+                sb.AppendLine("--JSON: " + json);
+
                 if (this.TableName.StartsWith("default_", StringComparison.InvariantCultureIgnoreCase))
                 {
                     if (includeIfNotExists)
@@ -108,7 +118,7 @@ namespace DatabaseTools
                         sb.AppendLine(",");
                     }
 
-                    sb.Append("    " + "    " + column.ToString(quoteCharacterStart, quoteCharacterEnd ));
+                    sb.Append("    " + "    " + column.ToString(quoteCharacterStart, quoteCharacterEnd));
 
                     intColumnCount += 1;
                 }
@@ -148,7 +158,6 @@ namespace DatabaseTools
 
             public static void AddExtendedProperties(TableModel table, StringBuilder sb)
             {
-
                 string type = table.IsView ? "view" : "table";
 
                 foreach (var prop in table.ExtendedProperties)
@@ -179,6 +188,7 @@ GO
 ");
                     }
                 }
+
             }
 
             private void AddOptions(StringBuilder sb)

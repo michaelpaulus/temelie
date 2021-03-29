@@ -1,5 +1,6 @@
 ﻿
 using DatabaseTools.Extensions;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -67,6 +68,17 @@ namespace DatabaseTools
                 }
 
                 sb.AppendLine(string.Format("-- {0}", this.DefinitionName));
+
+                if (View != null)
+                {
+                    var settings = new JsonSerializerSettings();
+                    settings.ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver();
+                    var json = JsonConvert.SerializeObject(View, Formatting.None, settings);
+                    sb.AppendLine();
+                    sb.AppendLine("--JSON: " + json);
+                    sb.AppendLine();
+                }
+                
                 sb.AppendLine($"IF NOT EXISTS (SELECT 1 FROM sys.objects INNER JOIN sys.schemas ON sys.objects.schema_id = sys.schemas.schema_id WHERE sys.objects.name = '{this.DefinitionName}' AND sys.schemas.name = '{SchemaName}')");
 
                 string strPattern = $"(CREATE\\s*{this.Type}\\s*[\\[]?)([\\[]?{SchemaName}[\\.]?[\\]]?[\\.]?[\\[]?)?({this.DefinitionName})([\\]]?)";

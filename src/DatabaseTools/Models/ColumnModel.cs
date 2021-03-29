@@ -1,5 +1,6 @@
 ﻿
 using DatabaseTools.Extensions;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -16,7 +17,9 @@ namespace DatabaseTools
         {
             #region Properties
 
+
             private string _tableName;
+            [JsonIgnore]
             public string TableName
             {
                 get
