@@ -58,7 +58,7 @@ namespace DatabaseTools
                 }
             }
 
-            public IList<ExtendedProperty> ExtendedProperties { get; set; } = new List<ExtendedProperty>();
+            public Dictionary<string, string> ExtendedProperties { get; set; } =  new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
             public string Options { get; set; }
 
@@ -163,12 +163,12 @@ namespace DatabaseTools
                 foreach (var prop in table.ExtendedProperties)
                 {
                     sb.AppendLine($@"
-IF EXISTS (SELECT 1 FROM fn_listextendedproperty ('{prop.Name}', 'schema', '{table.SchemaName}', '{type}', '{table.TableName}', default, default)) 
+IF EXISTS (SELECT 1 FROM fn_listextendedproperty ('{prop.Key}', 'schema', '{table.SchemaName}', '{type}', '{table.TableName}', default, default)) 
 BEGIN
-    EXEC sys.sp_dropextendedproperty @name = N'{prop.Name}', @level0type = N'schema', @level0name = '{table.SchemaName}', @level1type = N'{type}',  @level1name = '{table.TableName}';  
+    EXEC sys.sp_dropextendedproperty @name = N'{prop.Key}', @level0type = N'schema', @level0name = '{table.SchemaName}', @level1type = N'{type}',  @level1name = '{table.TableName}';  
 END
 
-EXEC sys.sp_addextendedproperty @name = N'{prop.Name}', @value = N'{prop.Value}', @level0type = N'schema', @level0name = '{table.SchemaName}', @level1type = N'{type}',  @level1name = '{table.TableName}';  
+EXEC sys.sp_addextendedproperty @name = N'{prop.Key}', @value = N'{prop.Value}', @level0type = N'schema', @level0name = '{table.SchemaName}', @level1type = N'{type}',  @level1name = '{table.TableName}';  
 GO
 ");
                 }
@@ -178,12 +178,12 @@ GO
                     foreach (var prop in column.ExtendedProperties)
                     {
                         sb.AppendLine($@"
-IF EXISTS (SELECT 1 FROM fn_listextendedproperty ('{prop.Name}', 'schema', '{table.SchemaName}', '{type}', '{table.TableName}', 'column', '{column.ColumnName}')) 
+IF EXISTS (SELECT 1 FROM fn_listextendedproperty ('{prop.Key}', 'schema', '{table.SchemaName}', '{type}', '{table.TableName}', 'column', '{column.ColumnName}')) 
 BEGIN
-    EXEC sys.sp_dropextendedproperty @name = N'{prop.Name}', @level0type = N'schema', @level0name = '{table.SchemaName}', @level1type = N'{type}',  @level1name = '{table.TableName}', @level2type = N'column',  @level2name = '{column.ColumnName}';  
+    EXEC sys.sp_dropextendedproperty @name = N'{prop.Key}', @level0type = N'schema', @level0name = '{table.SchemaName}', @level1type = N'{type}',  @level1name = '{table.TableName}', @level2type = N'column',  @level2name = '{column.ColumnName}';  
 END
 
-EXEC sys.sp_addextendedproperty @name = N'{prop.Name}', @value = N'{prop.Value}', @level0type = N'schema', @level0name = '{table.SchemaName}', @level1type = N'table',  @level1name = '{table.TableName}', @level2type = N'column',  @level2name = '{column.ColumnName}';  
+EXEC sys.sp_addextendedproperty @name = N'{prop.Key}', @value = N'{prop.Value}', @level0type = N'schema', @level0name = '{table.SchemaName}', @level1type = N'table',  @level1name = '{table.TableName}', @level2type = N'column',  @level2name = '{column.ColumnName}';  
 GO
 ");
                     }

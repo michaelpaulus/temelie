@@ -609,7 +609,10 @@ namespace DatabaseTools
                 var extendedProperites = GetStringValue(row, "extended_properties");
                 if (!string.IsNullOrEmpty(extendedProperites))
                 {
-                    column.ExtendedProperties = JsonConvert.DeserializeObject<List<ExtendedProperty>>(extendedProperites);
+                    foreach (var item in JsonConvert.DeserializeObject<List<ExtendedProperty>>(extendedProperites))
+                    {
+                        column.ExtendedProperties.Add(item.Name, item.Value);
+                    }
                 }
 
                 if (converter != null)
@@ -905,7 +908,10 @@ namespace DatabaseTools
                     var extendedProperites = GetStringValue(row, "extended_properties");
                     if (!string.IsNullOrEmpty(extendedProperites))
                     {
-                        table.ExtendedProperties = JsonConvert.DeserializeObject<List<ExtendedProperty>>(extendedProperites);
+                        foreach (var item in JsonConvert.DeserializeObject<List<ExtendedProperty>>(extendedProperites))
+                        {
+                            table.ExtendedProperties.Add(item.Name, item.Value);
+                        }
                     }
 
                     var tableKey = $"{table.SchemaName}.{table.TableName}".ToUpper();

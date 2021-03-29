@@ -209,7 +209,7 @@ namespace DatabaseTools
                 }
             }
 
-            public IList<ExtendedProperty> ExtendedProperties { get; set; } = new List<ExtendedProperty>();
+            public Dictionary<string, string> ExtendedProperties { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
 
             #endregion
