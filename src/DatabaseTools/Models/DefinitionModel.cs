@@ -40,6 +40,8 @@ namespace DatabaseTools
                 }
             }
 
+            public TableModel View { get; set; }
+
             #endregion
 
             #region Methods
@@ -76,6 +78,12 @@ namespace DatabaseTools
 
                 sb.AppendLine(string.Format("EXEC sp_executesql @statement = N'{0}'", this.Definition.Replace("'", "''")));
                 sb.AppendLine("GO");
+
+                if (View != null)
+                {
+                    TableModel.AddExtendedProperties(View, sb);
+                }
+
             }
 
             #endregion

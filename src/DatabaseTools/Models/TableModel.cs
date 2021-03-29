@@ -39,6 +39,7 @@ namespace DatabaseTools
             public bool IsExternal { get; set; }
             public string DataSourceName { get; set; }
             public bool IsHistoryTable { get { return TemporalType == 1; } }
+            public bool IsView { get; set; }
 
             private IList<ColumnModel> _columns;
             public IList<ColumnModel> Columns
@@ -52,6 +53,8 @@ namespace DatabaseTools
                     return this._columns;
                 }
             }
+
+            public IList<ExtendedProperty> ExtendedProperties { get; set; } = new List<ExtendedProperty>();
 
             public string Options { get; set; }
 
@@ -138,6 +141,44 @@ namespace DatabaseTools
                 AddOptions(sb);
 
                 sb.AppendLine("GO");
+
+                AddExtendedProperties(this, sb);
+
+            }
+
+            public static void AddExtendedProperties(TableModel table, StringBuilder sb)
+            {
+
+                string type = table.IsView ? "view" : "table";
+
+                foreach (var prop in table.ExtendedProperties)
+                {
+                    sb.AppendLine($@"
+IF EXISTS (SELECT 1 FROM fn_listextendedproperty ('{prop.Name}', 'schema', '{table.SchemaName}', '{type}', '{table.TableName}', default, default)) 
+BEGIN
+    EXEC sys.sp_dropextendedproperty @name = N'{prop.Name}', @level0type = N'schema', @level0name = '{table.SchemaName}', @level1type = N'{type}',  @level1name = '{table.TableName}';  
+END
+
+EXEC sys.sp_addextendedproperty @name = N'{prop.Name}', @value = N'{prop.Value}', @level0type = N'schema', @level0name = '{table.SchemaName}', @level1type = N'{type}',  @level1name = '{table.TableName}';  
+GO
+");
+                }
+
+                foreach (var column in table.Columns)
+                {
+                    foreach (var prop in column.ExtendedProperties)
+                    {
+                        sb.AppendLine($@"
+IF EXISTS (SELECT 1 FROM fn_listextendedproperty ('{prop.Name}', 'schema', '{table.SchemaName}', '{type}', '{table.TableName}', 'column', '{column.ColumnName}')) 
+BEGIN
+    EXEC sys.sp_dropextendedproperty @name = N'{prop.Name}', @level0type = N'schema', @level0name = '{table.SchemaName}', @level1type = N'{type}',  @level1name = '{table.TableName}', @level2type = N'column',  @level2name = '{column.ColumnName}';  
+END
+
+EXEC sys.sp_addextendedproperty @name = N'{prop.Name}', @value = N'{prop.Value}', @level0type = N'schema', @level0name = '{table.SchemaName}', @level1type = N'table',  @level1name = '{table.TableName}', @level2type = N'column',  @level2name = '{column.ColumnName}';  
+GO
+");
+                    }
+                }
             }
 
             private void AddOptions(StringBuilder sb)

@@ -74,21 +74,21 @@ namespace DatabaseTools.Providers.Mssql
         {
             string sql = @"
                         SELECT 
-	                        sysobjects.name, 
+                            sysobjects.name, 
                             sys.schemas.name schema_name,
-	                        r.referencing_entity_name 
+                            r.referencing_entity_name 
                         FROM 
-	                        sysobjects INNER JOIN 
-	                        sys.schemas ON 
-		                        sysobjects.uid = sys.schemas.schema_id CROSS APPLY 
-	                        sys.dm_sql_referencing_entities(sys.schemas.name + '.' + sysobjects.name, 'OBJECT') r 
+                            sysobjects INNER JOIN 
+                            sys.schemas ON 
+                                sysobjects.uid = sys.schemas.schema_id CROSS APPLY 
+                            sys.dm_sql_referencing_entities(sys.schemas.name + '.' + sysobjects.name, 'OBJECT') r 
                         WHERE 
-	                        sysobjects.xtype IN ('P', 'V', 'FN', 'IF') AND 
-	                        sysobjects.category = 0 AND 
-	                        sysobjects.name NOT LIKE '%diagram%' 
+                            sysobjects.xtype IN ('P', 'V', 'FN', 'IF') AND 
+                            sysobjects.category = 0 AND 
+                            sysobjects.name NOT LIKE '%diagram%' 
                         ORDER BY 
-	                        sysobjects.name, 
-	                        r.referencing_entity_name
+                            sysobjects.name, 
+                            r.referencing_entity_name
                         ";
             System.Data.DataSet ds = Processes.Database.Execute(connection, sql);
             DataTable dataTable = ds.Tables[0];
@@ -99,25 +99,25 @@ namespace DatabaseTools.Providers.Mssql
         {
             string sql = @"
                         SELECT 
-	                        sysobjects.name, 
-	                        sysobjects.xtype, 
+                            sysobjects.name, 
+                            sysobjects.xtype, 
                             sys.schemas.name schema_name,
-	                        ISNULL(sys.sql_modules.definition, sys.system_sql_modules.definition) AS definition 
+                            ISNULL(sys.sql_modules.definition, sys.system_sql_modules.definition) AS definition
                         FROM 
-	                        sysobjects INNER JOIN 
-	                        sys.schemas ON 
-		                        sysobjects.uid = sys.schemas.schema_id LEFT OUTER JOIN 
-	                        sys.sql_modules ON 
-		                        sys.sql_modules.object_id = sysobjects.id LEFT OUTER JOIN 
-	                        sys.system_sql_modules ON 
-		                        sys.system_sql_modules.object_id = sysobjects.id 
+                            sysobjects INNER JOIN 
+                            sys.schemas ON 
+                                sysobjects.uid = sys.schemas.schema_id LEFT OUTER JOIN 
+                            sys.sql_modules ON 
+                                sys.sql_modules.object_id = sysobjects.id LEFT OUTER JOIN 
+                            sys.system_sql_modules ON 
+                                sys.system_sql_modules.object_id = sysobjects.id 
                         WHERE 
-	                        sysobjects.xtype IN ('P', 'V', 'FN', 'IF') AND 
-	                        sysobjects.category = 0 AND 
-	                        sysobjects.name NOT LIKE '%diagram%' 
+                            sysobjects.xtype IN ('P', 'V', 'FN', 'IF') AND 
+                            sysobjects.category = 0 AND 
+                            sysobjects.name NOT LIKE '%diagram%' 
                         ORDER BY 
-	                        sysobjects.xtype, 
-	                        sysobjects.name
+                            sysobjects.xtype, 
+                            sysobjects.name
                         ";
             System.Data.DataSet ds = Processes.Database.Execute(connection, sql);
             DataTable dataTable = ds.Tables[0];
@@ -204,12 +204,12 @@ SELECT
 FROM
     sys.indexes INNER JOIN
     sys.tables ON 
-	   sys.indexes.object_id = sys.tables.object_id INNER JOIN 
+       sys.indexes.object_id = sys.tables.object_id INNER JOIN 
    sys.dm_db_xtp_hash_index_stats  ON
-	   indexes.index_id = dm_db_xtp_hash_index_stats.index_id AND 
-	   indexes.object_id = dm_db_xtp_hash_index_stats.object_id INNER JOIN 
+       indexes.index_id = dm_db_xtp_hash_index_stats.index_id AND 
+       indexes.object_id = dm_db_xtp_hash_index_stats.object_id INNER JOIN 
     sys.schemas on 
-	    sys.tables.schema_id = sys.schemas.schema_id
+        sys.tables.schema_id = sys.schemas.schema_id
 ").Tables[0];
 
                 return dtIndexes;
@@ -226,7 +226,7 @@ FROM
             var dtIndexes = Processes.Database.Execute(connection, @"
 SELECT 
     sys.tables.name AS table_name, 
-	sys.schemas.name schema_name,
+    sys.schemas.name schema_name,
     sys.indexes.name AS index_name, 
     sys.indexes.type_desc index_type, 
     sys.indexes.is_unique, 
@@ -236,15 +236,15 @@ SELECT
     sys.index_columns.is_descending_key, 
     sys.index_columns.key_ordinal,
     sys.indexes.is_primary_key,
-	sys.indexes.filter_definition
+    sys.indexes.filter_definition
 FROM 
     sys.indexes INNER JOIN 
     sys.tables ON sys.indexes.object_id = sys.tables.object_id INNER JOIN 
     sys.index_columns ON sys.indexes.object_id = sys.index_columns.object_id AND 
     sys.indexes.index_id = sys.index_columns.index_id INNER JOIN 
     sys.columns ON sys.index_columns.object_id = sys.columns.object_id AND sys.index_columns.column_id = sys.columns.column_id INNER JOIN 
-	sys.schemas on 
-	    sys.tables.schema_id = sys.schemas.schema_id
+    sys.schemas on 
+        sys.tables.schema_id = sys.schemas.schema_id
 WHERE 
     sys.tables.name <> 'sysdiagrams' AND 
     sys.indexes.name NOT LIKE 'MSmerge_index%' AND 
@@ -262,109 +262,140 @@ ORDER BY
         {
             string sql2014 = @"
                         SELECT
-                        	sys.tables.name AS table_name, 
+                            sys.tables.name AS table_name, 
                             sys.schemas.name schema_name,
-	                        sys.columns.name AS column_name, 
-	                        UPPER(sys.types.name) AS column_type, 
-	                        CASE ISNULL(sys.columns.precision, 0) 
-								WHEN 0 THEN 
-									CASE WHEN sys.types.name = 'nvarchar' OR
+                            sys.columns.name AS column_name, 
+                            UPPER(sys.types.name) AS column_type, 
+                            CASE ISNULL(sys.columns.precision, 0) 
+                                WHEN 0 THEN 
+                                    CASE WHEN sys.types.name = 'nvarchar' OR
                                             sys.types.name = 'nchar' THEN 
-										sys.columns.max_length / 2
-									ELSE
-										sys.columns.max_length 
-									END 
-								ELSE 
-									ISNULL(sys.columns.precision, 0) 
-							END AS precision, 
-	                        ISNULL(sys.columns.scale, 0) AS scale, 
-	                        sys.columns.is_nullable, 
-	                        sys.columns.is_identity, 
-	                        CASE 
-								WHEN sys.columns.is_computed = 1 THEN 1  
-								ELSE 0 
-							END is_computed, 
-	                        ISNULL(sys.computed_columns.definition, '') computed_definition, 
-	                        sys.columns.column_id, 
-							0 is_hidden,
+                                        sys.columns.max_length / 2
+                                    ELSE
+                                        sys.columns.max_length 
+                                    END 
+                                ELSE 
+                                    ISNULL(sys.columns.precision, 0) 
+                            END AS precision, 
+                            ISNULL(sys.columns.scale, 0) AS scale, 
+                            sys.columns.is_nullable, 
+                            sys.columns.is_identity, 
+                            CASE 
+                                WHEN sys.columns.is_computed = 1 THEN 1  
+                                ELSE 0 
+                            END is_computed, 
+                            ISNULL(sys.computed_columns.definition, '') computed_definition, 
+                            sys.columns.column_id, 
+                            0 is_hidden,
                             0 generated_always_type,
-	                        ISNULL(sys.default_constraints.definition, '') column_default,
-	                        ISNULL((SELECT 1 FROM sys.indexes INNER JOIN sys.index_columns ON sys.indexes.object_id = sys.index_columns.object_id AND sys.indexes.index_id = sys.index_columns.index_id WHERE sys.indexes.is_primary_key = 1 AND sys.indexes.object_id = sys.tables.object_id AND sys.index_columns.object_id = sys.columns.object_id AND sys.index_columns.column_id = sys.columns.column_id), 0) is_primary_key 
+                            ISNULL(sys.default_constraints.definition, '') column_default,
+                            ISNULL((SELECT 1 FROM sys.indexes INNER JOIN sys.index_columns ON sys.indexes.object_id = sys.index_columns.object_id AND sys.indexes.index_id = sys.index_columns.index_id WHERE sys.indexes.is_primary_key = 1 AND sys.indexes.object_id = sys.tables.object_id AND sys.index_columns.object_id = sys.columns.object_id AND sys.index_columns.column_id = sys.columns.column_id), 0) is_primary_key,
+                            '[]' extended_properties
                         FROM 
-	                        sys.tables INNER JOIN 
-	                        sys.schemas on 
-		                        sys.tables.schema_id = sys.schemas.schema_id INNER JOIN 
-	                        sys.columns ON 
-		                        sys.tables.object_id = sys.columns.object_id INNER JOIN 
-	                        sys.types ON 
-		                        sys.columns.user_type_id = sys.types.user_type_id LEFT OUTER JOIN 
-	                        sys.computed_columns ON 
-		                        sys.columns.object_id = sys.computed_columns.object_id AND 
-		                        sys.columns.column_id = sys.computed_columns.column_id LEFT OUTER JOIN
-	                        sys.default_constraints ON
-		                        sys.columns.object_id = sys.default_constraints.parent_object_id AND
-		                        sys.columns.column_id = sys.default_constraints.parent_column_id
+                            sys.tables INNER JOIN 
+                            sys.schemas on 
+                                sys.tables.schema_id = sys.schemas.schema_id INNER JOIN 
+                            sys.columns ON 
+                                sys.tables.object_id = sys.columns.object_id INNER JOIN 
+                            sys.types ON 
+                                sys.columns.user_type_id = sys.types.user_type_id LEFT OUTER JOIN 
+                            sys.computed_columns ON 
+                                sys.columns.object_id = sys.computed_columns.object_id AND 
+                                sys.columns.column_id = sys.computed_columns.column_id LEFT OUTER JOIN
+                            sys.default_constraints ON
+                                sys.columns.object_id = sys.default_constraints.parent_object_id AND
+                                sys.columns.column_id = sys.default_constraints.parent_column_id
 
                         WHERE 
-	                        sys.tables.name <> 'sysdiagrams'
+                            sys.tables.name <> 'sysdiagrams'
                         ORDER BY 
-	                        sys.tables.name, 
-	                        sys.columns.column_id
+                            sys.tables.name, 
+                            sys.columns.column_id
                         ";
 
 
             string sql2016 = @"
-                        SELECT
-                        	sys.tables.name AS table_name, 
-                            sys.schemas.name schema_name,
-                            sys.columns.name AS column_name, 
-	                        UPPER(sys.types.name) AS column_type, 
-	                        CASE ISNULL(sys.columns.precision, 0) 
-								WHEN 0 THEN 
-									CASE WHEN sys.types.name = 'nvarchar' OR
-                                            sys.types.name = 'nchar' THEN 
-										sys.columns.max_length / 2
-									ELSE
-										sys.columns.max_length 
-									END 
-								ELSE 
-									ISNULL(sys.columns.precision, 0) 
-							END AS precision, 
-	                        ISNULL(sys.columns.scale, 0) AS scale, 
-	                        sys.columns.is_nullable, 
-	                        sys.columns.is_identity, 
-	                        CASE 
-								WHEN sys.columns.is_computed = 1 THEN 1  
-								WHEN sys.columns.generated_always_type <> 0 THEN 1 
-								ELSE 0 
-							END is_computed, 
-	                        ISNULL(sys.computed_columns.definition, '') computed_definition, 
-	                        sys.columns.column_id, 
-							sys.columns.is_hidden,
-                            sys.columns.generated_always_type,
-	                        ISNULL(sys.default_constraints.definition, '') column_default,
-	                        ISNULL((SELECT 1 FROM sys.indexes INNER JOIN sys.index_columns ON sys.indexes.object_id = sys.index_columns.object_id AND sys.indexes.index_id = sys.index_columns.index_id WHERE sys.indexes.is_primary_key = 1 AND sys.indexes.object_id = sys.tables.object_id AND sys.index_columns.object_id = sys.columns.object_id AND sys.index_columns.column_id = sys.columns.column_id), 0) is_primary_key 
-                        FROM 
-	                        sys.tables INNER JOIN 
-	                        sys.schemas on 
-		                        sys.tables.schema_id = sys.schemas.schema_id INNER JOIN 
-	                        sys.columns ON 
-		                        sys.tables.object_id = sys.columns.object_id INNER JOIN 
-	                        sys.types ON 
-		                        sys.columns.user_type_id = sys.types.user_type_id LEFT OUTER JOIN 
-	                        sys.computed_columns ON 
-		                        sys.columns.object_id = sys.computed_columns.object_id AND 
-		                        sys.columns.column_id = sys.computed_columns.column_id LEFT OUTER JOIN
-	                        sys.default_constraints ON
-		                        sys.columns.object_id = sys.default_constraints.parent_object_id AND
-		                        sys.columns.column_id = sys.default_constraints.parent_column_id
+SELECT
+    sys.tables.name AS table_name,
+    sys.schemas.name schema_name,
+    sys.columns.name AS column_name,
+    UPPER(sys.types.name) AS column_type,
+    CASE
+        ISNULL(sys.columns.precision, 0)
+        WHEN 0 THEN
+            CASE
+                WHEN sys.types.name = 'nvarchar' OR
+                    sys.types.name = 'nchar' THEN
+                    sys.columns.max_length / 2
+                ELSE
+                    sys.columns.max_length
+            END
+        ELSE
+            ISNULL(sys.columns.precision, 0)
+    END AS precision,
+    ISNULL(sys.columns.scale, 0) AS scale,
+    sys.columns.is_nullable,
+    sys.columns.is_identity,
+    CASE
+        WHEN sys.columns.is_computed = 1 THEN
+            1
+        WHEN sys.columns.generated_always_type <> 0 THEN
+            1
+        ELSE
+            0
+    END is_computed,
+    ISNULL(sys.computed_columns.definition, '') computed_definition,
+    sys.columns.column_id,
+    sys.columns.is_hidden,
+    sys.columns.generated_always_type,
+    ISNULL(sys.default_constraints.definition, '') column_default,
+    ISNULL(
+    (
+        SELECT
+            1
+        FROM
+            sys.indexes INNER JOIN
+            sys.index_columns ON
+                sys.indexes.object_id = sys.index_columns.object_id AND
+                sys.indexes.index_id = sys.index_columns.index_id
+        WHERE
+            sys.indexes.is_primary_key = 1 AND
+            sys.indexes.object_id = sys.tables.object_id AND
+            sys.index_columns.object_id = sys.columns.object_id AND
+            sys.index_columns.column_id = sys.columns.column_id
+    ), 0) is_primary_key,
+    ISNULL(
+    (
+        SELECT
+            name,
+            value
+        FROM
+            fn_listextendedproperty(NULL, 'schema', schemas.name, 'table', tables.name, 'column', columns.name)
+        WHERE
+            name <> 'sys_data_classification_recommendation_disabled'
+        FOR JSON AUTO
+    ), '[]') extended_properties
+FROM
+    sys.tables INNER JOIN
+    sys.schemas ON
+        sys.tables.schema_id = sys.schemas.schema_id INNER JOIN
+    sys.columns ON
+        sys.tables.object_id = sys.columns.object_id INNER JOIN
+    sys.types ON
+        sys.columns.user_type_id = sys.types.user_type_id LEFT OUTER JOIN
+    sys.computed_columns ON
+        sys.columns.object_id = sys.computed_columns.object_id AND
+        sys.columns.column_id = sys.computed_columns.column_id LEFT OUTER JOIN
+    sys.default_constraints ON
+        sys.columns.object_id = sys.default_constraints.parent_object_id AND
+        sys.columns.column_id = sys.default_constraints.parent_column_id
 
-                        WHERE 
-	                        sys.tables.name <> 'sysdiagrams'
-                        ORDER BY 
-	                        sys.tables.name, 
-	                        sys.columns.column_id
-                        ";
+WHERE
+    sys.tables.name <> 'sysdiagrams'
+ORDER BY
+    sys.tables.name,
+    sys.columns.column_id
+";
 
             DataSet ds = null;
 
@@ -385,52 +416,62 @@ ORDER BY
         {
             string sql2014 = @"
                         SELECT 
-	                        tables.name AS table_name,
+                            tables.name AS table_name,
                             schemas.name schema_name,
                             0 temporal_type,
                             '' history_table_name,
-					       0 is_memory_optimized,
-					       '' durability_desc,
-                           0 is_external,
-                           '' data_source_name
+                            0 is_memory_optimized,
+                            '' durability_desc,
+                            0 is_external,
+                            '' data_source_name,
+                            '[]' extended_properties
                         FROM 
-	                        sys.tables INNER JOIN 
-	                        sys.schemas ON 
-		                        tables.schema_id = schemas.schema_id 
+                            sys.tables INNER JOIN 
+                            sys.schemas ON 
+                                tables.schema_id = schemas.schema_id 
                         WHERE 
-	                        tables.name <> 'sysdiagrams'
+                            tables.name <> 'sysdiagrams'
                         ORDER BY 
-	                        tables.name
+                            tables.name
                         ";
 
             string sql2016 = @"
-                        SELECT 
-	                        tables.name AS table_name,
-                            schemas.name schema_name,
-                            tables.temporal_type,
-							ISNULL((SELECT
-								t1.name
-							FROM
-								sys.tables t1
-							WHERE
-								t1.object_id = tables.history_table_id
-							), '') history_table_name,
-					       tables.is_memory_optimized,
-					       tables.durability_desc,
-                           tables.is_external,
-                           external_data_sources.name data_source_name
-                        FROM 
-	                        sys.tables INNER JOIN 
-	                        sys.schemas ON 
-		                        tables.schema_id = schemas.schema_id LEFT JOIN
-	                        sys.external_tables ON
-		                        tables.object_id = external_tables.object_id LEFT JOIN
-	                        sys.external_data_sources ON
-		                        external_tables.data_source_id = external_data_sources.data_source_id
-                        WHERE 
-	                        tables.name <> 'sysdiagrams'
-                        ORDER BY 
-	                        tables.name
+SELECT
+    tables.name AS table_name,
+    schemas.name schema_name,
+    tables.temporal_type,
+    ISNULL(
+    (
+        SELECT
+            t1.name
+        FROM
+            sys.tables t1
+        WHERE
+            t1.object_id = tables.history_table_id
+    ), '') history_table_name,
+    tables.is_memory_optimized,
+    tables.durability_desc,
+    tables.is_external,
+    external_data_sources.name data_source_name,
+    ISNULL((SELECT
+        name,
+        value
+    FROM
+        fn_listextendedproperty (NULL, 'schema', schemas.name, 'table', tables.name, default, default)
+    FOR JSON AUTO
+    ), '[]') extended_properties
+FROM
+    sys.tables INNER JOIN
+    sys.schemas ON
+        tables.schema_id = schemas.schema_id LEFT JOIN
+    sys.external_tables ON
+        tables.object_id = external_tables.object_id LEFT JOIN
+    sys.external_data_sources ON
+        external_tables.data_source_id = external_data_sources.data_source_id
+WHERE
+    tables.name <> 'sysdiagrams'
+ORDER BY
+    tables.name
                         ";
 
             DataSet ds = null;
@@ -451,48 +492,48 @@ ORDER BY
         {
             string sql = @"
                     SELECT
-						*
-					FROM
-						(
-						SELECT 
-							sys.tables.name AS table_name, 
+                        *
+                    FROM
+                        (
+                        SELECT 
+                            sys.tables.name AS table_name, 
                             sys.schemas.name schema_name,
                             sys.triggers.name AS trigger_name, 
-							ISNULL(sys.sql_modules.definition, sys.system_sql_modules.definition) AS definition 
-						FROM 
-							sys.triggers INNER JOIN 
-							sys.tables ON 
-								sys.triggers.parent_id = sys.tables.object_id INNER JOIN 
-							sys.schemas ON 
-								sys.tables.schema_id = sys.schemas.schema_id LEFT OUTER JOIN 
-							sys.sql_modules ON 
-								sys.sql_modules.object_id = sys.triggers.object_id LEFT OUTER JOIN 
-							sys.system_sql_modules ON 
-								sys.system_sql_modules.object_id = sys.triggers.object_id 
-						WHERE 
-							sys.tables.name <> 'sysdiagrams'
-						UNION ALL
-						SELECT 
-							sys.views.name AS table_name, 
+                            ISNULL(sys.sql_modules.definition, sys.system_sql_modules.definition) AS definition 
+                        FROM 
+                            sys.triggers INNER JOIN 
+                            sys.tables ON 
+                                sys.triggers.parent_id = sys.tables.object_id INNER JOIN 
+                            sys.schemas ON 
+                                sys.tables.schema_id = sys.schemas.schema_id LEFT OUTER JOIN 
+                            sys.sql_modules ON 
+                                sys.sql_modules.object_id = sys.triggers.object_id LEFT OUTER JOIN 
+                            sys.system_sql_modules ON 
+                                sys.system_sql_modules.object_id = sys.triggers.object_id 
+                        WHERE 
+                            sys.tables.name <> 'sysdiagrams'
+                        UNION ALL
+                        SELECT 
+                            sys.views.name AS table_name, 
                             sys.schemas.name schema_name,
-							sys.triggers.name AS trigger_name, 
-							ISNULL(sys.sql_modules.definition, sys.system_sql_modules.definition) AS definition 
-						FROM 
-							sys.triggers INNER JOIN 
-							sys.views ON 
-								sys.triggers.parent_id = sys.views.object_id INNER JOIN 
-							sys.schemas ON 
-								sys.views.schema_id = sys.schemas.schema_id LEFT OUTER JOIN 
-							sys.sql_modules ON 
-								sys.sql_modules.object_id = sys.triggers.object_id LEFT OUTER JOIN 
-							sys.system_sql_modules ON 
-								sys.system_sql_modules.object_id = sys.triggers.object_id 
-						WHERE 
-							sys.views.name <> 'sysdiagrams'
-					) t1 
-					ORDER BY
-						t1.table_name,
-						t1.trigger_name
+                            sys.triggers.name AS trigger_name, 
+                            ISNULL(sys.sql_modules.definition, sys.system_sql_modules.definition) AS definition 
+                        FROM 
+                            sys.triggers INNER JOIN 
+                            sys.views ON 
+                                sys.triggers.parent_id = sys.views.object_id INNER JOIN 
+                            sys.schemas ON 
+                                sys.views.schema_id = sys.schemas.schema_id LEFT OUTER JOIN 
+                            sys.sql_modules ON 
+                                sys.sql_modules.object_id = sys.triggers.object_id LEFT OUTER JOIN 
+                            sys.system_sql_modules ON 
+                                sys.system_sql_modules.object_id = sys.triggers.object_id 
+                        WHERE 
+                            sys.views.name <> 'sysdiagrams'
+                    ) t1 
+                    ORDER BY
+                        t1.table_name,
+                        t1.trigger_name
                         ";
 
             System.Data.DataSet ds = Processes.Database.Execute(connection, sql);
@@ -503,49 +544,76 @@ ORDER BY
         public DataTable GetViewColumns(DbConnection connection)
         {
             string sql = @"
-                        SELECT 
-	                        sys.views.name AS table_name, 
-                            sys.schemas.name schema_name,
-	                        sys.columns.name AS column_name, 
-	                        UPPER(sys.types.name) AS column_type, 
-                            CASE ISNULL(sys.columns.precision, 0) 
-								WHEN 0 THEN 
-									CASE WHEN sys.types.name = 'nvarchar' OR
-                                            sys.types.name = 'nchar' THEN 
-										sys.columns.max_length / 2
-									ELSE
-										sys.columns.max_length 
-									END 
-								ELSE 
-									ISNULL(sys.columns.precision, 0) 
-							END AS precision, 	                        
-                            ISNULL(sys.columns.scale, 0) AS scale, 
-	                        sys.columns.is_nullable, 
-	                        sys.columns.is_identity, 
-	                        sys.columns.is_computed, 
-	                        ISNULL(sys.computed_columns.definition, '') computed_definition, 
-	                        sys.columns.column_id, 
-	                        ISNULL(sys.default_constraints.definition, '') column_default,
-	                        ISNULL((SELECT 1 FROM sys.indexes INNER JOIN sys.index_columns ON sys.indexes.object_id = sys.index_columns.object_id AND sys.indexes.index_id = sys.index_columns.index_id WHERE sys.indexes.is_primary_key = 1 AND sys.indexes.object_id = sys.views.object_id AND sys.index_columns.object_id = sys.columns.object_id AND sys.index_columns.column_id = sys.columns.column_id), 0) is_primary_key 
-                        FROM 
-	                        sys.views INNER JOIN 
-	                        sys.schemas on 
-		                        sys.views.schema_id = sys.schemas.schema_id INNER JOIN 
-	                        sys.columns ON 
-		                        sys.views.object_id = sys.columns.object_id INNER JOIN 
-	                        sys.types ON 
-		                        sys.columns.user_type_id = sys.types.user_type_id LEFT OUTER JOIN 
-	                        sys.computed_columns ON 
-		                        sys.columns.object_id = sys.computed_columns.object_id AND 
-		                        sys.columns.column_id = sys.computed_columns.column_id LEFT OUTER JOIN
-	                        sys.default_constraints ON
-		                        sys.columns.object_id = sys.default_constraints.parent_object_id AND
-		                        sys.columns.column_id = sys.default_constraints.parent_column_id
-                        WHERE 
-	                        sys.views.name <> 'sysdiagrams'
-                        ORDER BY 
-	                        sys.views.name,
-	                        sys.columns.column_id
+SELECT
+    sys.views.name AS table_name,
+    sys.schemas.name schema_name,
+    sys.columns.name AS column_name,
+    UPPER(sys.types.name) AS column_type,
+    CASE
+        ISNULL(sys.columns.precision, 0)
+        WHEN 0 THEN
+            CASE
+                WHEN sys.types.name = 'nvarchar' OR
+                    sys.types.name = 'nchar' THEN
+                    sys.columns.max_length / 2
+                ELSE
+                    sys.columns.max_length
+            END
+        ELSE
+            ISNULL(sys.columns.precision, 0)
+    END AS precision,
+    ISNULL(sys.columns.scale, 0) AS scale,
+    sys.columns.is_nullable,
+    sys.columns.is_identity,
+    sys.columns.is_computed,
+    ISNULL(sys.computed_columns.definition, '') computed_definition,
+    sys.columns.column_id,
+    ISNULL(sys.default_constraints.definition, '') column_default,
+    ISNULL(
+    (
+        SELECT
+            1
+        FROM
+            sys.indexes INNER JOIN
+            sys.index_columns ON
+                sys.indexes.object_id = sys.index_columns.object_id AND
+                sys.indexes.index_id = sys.index_columns.index_id
+        WHERE
+            sys.indexes.is_primary_key = 1 AND
+            sys.indexes.object_id = sys.views.object_id AND
+            sys.index_columns.object_id = sys.columns.object_id AND
+            sys.index_columns.column_id = sys.columns.column_id
+    ), 0) is_primary_key,
+    ISNULL(
+    (
+        SELECT
+            name,
+            value
+        FROM
+            fn_listextendedproperty(NULL, 'schema', schemas.name, 'view', views.name, 'column', columns.name)
+        WHERE
+            name <> 'sys_data_classification_recommendation_disabled'
+        FOR JSON AUTO
+    ), '[]') extended_properties
+FROM
+    sys.views INNER JOIN
+    sys.schemas ON
+        sys.views.schema_id = sys.schemas.schema_id INNER JOIN
+    sys.columns ON
+        sys.views.object_id = sys.columns.object_id INNER JOIN
+    sys.types ON
+        sys.columns.user_type_id = sys.types.user_type_id LEFT OUTER JOIN
+    sys.computed_columns ON
+        sys.columns.object_id = sys.computed_columns.object_id AND
+        sys.columns.column_id = sys.computed_columns.column_id LEFT OUTER JOIN
+    sys.default_constraints ON
+        sys.columns.object_id = sys.default_constraints.parent_object_id AND
+        sys.columns.column_id = sys.default_constraints.parent_column_id
+WHERE
+    sys.views.name <> 'sysdiagrams'
+ORDER BY
+    sys.views.name,
+    sys.columns.column_id
                         ";
 
             DataSet ds = Processes.Database.Execute(connection, sql);
@@ -556,17 +624,24 @@ ORDER BY
         public DataTable GetViews(DbConnection connection)
         {
             string sql = @"
-                        SELECT 
-	                        sys.views.name AS table_name,
-                            sys.schemas.name schema_name
-                        FROM 
-	                        sys.views INNER JOIN 
-	                        sys.schemas ON 
-		                        sys.views.schema_id = sys.schemas.schema_id 
-                        WHERE 
-	                        sys.views.name <> 'sysdiagrams'
-                        ORDER BY 
-	                        sys.views.name
+SELECT
+    sys.views.name AS table_name,
+    sys.schemas.name schema_name,
+    ISNULL((SELECT
+        name,
+        value
+    FROM
+        fn_listextendedproperty (NULL, 'schema', schemas.name, 'view', views.name, default, default)
+    FOR JSON AUTO
+    ), '[]') extended_properties
+FROM
+    sys.views INNER JOIN
+    sys.schemas ON
+        sys.views.schema_id = sys.schemas.schema_id
+WHERE
+    sys.views.name <> 'sysdiagrams'
+ORDER BY
+    sys.views.name
                         ";
 
             DataSet ds = Processes.Database.Execute(connection, sql);

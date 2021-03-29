@@ -94,6 +94,12 @@ namespace DatabaseTools
                         {
                             this._definitions = Processes.Database.GetDefinitions(conn);
                         }
+
+                        foreach (var def in _definitions.Where(i => i.Type == "VIEW"))
+                        {
+                            def.View = Views.FirstOrDefault(i => i.SchemaName.EqualsIgnoreCase(def.SchemaName) && i.TableName.EqualsIgnoreCase(def.DefinitionName));
+                        }
+
                     }
 
                     var filteredList = this._definitions.ToList();
@@ -192,7 +198,7 @@ namespace DatabaseTools
                 {
                     filteredList = (
                         from i in filteredList
-                        where i.TableName.ToLower().Contains(this.ObjectFilter.ToLower()) 
+                        where i.TableName.ToLower().Contains(this.ObjectFilter.ToLower())
                         select i).ToList();
                 }
 
@@ -212,7 +218,7 @@ namespace DatabaseTools
                 {
                     filteredList = (
                         from i in filteredList
-                        where i.TableName.ToLower().Contains(this.ObjectFilter.ToLower()) 
+                        where i.TableName.ToLower().Contains(this.ObjectFilter.ToLower())
                         select i).ToList();
                 }
 
@@ -352,7 +358,7 @@ namespace DatabaseTools
             }
 
             public string ObjectFilter { get; set; }
-            public bool ExcludeDoubleUnderscoreObjects { get; set; } 
+            public bool ExcludeDoubleUnderscoreObjects { get; set; }
 
             public string QuoteCharacterStart { get; set; }
             public string QuoteCharacterEnd { get; set; }
@@ -797,7 +803,7 @@ namespace DatabaseTools
 
                         foreach (var pagedRow in pagedRows)
                         {
-                            if (sbValues.Length > 0 )
+                            if (sbValues.Length > 0)
                             {
                                 sbValues.AppendLine(",");
                             }

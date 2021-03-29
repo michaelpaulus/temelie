@@ -1,6 +1,8 @@
 ﻿
 using DatabaseTools.Extensions;
+using DatabaseTools.Models;
 using DatabaseTools.Providers;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -604,6 +606,11 @@ namespace DatabaseTools
                 column.ColumnID = GetInt32Value(row, "column_id");
                 column.IsPrimaryKey = GetBoolValue(row, "is_primary_key");
                 column.ColumnDefault = GetStringValue(row, "column_default");
+                var extendedProperites = GetStringValue(row, "extended_properties");
+                if (!string.IsNullOrEmpty(extendedProperites))
+                {
+                    column.ExtendedProperties = JsonConvert.DeserializeObject<List<ExtendedProperty>>(extendedProperites);
+                }
 
                 if (converter != null)
                 {
@@ -629,16 +636,18 @@ namespace DatabaseTools
 
                 if (dtDefinitions != null)
                 {
-                    list = (
-                        from i in dtDefinitions.Rows.OfType<System.Data.DataRow>()
-                        select new Models.DefinitionModel
+                    foreach (var row in dtDefinitions.Rows.OfType<System.Data.DataRow>())
+                    {
+                        var model = new Models.DefinitionModel
                         {
-                            Definition = i["definition"].ToString(),
-                            DefinitionName = i["name"].ToString(),
-                            SchemaName = i["schema_name"].ToString(),
-                            XType = i["xtype"].ToString().Trim()
-                        }
-                        ).ToList();
+                            Definition = row["definition"].ToString(),
+                            DefinitionName = row["name"].ToString(),
+                            SchemaName = row["schema_name"].ToString(),
+                            XType = row["xtype"].ToString().Trim()
+                        };
+                        list.Add(model);
+                    }
+
                 }
 
                 list = list.OrderBy(i => i.XType).ThenBy(i => i.DefinitionName).ToList();
@@ -893,6 +902,11 @@ namespace DatabaseTools
                     table.DurabilityDesc = Processes.Database.GetStringValue(row, "durability_desc");
                     table.IsExternal = Processes.Database.GetBoolValue(row, "is_external");
                     table.DataSourceName = Processes.Database.GetStringValue(row, "data_source_name");
+                    var extendedProperites = GetStringValue(row, "extended_properties");
+                    if (!string.IsNullOrEmpty(extendedProperites))
+                    {
+                        table.ExtendedProperties = JsonConvert.DeserializeObject<List<ExtendedProperty>>(extendedProperites);
+                    }
 
                     var tableKey = $"{table.SchemaName}.{table.TableName}".ToUpper();
 

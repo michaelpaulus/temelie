@@ -14,12 +14,13 @@
     <AssemblyOriginatorKeyFile>databasetools.snk</AssemblyOriginatorKeyFile>
     <Authors>Michael Paulus</Authors>
     <Company />
-    <Version>1.0.9</Version>
+    <Version>1.0.10</Version>
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="PropertyChanged.Fody" Version="3.2.1">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>

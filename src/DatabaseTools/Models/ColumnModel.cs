@@ -206,6 +206,9 @@ namespace DatabaseTools
                 }
             }
 
+            public IList<ExtendedProperty> ExtendedProperties { get; set; } = new List<ExtendedProperty>();
+
+
             #endregion
 
             #region Methods
