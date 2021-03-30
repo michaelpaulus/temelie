@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 
@@ -15,15 +16,31 @@ namespace DatabaseTools
         public class Script
         {
 
-            private static void CreateDropScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
+            private static FileInfo WriteIfDifferent(string path, string contents)
             {
+                var currentContents = "";
+                if (File.Exists(path))
+                {
+                    currentContents = File.ReadAllText(path);
+                }
+                if (currentContents != contents)
+                {
+                    File.WriteAllText(path, contents, System.Text.Encoding.UTF8);
+                }
+                return new FileInfo(path);
+            }
+
+            private static IEnumerable<FileInfo> CreateDropScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
+            {
+                var files = new List<FileInfo>();
+
                 foreach (var item in database.GetTriggerDropScriptsIndividual())
                 {
                     var fileName = MakeValidFileName($"{item.Key.SchemaName}.{item.Key.TriggerName}.sql");
                     if (string.IsNullOrEmpty(fileFilter) ||
                        fileFilter.EqualsIgnoreCase(fileName))
                     {
-                        System.IO.File.WriteAllText(System.IO.Path.Combine(directory.FullName, fileName), item.Value);
+                        files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), item.Value));
                     }
                 }
 
@@ -33,50 +50,62 @@ namespace DatabaseTools
                     if (string.IsNullOrEmpty(fileFilter) ||
                       fileFilter.EqualsIgnoreCase(fileName))
                     {
-                        System.IO.File.WriteAllText(System.IO.Path.Combine(directory.FullName, fileName), item.Value);
+                        files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), item.Value));
                     }
                 }
+
+                return files;
             }
 
-            private static void CreateTableScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
+            private static IEnumerable<FileInfo> CreateTableScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
             {
+                var files = new List<FileInfo>();
                 foreach (var item in database.GetTableScriptsIndividual())
                 {
                     var fileName = MakeValidFileName($"{item.Key.SchemaName}.{item.Key.TableName}.sql");
                     if (string.IsNullOrEmpty(fileFilter) ||
                         fileFilter.EqualsIgnoreCase(fileName))
                     {
-                        System.IO.File.WriteAllText(System.IO.Path.Combine(directory.FullName, fileName), item.Value);
+                        files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), item.Value));
                     }
                 }
+                return files;
             }
-            private static void CreateSecurityPolicyScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
+            private static IEnumerable<FileInfo> CreateSecurityPolicyScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
             {
+                var files = new List<FileInfo>();
+
                 foreach (var item in database.GetSecurityPolicyScriptsIndividual())
                 {
                     var fileName = MakeValidFileName($"{item.Key.PolicySchema}.{item.Key.PolicyName}.sql");
                     if (string.IsNullOrEmpty(fileFilter) ||
                         fileFilter.EqualsIgnoreCase(fileName))
                     {
-                        System.IO.File.WriteAllText(System.IO.Path.Combine(directory.FullName, fileName), item.Value);
+                        files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), item.Value));
                     }
                 }
+                return files;
             }
-            private static void CreateIndexScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
+            private static IEnumerable<FileInfo> CreateIndexScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
             {
+                var files = new List<FileInfo>();
+
                 foreach (var item in database.GetIxPkScriptsIndividual())
                 {
                     var fileName = MakeValidFileName($"{item.Key.SchemaName}.{item.Key.IndexName}.sql");
                     if (string.IsNullOrEmpty(fileFilter) ||
                         fileFilter.EqualsIgnoreCase(fileName))
                     {
-                        System.IO.File.WriteAllText(System.IO.Path.Combine(directory.FullName, fileName), item.Value);
+                        files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), item.Value));
                     }
                 }
+                return files;
             }
 
-            private static void CreateViewsAndProgrammabilityScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
+            private static IEnumerable<FileInfo> CreateViewsAndProgrammabilityScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
             {
+                var files = new List<FileInfo>();
+
                 var sbExecutionOrder = new System.Text.StringBuilder();
 
                 foreach (var item in database.GetDefinitionScriptsIndividual())
@@ -86,7 +115,8 @@ namespace DatabaseTools
                     if (string.IsNullOrEmpty(fileFilter) ||
                         fileFilter.EqualsIgnoreCase(fileName))
                     {
-                        System.IO.File.WriteAllText(System.IO.Path.Combine(directory.FullName, fileName), item.Value);
+
+                        files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), item.Value));
                     }
                 }
 
@@ -94,23 +124,30 @@ namespace DatabaseTools
                 {
                     System.IO.File.WriteAllText(System.IO.Path.Combine(directory.FullName, "_executionOrder.txt"), sbExecutionOrder.ToString());
                 }
+
+                return files;
             }
 
-            private static void CreateTriggerScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
+            private static IEnumerable<FileInfo> CreateTriggerScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
             {
+                var files = new List<FileInfo>();
+
                 foreach (var item in database.GetTriggerScriptsIndividual())
                 {
                     var fileName = MakeValidFileName($"{item.Key.SchemaName}.{item.Key.TriggerName}.sql");
                     if (string.IsNullOrEmpty(fileFilter) ||
                         fileFilter.EqualsIgnoreCase(fileName))
                     {
-                        System.IO.File.WriteAllText(System.IO.Path.Combine(directory.FullName, fileName), item.Value);
+                        files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), item.Value));
                     }
                 }
+                return files;
             }
 
-            private static void CreateInsertDefaultScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
+            private static IEnumerable<FileInfo> CreateInsertDefaultScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
             {
+                var files = new List<FileInfo>();
+
 
                 foreach (var item in database.GetInsertDefaultScriptsIndividual())
                 {
@@ -118,22 +155,26 @@ namespace DatabaseTools
                     if (string.IsNullOrEmpty(fileFilter) ||
                         fileFilter.EqualsIgnoreCase(fileName))
                     {
-                        System.IO.File.WriteAllText(System.IO.Path.Combine(directory.FullName, fileName), item.Value);
+                        files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), item.Value));
                     }
                 }
+                return files;
             }
 
-            private static void CreateFkScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
+            private static IEnumerable<FileInfo> CreateFkScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
             {
+                var files = new List<FileInfo>();
+
                 foreach (var item in database.GetFkScriptsIndividual())
                 {
                     var fileName = MakeValidFileName($"{item.Key.SchemaName}.{item.Key.ForeignKeyName}.sql");
                     if (string.IsNullOrEmpty(fileFilter) ||
                         fileFilter.EqualsIgnoreCase(fileName))
                     {
-                        System.IO.File.WriteAllText(System.IO.Path.Combine(directory.FullName, fileName), item.Value);
+                        files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), item.Value));
                     }
                 }
+                return files;
             }
 
             public static void CreateScriptsIndividual(System.Configuration.ConnectionStringSettings connectionString, System.IO.DirectoryInfo directory, Models.DatabaseType targetDatabaseType, IProgress<ScriptProgress> progress, string objectFilter = "")
@@ -175,76 +216,96 @@ namespace DatabaseTools
 
                         if (subDirectory.Name.StartsWith("01_Drops", StringComparison.InvariantCultureIgnoreCase))
                         {
+                            var files = CreateDropScripts(database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
                             foreach (var file in subDirectory.GetFiles("*.sql"))
                             {
-                                file.Delete();
+                                if (!files.ContainsKey(file.Name))
+                                {
+                                    file.Delete();
+                                }
                             }
-
-                            CreateDropScripts(database, subDirectory);
 
                         }
                         else if (subDirectory.Name.StartsWith("02_Tables", StringComparison.InvariantCultureIgnoreCase))
                         {
+
+
+                            var files = CreateTableScripts(database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
                             foreach (var file in subDirectory.GetFiles("*.sql"))
                             {
-                                file.Delete();
+                                if (!files.ContainsKey(file.Name))
+                                {
+                                    file.Delete();
+                                }
                             }
-
-                            CreateTableScripts(database, subDirectory);
                         }
                         else if (subDirectory.Name.StartsWith("03_Indexes", StringComparison.InvariantCultureIgnoreCase))
                         {
+
+                            var files = CreateIndexScripts(database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
                             foreach (var file in subDirectory.GetFiles("*.sql"))
                             {
-                                file.Delete();
+                                if (!files.ContainsKey(file.Name))
+                                {
+                                    file.Delete();
+                                }
                             }
-
-                            CreateIndexScripts(database, subDirectory);
                         }
                         else if (subDirectory.Name.StartsWith("05_ViewsAndProgrammability", StringComparison.InvariantCultureIgnoreCase))
                         {
-                            foreach (var file in subDirectory.GetFiles("*.sql"))
+                            var files = CreateViewsAndProgrammabilityScripts(database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
+                            var existingFiles = subDirectory.GetFiles("*.sql");
+                            foreach (var file in existingFiles)
                             {
-                                file.Delete();
+                                if (!files.ContainsKey(file.Name))
+                                {
+                                    file.Delete();
+                                }
                             }
-
-                            CreateViewsAndProgrammabilityScripts(database, subDirectory);
                         }
                         else if (subDirectory.Name.StartsWith("06_Triggers", StringComparison.InvariantCultureIgnoreCase))
                         {
+                            var files = CreateTriggerScripts(database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
                             foreach (var file in subDirectory.GetFiles("*.sql"))
                             {
-                                file.Delete();
+                                if (!files.ContainsKey(file.Name))
+                                {
+                                    file.Delete();
+                                }
                             }
-
-                            CreateTriggerScripts(database, subDirectory);
                         }
                         else if (subDirectory.Name.StartsWith("07_InsertDefaults", StringComparison.InvariantCultureIgnoreCase))
                         {
+                            var files = CreateInsertDefaultScripts(database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
                             foreach (var file in subDirectory.GetFiles("*.sql"))
                             {
-                                file.Delete();
+                                if (!files.ContainsKey(file.Name))
+                                {
+                                    file.Delete();
+                                }
                             }
-
-                            CreateInsertDefaultScripts(database, subDirectory);
                         }
                         else if (subDirectory.Name.StartsWith("08_ForeignKeys", StringComparison.InvariantCultureIgnoreCase))
                         {
+                            var files = CreateFkScripts(database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
                             foreach (var file in subDirectory.GetFiles("*.sql"))
                             {
-                                file.Delete();
+                                if (!files.ContainsKey(file.Name))
+                                {
+                                    file.Delete();
+                                }
                             }
-
-                            CreateFkScripts(database, subDirectory);
                         }
                         else if (subDirectory.Name.StartsWith("09_SecurityPolicies", StringComparison.InvariantCultureIgnoreCase))
                         {
+                            var files = CreateSecurityPolicyScripts(database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
                             foreach (var file in subDirectory.GetFiles("*.sql"))
                             {
-                                file.Delete();
+                                if (!files.ContainsKey(file.Name))
+                                {
+                                    file.Delete();
+                                }
                             }
-
-                            CreateSecurityPolicyScripts(database, subDirectory);
                         }
                     }
 
@@ -467,7 +528,7 @@ namespace DatabaseTools
                     sbFile.AppendLine(database.GetSecurityPolicyScripts());
                 }
 
-                    sbFile.AppendLine("-- END GENERATED SQL");
+                sbFile.AppendLine("-- END GENERATED SQL");
 
                 if (sbPostGenerated.Length > 0)
                 {

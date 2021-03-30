@@ -1004,6 +1004,10 @@ namespace DatabaseTools
                     if (dataTable != null)
                     {
                         list = GetTables(dataTable, columns);
+                        foreach (var item in list)
+                        {
+                            item.IsView = true;
+                        }
                     }
                 }
 
