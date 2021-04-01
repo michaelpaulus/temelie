@@ -7,6 +7,7 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Xml.Linq;
 
 namespace DatabaseTools
@@ -34,24 +35,31 @@ namespace DatabaseTools
             {
                 var files = new List<FileInfo>();
 
-                foreach (var item in database.GetTriggerDropScriptsIndividual())
+                foreach (var trigger in database.Triggers)
                 {
-                    var fileName = MakeValidFileName($"{item.Key.SchemaName}.{item.Key.TriggerName}.sql");
+                    var fileName = MakeValidFileName($"{trigger.SchemaName}.{trigger.TriggerName}.sql");
                     if (string.IsNullOrEmpty(fileFilter) ||
                        fileFilter.EqualsIgnoreCase(fileName))
                     {
-                        files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), item.Value));
+                        var sb = new StringBuilder();
+
+                        trigger.AppendDropScript(sb, database.QuoteCharacterStart, database.QuoteCharacterEnd);
+
+                        files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()));
                     }
+
                 }
 
-                foreach (var item in database.GetFkDropScriptsIndividual())
+                foreach (var foreignKey in database.ForeignKeys)
                 {
-                    var fileName = MakeValidFileName($"{item.Key.ForeignKeyName}.sql");
+                    var fileName = MakeValidFileName($"{foreignKey.ForeignKeyName}.sql");
                     if (string.IsNullOrEmpty(fileFilter) ||
                       fileFilter.EqualsIgnoreCase(fileName))
                     {
-                        files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), item.Value));
-                    }
+                        var sb = new StringBuilder();
+                        foreignKey.AppendDropScript(database, sb, database.QuoteCharacterStart, database.QuoteCharacterEnd);
+                        files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()));
+                    }                   
                 }
 
                 return files;
@@ -60,45 +68,77 @@ namespace DatabaseTools
             private static IEnumerable<FileInfo> CreateTableScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
             {
                 var files = new List<FileInfo>();
-                foreach (var item in database.GetTableScriptsIndividual())
+
+                foreach (var table in database.Tables)
                 {
-                    var fileName = MakeValidFileName($"{item.Key.SchemaName}.{item.Key.TableName}.sql");
+                    var fileName = MakeValidFileName($"{table.SchemaName}.{table.TableName}.sql");
                     if (string.IsNullOrEmpty(fileFilter) ||
                         fileFilter.EqualsIgnoreCase(fileName))
                     {
-                        files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), item.Value));
+                        var sbTableScript = new StringBuilder();
+                        table.AppendCreateScript(database, sbTableScript, database.QuoteCharacterStart, database.QuoteCharacterEnd, true);
+                        files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sbTableScript.ToString()));
+
+                        fileName += ".json";
+
+                        var sbJsonScript = new StringBuilder();
+                        table.AppendJsonScript(database, sbJsonScript);
+                        files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sbJsonScript.ToString()));
                     }
                 }
+
                 return files;
             }
             private static IEnumerable<FileInfo> CreateSecurityPolicyScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
             {
                 var files = new List<FileInfo>();
 
-                foreach (var item in database.GetSecurityPolicyScriptsIndividual())
+                foreach (var securityPolicy in database.SecurityPolicies)
                 {
-                    var fileName = MakeValidFileName($"{item.Key.PolicySchema}.{item.Key.PolicyName}.sql");
+                    var fileName = MakeValidFileName($"{securityPolicy.PolicySchema}.{securityPolicy.PolicyName}.sql");
                     if (string.IsNullOrEmpty(fileFilter) ||
                         fileFilter.EqualsIgnoreCase(fileName))
                     {
-                        files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), item.Value));
+                        var sbSecurityPolicyScript = new StringBuilder();
+                        securityPolicy.AppendDropScript(database, sbSecurityPolicyScript, database.QuoteCharacterStart, database.QuoteCharacterEnd);
+                        securityPolicy.AppendCreateScript(database, sbSecurityPolicyScript, database.QuoteCharacterStart, database.QuoteCharacterEnd, true);
+
+                        files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sbSecurityPolicyScript.ToString()));
                     }
+
                 }
+
                 return files;
             }
             private static IEnumerable<FileInfo> CreateIndexScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
             {
                 var files = new List<FileInfo>();
 
-                foreach (var item in database.GetIxPkScriptsIndividual())
+                foreach (var pk in database.PrimaryKeys)
                 {
-                    var fileName = MakeValidFileName($"{item.Key.SchemaName}.{item.Key.IndexName}.sql");
+                    var fileName = MakeValidFileName($"{pk.SchemaName}.{pk.IndexName}.sql");
                     if (string.IsNullOrEmpty(fileFilter) ||
                         fileFilter.EqualsIgnoreCase(fileName))
                     {
-                        files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), item.Value));
+                        var sb = new StringBuilder();
+                        pk.AppendCreateScript(database, sb, database.QuoteCharacterStart, database.QuoteCharacterEnd);
+
+                        files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()));
                     }
                 }
+
+                foreach (var index in database.Indexes)
+                {
+                    var fileName = MakeValidFileName($"{index.SchemaName}.{index.IndexName}.sql");
+                    if (string.IsNullOrEmpty(fileFilter) ||
+                        fileFilter.EqualsIgnoreCase(fileName))
+                    {
+                        var sb = new StringBuilder();
+                        index.AppendCreateScript(database, sb, database.QuoteCharacterStart, database.QuoteCharacterEnd);
+                        files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()));
+                    }
+                }
+
                 return files;
             }
 
@@ -106,23 +146,28 @@ namespace DatabaseTools
             {
                 var files = new List<FileInfo>();
 
-                var sbExecutionOrder = new System.Text.StringBuilder();
-
-                foreach (var item in database.GetDefinitionScriptsIndividual())
+                foreach (var definition in database.Definitions)
                 {
-                    var fileName = MakeValidFileName($"{item.Key.SchemaName}.{item.Key.DefinitionName}.sql");
-                    sbExecutionOrder.AppendLine(fileName);
+                    var fileName = MakeValidFileName($"{definition.SchemaName}.{definition.DefinitionName}.sql");
                     if (string.IsNullOrEmpty(fileFilter) ||
                         fileFilter.EqualsIgnoreCase(fileName))
                     {
+                        var sb = new System.Text.StringBuilder();
+                        definition.AppendDropScript(database, sb, database.QuoteCharacterStart, database.QuoteCharacterEnd);
+                        definition.AppendCreateScript(database, sb, database.QuoteCharacterStart, database.QuoteCharacterEnd);
 
-                        files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), item.Value));
+                        files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()));
+
+                        if (definition.View != null)
+                        {
+                            fileName += ".json";
+
+                            var sbJsonScript = new StringBuilder();
+                            definition.View.AppendJsonScript(database, sbJsonScript);
+                            files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sbJsonScript.ToString()));
+                        }
                     }
-                }
 
-                if (string.IsNullOrEmpty(fileFilter))
-                {
-                    System.IO.File.WriteAllText(System.IO.Path.Combine(directory.FullName, "_executionOrder.txt"), sbExecutionOrder.ToString());
                 }
 
                 return files;
@@ -132,15 +177,21 @@ namespace DatabaseTools
             {
                 var files = new List<FileInfo>();
 
-                foreach (var item in database.GetTriggerScriptsIndividual())
+                foreach (var trigger in database.Triggers)
                 {
-                    var fileName = MakeValidFileName($"{item.Key.SchemaName}.{item.Key.TriggerName}.sql");
+                    var fileName = MakeValidFileName($"{trigger.SchemaName}.{trigger.TriggerName}.sql");
                     if (string.IsNullOrEmpty(fileFilter) ||
                         fileFilter.EqualsIgnoreCase(fileName))
                     {
-                        files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), item.Value));
+                        var sb = new System.Text.StringBuilder();
+
+                        trigger.AppendDropScript(sb, database.QuoteCharacterStart, database.QuoteCharacterEnd);
+                        trigger.AppendScript(sb, database.QuoteCharacterStart, database.QuoteCharacterEnd);
+
+                        files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()));
                     }
                 }
+
                 return files;
             }
 
@@ -148,16 +199,26 @@ namespace DatabaseTools
             {
                 var files = new List<FileInfo>();
 
-
-                foreach (var item in database.GetInsertDefaultScriptsIndividual())
+                foreach (var table in database.Tables)
                 {
-                    var fileName = MakeValidFileName($"{item.Key.SchemaName}.{item.Key.TableName}.sql");
-                    if (string.IsNullOrEmpty(fileFilter) ||
-                        fileFilter.EqualsIgnoreCase(fileName))
+                    if (table.TableName.StartsWith("default_"))
                     {
-                        files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), item.Value));
+                        var fileName = MakeValidFileName($"{table.SchemaName}.{table.TableName}.sql");
+                        if (string.IsNullOrEmpty(fileFilter) ||
+                            fileFilter.EqualsIgnoreCase(fileName))
+                        {
+                            var strScript = database.GetInsertScript(table.TableName);
+
+                            if (!(string.IsNullOrEmpty(strScript)))
+                            {
+                                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), strScript));
+                            }
+
+                        }
+
                     }
                 }
+
                 return files;
             }
 
@@ -165,15 +226,20 @@ namespace DatabaseTools
             {
                 var files = new List<FileInfo>();
 
-                foreach (var item in database.GetFkScriptsIndividual())
+                foreach (var foreignKey in database.ForeignKeys)
                 {
-                    var fileName = MakeValidFileName($"{item.Key.SchemaName}.{item.Key.ForeignKeyName}.sql");
+                    var fileName = MakeValidFileName($"{foreignKey.SchemaName}.{foreignKey.ForeignKeyName}.sql");
                     if (string.IsNullOrEmpty(fileFilter) ||
                         fileFilter.EqualsIgnoreCase(fileName))
                     {
-                        files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), item.Value));
+                        var sb = new System.Text.StringBuilder();
+
+                        foreignKey.AppendDropScript(database, sb, database.QuoteCharacterStart, database.QuoteCharacterEnd);
+                        foreignKey.AppendCreateScript(database, sb, database.QuoteCharacterStart, database.QuoteCharacterEnd);
+                        files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()));
                     }
                 }
+
                 return files;
             }
 
@@ -228,8 +294,6 @@ namespace DatabaseTools
                         }
                         else if (subDirectory.Name.StartsWith("02_Tables", StringComparison.InvariantCultureIgnoreCase))
                         {
-
-
                             var files = CreateTableScripts(database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
                             foreach (var file in subDirectory.GetFiles("*.sql"))
                             {
@@ -392,152 +456,6 @@ namespace DatabaseTools
                 string invalidRegStr = string.Format(@"([{0}]*\.+$)|([{0}]+)", invalidChars);
 
                 return System.Text.RegularExpressions.Regex.Replace(name, invalidRegStr, "_");
-            }
-
-            public static void CreateScripts(System.Configuration.ConnectionStringSettings connectionString, IList<System.IO.FileInfo> fileList, Models.DatabaseType targetDatabaseType, IProgress<ScriptProgress> progress, string objectFilter = "")
-            {
-                int intFileCount = 1;
-
-                int intProgress = 0;
-
-                fileList = (from i in fileList orderby i.FullName select i).ToList();
-
-                Models.DatabaseModel database = new Models.DatabaseModel(connectionString, targetDatabaseType) { ObjectFilter = objectFilter, ExcludeDoubleUnderscoreObjects = true };
-
-                foreach (System.IO.FileInfo file in fileList)
-                {
-                    bool blnSkipFile = false;
-
-                    if (file.Name.EndsWith("_merge.sql", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        blnSkipFile = true;
-                    }
-
-                    if (!blnSkipFile)
-                    {
-                        if (progress != null)
-                        {
-                            progress.Report(new ScriptProgress() { ProgressPercentage = intProgress, ProgressStatus = file.Name });
-                        }
-                        CreateScript(database, file);
-                    }
-
-                    intProgress = Convert.ToInt32((intFileCount / (double)fileList.Count) * 100);
-
-                    intFileCount += 1;
-                }
-
-                if (progress != null)
-                {
-                    progress.Report(new ScriptProgress() { ProgressPercentage = 100, ProgressStatus = "Completed" });
-                }
-
-                var mergeFile = (
-                    from i in fileList
-                    where i.FullName.EndsWith("_merge.sql", StringComparison.InvariantCultureIgnoreCase)
-                    select i).FirstOrDefault();
-                if (mergeFile != null)
-                {
-                    var mergeList = (
-                        from i in fileList
-                        where i != mergeFile
-                        select i.FullName).ToList();
-                    MergeScripts(mergeList, mergeFile.FullName);
-                }
-
-            }
-
-            public static void CreateScript(Models.DatabaseModel database, System.IO.FileInfo file)
-            {
-
-                System.Text.StringBuilder sbFile = new System.Text.StringBuilder();
-
-                System.Text.StringBuilder sbPostGenerated = new System.Text.StringBuilder();
-
-                using (System.IO.Stream stream = System.IO.File.OpenRead(file.FullName))
-                {
-                    using (System.IO.StreamReader reader = new System.IO.StreamReader(stream))
-                    {
-
-                        bool blnBeginGeneratedFound = false;
-                        bool blnEndGeneratedFound = false;
-
-                        while (!(reader.EndOfStream))
-                        {
-                            string strLine = reader.ReadLine();
-                            if (strLine.Trim().StartsWith("-- BEGIN GENERATED"))
-                            {
-                                blnBeginGeneratedFound = true;
-                            }
-                            else if (strLine.Trim().StartsWith("-- END GENERATED"))
-                            {
-                                blnEndGeneratedFound = true;
-                            }
-                            else if (blnBeginGeneratedFound)
-                            {
-                                if (blnEndGeneratedFound)
-                                {
-                                    sbPostGenerated.AppendLine(strLine);
-                                }
-                            }
-                            else
-                            {
-                                sbFile.AppendLine(strLine);
-                            }
-                        }
-                        reader.Close();
-                    }
-                    stream.Close();
-                }
-
-                sbFile.AppendLine("-- BEGIN GENERATED SQL");
-                sbFile.AppendLine();
-
-                if (file.Name.EndsWith("_drop.sql", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    sbFile.AppendLine(database.GetDefinitionDropScripts());
-                    sbFile.AppendLine(database.GetTriggerDropScripts());
-                    sbFile.AppendLine(database.GetFkDropScripts());
-                }
-                else if (file.Name.EndsWith("_create_tables.sql", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    sbFile.AppendLine(database.GetTableScripts());
-                }
-                else if (file.Name.EndsWith("_create_ix_pk.sql", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    sbFile.AppendLine(database.GetIxPkScripts());
-                }
-                else if (file.Name.EndsWith("_create_sp_fn_vw.sql", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    sbFile.AppendLine(database.GetDefinitionScripts());
-                }
-                else if (file.Name.EndsWith("_create_triggers.sql", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    sbFile.AppendLine(database.GetTriggerScripts());
-                }
-                else if (file.Name.EndsWith("_create_fk.sql", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    sbFile.AppendLine(database.GetFkScripts());
-                }
-                else if (file.Name.EndsWith("_insert_default_values.sql", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    sbFile.AppendLine(database.GetInsertDefaultScripts());
-                }
-                else if (file.Name.EndsWith("_create_security_policies.sql", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    sbFile.AppendLine(database.GetSecurityPolicyScripts());
-                }
-
-                sbFile.AppendLine("-- END GENERATED SQL");
-
-                if (sbPostGenerated.Length > 0)
-                {
-                    sbFile.AppendLine(sbPostGenerated.ToString());
-                }
-
-                System.IO.File.WriteAllText(file.FullName, sbFile.ToString().TrimEnd());
-
-
             }
 
             public static void ExecuteScripts(System.Configuration.ConnectionStringSettings connectionString, IList<System.IO.FileInfo> fileList, bool continueOnError, IProgress<ScriptProgress> progress)

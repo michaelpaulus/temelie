@@ -549,30 +549,6 @@ namespace DatabaseTools
                 return sb.ToString();
             }
 
-            public Dictionary<ForeignKeyModel, string> GetFkDropScriptsIndividual()
-            {
-
-                var dictionary = new Dictionary<ForeignKeyModel, string>();
-
-                foreach (var foreignKeyGroup in (
-                    from i in this.ForeignKeys
-                    group i by i.TableName into g
-                    select new { TableName = g.Key, Items = g }))
-                {
-
-                    foreach (var foreignKey in foreignKeyGroup.Items)
-                    {
-                        var sb = new StringBuilder();
-
-                        foreignKey.AppendDropScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
-
-                        dictionary.Add(foreignKey, sb.ToString());
-                    }
-                }
-
-                return dictionary;
-            }
-
             public string GetFkDropScripts()
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
@@ -622,29 +598,7 @@ namespace DatabaseTools
 
                 return sb.ToString();
             }
-
-            public Dictionary<ForeignKeyModel, string> GetFkScriptsIndividual()
-            {
-                var dictionary = new Dictionary<ForeignKeyModel, string>();
-
-                foreach (var foreignKeyGroup in (
-                    from i in this.ForeignKeys
-                    group i by i.TableName into g
-                    select new { TableName = g.Key, Items = g }))
-                {
-
-                    foreach (var foreignKey in foreignKeyGroup.Items)
-                    {
-                        System.Text.StringBuilder sb = new System.Text.StringBuilder();
-                        foreignKey.AppendDropScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
-                        foreignKey.AppendCreateScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
-                        dictionary.Add(foreignKey, sb.ToString());
-                    }
-                }
-
-                return dictionary;
-            }
-
+           
             public string GetInsertDefaultScripts()
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
@@ -674,26 +628,6 @@ namespace DatabaseTools
                 }
 
                 return sb.ToString();
-            }
-
-            public Dictionary<TableModel, string> GetInsertDefaultScriptsIndividual()
-            {
-                var dictionary = new Dictionary<TableModel, string>();
-
-                foreach (Models.TableModel tableRow in this.Tables)
-                {
-                    if (tableRow.TableName.StartsWith("default_"))
-                    {
-                        string strScript = this.GetInsertScript(tableRow.TableName);
-
-                        if (!(string.IsNullOrEmpty(strScript)))
-                        {
-                            dictionary.Add(tableRow, strScript);
-                        }
-                    }
-                }
-
-                return dictionary;
             }
 
             public string GetInsertScript(string tableName, string where = "")
@@ -857,27 +791,6 @@ GO
                 return sb.ToString();
             }
 
-            public Dictionary<IndexModel, string> GetIxPkScriptsIndividual()
-            {
-                var dictionary = new Dictionary<IndexModel, string>();
-
-                foreach (var pk in this.PrimaryKeys)
-                {
-                    var sb = new StringBuilder();
-                    pk.AppendCreateScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
-                    dictionary.Add(pk, sb.ToString());
-                }
-
-                foreach (var index in this.Indexes)
-                {
-                    var sb = new StringBuilder();
-                    index.AppendCreateScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
-                    dictionary.Add(index, sb.ToString());
-                }
-
-                return dictionary;
-            }
-
             public string GetIxPkScripts()
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
@@ -979,22 +892,6 @@ GO
                 return sb.ToString();
             }
 
-            public Dictionary<DefinitionModel, string> GetDefinitionScriptsIndividual()
-            {
-
-                var dictionary = new Dictionary<DefinitionModel, string>();
-
-                foreach (var definition in this.Definitions)
-                {
-                    var sb = new System.Text.StringBuilder();
-                    definition.AppendDropScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
-                    definition.AppendCreateScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
-                    dictionary.Add(definition, sb.ToString());
-                }
-
-                return dictionary;
-            }
-
             public string GetDefinitionScripts()
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
@@ -1005,20 +902,6 @@ GO
                 }
 
                 return sb.ToString();
-            }
-
-            public Dictionary<Models.TableModel, string> GetTableScriptsIndividual(bool includeIfNotExists = true)
-            {
-                var dictionary = new Dictionary<Models.TableModel, string>();
-
-                foreach (Models.TableModel table in this.Tables.Where(i => !i.IsHistoryTable))
-                {
-                    var sbTableScript = new StringBuilder();
-                    table.AppendCreateScript(this, sbTableScript, this.QuoteCharacterStart, this.QuoteCharacterEnd, includeIfNotExists);
-                    dictionary.Add(table, sbTableScript.ToString());
-                }
-
-                return dictionary;
             }
 
             public string GetTableScripts(bool includeIfNotExists = true)
@@ -1032,19 +915,17 @@ GO
 
                 return sb.ToString();
             }
-            public Dictionary<Models.SecurityPolicyModel, string> GetSecurityPolicyScriptsIndividual(bool includeIfNotExists = true)
-            {
-                var dictionary = new Dictionary<Models.SecurityPolicyModel, string>();
 
-                foreach (var securityPolicy in this.SecurityPolicies)
+            public string GetTableJsonScripts()
+            {
+                System.Text.StringBuilder sb = new System.Text.StringBuilder();
+
+                foreach (Models.TableModel table in this.Tables.Where(i => !i.IsHistoryTable))
                 {
-                    var sbSecurityPolicyScript = new StringBuilder();
-                    securityPolicy.AppendDropScript(this, sbSecurityPolicyScript, this.QuoteCharacterStart, this.QuoteCharacterEnd);
-                    securityPolicy.AppendCreateScript(this, sbSecurityPolicyScript, this.QuoteCharacterStart, this.QuoteCharacterEnd, includeIfNotExists);
-                    dictionary.Add(securityPolicy, sbSecurityPolicyScript.ToString());
+                    table.AppendJsonScript(this, sb);
                 }
 
-                return dictionary;
+                return sb.ToString();
             }
 
             public string GetSecurityPolicyScripts(bool includeIfNotExists = true)
@@ -1058,29 +939,7 @@ GO
 
                 return sb.ToString();
             }
-            public Dictionary<Models.TriggerModel, string> GetTriggerDropScriptsIndividual()
-            {
-                var dictionary = new Dictionary<Models.TriggerModel, string>();
-
-                foreach (var triggerGroup in (
-                    from i in this.Triggers
-                    group i by i.TableName into g
-                    select new { TableName = g.Key, Items = g }))
-                {
-
-                    foreach (var trigger in triggerGroup.Items)
-                    {
-                        var sb = new StringBuilder();
-
-                        trigger.AppendDropScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
-
-                        dictionary.Add(trigger, sb.ToString());
-                    }
-                }
-
-                return dictionary;
-            }
-
+          
             public string GetTriggerDropScripts()
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
@@ -1130,31 +989,7 @@ GO
 
                 return sb.ToString();
             }
-
-            public Dictionary<TriggerModel, string> GetTriggerScriptsIndividual()
-            {
-                var dictionary = new Dictionary<TriggerModel, string>();
-
-                foreach (var triggerGroup in (
-                    from i in this.Triggers
-                    group i by i.TableName into g
-                    select new { TableName = g.Key, Items = g }))
-                {
-
-                    foreach (var trigger in triggerGroup.Items)
-                    {
-                        System.Text.StringBuilder sb = new System.Text.StringBuilder();
-
-                        trigger.AppendDropScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
-                        trigger.AppendScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
-
-                        dictionary.Add(trigger, sb.ToString());
-                    }
-                }
-
-                return dictionary;
-            }
-
+          
             private void SortTablesByDependencies(IList<TableModel> list)
             {
                 //Order tables by dependencies

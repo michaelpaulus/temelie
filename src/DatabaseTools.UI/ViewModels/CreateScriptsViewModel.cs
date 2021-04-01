@@ -77,15 +77,8 @@ namespace DatabaseTools.ViewModels
 
         private void CreateScriptsInternal(IProgress<ScriptProgress> progress)
         {
-            if (this.Files.Count == 0)
-            {
-                System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(this.ScriptPath);
-                Script.CreateScriptsIndividual(this.DatabaseConnectionString, di, Models.DatabaseType.MicrosoftSQLServer, progress, this.ObjectFilter);
-            }
-            else
-            {
-                Script.CreateScripts(this.DatabaseConnectionString, this.Files, Models.DatabaseType.MicrosoftSQLServer, progress, this.ObjectFilter);
-            }
+            System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(this.ScriptPath);
+            Script.CreateScriptsIndividual(this.DatabaseConnectionString, di, Models.DatabaseType.MicrosoftSQLServer, progress, this.ObjectFilter);
         }
 
         private void ReportProgress(ScriptProgress progress)
@@ -119,7 +112,7 @@ namespace DatabaseTools.ViewModels
                                 this.Files.Add(file);
                             }
                         }
-                       
+
                     }
 
                     break;

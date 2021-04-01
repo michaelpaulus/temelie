@@ -82,12 +82,6 @@ namespace DatabaseTools
 
                 sb.AppendLine(string.Format("-- {0}", this.TableName));
 
-                var settings = new JsonSerializerSettings();
-                settings.ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver();
-                var json = JsonConvert.SerializeObject(this, Formatting.None, settings);
-                sb.AppendLine();
-                sb.AppendLine("--JSON: " + json);
-
                 if (this.TableName.StartsWith("default_", StringComparison.InvariantCultureIgnoreCase))
                 {
                     if (includeIfNotExists)
@@ -155,6 +149,15 @@ namespace DatabaseTools
                 AddExtendedProperties(this, sb);
 
             }
+
+            public void AppendJsonScript(DatabaseModel database, System.Text.StringBuilder sb)
+            {
+                var settings = new JsonSerializerSettings();
+                settings.ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver();
+                var json = JsonConvert.SerializeObject(this, Formatting.Indented, settings);
+                sb.Append(json);
+            }
+
 
             public static void AddExtendedProperties(TableModel table, StringBuilder sb)
             {
