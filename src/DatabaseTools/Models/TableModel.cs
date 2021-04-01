@@ -186,7 +186,7 @@ BEGIN
     EXEC sys.sp_dropextendedproperty @name = N'{prop.Key}', @level0type = N'schema', @level0name = '{table.SchemaName}', @level1type = N'{type}',  @level1name = '{table.TableName}', @level2type = N'column',  @level2name = '{column.ColumnName}';  
 END
 
-EXEC sys.sp_addextendedproperty @name = N'{prop.Key}', @value = N'{prop.Value}', @level0type = N'schema', @level0name = '{table.SchemaName}', @level1type = N'table',  @level1name = '{table.TableName}', @level2type = N'column',  @level2name = '{column.ColumnName}';  
+EXEC sys.sp_addextendedproperty @name = N'{prop.Key}', @value = N'{prop.Value}', @level0type = N'schema', @level0name = '{table.SchemaName}', @level1type = N'{type}',  @level1name = '{table.TableName}', @level2type = N'column',  @level2name = '{column.ColumnName}';  
 GO
 ");
                     }

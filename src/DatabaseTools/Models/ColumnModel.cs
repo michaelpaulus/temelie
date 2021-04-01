@@ -211,51 +211,54 @@ namespace DatabaseTools
 
             public Dictionary<string, string> ExtendedProperties { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
+            public string FullColumnType
+            {
+                get
+                {
+
+                    string strDataType = this.ColumnType;
+
+                    switch (strDataType.ToUpper())
+                    {
+                        case "DECIMAL":
+                        case "NUMERIC":
+                            strDataType = string.Format("{0}({1}, {2})", this.ColumnType, this.Precision, this.Scale);
+                            break;
+                        case "BINARY":
+                        case "VARBINARY":
+                        case "VARCHAR":
+                        case "CHAR":
+                        case "NVARCHAR":
+                        case "NCHAR":
+                            string strPrecision = this.Precision.ToString();
+                            if (this.Precision == -1 || this.Precision == Int32.MaxValue)
+                            {
+                                strPrecision = "MAX";
+                            }
+                            strDataType = string.Format("{0}({1})", this.ColumnType, strPrecision);
+                            break;
+                        case "TIME":
+                            strDataType = string.Format("{0}({1})", this.ColumnType, this.Scale);
+                            break;
+                        case "DATETIME2":
+                            if (Scale != 7)
+                            {
+                                strDataType = string.Format("{0}({1})", this.ColumnType, this.Scale);
+                            }
+                            break;
+                    }
+
+                    return strDataType;
+                }
+            }
 
             #endregion
 
             #region Methods
 
-            public string FullColumnType()
-            {
-                string strDataType = this.ColumnType;
-
-                switch (strDataType.ToUpper())
-                {
-                    case "DECIMAL":
-                    case "NUMERIC":
-                        strDataType = string.Format("{0}({1}, {2})", this.ColumnType, this.Precision, this.Scale);
-                        break;
-                    case "BINARY":
-                    case "VARBINARY":
-                    case "VARCHAR":
-                    case "CHAR":
-                    case "NVARCHAR":
-                    case "NCHAR":
-                        string strPrecision = this.Precision.ToString();
-                        if (this.Precision == -1 || this.Precision == Int32.MaxValue)
-                        {
-                            strPrecision = "MAX";
-                        }
-                        strDataType = string.Format("{0}({1})", this.ColumnType, strPrecision);
-                        break;
-                    case "TIME":
-                        strDataType = string.Format("{0}({1})", this.ColumnType, this.Scale);
-                        break;
-                    case "DATETIME2":
-                        if (Scale != 7)
-                        {
-                            strDataType = string.Format("{0}({1})", this.ColumnType, this.Scale);
-                        }
-                        break;
-                }
-
-                return strDataType;
-            }
-
             public string ToString(string quoteCharacterStart, string quoteCharacterEnd)
             {
-                string strDataType = this.FullColumnType();
+                string strDataType = this.FullColumnType;
 
                 if (this.IsComputed &&
                     this.GeneratedAlwaysType == 0)
