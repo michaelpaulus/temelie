@@ -1,1 +1,1 @@
-dotnet nuget push bin\Release\DatabaseTools.1.0.16.nupkg --source "https://n2y.pkgs.visualstudio.com/_packaging/n2y/nuget/v3/index.json" --api-key az
+dotnet nuget push bin\Release\DatabaseTools.1.0.17.nupkg --source "https://n2y.pkgs.visualstudio.com/_packaging/n2y/nuget/v3/index.json" --api-key az

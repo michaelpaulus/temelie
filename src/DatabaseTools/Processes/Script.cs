@@ -302,6 +302,13 @@ namespace DatabaseTools
                                     file.Delete();
                                 }
                             }
+                            foreach (var file in subDirectory.GetFiles("*.sql.json"))
+                            {
+                                if (!files.ContainsKey(file.Name))
+                                {
+                                    file.Delete();
+                                }
+                            }
                         }
                         else if (subDirectory.Name.StartsWith("03_Indexes", StringComparison.InvariantCultureIgnoreCase))
                         {
@@ -318,8 +325,14 @@ namespace DatabaseTools
                         else if (subDirectory.Name.StartsWith("05_ViewsAndProgrammability", StringComparison.InvariantCultureIgnoreCase))
                         {
                             var files = CreateViewsAndProgrammabilityScripts(database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
-                            var existingFiles = subDirectory.GetFiles("*.sql");
-                            foreach (var file in existingFiles)
+                            foreach (var file in subDirectory.GetFiles("*.sql"))
+                            {
+                                if (!files.ContainsKey(file.Name))
+                                {
+                                    file.Delete();
+                                }
+                            }
+                            foreach (var file in subDirectory.GetFiles("*.sql.json"))
                             {
                                 if (!files.ContainsKey(file.Name))
                                 {
