@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31112.23
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseTools", "DatabaseTools\DatabaseTools.csproj", "{110F043F-C886-4F78-9782-0D0A01416B82}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatabaseTools", "DatabaseTools\DatabaseTools.csproj", "{110F043F-C886-4F78-9782-0D0A01416B82}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseTools.UI", "DatabaseTools.UI\DatabaseTools.UI.csproj", "{6C65E3C7-9EB9-4F2F-8DBC-17464DCEDAFE}"
 EndProject
@@ -30,5 +30,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {93D79511-36CC-452F-9DF6-C3D742B4CF59}
 	EndGlobalSection
 EndGlobal

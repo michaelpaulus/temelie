@@ -50,6 +50,7 @@ namespace DatabaseTools
 
         private void BrowseButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
+
             using (System.Windows.Forms.FolderBrowserDialog fd = new System.Windows.Forms.FolderBrowserDialog())
             {
                 if (!(string.IsNullOrEmpty(this.ViewModel.ScriptPath)) && System.IO.Directory.Exists(this.ViewModel.ScriptPath))

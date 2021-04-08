@@ -3,7 +3,6 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <FileVersion>1.0.0.0</FileVersion>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <SignAssembly>true</SignAssembly>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
   <PropertyGroup Label="Globals">
@@ -11,21 +10,17 @@
     <SccProvider>SAK</SccProvider>
     <SccAuxPath>SAK</SccAuxPath>
     <SccLocalPath>SAK</SccLocalPath>
-    <AssemblyOriginatorKeyFile>databasetools.snk</AssemblyOriginatorKeyFile>
     <Authors>Michael Paulus</Authors>
     <Company />
-    <Version>1.0.17</Version>
+    <Version>1.0.18</Version>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="PropertyChanged.Fody" Version="3.2.1">
+    <PackageReference Include="PropertyChanged.Fody" Version="3.3.3">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0">
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0">
     </PackageReference>
-    <PackageReference Include="System.Data.SqlClient" Version="4.8.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
   </ItemGroup>
 </Project>

@@ -1,5 +1,6 @@
 ﻿using DatabaseTools.Configuration.Preferences;
 using DatabaseTools.Views;
+using PropertyChanged;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -105,6 +106,7 @@ namespace DatabaseTools.ViewModels
 
         #region Event Raising Methods
 
+        [SuppressPropertyChangedWarnings]
         protected virtual void OnSelectionChanged(EventArgs e)
         {
             if (SelectionChanged != null)
