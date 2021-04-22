@@ -44,7 +44,7 @@ namespace DatabaseTools.Configuration.Preferences
         private static void SaveConfiguraiton(System.Configuration.Configuration configuration)
         {
             EncryptConfigSection(configuration, "connectionStrings");
-            configuration.Save(System.Configuration.ConfigurationSaveMode.Full);
+            configuration.Save();
         }
 
         static ConnectionSettingsContext()
@@ -81,7 +81,7 @@ namespace DatabaseTools.Configuration.Preferences
                 }
             }
 
-            
+
         }
 
         public static string ConnectionSettingsPath;
@@ -130,7 +130,7 @@ namespace DatabaseTools.Configuration.Preferences
                     {
                         section.SectionInformation.ProtectSection("DataProtectionConfigurationProvider");
                         section.SectionInformation.ForceSave = true;
-                        configuration.Save(ConfigurationSaveMode.Full);
+                        configuration.Save();
                     }
                 }
             }
