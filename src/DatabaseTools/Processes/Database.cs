@@ -546,6 +546,18 @@ namespace DatabaseTools
                     InitializeColumn(column, row, provider);
                     list.Add(column);
                 }
+                //the database sometimes skips column numbers, we don't really care about that here,
+                //  we need reproducable numbers over all db's in order
+                foreach (var tableGroup in list.GroupBy(i => new { i.SchemaName, i.TableName }))
+                {
+                    var index = 1;
+                    foreach (var column in tableGroup.OrderBy(i => i.ColumnID).ToList())
+                    {
+                        column.ColumnID = index;
+                        index += 1;
+                    }
+                }
+                
                 return list;
             }
 
