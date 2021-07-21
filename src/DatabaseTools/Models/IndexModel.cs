@@ -22,6 +22,7 @@ namespace DatabaseTools
             public string IndexName { get; set; }
             public string IndexType { get; set; }
             public string FilterDefinition { get; set; }
+            public string PartitionSchemeName { get; set; }
             public bool IsUnique { get; set; }
             public int FillFactor { get; set; }
 
@@ -290,8 +291,15 @@ namespace DatabaseTools
                         }
                         sbOptions.Append($"BUCKET_COUNT = {this.TotalBucketCount}");
                     }
-                    sb.AppendLine($"{new string("    "[0], indentCount)}WITH({sbOptions.ToString()})");
+
+                    sb.AppendLine($"{new string(' ', indentCount * 4)}WITH({sbOptions.ToString()})");
                 }
+
+                if (!string.IsNullOrEmpty(PartitionSchemeName))
+                {
+                    sb.AppendLine($"{new string(' ', indentCount * 4)}ON {PartitionSchemeName}({string.Join(", ", Columns.Where(i => i.PartitionOrdinal > 0).Select(i => i.ColumnName))})");
+                }
+
             }
 
             #endregion

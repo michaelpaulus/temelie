@@ -10,5 +10,6 @@ namespace DatabaseTools.Models
     {
         public string ColumnName { get; set; }
         public bool IsDescending { get; set; }
+        public int PartitionOrdinal { get; set; }
     }
 }

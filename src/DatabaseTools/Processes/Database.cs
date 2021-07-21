@@ -845,6 +845,7 @@ namespace DatabaseTools
                                 TableName = indexGroup.TableName,
                                 IndexName = indexGroup.IndexName,
                                 SchemaName = indexGroup.SchemaName,
+                                PartitionSchemeName = summaryRow["partition_scheme_name"] == DBNull.Value ? "" : summaryRow["partition_scheme_name"].ToString(),
                                 IndexType = summaryRow["index_type"].ToString(),
                                 FilterDefinition = summaryRow["filter_definition"] == DBNull.Value ? "" : summaryRow["filter_definition"].ToString(),
                                 IsUnique = Convert.ToBoolean(summaryRow["is_unique"]),
@@ -874,7 +875,7 @@ namespace DatabaseTools
                                 }
                                 else
                                 {
-                                    index.Columns.Add(new Models.IndexColumnModel { ColumnName = strColumnName, IsDescending = blnIsDescending });
+                                    index.Columns.Add(new Models.IndexColumnModel { ColumnName = strColumnName, IsDescending = blnIsDescending, PartitionOrdinal = Convert.ToInt32(detialRow["partition_ordinal"]) });
                                 }
                             }
 
