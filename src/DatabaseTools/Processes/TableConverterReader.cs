@@ -245,24 +245,12 @@ namespace DatabaseTools.Processes
                         {
                             if ((value) is TimeSpan)
                             {
-                                returnValue = (new DateTime(1753, 1, 1)).Add((TimeSpan)value);
+                                returnValue = value;
                             }
                             else if ((value) is DateTime)
                             {
-                                DateTime dt = System.Convert.ToDateTime(value);
-
-                                if (dt <= new DateTime(1753, 1, 1))
-                                {
-                                    returnValue = DBNull.Value;
-                                }
-                                else if (dt > new DateTime(9999, 12, 31))
-                                {
-                                    returnValue = DBNull.Value;
-                                }
-                                else
-                                {
-                                    returnValue = dt;
-                                }
+                                var dt = System.Convert.ToDateTime(value);
+                                returnValue = dt.TimeOfDay;
                             }
                             else
                             {
