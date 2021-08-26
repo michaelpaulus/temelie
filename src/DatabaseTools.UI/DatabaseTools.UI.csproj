@@ -28,6 +28,7 @@
 
   <ItemGroup>
     <PackageReference Include="DatabaseTools.n2y" Version="1.0.18" />
+    <PackageReference Include="Microsoft.SqlServer.Types" Version="14.0.1016.290" />
     <PackageReference Include="PropertyChanged.Fody" Version="3.3.3" PrivateAssets="All" />
   </ItemGroup>
 
