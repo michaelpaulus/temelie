@@ -23,6 +23,7 @@ namespace DatabaseTools
             public string IndexType { get; set; }
             public string FilterDefinition { get; set; }
             public string PartitionSchemeName { get; set; }
+            public string DataCompressionDesc { get; set; }
             public bool IsUnique { get; set; }
             public int FillFactor { get; set; }
 
@@ -276,7 +277,7 @@ namespace DatabaseTools
 
             private void AddOptions(StringBuilder sb, int indentCount = 1)
             {
-                if (this.FillFactor != 0 || this.TotalBucketCount != 0)
+                if (this.FillFactor != 0 || this.TotalBucketCount != 0 || !string.IsNullOrEmpty(DataCompressionDesc))
                 {
                     var sbOptions = new StringBuilder();
                     if (FillFactor != 0)
@@ -291,7 +292,14 @@ namespace DatabaseTools
                         }
                         sbOptions.Append($"BUCKET_COUNT = {this.TotalBucketCount}");
                     }
-
+                    if (!string.IsNullOrEmpty(DataCompressionDesc))
+                    {
+                        if (sbOptions.Length > 0)
+                        {
+                            sbOptions.Append(", ");
+                        }
+                        sbOptions.Append($"DATA_COMPRESSION = {DataCompressionDesc}");
+                    }
                     sb.AppendLine($"{new string(' ', indentCount * 4)}WITH({sbOptions.ToString()})");
                 }
 

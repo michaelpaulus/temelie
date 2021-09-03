@@ -238,13 +238,25 @@ SELECT
 	sys.index_columns.partition_ordinal,
 	sys.indexes.is_primary_key,
 	sys.indexes.filter_definition,
-	(SELECT
-		partition_schemes.name
-	FROM
-		sys.partition_schemes
-	WHERE
-		partition_schemes.data_space_id = indexes.data_space_id
-	) partition_scheme_name
+	(
+		SELECT
+			partition_schemes.name
+		FROM
+			sys.partition_schemes
+		WHERE
+			partition_schemes.data_space_id = indexes.data_space_id
+	) partition_scheme_name,
+	(
+		SELECT
+			TOP 1
+			partitions.data_compression_desc
+		FROM
+			sys.partitions
+		WHERE
+			partitions.object_id = tables.object_id AND
+			partitions.index_id = indexes.index_id AND
+			partitions.data_compression_desc <> 'NONE'
+	) data_compression_desc
 FROM
 	sys.indexes INNER JOIN
 	sys.tables ON

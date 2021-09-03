@@ -59,7 +59,7 @@ namespace DatabaseTools
                         var sb = new StringBuilder();
                         foreignKey.AppendDropScript(database, sb, database.QuoteCharacterStart, database.QuoteCharacterEnd);
                         files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()));
-                    }                   
+                    }
                 }
 
                 return files;
@@ -471,17 +471,26 @@ namespace DatabaseTools
                 return System.Text.RegularExpressions.Regex.Replace(name, invalidRegStr, "_");
             }
 
-            public static void ExecuteScripts(System.Configuration.ConnectionStringSettings connectionString, IList<System.IO.FileInfo> fileList, bool continueOnError, IProgress<ScriptProgress> progress)
+            public static void ExecuteScripts(System.Configuration.ConnectionStringSettings connectionString, IEnumerable<System.IO.FileInfo> fileList, bool continueOnError, IProgress<ScriptProgress> progress)
             {
                 int intFileCount = 1;
 
-                foreach (System.IO.FileInfo file in fileList)
+                var list = fileList.ToList();
+
+                double count = list.Count;
+
+                var retryList = new Dictionary<FileInfo, int>();
+
+                while (list.Any())
                 {
+                    var file = list.First();
+                    list.Remove(file);
+
                     string strFile = string.Empty;
 
                     if (progress != null)
                     {
-                        int percent = Convert.ToInt32((intFileCount / (double)fileList.Count) * 100);
+                        int percent = Convert.ToInt32((intFileCount / count) * 100);
                         progress.Report(new ScriptProgress() { ProgressPercentage = percent, ProgressStatus = file.Name });
                     }
 
@@ -505,9 +514,22 @@ namespace DatabaseTools
                         {
                             if (continueOnError)
                             {
-                                if (progress != null)
+                                if (ex.Message.Contains("Invalid object name") && (!retryList.TryGetValue(file, out int retryCount) || retryCount < 5))
                                 {
-                                    int percent = Convert.ToInt32((intFileCount / (double)fileList.Count) * 100);
+                                    if (retryCount == 0)
+                                    {
+                                        retryList.Add(file, 1);
+                                    }
+                                    else
+                                    {
+                                        retryList[file] += 1;
+                                    }
+                                    list.Add(file);
+                                    count += 1;
+                                }
+                                else if (progress != null)
+                                {
+                                    int percent = Convert.ToInt32((intFileCount / count) * 100);
                                     progress.Report(new ScriptProgress() { ProgressPercentage = percent, ProgressStatus = file.Name, ErrorMessage = ex.Message });
                                 }
                             }
@@ -520,6 +542,7 @@ namespace DatabaseTools
 
                     intFileCount += 1;
                 }
+
             }
 
             public static string MergeScripts(IList<string> scripts)
