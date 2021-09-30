@@ -19,6 +19,8 @@ namespace DatabaseTools
 
             private static FileInfo WriteIfDifferent(string path, string contents)
             {
+                contents = contents.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", "\r\n");
+                contents = contents.Replace("\t", "    ");
                 var currentContents = "";
                 if (File.Exists(path))
                 {
