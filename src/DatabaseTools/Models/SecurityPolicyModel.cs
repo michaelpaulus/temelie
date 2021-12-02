@@ -22,7 +22,18 @@ namespace DatabaseTools.Models
             }
             if (includeIfNotExists)
             {
-                sb.AppendLine($"IF NOT EXISTS (SELECT 1 FROM sys.security_policies INNER JOIN sys.schemas ON sys.schemas.schema_id = sys.security_policies.schema_id WHERE sys.schemas.name = '{this.PolicySchema}' and security_policies.name = '{this.PolicyName}')");
+                sb.AppendLine($@"IF NOT EXISTS
+    (
+        SELECT
+            1
+        FROM
+            sys.security_policies INNER JOIN
+            sys.schemas ON
+                schemas.schema_id = security_policies.schema_id
+        WHERE
+            schemas.name = '{this.PolicySchema}' AND
+            security_policies.name = '{this.PolicyName}'
+    )");
             }
             sb.AppendLine($"    CREATE SECURITY POLICY {quoteCharacterStart}{PolicySchema}{quoteCharacterEnd}.{quoteCharacterStart}{PolicyName}{quoteCharacterEnd}");
             var predicateScripts = new List<StringBuilder>();
@@ -42,11 +53,21 @@ namespace DatabaseTools.Models
             var suffixes = new List<string>();
 
             if (!IsEnabled)
+            {
                 suffixes.Add("STATE = OFF");
+            }
+
             if (!IsSchemaBound)
+            {
                 suffixes.Add("SCHEMABINDING = OFF");
+            }
+
             if (suffixes.Count > 0)
+            {
                 sb.AppendLine("    WITH (" + string.Join(", ", suffixes) + ")");
+            }
+
+            sb.AppendLine();
             sb.AppendLine("GO");
         }
 
@@ -57,8 +78,19 @@ namespace DatabaseTools.Models
 
         public override void AppendDropScript(DatabaseModel database, StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)
         {
-            sb.AppendLine($"IF EXISTS (SELECT 1 FROM sys.security_policies INNER JOIN sys.schemas ON sys.schemas.schema_id = sys.security_policies.schema_id WHERE sys.schemas.name = '{this.PolicySchema}' and security_policies.name = '{this.PolicyName}')");
-            sb.AppendLine($"    DROP SECURITY POLICY  {quoteCharacterStart}{PolicySchema}{quoteCharacterEnd}.{quoteCharacterStart}{PolicyName}{quoteCharacterEnd}");
+            sb.AppendLine($@"IF EXISTS
+    (
+        SELECT
+            1
+        FROM
+            sys.security_policies INNER JOIN
+            sys.schemas ON
+                schemas.schema_id = security_policies.schema_id
+        WHERE
+            schemas.name = '{this.PolicySchema}' AND
+            security_policies.name = '{this.PolicyName}'
+    )");
+            sb.AppendLine($"    DROP SECURITY POLICY {quoteCharacterStart}{PolicySchema}{quoteCharacterEnd}.{quoteCharacterStart}{PolicyName}{quoteCharacterEnd}");
             sb.AppendLine("GO");
         }
     }

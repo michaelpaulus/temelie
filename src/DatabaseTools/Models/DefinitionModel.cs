@@ -55,8 +55,7 @@ namespace DatabaseTools
                 }
 
                 sb.AppendLine(string.Format("-- {0}", this.DefinitionName));
-                sb.AppendLine($"IF EXISTS (SELECT 1 FROM sys.objects INNER JOIN sys.schemas ON sys.objects.schema_id = sys.schemas.schema_id WHERE sys.objects.name = '{DefinitionName}' AND sys.schemas.name = '{SchemaName}')");
-                sb.AppendLine($"    DROP {this.Type} {quoteCharacterStart}{this.SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.DefinitionName}{quoteCharacterEnd}");
+                sb.AppendLine($"DROP {this.Type} IF EXISTS {quoteCharacterStart}{this.SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.DefinitionName}{quoteCharacterEnd}");
                 sb.AppendLine("GO");
             }
 
@@ -67,10 +66,6 @@ namespace DatabaseTools
                     sb.AppendLine();
                 }
 
-                sb.AppendLine(string.Format("-- {0}", this.DefinitionName));
-
-                sb.AppendLine($"IF NOT EXISTS (SELECT 1 FROM sys.objects INNER JOIN sys.schemas ON sys.objects.schema_id = sys.schemas.schema_id WHERE sys.objects.name = '{this.DefinitionName}' AND sys.schemas.name = '{SchemaName}')");
-
                 string strPattern = $"(CREATE\\s*{this.Type}\\s*[\\[]?)([\\[]?{SchemaName}[\\.]?[\\]]?[\\.]?[\\[]?)?({this.DefinitionName})([\\]]?)";
 
                 string strDefinitionReplacement = $"CREATE {this.Type} {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.DefinitionName}{quoteCharacterEnd}";
@@ -78,7 +73,7 @@ namespace DatabaseTools
                 this.Definition = System.Text.RegularExpressions.Regex.Replace(this.Definition, strPattern, strDefinitionReplacement, System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Multiline);
                 Definition = Definition.Replace("\t", "    ");
 
-                sb.AppendLine(string.Format("EXEC sp_executesql @statement = N'{0}'", this.Definition.Replace("'", "''")));
+                sb.AppendLine(this.Definition);
                 sb.AppendLine("GO");
 
                 if (View != null)

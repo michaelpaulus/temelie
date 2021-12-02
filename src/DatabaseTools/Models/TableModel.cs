@@ -68,7 +68,18 @@ namespace DatabaseTools
 
             public override void AppendDropScript(DatabaseModel database, System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)
             {
-                sb.AppendLine($"IF EXISTS (SELECT 1 FROM sys.tables INNER JOIN sys.schemas ON sys.tables.schema_id = sys.schemas.schema_id WHERE sys.tables.name = '{this.TableName}' AND sys.schemas.name = '{this.SchemaName}')");
+                sb.AppendLine($@"IF EXISTS
+    (
+        SELECT
+            1
+        FROM
+            sys.tables INNER JOIN
+            sys.schemas ON
+                tables.schema_id = schemas.schema_id
+        WHERE
+            tables.name = '{this.TableName}' AND
+            schemas.name = '{this.SchemaName}'
+    )");
                 sb.AppendLine($"    DROP{(IsExternal ? " EXTERNAL " : " ")}TABLE {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
                 sb.AppendLine("GO");
             }
@@ -86,7 +97,18 @@ namespace DatabaseTools
                 {
                     if (includeIfNotExists)
                     {
-                        sb.AppendLine($"IF EXISTS (SELECT 1 FROM sys.tables INNER JOIN sys.schemas ON sys.tables.schema_id = sys.schemas.schema_id WHERE sys.tables.name = '{this.TableName}' AND sys.schemas.name = '{this.SchemaName}')");
+                        sb.AppendLine($@"IF EXISTS
+    (
+        SELECT
+            1
+        FROM 
+            sys.tables INNER JOIN
+            sys.schemas ON
+                tables.schema_id = schemas.schema_id
+        WHERE
+            tables.name = '{this.TableName}' AND
+            schemas.name = '{this.SchemaName}'
+    )");
                     }
                     sb.AppendLine($"    DROP{(IsExternal ? " EXTERNAL " : " ")}TABLE {quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
                     sb.AppendLine("GO");
@@ -95,7 +117,18 @@ namespace DatabaseTools
 
                 if (includeIfNotExists)
                 {
-                    sb.AppendLine($"IF NOT EXISTS (SELECT 1 FROM sys.tables INNER JOIN sys.schemas ON sys.tables.schema_id = sys.schemas.schema_id WHERE sys.tables.name = '{this.TableName}' AND sys.schemas.name = '{this.SchemaName}')");
+                    sb.AppendLine($@"IF NOT EXISTS
+    (
+        SELECT
+            1
+        FROM
+            sys.tables INNER JOIN
+            sys.schemas ON
+                tables.schema_id = schemas.schema_id
+        WHERE
+            tables.name = '{this.TableName}' AND
+            schemas.name = '{SchemaName}'
+    )");
                 }
                 sb.AppendLine($"    CREATE{(IsExternal ? " EXTERNAL " : " ")}TABLE {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
                 sb.AppendLine("    " + "(");
@@ -166,12 +199,28 @@ namespace DatabaseTools
                 foreach (var prop in table.ExtendedProperties)
                 {
                     sb.AppendLine($@"
-IF EXISTS (SELECT 1 FROM fn_listextendedproperty ('{prop.Key}', 'schema', '{table.SchemaName}', '{type}', '{table.TableName}', default, default)) 
+IF EXISTS
+    (
+        SELECT
+            1
+        FROM
+            fn_listextendedproperty('{prop.Key}', 'schema', '{table.SchemaName}', '{type}', '{table.TableName}', DEFAULT, DEFAULT)
+    )
 BEGIN
-    EXEC sys.sp_dropextendedproperty @name = N'{prop.Key}', @level0type = N'schema', @level0name = '{table.SchemaName}', @level1type = N'{type}',  @level1name = '{table.TableName}';  
+    EXEC sys.sp_dropextendedproperty @name = N'{prop.Key}',
+                                     @level0type = N'schema',
+                                     @level0name = '{table.SchemaName}',
+                                     @level1type = N'{type}',
+                                     @level1name = '{table.TableName}';
 END
+GO
 
-EXEC sys.sp_addextendedproperty @name = N'{prop.Key}', @value = N'{prop.Value}', @level0type = N'schema', @level0name = '{table.SchemaName}', @level1type = N'{type}',  @level1name = '{table.TableName}';  
+EXEC sys.sp_addextendedproperty @name = N'{prop.Key}',
+                                @value = N'{prop.Value}',
+                                @level0type = N'schema',
+                                @level0name = '{table.SchemaName}',
+                                @level1type = N'{type}',
+                                @level1name = '{table.TableName}';
 GO
 ");
                 }
@@ -181,12 +230,32 @@ GO
                     foreach (var prop in column.ExtendedProperties)
                     {
                         sb.AppendLine($@"
-IF EXISTS (SELECT 1 FROM fn_listextendedproperty ('{prop.Key}', 'schema', '{table.SchemaName}', '{type}', '{table.TableName}', 'column', '{column.ColumnName}')) 
+IF EXISTS
+    (
+        SELECT
+            1
+        FROM
+            fn_listextendedproperty('{prop.Key}', 'schema', '{table.SchemaName}', '{type}', '{table.TableName}', 'column', '{column.ColumnName}')
+    )
 BEGIN
-    EXEC sys.sp_dropextendedproperty @name = N'{prop.Key}', @level0type = N'schema', @level0name = '{table.SchemaName}', @level1type = N'{type}',  @level1name = '{table.TableName}', @level2type = N'column',  @level2name = '{column.ColumnName}';  
+    EXEC sys.sp_dropextendedproperty @name = N'{prop.Key}',
+                                     @level0type = N'schema',
+                                     @level0name = '{table.SchemaName}',
+                                     @level1type = N'{type}',
+                                     @level1name = '{table.TableName}',
+                                     @level2type = N'column',
+                                     @level2name = '{column.ColumnName}';
 END
+GO
 
-EXEC sys.sp_addextendedproperty @name = N'{prop.Key}', @value = N'{prop.Value}', @level0type = N'schema', @level0name = '{table.SchemaName}', @level1type = N'{type}',  @level1name = '{table.TableName}', @level2type = N'column',  @level2name = '{column.ColumnName}';  
+EXEC sys.sp_addextendedproperty @name = N'{prop.Key}',
+                                @value = N'{prop.Value}',
+                                @level0type = N'schema',
+                                @level0name = '{table.SchemaName}',
+                                @level1type = N'{type}',
+                                @level1name = '{table.TableName}',
+                                @level2type = N'column',
+                                @level2name = '{column.ColumnName}';
 GO
 ");
                     }

@@ -33,8 +33,7 @@ namespace DatabaseTools
                     sb.AppendLine();
                 }
 
-                sb.AppendLine($"IF EXISTS (SELECT 1 FROM sys.objects INNER JOIN sys.schemas ON sys.objects.schema_id = sys.schemas.schema_id WHERE sys.objects.name = '{TriggerName}' AND sys.schemas.name = '{SchemaName}')");
-                sb.AppendLine($"    DROP TRIGGER {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TriggerName}{quoteCharacterEnd}");
+                sb.AppendLine($"DROP TRIGGER IF EXISTS {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TriggerName}{quoteCharacterEnd}");
                 sb.AppendLine("GO");
             }
 
@@ -45,10 +44,9 @@ namespace DatabaseTools
                     sb.AppendLine();
                 }
 
-                Definition = Definition.Replace("'", "''").Replace("\t", "    ");
-
-                sb.AppendLine($"IF NOT EXISTS (SELECT 1 FROM sys.objects INNER JOIN sys.schemas ON sys.objects.schema_id = sys.schemas.schema_id WHERE sys.objects.name = '{TriggerName}' AND sys.schemas.name = '{SchemaName}')");
-                sb.AppendLine(string.Format("EXEC sp_executesql @statement = N'{0}'", this.Definition));
+                Definition = Definition.Replace("\t", "    ");
+              
+                sb.AppendLine(this.Definition);
                 sb.AppendLine("GO");
             }
 

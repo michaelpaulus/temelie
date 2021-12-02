@@ -44,17 +44,78 @@ namespace DatabaseTools
 
             public override void AppendDropScript(DatabaseModel database, System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)
             {
-                sb.Append($@"IF EXISTS (SELECT 1 FROM sys.foreign_keys INNER JOIN sys.schemas ON sys.foreign_keys.schema_id = sys.schemas.schema_id WHERE sys.foreign_keys.name = '{ForeignKeyName}' AND sys.schemas.name = '{SchemaName}')
+                sb.Append($@"IF EXISTS
+    (
+        SELECT
+            1
+        FROM
+            sys.foreign_keys INNER JOIN
+            sys.schemas ON
+                foreign_keys.schema_id = schemas.schema_id
+        WHERE
+            foreign_keys.name = '{ForeignKeyName}' AND
+            schemas.name = '{SchemaName}'
+    )
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys INNER JOIN sys.schemas ON foreign_keys.schema_id = schemas.schema_id WHERE foreign_keys.name = '{ForeignKeyName}' AND schemas.name = '{SchemaName}' AND foreign_keys.delete_referential_action_desc = '{DeleteAction}' AND foreign_keys.update_referential_action_desc = '{UpdateAction}'");
+    IF NOT EXISTS
+        (
+            SELECT
+                1
+            FROM
+                sys.foreign_keys INNER JOIN
+                sys.schemas ON
+                    foreign_keys.schema_id = schemas.schema_id
+            WHERE
+                foreign_keys.name = '{ForeignKeyName}' AND
+                schemas.name = '{SchemaName}' AND
+                foreign_keys.delete_referential_action_desc = '{DeleteAction}' AND
+                foreign_keys.update_referential_action_desc = '{UpdateAction}'");
                 var i = 0;
 
                 foreach (var detail in Detail)
                 {
                     i++;
                     sb.Append($@" AND
-            EXISTS (SELECT 1 FROM sys.foreign_key_columns INNER JOIN sys.tables ON foreign_key_columns.parent_object_id = tables.object_id INNER JOIN sys.columns ON tables.object_id = columns.object_id AND columns.column_id = foreign_key_columns.parent_column_id INNER JOIN sys.schemas ON tables.schema_id = schemas.schema_id WHERE foreign_key_columns.constraint_object_id = foreign_keys.object_id AND schemas.name = '{SchemaName}' AND tables.name = '{TableName}' AND columns.name = '{detail.Column}' AND foreign_key_columns.constraint_column_id = {i}) AND
-            EXISTS(SELECT 1 FROM sys.foreign_key_columns INNER JOIN sys.tables ON foreign_key_columns.referenced_object_id = tables.object_id INNER JOIN sys.columns ON tables.object_id = columns.object_id AND columns.column_id = foreign_key_columns.referenced_column_id INNER JOIN sys.schemas ON tables.schema_id = schemas.schema_id WHERE foreign_key_columns.constraint_object_id = foreign_keys.object_id AND schemas.name = '{ReferencedSchemaName}' AND tables.name = '{ReferencedTableName}' AND columns.name = '{detail.ReferencedColumn}' AND foreign_key_columns.constraint_column_id = {i})");
+            EXISTS
+            (
+                SELECT
+                    1
+                FROM
+                    sys.foreign_key_columns INNER JOIN
+                    sys.tables ON
+                        foreign_key_columns.parent_object_id = tables.object_id INNER JOIN
+                    sys.columns ON
+                        tables.object_id = columns.object_id AND
+                        columns.column_id = foreign_key_columns.parent_column_id INNER JOIN
+                    sys.schemas ON
+                        tables.schema_id = schemas.schema_id
+                WHERE
+                    foreign_key_columns.constraint_object_id = foreign_keys.object_id AND
+                    schemas.name = '{SchemaName}' AND
+                    tables.name = '{TableName}' AND
+                    columns.name = '{detail.Column}' AND
+                    foreign_key_columns.constraint_column_id = {i}
+            ) AND
+            EXISTS
+            (
+                SELECT
+                    1
+                FROM
+                    sys.foreign_key_columns INNER JOIN
+                    sys.tables ON
+                        foreign_key_columns.referenced_object_id = tables.object_id INNER JOIN
+                    sys.columns ON
+                        tables.object_id = columns.object_id AND
+                        columns.column_id = foreign_key_columns.referenced_column_id INNER JOIN
+                    sys.schemas ON
+                        tables.schema_id = schemas.schema_id
+                WHERE
+                    foreign_key_columns.constraint_object_id = foreign_keys.object_id AND
+                    schemas.name = '{ReferencedSchemaName}' AND
+                    tables.name = '{ReferencedTableName}' AND
+                    columns.name = '{detail.ReferencedColumn}' AND
+                    foreign_key_columns.constraint_column_id = {i}
+            )");
                 }
 
                 sb.AppendLine();
@@ -95,7 +156,18 @@ GO");
 
                 sb.AppendLine();
 
-                sb.AppendLine($"IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys INNER JOIN sys.schemas ON foreign_keys.schema_id = schemas.schema_id WHERE foreign_keys.name = '{ForeignKeyName}' AND schemas.name = '{SchemaName}')");
+                sb.AppendLine($@"IF NOT EXISTS
+    (
+        SELECT
+            1
+        FROM
+            sys.foreign_keys INNER JOIN
+            sys.schemas ON
+                foreign_keys.schema_id = schemas.schema_id
+        WHERE
+            foreign_keys.name = '{ForeignKeyName}' AND
+            schemas.name = '{SchemaName}'
+    )");
                 sb.AppendLine($"    ALTER TABLE {quoteCharacterStart}{this.SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd} WITH CHECK ADD CONSTRAINT {quoteCharacterStart}{this.ForeignKeyName}{quoteCharacterEnd} FOREIGN KEY ({strColumnNames})");
                 sb.AppendLine($"    REFERENCES {quoteCharacterStart}{this.ReferencedSchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.ReferencedTableName}{quoteCharacterEnd} ({strReferencedColumnNames})");
 

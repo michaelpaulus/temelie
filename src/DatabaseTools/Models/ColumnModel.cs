@@ -270,7 +270,7 @@ namespace DatabaseTools
 
                 if (this.IsIdentity)
                 {
-                    strIdentity = " IDENTITY(1,1)";
+                    strIdentity = " IDENTITY (1, 1)";
                 }
 
                 string generatedAlwaysType = "";
@@ -329,6 +329,7 @@ namespace DatabaseTools
                         columnDefault = columnDefault.Substring(1);
                         columnDefault = columnDefault.Substring(0, columnDefault.Length - 1);
                     }
+                    columnDefault = columnDefault.Replace("getdate()", "GETDATE()").Replace("newid()", "NEWID()");
                     defaultValue = $" DEFAULT {columnDefault}";
                 }
 
