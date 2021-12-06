@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:DatabaseTools.App"
         xmlns:views="clr-namespace:DatabaseTools.UI.Views;assembly=DatabaseTools.UI"
         mc:Ignorable="d"
-        Title="DatabaseTools" Height="450" Width="800" WindowStartupLocation="CenterScreen" >
+        Height="450" Width="800" WindowStartupLocation="CenterScreen" Style="{DynamicResource BorderlessWindowStyle}" >
     <views:Main>
         
     </views:Main>
