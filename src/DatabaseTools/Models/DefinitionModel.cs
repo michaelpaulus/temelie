@@ -6,7 +6,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Xml.Linq;
 
 namespace DatabaseTools
@@ -69,11 +71,10 @@ namespace DatabaseTools
                 string strPattern = $"(CREATE\\s*{this.Type}\\s*[\\[]?)([\\[]?{SchemaName}[\\.]?[\\]]?[\\.]?[\\[]?)?({this.DefinitionName})([\\]]?)";
 
                 string strDefinitionReplacement = $"CREATE {this.Type} {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.DefinitionName}{quoteCharacterEnd}";
+                                
+                Definition = System.Text.RegularExpressions.Regex.Replace(Definition, strPattern, strDefinitionReplacement, System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Multiline);
 
-                this.Definition = System.Text.RegularExpressions.Regex.Replace(this.Definition, strPattern, strDefinitionReplacement, System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Multiline);
-                Definition = Definition.Replace("\t", "    ");
-
-                sb.AppendLine(this.Definition);
+                sb.AppendLine(Definition.Replace("\t", "    ").RemoveLeadingAndTrailingLines());
                 sb.AppendLine("GO");
 
                 if (View != null)

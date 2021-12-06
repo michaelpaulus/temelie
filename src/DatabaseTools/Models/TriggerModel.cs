@@ -43,10 +43,8 @@ namespace DatabaseTools
                 {
                     sb.AppendLine();
                 }
-
-                Definition = Definition.Replace("\t", "    ");
-              
-                sb.AppendLine(this.Definition);
+             
+                sb.AppendLine(Definition.Replace("\t", "    ").RemoveLeadingAndTrailingLines());
                 sb.AppendLine("GO");
             }
 

@@ -76,51 +76,51 @@ BEGIN
                 {
                     i++;
                     sb.Append($@" AND
-            EXISTS
-            (
-                SELECT
-                    1
-                FROM
-                    sys.foreign_key_columns INNER JOIN
-                    sys.tables ON
-                        foreign_key_columns.parent_object_id = tables.object_id INNER JOIN
-                    sys.columns ON
-                        tables.object_id = columns.object_id AND
-                        columns.column_id = foreign_key_columns.parent_column_id INNER JOIN
-                    sys.schemas ON
-                        tables.schema_id = schemas.schema_id
-                WHERE
-                    foreign_key_columns.constraint_object_id = foreign_keys.object_id AND
-                    schemas.name = '{SchemaName}' AND
-                    tables.name = '{TableName}' AND
-                    columns.name = '{detail.Column}' AND
-                    foreign_key_columns.constraint_column_id = {i}
-            ) AND
-            EXISTS
-            (
-                SELECT
-                    1
-                FROM
-                    sys.foreign_key_columns INNER JOIN
-                    sys.tables ON
-                        foreign_key_columns.referenced_object_id = tables.object_id INNER JOIN
-                    sys.columns ON
-                        tables.object_id = columns.object_id AND
-                        columns.column_id = foreign_key_columns.referenced_column_id INNER JOIN
-                    sys.schemas ON
-                        tables.schema_id = schemas.schema_id
-                WHERE
-                    foreign_key_columns.constraint_object_id = foreign_keys.object_id AND
-                    schemas.name = '{ReferencedSchemaName}' AND
-                    tables.name = '{ReferencedTableName}' AND
-                    columns.name = '{detail.ReferencedColumn}' AND
-                    foreign_key_columns.constraint_column_id = {i}
-            )");
+                EXISTS
+                (
+                    SELECT
+                        1
+                    FROM
+                        sys.foreign_key_columns INNER JOIN
+                        sys.tables ON
+                            foreign_key_columns.parent_object_id = tables.object_id INNER JOIN
+                        sys.columns ON
+                            tables.object_id = columns.object_id AND
+                            columns.column_id = foreign_key_columns.parent_column_id INNER JOIN
+                        sys.schemas ON
+                            tables.schema_id = schemas.schema_id
+                    WHERE
+                        foreign_key_columns.constraint_object_id = foreign_keys.object_id AND
+                        schemas.name = '{SchemaName}' AND
+                        tables.name = '{TableName}' AND
+                        columns.name = '{detail.Column}' AND
+                        foreign_key_columns.constraint_column_id = {i}
+                ) AND
+                EXISTS
+                (
+                    SELECT
+                        1
+                    FROM
+                        sys.foreign_key_columns INNER JOIN
+                        sys.tables ON
+                            foreign_key_columns.referenced_object_id = tables.object_id INNER JOIN
+                        sys.columns ON
+                            tables.object_id = columns.object_id AND
+                            columns.column_id = foreign_key_columns.referenced_column_id INNER JOIN
+                        sys.schemas ON
+                            tables.schema_id = schemas.schema_id
+                    WHERE
+                        foreign_key_columns.constraint_object_id = foreign_keys.object_id AND
+                        schemas.name = '{ReferencedSchemaName}' AND
+                        tables.name = '{ReferencedTableName}' AND
+                        columns.name = '{detail.ReferencedColumn}' AND
+                        foreign_key_columns.constraint_column_id = {i}
+                )");
                 }
 
                 sb.AppendLine();
 
-                sb.AppendLine($@"    )
+                sb.AppendLine($@"        )
     BEGIN
         ALTER TABLE {quoteCharacterStart}{this.SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd} DROP CONSTRAINT {quoteCharacterStart}{this.ForeignKeyName}{quoteCharacterEnd}
     END
@@ -141,14 +141,14 @@ GO");
 
                     if (strColumnNames.Length > 0)
                     {
-                        strColumnNames += ",";
+                        strColumnNames += ", ";
                     }
 
                     strColumnNames += $"{quoteCharacterStart}{strColumnName}{quoteCharacterEnd}";
 
                     if (strReferencedColumnNames.Length > 0)
                     {
-                        strReferencedColumnNames += ",";
+                        strReferencedColumnNames += ", ";
                     }
 
                     strReferencedColumnNames += $"{quoteCharacterStart}{strReferencedColumnName}{quoteCharacterEnd}"; ;

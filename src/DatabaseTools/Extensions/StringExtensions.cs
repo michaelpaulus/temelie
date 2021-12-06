@@ -6,7 +6,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Xml.Linq;
 
 namespace DatabaseTools
@@ -15,6 +17,44 @@ namespace DatabaseTools
 	{
 		public static class StringExtensions
 		{
+
+			public static string RemoveLeadingAndTrailingLines(this string value)
+            {
+				var sbDefinition = new StringBuilder();
+
+				bool foundNonEmptyLine = false;
+
+				using (var sr = new StringReader(value))
+				{
+					var line = sr.ReadLine();
+					foundNonEmptyLine = !string.IsNullOrEmpty(line);
+					if (foundNonEmptyLine)
+					{
+						sbDefinition.AppendLine(line);
+					}
+					while (line != null)
+					{
+						line = sr.ReadLine();
+						if (!foundNonEmptyLine)
+						{
+							foundNonEmptyLine = !string.IsNullOrEmpty(line);
+						}
+						if (foundNonEmptyLine)
+						{
+							sbDefinition.AppendLine(line);
+						}
+					}
+				}
+
+				var definition = sbDefinition.ToString();
+
+				while (definition.EndsWith(Environment.NewLine))
+				{
+					definition = definition.Substring(0, definition.Length - Environment.NewLine.Length);
+				}
+
+				return definition;
+			}
 
 			public static string RegExReplace(this string value, string pattern, string replacement)
 			{
