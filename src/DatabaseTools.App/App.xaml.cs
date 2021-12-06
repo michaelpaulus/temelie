@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace DatabaseTools.UI
+namespace DatabaseTools.App
 {
     /// <summary>
     /// Interaction logic for App.xaml

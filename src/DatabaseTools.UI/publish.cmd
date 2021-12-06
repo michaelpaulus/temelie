@@ -1,0 +1,1 @@
+dotnet nuget push bin\Release\DatabaseTools.UI.1.0.26.nupkg --source "https://n2y.pkgs.visualstudio.com/_packaging/n2y/nuget/v3/index.json" --api-key az
