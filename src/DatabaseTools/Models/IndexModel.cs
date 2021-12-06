@@ -175,7 +175,7 @@ namespace DatabaseTools
 
                     if (!string.IsNullOrEmpty(this.FilterDefinition))
                     {
-                        sb.AppendLine($"        WHERE {this.FilterDefinition}");
+                        sb.AppendLine($"        WHERE {this.FilterDefinition.Replace("=", " = ").Replace("<>", " <> ")}");
                     }
 
                     AddOptions(sb, 2);
@@ -256,7 +256,7 @@ namespace DatabaseTools
                             sb.AppendLine(",");
                         }
 
-                        sb.Append($"        {quoteCharacterStart}{column.ColumnName}{quoteCharacterEnd}{(column.IsDescending ? " DESC" : "")}");
+                        sb.Append($"    {quoteCharacterStart}{column.ColumnName}{quoteCharacterEnd}{(column.IsDescending ? " DESC" : "")}");
 
                         intColumnCount += 1;
                     }
@@ -303,7 +303,7 @@ namespace DatabaseTools
                         {
                             sb.AppendLine(",");
                         }
-                        sb.Append($"        {quoteCharacterStart}{column.ColumnName}{quoteCharacterEnd}{(column.IsDescending ? " DESC" : "")}");
+                        sb.Append($"    {quoteCharacterStart}{column.ColumnName}{quoteCharacterEnd}{(column.IsDescending ? " DESC" : "")}");
                         blnHasColumns = true;
                     }
 
@@ -331,7 +331,7 @@ namespace DatabaseTools
 
                     if (!string.IsNullOrEmpty(this.FilterDefinition))
                     {
-                        sb.AppendLine($"    WHERE {this.FilterDefinition}");
+                        sb.AppendLine($"    WHERE {this.FilterDefinition.Replace("=", " = ").Replace("<>", " <> ")}");
                     }
 
                     AddOptions(sb);
@@ -365,12 +365,12 @@ namespace DatabaseTools
                         }
                         sbOptions.Append($"DATA_COMPRESSION = {DataCompressionDesc}");
                     }
-                    sb.AppendLine($"{new string(' ', indentCount * 4)}WITH({sbOptions.ToString()})");
+                    sb.AppendLine($"{new string(' ', indentCount * 4)}WITH ({sbOptions.ToString()})");
                 }
 
                 if (!string.IsNullOrEmpty(PartitionSchemeName))
                 {
-                    sb.AppendLine($"{new string(' ', indentCount * 4)}ON {PartitionSchemeName}({string.Join(", ", Columns.Where(i => i.PartitionOrdinal > 0).Select(i => i.ColumnName))})");
+                    sb.AppendLine($"{new string(' ', indentCount * 4)}ON {PartitionSchemeName} ({string.Join(", ", Columns.Where(i => i.PartitionOrdinal > 0).Select(i => i.ColumnName))})");
                 }
 
             }
