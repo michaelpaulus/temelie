@@ -144,7 +144,7 @@ namespace DatabaseTools
                 return files;
             }
 
-            private static IEnumerable<FileInfo> CreateViewsAndProgrammabilityScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
+            private static IEnumerable<FileInfo> CreateViewsAndProgrammabilityScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, bool includeViews, bool includeProgrammability, string fileFilter = "")
             {
                 var files = new List<FileInfo>();
 
@@ -154,6 +154,16 @@ namespace DatabaseTools
                     if (string.IsNullOrEmpty(fileFilter) ||
                         fileFilter.EqualsIgnoreCase(fileName))
                     {
+
+                        if (definition.View != null && !includeViews)
+                        {
+                            continue;
+                        }
+                        else if (definition.View == null && !includeProgrammability)
+                        {
+                            continue;
+                        }
+
                         var sb = new System.Text.StringBuilder();
                         definition.AppendDropScript(database, sb, database.QuoteCharacterStart, database.QuoteCharacterEnd);
                         definition.AppendCreateScript(database, sb, database.QuoteCharacterStart, database.QuoteCharacterEnd);
@@ -255,6 +265,8 @@ namespace DatabaseTools
                     "02_Tables",
                     "03_Indexes",
                     "05_ViewsAndProgrammability",
+                    "05_Views",
+                    "05_Programmability",
                     "06_Triggers",
                     "07_InsertDefaults",
                     "08_ForeignKeys",
@@ -324,9 +336,45 @@ namespace DatabaseTools
                                 }
                             }
                         }
+                        else if (subDirectory.Name.StartsWith("05_Programmability", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            var files = CreateViewsAndProgrammabilityScripts(database, subDirectory, false, true).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
+                            foreach (var file in subDirectory.GetFiles("*.sql"))
+                            {
+                                if (!files.ContainsKey(file.Name))
+                                {
+                                    file.Delete();
+                                }
+                            }
+                            foreach (var file in subDirectory.GetFiles("*.sql.json"))
+                            {
+                                if (!files.ContainsKey(file.Name))
+                                {
+                                    file.Delete();
+                                }
+                            }
+                        }
+                        else if (subDirectory.Name.StartsWith("05_Views", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            var files = CreateViewsAndProgrammabilityScripts(database, subDirectory, true, false).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
+                            foreach (var file in subDirectory.GetFiles("*.sql"))
+                            {
+                                if (!files.ContainsKey(file.Name))
+                                {
+                                    file.Delete();
+                                }
+                            }
+                            foreach (var file in subDirectory.GetFiles("*.sql.json"))
+                            {
+                                if (!files.ContainsKey(file.Name))
+                                {
+                                    file.Delete();
+                                }
+                            }
+                        }
                         else if (subDirectory.Name.StartsWith("05_ViewsAndProgrammability", StringComparison.InvariantCultureIgnoreCase))
                         {
-                            var files = CreateViewsAndProgrammabilityScripts(database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
+                            var files = CreateViewsAndProgrammabilityScripts(database, subDirectory, true, true).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
                             foreach (var file in subDirectory.GetFiles("*.sql"))
                             {
                                 if (!files.ContainsKey(file.Name))
@@ -443,9 +491,17 @@ namespace DatabaseTools
                 {
                     CreateIndexScripts(database, directory, fileName);
                 }
+                else if (directory.Name.StartsWith("05_Programmability", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    CreateViewsAndProgrammabilityScripts(database, directory, false, true, fileName);
+                }
+                else if (directory.Name.StartsWith("05_Views", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    CreateViewsAndProgrammabilityScripts(database, directory, true, false, fileName);
+                }
                 else if (directory.Name.StartsWith("05_ViewsAndProgrammability", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    CreateViewsAndProgrammabilityScripts(database, directory, fileName);
+                    CreateViewsAndProgrammabilityScripts(database, directory, true, true, fileName);
                 }
                 else if (directory.Name.StartsWith("06_Triggers", StringComparison.InvariantCultureIgnoreCase))
                 {
