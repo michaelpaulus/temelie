@@ -14,7 +14,7 @@
 		<SccLocalPath>SAK</SccLocalPath>
 		<Authors>Michael Paulus</Authors>
 		<Company />
-		<Version>1.0.28</Version>
+		<Version>1.0.29</Version>
 	</PropertyGroup>
 
 	<ItemGroup>

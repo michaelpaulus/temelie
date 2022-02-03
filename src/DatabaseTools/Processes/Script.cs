@@ -336,6 +336,24 @@ namespace DatabaseTools
                                 }
                             }
                         }
+                        else if (subDirectory.Name.StartsWith("05_ViewsAndProgrammability", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            var files = CreateViewsAndProgrammabilityScripts(database, subDirectory, true, true).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
+                            foreach (var file in subDirectory.GetFiles("*.sql"))
+                            {
+                                if (!files.ContainsKey(file.Name))
+                                {
+                                    file.Delete();
+                                }
+                            }
+                            foreach (var file in subDirectory.GetFiles("*.sql.json"))
+                            {
+                                if (!files.ContainsKey(file.Name))
+                                {
+                                    file.Delete();
+                                }
+                            }
+                        }
                         else if (subDirectory.Name.StartsWith("05_Programmability", StringComparison.InvariantCultureIgnoreCase))
                         {
                             var files = CreateViewsAndProgrammabilityScripts(database, subDirectory, false, true).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
@@ -357,24 +375,6 @@ namespace DatabaseTools
                         else if (subDirectory.Name.StartsWith("05_Views", StringComparison.InvariantCultureIgnoreCase))
                         {
                             var files = CreateViewsAndProgrammabilityScripts(database, subDirectory, true, false).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
-                            foreach (var file in subDirectory.GetFiles("*.sql"))
-                            {
-                                if (!files.ContainsKey(file.Name))
-                                {
-                                    file.Delete();
-                                }
-                            }
-                            foreach (var file in subDirectory.GetFiles("*.sql.json"))
-                            {
-                                if (!files.ContainsKey(file.Name))
-                                {
-                                    file.Delete();
-                                }
-                            }
-                        }
-                        else if (subDirectory.Name.StartsWith("05_ViewsAndProgrammability", StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            var files = CreateViewsAndProgrammabilityScripts(database, subDirectory, true, true).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
                             foreach (var file in subDirectory.GetFiles("*.sql"))
                             {
                                 if (!files.ContainsKey(file.Name))
@@ -491,6 +491,10 @@ namespace DatabaseTools
                 {
                     CreateIndexScripts(database, directory, fileName);
                 }
+                else if (directory.Name.StartsWith("05_ViewsAndProgrammability", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    CreateViewsAndProgrammabilityScripts(database, directory, true, true, fileName);
+                }
                 else if (directory.Name.StartsWith("05_Programmability", StringComparison.InvariantCultureIgnoreCase))
                 {
                     CreateViewsAndProgrammabilityScripts(database, directory, false, true, fileName);
@@ -498,10 +502,6 @@ namespace DatabaseTools
                 else if (directory.Name.StartsWith("05_Views", StringComparison.InvariantCultureIgnoreCase))
                 {
                     CreateViewsAndProgrammabilityScripts(database, directory, true, false, fileName);
-                }
-                else if (directory.Name.StartsWith("05_ViewsAndProgrammability", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    CreateViewsAndProgrammabilityScripts(database, directory, true, true, fileName);
                 }
                 else if (directory.Name.StartsWith("06_Triggers", StringComparison.InvariantCultureIgnoreCase))
                 {
