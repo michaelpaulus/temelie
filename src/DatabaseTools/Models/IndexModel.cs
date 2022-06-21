@@ -43,14 +43,14 @@ namespace DatabaseTools
                 }
             }
 
-            private IList<string> _includeColumns;
-            public IList<string> IncludeColumns
+            private IList<IndexColumnModel> _includeColumns;
+            public IList<IndexColumnModel> IncludeColumns
             {
                 get
                 {
                     if (this._includeColumns == null)
                     {
-                        this._includeColumns = new List<string>();
+                        this._includeColumns = new List<IndexColumnModel>();
                     }
                     return this._includeColumns;
                 }
@@ -137,40 +137,44 @@ namespace DatabaseTools
                     }
 
                     sb.AppendLine($"        INDEX {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd} {indexType}");
-                    sb.AppendLine("        (");
 
-                    bool blnHasColumns = false;
-
-                    foreach (var column in this.Columns)
+                    if (Columns.Any())
                     {
-                        if (blnHasColumns)
+                        sb.AppendLine("        (");
+
+                        bool blnHasColumns = false;
+
+                        foreach (var column in this.Columns)
                         {
-                            sb.AppendLine(",");
-                        }
-                        sb.Append($"            {quoteCharacterStart}{column.ColumnName}{quoteCharacterEnd}{(column.IsDescending ? " DESC" : "")}");
-                        blnHasColumns = true;
-                    }
-
-                    sb.AppendLine();
-                    sb.AppendLine("        )");
-
-                    if (this.IncludeColumns.Count > 0)
-                    {
-                        sb.Append("        INCLUDE (");
-
-                        bool blnHasIncludeColumns = false;
-
-                        foreach (var includeColumn in this.IncludeColumns)
-                        {
-                            if (blnHasIncludeColumns)
+                            if (blnHasColumns)
                             {
-                                sb.Append(", ");
+                                sb.AppendLine(",");
                             }
-                            sb.Append($"{quoteCharacterStart}{includeColumn}{quoteCharacterEnd}");
-                            blnHasIncludeColumns = true;
+                            sb.Append($"            {quoteCharacterStart}{column.ColumnName}{quoteCharacterEnd}{(column.IsDescending ? " DESC" : "")}");
+                            blnHasColumns = true;
                         }
 
+                        sb.AppendLine();
                         sb.AppendLine("        )");
+
+                        if (IncludeColumns.Any())
+                        {
+                            sb.Append("        INCLUDE (");
+
+                            bool blnHasIncludeColumns = false;
+
+                            foreach (var includeColumn in IncludeColumns)
+                            {
+                                if (blnHasIncludeColumns)
+                                {
+                                    sb.Append(", ");
+                                }
+                                sb.Append($"{quoteCharacterStart}{includeColumn.ColumnName}{quoteCharacterEnd}");
+                                blnHasIncludeColumns = true;
+                            }
+
+                            sb.AppendLine("        )");
+                        }
                     }
 
                     if (!string.IsNullOrEmpty(this.FilterDefinition))
@@ -293,40 +297,44 @@ namespace DatabaseTools
             schemas.name = '{this.SchemaName}'
     )");
                     sb.AppendLine("    " + $"CREATE {indexType} INDEX {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd} ON {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
-                    sb.AppendLine("    " + "(");
-
-                    bool blnHasColumns = false;
-
-                    foreach (var column in this.Columns)
+                    
+                    if (Columns.Any())
                     {
-                        if (blnHasColumns)
+                        sb.AppendLine("    " + "(");
+
+                        bool blnHasColumns = false;
+
+                        foreach (var column in this.Columns)
                         {
-                            sb.AppendLine(",");
-                        }
-                        sb.Append($"    {quoteCharacterStart}{column.ColumnName}{quoteCharacterEnd}{(column.IsDescending ? " DESC" : "")}");
-                        blnHasColumns = true;
-                    }
-
-                    sb.AppendLine();
-                    sb.AppendLine("    " + ")");
-
-                    if (this.IncludeColumns.Count > 0)
-                    {
-                        sb.Append("    INCLUDE (");
-
-                        bool blnHasIncludeColumns = false;
-
-                        foreach (var includeColumn in this.IncludeColumns)
-                        {
-                            if (blnHasIncludeColumns)
+                            if (blnHasColumns)
                             {
-                                sb.Append(", ");
+                                sb.AppendLine(",");
                             }
-                            sb.Append($"{quoteCharacterStart}{includeColumn}{quoteCharacterEnd}");
-                            blnHasIncludeColumns = true;
+                            sb.Append($"    {quoteCharacterStart}{column.ColumnName}{quoteCharacterEnd}{(column.IsDescending ? " DESC" : "")}");
+                            blnHasColumns = true;
                         }
 
-                        sb.AppendLine(")");
+                        sb.AppendLine();
+                        sb.AppendLine("    " + ")");
+
+                        if (IncludeColumns.Any())
+                        {
+                            sb.Append("    INCLUDE (");
+
+                            bool blnHasIncludeColumns = false;
+
+                            foreach (var includeColumn in IncludeColumns)
+                            {
+                                if (blnHasIncludeColumns)
+                                {
+                                    sb.Append(", ");
+                                }
+                                sb.Append($"{quoteCharacterStart}{includeColumn.ColumnName}{quoteCharacterEnd}");
+                                blnHasIncludeColumns = true;
+                            }
+
+                            sb.AppendLine(")");
+                        }
                     }
 
                     if (!string.IsNullOrEmpty(this.FilterDefinition))
@@ -370,7 +378,19 @@ namespace DatabaseTools
 
                 if (!string.IsNullOrEmpty(PartitionSchemeName))
                 {
-                    sb.AppendLine($"{new string(' ', indentCount * 4)}ON {PartitionSchemeName} ({string.Join(", ", Columns.Where(i => i.PartitionOrdinal > 0).Select(i => i.ColumnName))})");
+                    var partitionColumns = Columns.Where(i => i.PartitionOrdinal > 0).OrderBy(i => i.PartitionOrdinal).Select(i => i.ColumnName).ToList();
+                    if (!partitionColumns.Any())
+                    {
+                        partitionColumns = IncludeColumns.Where(i => i.PartitionOrdinal > 0).OrderBy(i => i.PartitionOrdinal).Select(i => i.ColumnName).ToList();
+                    }
+                    if (partitionColumns.Any())
+                    {
+                        sb.AppendLine($"{new string(' ', indentCount * 4)}ON {PartitionSchemeName} ({string.Join(", ", partitionColumns)})");
+                    }
+                    else
+                    {
+                        sb.AppendLine($"{new string(' ', indentCount * 4)}ON {PartitionSchemeName}");
+                    }
                 }
 
             }

@@ -870,13 +870,15 @@ namespace DatabaseTools
                                 bool blnIsIncludeColumn = Convert.ToBoolean(detialRow["is_included_column"]);
                                 string strColumnName = detialRow["column_name"].ToString();
 
+                                var columnModel = new Models.IndexColumnModel { ColumnName = strColumnName, IsDescending = blnIsDescending, PartitionOrdinal = Convert.ToInt32(detialRow["partition_ordinal"]) };
+
                                 if (blnIsIncludeColumn)
                                 {
-                                    index.IncludeColumns.Add(strColumnName);
+                                    index.IncludeColumns.Add(columnModel);
                                 }
                                 else
                                 {
-                                    index.Columns.Add(new Models.IndexColumnModel { ColumnName = strColumnName, IsDescending = blnIsDescending, PartitionOrdinal = Convert.ToInt32(detialRow["partition_ordinal"]) });
+                                    index.Columns.Add(columnModel);
                                 }
                             }
 
