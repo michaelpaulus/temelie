@@ -41,7 +41,7 @@ namespace DatabaseTools
             public bool IsMemoryOptimized { get; set; }
             public string DurabilityDesc { get; set; }
             public bool IsExternal { get; set; }
-            public string DataSourceName { get; set; }
+            public string DataSourceName { get; set; } 
             public bool IsHistoryTable { get { return TemporalType == 1; } }
             public bool IsView { get; set; }
 
@@ -193,6 +193,7 @@ namespace DatabaseTools
             {
                 var settings = new JsonSerializerSettings();
                 settings.ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver();
+                settings.NullValueHandling = NullValueHandling.Ignore;
                 var json = JsonConvert.SerializeObject(this, Formatting.Indented, settings);
                 sb.Append(json);
             }

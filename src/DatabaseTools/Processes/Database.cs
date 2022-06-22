@@ -301,7 +301,7 @@ namespace DatabaseTools
 
             public static string GetStringValue(DataRow row, string columnName)
             {
-                string value = string.Empty;
+                string value = null;
 
                 try
                 {

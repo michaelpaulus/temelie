@@ -309,11 +309,11 @@ ORDER BY
                                 WHEN sys.columns.is_computed = 1 THEN 1  
                                 ELSE 0 
                             END is_computed, 
-                            ISNULL(sys.computed_columns.definition, '') computed_definition, 
+                            sys.computed_columns.definition computed_definition, 
                             sys.columns.column_id, 
                             0 is_hidden,
                             0 generated_always_type,
-                            ISNULL(sys.default_constraints.definition, '') column_default,
+                            sys.default_constraints.definition column_default,
                             ISNULL((SELECT 1 FROM sys.indexes INNER JOIN sys.index_columns ON sys.indexes.object_id = sys.index_columns.object_id AND sys.indexes.index_id = sys.index_columns.index_id WHERE sys.indexes.is_primary_key = 1 AND sys.indexes.object_id = sys.tables.object_id AND sys.index_columns.object_id = sys.columns.object_id AND sys.index_columns.column_id = sys.columns.column_id), 0) is_primary_key,
                             '[]' extended_properties
                         FROM 
@@ -369,11 +369,11 @@ SELECT
         ELSE
             0
     END is_computed,
-    ISNULL(sys.computed_columns.definition, '') computed_definition,
+    sys.computed_columns.definition computed_definition,
     sys.columns.column_id,
     sys.columns.is_hidden,
     sys.columns.generated_always_type,
-    ISNULL(sys.default_constraints.definition, '') column_default,
+    sys.default_constraints.definition column_default,
     ISNULL(
     (
         SELECT
@@ -509,7 +509,6 @@ FROM
 			tables.name AS table_name,
 			schemas.name schema_name,
 			tables.temporal_type,
-			ISNULL(
 			(
 				SELECT
 					t1.name
@@ -517,7 +516,7 @@ FROM
 					sys.tables t1
 				WHERE
 					t1.object_id = tables.history_table_id
-			), '') history_table_name,
+			) history_table_name,
 			tables.is_memory_optimized,
 			tables.durability_desc,
 			tables.is_external,
@@ -542,8 +541,6 @@ FROM
 				WHERE
 					indexes.object_id = tables.object_id
 			) partition_index_id
-
-
 		FROM
 			sys.tables INNER JOIN
 			sys.schemas ON
@@ -651,9 +648,9 @@ SELECT
     sys.columns.is_nullable,
     sys.columns.is_identity,
     sys.columns.is_computed,
-    ISNULL(sys.computed_columns.definition, '') computed_definition,
+    sys.computed_columns.definition computed_definition,
     sys.columns.column_id,
-    ISNULL(sys.default_constraints.definition, '') column_default,
+    sys.default_constraints.definition column_default,
     ISNULL(
     (
         SELECT
@@ -714,9 +711,9 @@ SELECT
     sys.columns.is_nullable,
     sys.columns.is_identity,
     sys.columns.is_computed,
-    ISNULL(sys.computed_columns.definition, '') computed_definition,
+    sys.computed_columns.definition computed_definition,
     sys.columns.column_id,
-    ISNULL(sys.default_constraints.definition, '') column_default,
+    sys.default_constraints.definition column_default,
     ISNULL(
     (
         SELECT
