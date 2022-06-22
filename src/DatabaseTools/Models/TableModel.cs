@@ -60,6 +60,9 @@ namespace DatabaseTools
 
             public Dictionary<string, string> ExtendedProperties { get; set; } =  new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
+            public string PartitionSchemeName { get; set; }
+            public string PartitionSchemeColumns { get; set; }
+
             public string Options { get; set; }
 
             #endregion
@@ -171,11 +174,14 @@ namespace DatabaseTools
                     sb.AppendLine();
                 }
 
-                sb.Append("    " + ")");
-
-                sb.AppendLine();
+                sb.AppendLine("    )");
 
                 AddOptions(sb);
+
+                if (!string.IsNullOrEmpty(PartitionSchemeName))
+                {
+                    sb.AppendLine($"    ON {PartitionSchemeName} ({PartitionSchemeColumns})");
+                }
 
                 sb.AppendLine("GO");
 

@@ -921,6 +921,8 @@ namespace DatabaseTools
                     table.DurabilityDesc = Processes.Database.GetStringValue(row, "durability_desc");
                     table.IsExternal = Processes.Database.GetBoolValue(row, "is_external");
                     table.DataSourceName = Processes.Database.GetStringValue(row, "data_source_name");
+                    table.PartitionSchemeColumns = Processes.Database.GetStringValue(row, "partition_scheme_columns");
+                    table.PartitionSchemeName = Processes.Database.GetStringValue(row, "partition_scheme_name");
                     var extendedProperites = GetStringValue(row, "extended_properties");
                     if (!string.IsNullOrEmpty(extendedProperites))
                     {

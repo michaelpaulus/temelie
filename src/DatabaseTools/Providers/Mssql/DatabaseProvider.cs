@@ -440,63 +440,123 @@ ORDER BY
         public DataTable GetTables(DbConnection connection)
         {
             string sql2014 = @"
-                        SELECT 
-                            tables.name AS table_name,
-                            schemas.name schema_name,
-                            0 temporal_type,
-                            '' history_table_name,
-                            0 is_memory_optimized,
-                            '' durability_desc,
-                            0 is_external,
-                            '' data_source_name,
-                            '[]' extended_properties
-                        FROM 
-                            sys.tables INNER JOIN 
-                            sys.schemas ON 
-                                tables.schema_id = schemas.schema_id 
-                        WHERE 
-                            tables.name <> 'sysdiagrams'
-                        ORDER BY 
-                            tables.name
+SELECT 
+    tables.name AS table_name,
+    schemas.name schema_name,
+    0 temporal_type,
+    '' history_table_name,
+    0 is_memory_optimized,
+    '' durability_desc,
+    0 is_external,
+    '' data_source_name,
+    '[]' extended_properties,
+    NULL partition_scheme_name,
+    NULL partition_scheme_columns
+FROM 
+    sys.tables INNER JOIN 
+    sys.schemas ON 
+        tables.schema_id = schemas.schema_id 
+WHERE 
+    tables.name <> 'sysdiagrams'
+ORDER BY 
+    tables.name
                         ";
 
             string sql2016 = @"
 SELECT
-    tables.name AS table_name,
-    schemas.name schema_name,
-    tables.temporal_type,
-    ISNULL(
-    (
-        SELECT
-            t1.name
-        FROM
-            sys.tables t1
-        WHERE
-            t1.object_id = tables.history_table_id
-    ), '') history_table_name,
-    tables.is_memory_optimized,
-    tables.durability_desc,
-    tables.is_external,
-    external_data_sources.name data_source_name,
-    ISNULL((SELECT
-        name,
-        value
-    FROM
-        fn_listextendedproperty (NULL, 'schema', schemas.name, 'table', tables.name, default, default)
-    FOR JSON AUTO
-    ), '[]') extended_properties
+	t1.table_name,
+	t1.schema_name,
+	t1.temporal_type,
+	t1.history_table_name,
+	t1.is_memory_optimized,
+	t1.durability_desc,
+	t1.is_external,
+	t1.data_source_name,
+	t1.extended_properties,
+	(
+		SELECT
+			partition_schemes.name
+		FROM
+			sys.indexes INNER JOIN
+			sys.partition_schemes ON
+				indexes.data_space_id = partition_schemes.data_space_id
+		WHERE
+			indexes.object_id = t1.object_id AND
+			indexes.index_id = t1.partition_index_id
+	) partition_scheme_name,
+	(
+		SELECT
+			STRING_AGG(columns.name, ',')
+		FROM
+			sys.indexes INNER JOIN
+			sys.partition_schemes ON
+				indexes.data_space_id = partition_schemes.data_space_id INNER JOIN
+			sys.index_columns ON
+				indexes.object_id = index_columns.object_id AND
+				indexes.index_id = index_columns.index_id INNER JOIN
+			sys.columns ON
+				sys.index_columns.object_id = sys.columns.object_id AND
+				sys.index_columns.column_id = sys.columns.column_id
+		WHERE
+			indexes.object_id = t1.object_id AND
+			indexes.index_id = t1.partition_index_id AND
+			index_columns.partition_ordinal > 0
+	) partition_scheme_columns
 FROM
-    sys.tables INNER JOIN
-    sys.schemas ON
-        tables.schema_id = schemas.schema_id LEFT JOIN
-    sys.external_tables ON
-        tables.object_id = external_tables.object_id LEFT JOIN
-    sys.external_data_sources ON
-        external_tables.data_source_id = external_data_sources.data_source_id
-WHERE
-    tables.name <> 'sysdiagrams'
+	(
+		SELECT
+			tables.object_id,
+			tables.name AS table_name,
+			schemas.name schema_name,
+			tables.temporal_type,
+			ISNULL(
+			(
+				SELECT
+					t1.name
+				FROM
+					sys.tables t1
+				WHERE
+					t1.object_id = tables.history_table_id
+			), '') history_table_name,
+			tables.is_memory_optimized,
+			tables.durability_desc,
+			tables.is_external,
+			external_data_sources.name data_source_name,
+			ISNULL(
+			(
+				SELECT
+					name,
+					value
+				FROM
+					fn_listextendedproperty(NULL, 'schema', schemas.name, 'table', tables.name, DEFAULT, DEFAULT)
+				FOR JSON AUTO
+			), '[]') extended_properties,
+			(
+				SELECT
+				TOP 1
+					indexes.index_id
+				FROM
+					sys.indexes INNER JOIN
+					sys.partition_schemes ON
+						indexes.data_space_id = partition_schemes.data_space_id
+				WHERE
+					indexes.object_id = tables.object_id
+			) partition_index_id
+
+
+		FROM
+			sys.tables INNER JOIN
+			sys.schemas ON
+				tables.schema_id = schemas.schema_id LEFT JOIN
+			sys.external_tables ON
+				tables.object_id = external_tables.object_id LEFT JOIN
+			sys.external_data_sources ON
+				external_tables.data_source_id = external_data_sources.data_source_id
+		WHERE
+			tables.name <> 'sysdiagrams'
+	) t1
 ORDER BY
-    tables.name
+	t1.table_name
                         ";
 
             DataSet ds = null;
