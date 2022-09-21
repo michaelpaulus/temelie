@@ -112,7 +112,7 @@ namespace DatabaseTools.Providers.Mssql
                             sys.system_sql_modules ON 
                                 sys.system_sql_modules.object_id = sysobjects.id 
                         WHERE 
-                            sysobjects.xtype IN ('P', 'V', 'FN', 'IF') AND 
+                            sysobjects.xtype IN ('P', 'V', 'FN', 'IF', 'TF') AND 
                             sysobjects.category = 0 AND 
                             sysobjects.name NOT LIKE '%diagram%' 
                         ORDER BY 

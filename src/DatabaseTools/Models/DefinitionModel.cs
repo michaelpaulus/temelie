@@ -35,11 +35,8 @@ namespace DatabaseTools
                             return "PROCEDURE";
                         case "V":
                             return "VIEW";
-                        case "FN":
-                        case "IF":
-                            return "FUNCTION";
                     }
-                    return string.Empty;
+                    return "FUNCTION";
                 }
             }
 
