@@ -23,7 +23,6 @@ namespace DatabaseTools.UI.Views
 
         public Main()
         {
-
             // This call is required by the designer.
             InitializeComponent();
 
@@ -34,6 +33,7 @@ namespace DatabaseTools.UI.Views
             {
                 menuItem.Header = menuItem.Header.ToString().ToLower();
             }
+
         }
 
         #region Methods

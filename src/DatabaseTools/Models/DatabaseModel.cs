@@ -1,6 +1,8 @@
 ﻿
 using DatabaseTools.Extensions;
 using DatabaseTools.Processes;
+using DatabaseTools.Providers;
+using Microsoft.Data.SqlClient;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -17,19 +19,22 @@ namespace DatabaseTools
         public class DatabaseModel
         {
 
-            public DatabaseModel(System.Configuration.ConnectionStringSettings connectionString) : this(connectionString, Processes.Database.GetDatabaseType(connectionString))
+            private readonly Database _database;
+
+            public DatabaseModel(System.Configuration.ConnectionStringSettings connectionString, IEnumerable<IDatabaseProvider> databaseProviders, IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications) : this(connectionString, databaseProviders, connectionCreatedNotifications, Processes.Database.GetDatabaseType(connectionString))
             {
 
             }
 
-            public DatabaseModel(System.Configuration.ConnectionStringSettings connectionString, Models.DatabaseType targetDatabseType)
+            public DatabaseModel(System.Configuration.ConnectionStringSettings connectionString, IEnumerable<IDatabaseProvider> databaseProviders, IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications, Models.DatabaseType targetDatabseType)
             {
                 this._connectionString = connectionString;
-                this._databaseType = Processes.Database.GetDatabaseType(connectionString);
+                this._databaseType = Database.GetDatabaseType(connectionString);
+                _database = new Database(targetDatabseType, databaseProviders, connectionCreatedNotifications);
                 switch (this.DatabaseType)
                 {
                     case Models.DatabaseType.MicrosoftSQLServer:
-                        System.Data.SqlClient.SqlConnectionStringBuilder sqlCommandBuilder = new System.Data.SqlClient.SqlConnectionStringBuilder(connectionString.ConnectionString);
+                        var sqlCommandBuilder = new SqlConnectionStringBuilder(connectionString.ConnectionString);
                         this._databaseName = sqlCommandBuilder.InitialCatalog;
                         break;
                 }
@@ -90,9 +95,9 @@ namespace DatabaseTools
                 {
                     if (this._definitions == null)
                     {
-                        using (var conn = Database.CreateDbConnection(this.ConnectionString))
+                        using (var conn = _database.CreateDbConnection(this.ConnectionString))
                         {
-                            this._definitions = Processes.Database.GetDefinitions(conn);
+                            this._definitions = _database.GetDefinitions(conn);
                         }
 
                         foreach (var def in _definitions.Where(i => i.Type == "VIEW"))
@@ -128,9 +133,9 @@ namespace DatabaseTools
                 {
                     if (this._foreignKeys == null)
                     {
-                        using (var conn = Database.CreateDbConnection(this.ConnectionString))
+                        using (var conn = _database.CreateDbConnection(this.ConnectionString))
                         {
-                            this._foreignKeys = (from i in Processes.Database.GetForeignKeys(conn, this.TableNames) orderby i.TableName, i.ForeignKeyName select i).ToList();
+                            this._foreignKeys = (from i in _database.GetForeignKeys(conn, this.TableNames) orderby i.TableName, i.ForeignKeyName select i).ToList();
                         }
                     }
                     return this._foreignKeys;
@@ -144,9 +149,9 @@ namespace DatabaseTools
                 {
                     if (this._allIndexes == null)
                     {
-                        using (var conn = Database.CreateDbConnection(this.ConnectionString))
+                        using (var conn = _database.CreateDbConnection(this.ConnectionString))
                         {
-                            this._allIndexes = (from i in Processes.Database.GetIndexes(conn, this.TableNames, null) orderby i.TableName, i.IndexName select i).ToList();
+                            this._allIndexes = (from i in _database.GetIndexes(conn, this.TableNames, null) orderby i.TableName, i.IndexName select i).ToList();
                         }
                     }
                     return this._allIndexes;
@@ -258,9 +263,9 @@ namespace DatabaseTools
                 {
                     if (this._tables == null)
                     {
-                        using (var conn = Database.CreateDbConnection(this.ConnectionString))
+                        using (var conn = _database.CreateDbConnection(this.ConnectionString))
                         {
-                            this._tables = Processes.Database.GetTables(conn, this.TableColumns).OrderBy(i => i.TableName).ToList();
+                            this._tables = _database.GetTables(conn, this.TableColumns).OrderBy(i => i.TableName).ToList();
                         }
                     }
                     return GetFilteredTables();
@@ -274,9 +279,9 @@ namespace DatabaseTools
                 {
                     if (this._tableColumns == null)
                     {
-                        using (var conn = Database.CreateDbConnection(this.ConnectionString))
+                        using (var conn = _database.CreateDbConnection(this.ConnectionString))
                         {
-                            this._tableColumns = Processes.Database.GetTableColumns(conn);
+                            this._tableColumns = _database.GetTableColumns(conn);
                         }
                     }
                     return this._tableColumns;
@@ -290,9 +295,9 @@ namespace DatabaseTools
                 {
                     if (this._views == null)
                     {
-                        using (var conn = Database.CreateDbConnection(this.ConnectionString))
+                        using (var conn = _database.CreateDbConnection(this.ConnectionString))
                         {
-                            this._views = Processes.Database.GetViews(conn, this.ViewColumns).OrderBy(i => i.TableName).ToList();
+                            this._views = _database.GetViews(conn, this.ViewColumns).OrderBy(i => i.TableName).ToList();
                         }
                     }
 
@@ -317,9 +322,9 @@ namespace DatabaseTools
                 {
                     if (this._viewColumns == null)
                     {
-                        using (var conn = Database.CreateDbConnection(this.ConnectionString))
+                        using (var conn = _database.CreateDbConnection(this.ConnectionString))
                         {
-                            this._viewColumns = Processes.Database.GetViewColumns(conn);
+                            this._viewColumns = _database.GetViewColumns(conn);
                         }
                     }
                     return this._viewColumns;
@@ -333,9 +338,9 @@ namespace DatabaseTools
                 {
                     if (this._triggers == null)
                     {
-                        using (var conn = Database.CreateDbConnection(this.ConnectionString))
+                        using (var conn = _database.CreateDbConnection(this.ConnectionString))
                         {
-                            this._triggers = Processes.Database.GetTriggers(conn, this.TableNames, this.ViewNames, this.ObjectFilter).OrderBy(i => i.TriggerName).ToList(); ;
+                            this._triggers = _database.GetTriggers(conn, this.TableNames, this.ViewNames, this.ObjectFilter).OrderBy(i => i.TriggerName).ToList(); ;
                         }
                     }
                     return GetFilteredTriggers();
@@ -348,9 +353,9 @@ namespace DatabaseTools
                 {
                     if (this._securityPolicies == null)
                     {
-                        using (var conn = Database.CreateDbConnection(this.ConnectionString))
+                        using (var conn = _database.CreateDbConnection(this.ConnectionString))
                         {
-                            this._securityPolicies = Processes.Database.GetSecurityPolicies(conn).OrderBy(i => i.PolicyName).ToList();
+                            this._securityPolicies = _database.GetSecurityPolicies(conn).OrderBy(i => i.PolicyName).ToList();
                         }
                     }
                     return this._securityPolicies;
@@ -369,7 +374,7 @@ namespace DatabaseTools
 
             public System.Data.DataSet Execute(string sqlCommand)
             {
-                return Processes.Database.Execute(this.ConnectionString, sqlCommand);
+                return _database.Execute(this.ConnectionString, sqlCommand);
             }
 
             public string FormatValue(System.Data.DbType dbType, object value)
@@ -598,7 +603,7 @@ namespace DatabaseTools
 
                 return sb.ToString();
             }
-           
+
             public string GetInsertDefaultScripts()
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
@@ -689,7 +694,7 @@ namespace DatabaseTools
                     strOrderBy = "ORDER BY " + sbOrderBy.ToString();
                 }
 
-                var dsValues = Processes.Database.Execute(this.ConnectionString, $"SELECT * FROM {strQualifiedTableName} {(string.IsNullOrEmpty(where) ? "" : "WHERE " + where)} {strOrderBy}");
+                var dsValues = _database.Execute(this.ConnectionString, $"SELECT * FROM {strQualifiedTableName} {(string.IsNullOrEmpty(where) ? "" : "WHERE " + where)} {strOrderBy}");
 
                 if (dsValues.Tables[0].Rows.Count > 0)
                 {
@@ -848,7 +853,7 @@ GO
                     sb.AppendLine("    SELECT");
                     sb.AppendLine("        *");
                     sb.AppendLine("    FROM");
-                    sb.AppendLine($"       { this.DatabaseName}.{table.SchemaName}.{table.TableName} source_table");
+                    sb.AppendLine($"       {this.DatabaseName}.{table.SchemaName}.{table.TableName} source_table");
                     sb.AppendLine("    WHERE");
                     sb.AppendLine($"        NOT EXISTS (SELECT 1 FROM {targetDatabase.DatabaseName}.{table.SchemaName}.{table.TableName} target_table WHERE {sbCriteria.ToString()})");
                 }
@@ -939,7 +944,7 @@ GO
 
                 return sb.ToString();
             }
-          
+
             public string GetTriggerDropScripts()
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
@@ -989,7 +994,7 @@ GO
 
                 return sb.ToString();
             }
-          
+
             private void SortTablesByDependencies(IList<TableModel> list)
             {
                 //Order tables by dependencies

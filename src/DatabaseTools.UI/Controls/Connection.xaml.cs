@@ -1,4 +1,7 @@
 ﻿using DatabaseTools.Processes;
+using DatabaseTools.Providers;
+using DatabaseTools.UI;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,8 +24,13 @@ namespace DatabaseTools.Controls
     /// </summary>
     public partial class DatabaseConnection : UserControl
     {
+        private readonly IEnumerable<IDatabaseProvider> _databaseProviders;
+        private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
+
         public DatabaseConnection()
         {
+            _databaseProviders = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetServices<IDatabaseProvider>();
+            _connectionCreatedNotifications = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetServices<IConnectionCreatedNotification>();
             InitializeComponent();
             this.DataContext = new ViewModels.ConnectionViewModel();
         }
@@ -68,16 +76,21 @@ namespace DatabaseTools.Controls
             }
         }
 
-        public static IList<DatabaseTools.Models.TableModel> GetTables(System.Configuration.ConnectionStringSettings connectionString)
+        public static IList<DatabaseTools.Models.TableModel> GetTables(System.Configuration.ConnectionStringSettings connectionString,
+            IEnumerable<IDatabaseProvider> databaseProviders,
+            IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications)
         {
             IList<DatabaseTools.Models.TableModel> tables = new List<DatabaseTools.Models.TableModel>();
 
+            var databaseType = Database.GetDatabaseType(connectionString);
+            var database = new Database(databaseType, databaseProviders, connectionCreatedNotifications);
+
             try
             {
-                using (var conn = Database.CreateDbConnection(connectionString))
+                using (var conn = database.CreateDbConnection(connectionString))
                 {
-                    var columns = DatabaseTools.Processes.Database.GetTableColumns(conn);
-                    tables = DatabaseTools.Processes.Database.GetTables(conn, columns);
+                    var columns = database.GetTableColumns(conn);
+                    tables = database.GetTables(conn, columns);
                 }
             }
             catch
@@ -88,16 +101,21 @@ namespace DatabaseTools.Controls
             return tables;
         }
 
-        public static IList<DatabaseTools.Models.TableModel> GetViews(System.Configuration.ConnectionStringSettings connectionString)
+        public static IList<DatabaseTools.Models.TableModel> GetViews(System.Configuration.ConnectionStringSettings connectionString, 
+            IEnumerable<IDatabaseProvider> databaseProviders,
+            IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications)
         {
             IList<DatabaseTools.Models.TableModel> tables = new List<DatabaseTools.Models.TableModel>();
 
+            var databaseType = Database.GetDatabaseType(connectionString);
+            var database = new Database(databaseType, databaseProviders, connectionCreatedNotifications);
+
             try
             {
-                using (var conn = Database.CreateDbConnection(connectionString))
+                using (var conn = database.CreateDbConnection(connectionString))
                 {
-                    var columns = DatabaseTools.Processes.Database.GetTableColumns(conn);
-                    tables = DatabaseTools.Processes.Database.GetTables(conn, columns);
+                    var columns = database.GetTableColumns(conn);
+                    tables = database.GetTables(conn, columns);
                 }
             }
             catch

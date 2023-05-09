@@ -1,23 +1,33 @@
 ﻿using DatabaseTools.Processes;
+using DatabaseTools.Providers;
+using DatabaseTools.UI;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace DatabaseTools.ViewModels
 {
     public class ExecuteScriptsViewModel : ViewModel
     {
 
-        public ExecuteScriptsViewModel()
+        private readonly IEnumerable<IDatabaseProvider> _databaseProviders;
+        private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
+
+        public ExecuteScriptsViewModel(IEnumerable<IDatabaseProvider> databaseProviders,
+            IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications)
         {
+            _connectionCreatedNotifications = connectionCreatedNotifications;
+            _databaseProviders = databaseProviders;
             this.ExecuteScriptsCommand = new Command(() =>
             {
                 this.ExecuteScripts();
             });
             this.ScriptPath = Configuration.Preferences.UserSettingsContext.Current.CreateScriptsPath;
+
         }
 
         #region Properties
@@ -103,7 +113,8 @@ namespace DatabaseTools.ViewModels
 
         private void ExecuteScriptsInternal(IProgress<ScriptProgress> progress)
         {
-            Script.ExecuteScripts(this.DatabaseConnectionString, this.Files, this.ContinueOnError, progress);
+            var script = new Script(_databaseProviders, _connectionCreatedNotifications);
+            script.ExecuteScripts(this.DatabaseConnectionString, this.Files, this.ContinueOnError, progress);
         }
 
         private void ReportProgress(ScriptProgress progress)

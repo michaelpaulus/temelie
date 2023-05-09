@@ -16,11 +16,28 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using Microsoft.Win32;
 using System.IO;
+using DatabaseTools.Processes;
+using DatabaseTools.Providers;
+using DatabaseTools.UI;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DatabaseTools
 {
     public partial class CreateInsertScript
     {
+
+        private readonly IEnumerable<IDatabaseProvider> _databaseProviders;
+        private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
+
+        public CreateInsertScript()
+        {
+            _databaseProviders = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetServices<IDatabaseProvider>();
+            _connectionCreatedNotifications = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetServices<IConnectionCreatedNotification>();
+            this.InitializeComponent();
+            SubscribeToEvents();
+
+            this.DatabaseConnection.ViewModel.LoadConnections();
+        }
 
         private void DatabaseConnection_SelectionChanged(object sender, EventArgs e)
         {
@@ -30,8 +47,8 @@ namespace DatabaseTools
                 try
                 {
                     var connectionString = (System.Configuration.ConnectionStringSettings)obj;
-                    var tables = Controls.DatabaseConnection.GetTables(connectionString);
-                    var views = Controls.DatabaseConnection.GetViews(connectionString);
+                    var tables = Controls.DatabaseConnection.GetTables(connectionString, _databaseProviders, _connectionCreatedNotifications);
+                    var views = Controls.DatabaseConnection.GetViews(connectionString, _databaseProviders, _connectionCreatedNotifications);
 
                     var list = tables.Union(views).ToList();
 
@@ -51,7 +68,7 @@ namespace DatabaseTools
 
         private void GenerateScriptButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            DatabaseTools.Models.DatabaseModel database = new DatabaseTools.Models.DatabaseModel(this.DatabaseConnection.ConnectionString);
+            DatabaseTools.Models.DatabaseModel database = new DatabaseTools.Models.DatabaseModel(this.DatabaseConnection.ConnectionString, _databaseProviders, _connectionCreatedNotifications);
             this.ResultTextBox.Text = database.GetInsertScript(this.TableComboBox.Text, WhereTextBox.Text);
         }
 
@@ -64,14 +81,6 @@ namespace DatabaseTools
             {
                 File.WriteAllText(dialog.FileName, ResultTextBox.Text, System.Text.Encoding.UTF8);
             }
-        }
-
-        public CreateInsertScript()
-        {
-            this.InitializeComponent();
-            SubscribeToEvents();
-
-            this.DatabaseConnection.ViewModel.LoadConnections();
         }
 
 

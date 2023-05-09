@@ -1,4 +1,6 @@
 ﻿using DatabaseTools.Models;
+using DatabaseTools.Providers;
+using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -14,6 +16,15 @@ namespace DatabaseTools.Processes
 {
     public class TableConverter
     {
+
+        private readonly IEnumerable<IDatabaseProvider> _databaseProviders;
+        private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
+
+        public TableConverter(IEnumerable<IDatabaseProvider> databaseProviders, IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications)
+        {
+            _databaseProviders = databaseProviders;
+            _connectionCreatedNotifications = connectionCreatedNotifications;
+        }
 
         public void ConvertTables(TableConverterSettings settings,
             IProgress<TableProgress> progress,
@@ -108,9 +119,8 @@ namespace DatabaseTools.Processes
           bool useTransaction = true,
           bool validateTargetTable = true)
         {
-            System.Data.Common.DbProviderFactory targetFactory = DatabaseTools.Processes.Database.CreateDbProviderFactory(targetConnectionString);
-            var targetDatabaseType = DatabaseTools.Processes.Database.GetDatabaseType(targetConnectionString);
-            using (System.Data.Common.DbConnection targetConnection = DatabaseTools.Processes.Database.CreateDbConnection(targetFactory, targetConnectionString))
+            var targetDatabase = new Database(Database.GetDatabaseType(targetConnectionString), _databaseProviders, _connectionCreatedNotifications);
+            using (System.Data.Common.DbConnection targetConnection = targetDatabase.CreateDbConnection(targetConnectionString))
             {
                 ConvertBulk(progress, sourceTable, sourceReader, sourceRowCount, targetTable, targetConnection, trimStrings, batchSize, useTransaction, validateTargetTable);
             }
@@ -162,7 +172,7 @@ namespace DatabaseTools.Processes
                     var sourceMatchedColumns = this.GetMatchedColumns(sourceTable.Columns, targetTable.Columns);
                     var targetMatchedColumns = this.GetMatchedColumns(targetTable.Columns, sourceTable.Columns);
 
-                    using (System.Data.SqlClient.SqlBulkCopy bcp = new System.Data.SqlClient.SqlBulkCopy((SqlConnection)targetConnection, SqlBulkCopyOptions.KeepIdentity, transaction1))
+                    using (SqlBulkCopy bcp = new SqlBulkCopy((SqlConnection)targetConnection, SqlBulkCopyOptions.KeepIdentity, transaction1))
                     {
                         bcp.DestinationTableName = $"[{targetTable.SchemaName}].[{targetTable.TableName}]";
                         bcp.BatchSize = batchSize == 0 ? 10000 : batchSize;
@@ -174,7 +184,7 @@ namespace DatabaseTools.Processes
                             bcp.ColumnMappings.Add(targetColumn.ColumnName, targetColumn.ColumnName);
                         }
 
-                        bcp.SqlRowsCopied += (object sender, System.Data.SqlClient.SqlRowsCopiedEventArgs e) =>
+                        bcp.SqlRowsCopied += (object sender, SqlRowsCopiedEventArgs e) =>
                         {
                             if (progress != null &&
                                 sourceRowCount > 0)
@@ -229,6 +239,8 @@ namespace DatabaseTools.Processes
         {
             var sourceDatabaseType = DatabaseTools.Processes.Database.GetDatabaseType(sourceConnection);
 
+            var sourceDatabase = new Database(sourceDatabaseType, _databaseProviders, _connectionCreatedNotifications);
+
             StringBuilder sbColumns = new System.Text.StringBuilder();
 
             var sourceMatchedColumns = this.GetMatchedColumns(sourceTable.Columns, targetTable.Columns);
@@ -243,7 +255,7 @@ namespace DatabaseTools.Processes
                 sbColumns.AppendFormat("[{0}]", sourceColumn.ColumnName);
             }
 
-            using (var command = DatabaseTools.Processes.Database.CreateDbCommand(sourceConnection))
+            using (var command = sourceDatabase.CreateDbCommand(sourceConnection))
             {
                 this.SetReadTimeout(sourceDatabaseType, command);
                 command.CommandText = this.FormatCommandText($"SELECT {sbColumns.ToString()} FROM [{sourceTable.SchemaName}].[{sourceTable.TableName}]", sourceDatabaseType);
@@ -266,13 +278,13 @@ namespace DatabaseTools.Processes
                 progress.Report(new TableProgress() { ProgressPercentage = 0, Table = sourceTable });
             }
 
-            var sourceFactory = Database.CreateDbProviderFactory(sourceConnectionString);
-            var targetFactory = Database.CreateDbProviderFactory(targetConnectionString);
-
             var sourceDatabaseType = Database.GetDatabaseType(sourceConnectionString);
             var targetDatabaseType = Database.GetDatabaseType(targetConnectionString);
 
-            using (var targetConnection = Database.CreateDbConnection(targetFactory, targetConnectionString))
+            var sourceDatabase = new Database(sourceDatabaseType, _databaseProviders, _connectionCreatedNotifications);
+            var targetDatabase = new Database(targetDatabaseType, _databaseProviders, _connectionCreatedNotifications);
+
+            using (var targetConnection = targetDatabase.CreateDbConnection(targetConnectionString))
             {
                 var targetRowCount = GetRowCount(targetTable, targetConnection);
                 if (targetRowCount != 0)
@@ -289,7 +301,7 @@ namespace DatabaseTools.Processes
 
             if (progress != null)
             {
-                using (System.Data.Common.DbConnection sourceConnection = DatabaseTools.Processes.Database.CreateDbConnection(sourceFactory, sourceConnectionString))
+                using (System.Data.Common.DbConnection sourceConnection = sourceDatabase.CreateDbConnection(sourceConnectionString))
                 {
                     intSourceRowCount = GetRowCount(sourceTable, sourceConnection);
                 }
@@ -297,7 +309,7 @@ namespace DatabaseTools.Processes
 
             if (!intSourceRowCount.HasValue || intSourceRowCount.Value > 0)
             {
-                using (System.Data.Common.DbConnection sourceConnection = DatabaseTools.Processes.Database.CreateDbConnection(sourceFactory, sourceConnectionString))
+                using (System.Data.Common.DbConnection sourceConnection = sourceDatabase.CreateDbConnection(sourceConnectionString))
                 {
                     using (var command = CreateSourceCommand(sourceTable, targetTable, sourceConnection))
                     {
@@ -305,7 +317,7 @@ namespace DatabaseTools.Processes
                         {
                             var sourceMatchedColumns = this.GetMatchedColumns(sourceTable.Columns, targetTable.Columns);
                             var targetMatchedColumns = this.GetMatchedColumns(targetTable.Columns, sourceTable.Columns);
-                            var reader2 = new TableConverterReader(reader, sourceMatchedColumns, targetMatchedColumns, trimStrings, sourceDatabaseType, targetDatabaseType);
+                            var reader2 = new TableConverterReader(reader, sourceMatchedColumns, targetMatchedColumns, trimStrings, sourceDatabaseType, targetDatabaseType, _databaseProviders);
                             ConvertBulk(progress, sourceTable, reader2, intSourceRowCount.GetValueOrDefault(), targetTable, targetConnectionString, trimStrings, batchSize, useTransaction, false);
                         }
                     }
@@ -326,17 +338,15 @@ namespace DatabaseTools.Processes
                 progress.Report(new TableProgress() { ProgressPercentage = 0, Table = sourceTable });
             }
 
-            System.Data.Common.DbProviderFactory sourceFactory = DatabaseTools.Processes.Database.CreateDbProviderFactory(sourceConnectionString);
-            System.Data.Common.DbProviderFactory targetFactory = DatabaseTools.Processes.Database.CreateDbProviderFactory(targetConnectionString);
-
             var sourceDatabaseType = DatabaseTools.Processes.Database.GetDatabaseType(sourceConnectionString);
             var targetDatabaseType = DatabaseTools.Processes.Database.GetDatabaseType(targetConnectionString);
 
-            var targetDatabaseProvider = DatabaseTools.Processes.Database.GetDatabaseProvider(targetDatabaseType);
+            var sourceDatabase = new Database(sourceDatabaseType, _databaseProviders, _connectionCreatedNotifications);
+            var targetDatabase = new Database(targetDatabaseType, _databaseProviders, _connectionCreatedNotifications);
 
             int intProgress = 0;
 
-            using (var targetConnection = Database.CreateDbConnection(targetFactory, targetConnectionString))
+            using (var targetConnection = targetDatabase.CreateDbConnection(targetConnectionString))
             {
                 var targetRowCount = GetRowCount(targetTable, targetConnection);
                 if (targetRowCount != 0)
@@ -354,7 +364,7 @@ namespace DatabaseTools.Processes
             var sourceMatchedColumns = this.GetMatchedColumns(sourceTable.Columns, targetTable.Columns);
             var targetMatchedColumns = this.GetMatchedColumns(targetTable.Columns, sourceTable.Columns);
 
-            using (System.Data.Common.DbConnection sourceConnection = DatabaseTools.Processes.Database.CreateDbConnection(sourceFactory, sourceConnectionString))
+            using (System.Data.Common.DbConnection sourceConnection = sourceDatabase.CreateDbConnection(sourceConnectionString))
             {
 
                 if (connectionCreatedCallback != null)
@@ -363,7 +373,7 @@ namespace DatabaseTools.Processes
                 }
 
 
-                using (System.Data.Common.DbCommand sourceCommand = DatabaseTools.Processes.Database.CreateDbCommand(sourceConnection))
+                using (System.Data.Common.DbCommand sourceCommand = sourceDatabase.CreateDbCommand(sourceConnection))
                 {
                     this.SetReadTimeout(sourceDatabaseType, sourceCommand);
 
@@ -393,13 +403,13 @@ namespace DatabaseTools.Processes
                         using (System.Data.Common.DbDataReader sourceReader = sourceCommand.ExecuteReader())
                         {
 
-                            var converterReader = new TableConverterReader(sourceReader, sourceMatchedColumns, targetMatchedColumns, trimStrings, sourceDatabaseType, targetDatabaseType);
+                            var converterReader = new TableConverterReader(sourceReader, sourceMatchedColumns, targetMatchedColumns, trimStrings, sourceDatabaseType, targetDatabaseType, _databaseProviders);
 
                             var intFieldCount = converterReader.FieldCount;
 
-                            using (System.Data.Common.DbConnection targetConnection = DatabaseTools.Processes.Database.CreateDbConnection(targetFactory, targetConnectionString))
+                            using (System.Data.Common.DbConnection targetConnection = targetDatabase.CreateDbConnection(targetConnectionString))
                             {
-                                using (var targetCommand = DatabaseTools.Processes.Database.CreateDbCommand(targetConnection))
+                                using (var targetCommand = targetDatabase.CreateDbCommand(targetConnection))
                                 {
 
                                     System.Text.StringBuilder sbColumns = new System.Text.StringBuilder();
@@ -425,12 +435,12 @@ namespace DatabaseTools.Processes
                                             sbParamaters.Append(", ");
                                         }
 
-                                        System.Data.Common.DbParameter paramater = targetFactory.CreateParameter();
+                                        System.Data.Common.DbParameter paramater = targetDatabase.Provider.CreateProvider().CreateParameter();
                                         paramater.ParameterName = string.Concat("@", this.GetParameterNameFromColumn(targetColumn.ColumnName));
 
                                         paramater.DbType = targetColumn.DbType;
 
-                                        targetDatabaseProvider.UpdateParameter(paramater, targetColumn);
+                                        targetDatabase.Provider.UpdateParameter(paramater, targetColumn);
 
                                         sbParamaters.Append(paramater.ParameterName);
 
@@ -605,12 +615,12 @@ namespace DatabaseTools.Processes
             return returnValue;
         }
 
-        private DataTable GetTableValues(System.Data.Common.DbProviderFactory sourceFactory, System.Configuration.ConnectionStringSettings sourceConnectionString, Models.TableModel sourceTable, Models.TableModel targetTable, bool trimStrings,
+        private DataTable GetTableValues(System.Configuration.ConnectionStringSettings sourceConnectionString, Models.TableModel sourceTable, Models.TableModel targetTable, bool trimStrings,
             int take, int skip)
         {
             var sourceDatabaseType = DatabaseTools.Processes.Database.GetDatabaseType(sourceConnectionString);
 
-            var sourceDatabaseProvider = DatabaseTools.Processes.Database.GetDatabaseProvider(sourceDatabaseType);
+            var sourceDatabase = new Database(sourceDatabaseType, _databaseProviders, _connectionCreatedNotifications);
 
             System.Text.StringBuilder sbColumns = new System.Text.StringBuilder();
             System.Text.StringBuilder sbKeyColumns = new System.Text.StringBuilder();
@@ -653,10 +663,10 @@ namespace DatabaseTools.Processes
                 dataTable.Columns.Add(column);
             }
 
-            using (System.Data.Common.DbConnection sourceConnection = DatabaseTools.Processes.Database.CreateDbConnection(sourceFactory, sourceConnectionString))
+            using (System.Data.Common.DbConnection sourceConnection = sourceDatabase.CreateDbConnection(sourceConnectionString))
             {
 
-                using (System.Data.Common.DbCommand sourceCommand = DatabaseTools.Processes.Database.CreateDbCommand(sourceConnection))
+                using (System.Data.Common.DbCommand sourceCommand = sourceDatabase.CreateDbCommand(sourceConnection))
                 {
                     this.SetReadTimeout(sourceDatabaseType, sourceCommand);
 
@@ -701,8 +711,8 @@ namespace DatabaseTools.Processes
                                 {
                                     object newValue;
 
-                                    if (sourceDatabaseProvider != null &&
-                                        sourceDatabaseProvider.TryHandleColumnValueLoadException(ex, sourceColumn, out newValue))
+                                    if (sourceDatabase.Provider != null &&
+                                        sourceDatabase.Provider.TryHandleColumnValueLoadException(ex, sourceColumn, out newValue))
                                     {
                                         value = newValue;
                                     }
@@ -750,7 +760,7 @@ namespace DatabaseTools.Processes
 
         private void SetReadTimeout(Models.DatabaseType databaseType, System.Data.Common.DbCommand sourceCommand)
         {
-            var databaseProvider = DatabaseTools.Processes.Database.GetDatabaseProvider(databaseType);
+            var databaseProvider = DatabaseTools.Processes.Database.GetDatabaseProvider(_databaseProviders, databaseType);
             if (databaseProvider != null)
             {
                 databaseProvider.SetReadTimeout(sourceCommand);
@@ -787,7 +797,9 @@ namespace DatabaseTools.Processes
         {
             int rowCount = 0;
 
-            using (var command = DatabaseTools.Processes.Database.CreateDbCommand(connection))
+            var database = new Database(databaseType, _databaseProviders, _connectionCreatedNotifications);
+
+            using (var command = database.CreateDbCommand(connection))
             {
                 try
                 {

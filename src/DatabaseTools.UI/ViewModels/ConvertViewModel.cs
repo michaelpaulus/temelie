@@ -8,14 +8,21 @@ using System.Windows;
 using System.Windows.Threading;
 using System.Diagnostics;
 using DatabaseTools.Models;
+using DatabaseTools.Providers;
 
 namespace DatabaseTools.ViewModels
 {
     public class ConvertViewModel : ViewModel
     {
 
-        public ConvertViewModel()
+        private readonly IEnumerable<IDatabaseProvider> _databaseProviders;
+        private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
+
+        public ConvertViewModel(IEnumerable<IDatabaseProvider> databaseProviders,
+            IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications)
         {
+            _connectionCreatedNotifications = connectionCreatedNotifications;
+            _databaseProviders = databaseProviders;
             this.ThreadCount = 5;
             this.UseBulkCopy = true;
             this.BatchSize = 10000;
@@ -74,10 +81,13 @@ namespace DatabaseTools.ViewModels
 
             TableConverterSettings settings = new TableConverterSettings();
 
-            using (var conn = Database.CreateDbConnection(TargetDatabaseConnectionString))
+            var targetDatabaseType = Database.GetDatabaseType(TargetDatabaseConnectionString);
+            var targetDatabase = new Database(targetDatabaseType, _databaseProviders, _connectionCreatedNotifications);
+
+            using (var conn = targetDatabase.CreateDbConnection(TargetDatabaseConnectionString))
             {
-                var targetColumns = DatabaseTools.Processes.Database.GetTableColumns(conn);
-                var targetTables = DatabaseTools.Processes.Database.GetTables(conn, targetColumns);
+                var targetColumns = targetDatabase.GetTableColumns(conn);
+                var targetTables = targetDatabase.GetTables(conn, targetColumns);
                 settings.TargetTables = targetTables;
             }
 
@@ -114,7 +124,7 @@ namespace DatabaseTools.ViewModels
 
             Task.Factory.StartNew(() =>
             {
-                var converter = new TableConverter();
+                var converter = new TableConverter(_databaseProviders, _connectionCreatedNotifications);
                 converter.ConvertTables(settings,
                     progress,
                     this.ThreadCount);
@@ -134,7 +144,7 @@ namespace DatabaseTools.ViewModels
         {
             try
             {
-                var tables = Controls.DatabaseConnection.GetTables(this.SourceDatabaseConnectionString);
+                var tables = Controls.DatabaseConnection.GetTables(this.SourceDatabaseConnectionString, _databaseProviders, _connectionCreatedNotifications);
                 this.Tables.Clear();
                 foreach (var table in tables)
                 {

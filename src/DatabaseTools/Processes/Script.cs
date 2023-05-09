@@ -1,5 +1,6 @@
 ﻿
 using DatabaseTools.Extensions;
+using DatabaseTools.Providers;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -16,8 +17,16 @@ namespace DatabaseTools
     {
         public class Script
         {
+            private readonly IEnumerable<IDatabaseProvider> _databaseProviders;
+            private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
 
-            private static FileInfo WriteIfDifferent(string path, string contents)
+            public Script(IEnumerable<IDatabaseProvider> databaseProviders, IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications)
+            {
+                _databaseProviders = databaseProviders;
+                _connectionCreatedNotifications = connectionCreatedNotifications;
+            }
+
+            private FileInfo WriteIfDifferent(string path, string contents)
             {
                 contents = contents.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", "\r\n");
                 contents = contents.Replace("\t", "    ");
@@ -33,7 +42,7 @@ namespace DatabaseTools
                 return new FileInfo(path);
             }
 
-            private static IEnumerable<FileInfo> CreateDropScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
+            private IEnumerable<FileInfo> CreateDropScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
             {
                 var files = new List<FileInfo>();
 
@@ -67,7 +76,7 @@ namespace DatabaseTools
                 return files;
             }
 
-            private static IEnumerable<FileInfo> CreateTableScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
+            private IEnumerable<FileInfo> CreateTableScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
             {
                 var files = new List<FileInfo>();
 
@@ -91,7 +100,7 @@ namespace DatabaseTools
 
                 return files;
             }
-            private static IEnumerable<FileInfo> CreateSecurityPolicyScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
+            private IEnumerable<FileInfo> CreateSecurityPolicyScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
             {
                 var files = new List<FileInfo>();
 
@@ -112,7 +121,7 @@ namespace DatabaseTools
 
                 return files;
             }
-            private static IEnumerable<FileInfo> CreateIndexScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
+            private IEnumerable<FileInfo> CreateIndexScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
             {
                 var files = new List<FileInfo>();
 
@@ -144,7 +153,7 @@ namespace DatabaseTools
                 return files;
             }
 
-            private static IEnumerable<FileInfo> CreateViewsAndProgrammabilityScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, bool includeViews, bool includeProgrammability, string fileFilter = "")
+            private IEnumerable<FileInfo> CreateViewsAndProgrammabilityScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, bool includeViews, bool includeProgrammability, string fileFilter = "")
             {
                 var files = new List<FileInfo>();
 
@@ -185,7 +194,7 @@ namespace DatabaseTools
                 return files;
             }
 
-            private static IEnumerable<FileInfo> CreateTriggerScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
+            private IEnumerable<FileInfo> CreateTriggerScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
             {
                 var files = new List<FileInfo>();
 
@@ -207,7 +216,7 @@ namespace DatabaseTools
                 return files;
             }
 
-            private static IEnumerable<FileInfo> CreateInsertDefaultScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
+            private IEnumerable<FileInfo> CreateInsertDefaultScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
             {
                 var files = new List<FileInfo>();
 
@@ -234,7 +243,7 @@ namespace DatabaseTools
                 return files;
             }
 
-            private static IEnumerable<FileInfo> CreateFkScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
+            private IEnumerable<FileInfo> CreateFkScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
             {
                 var files = new List<FileInfo>();
 
@@ -255,9 +264,9 @@ namespace DatabaseTools
                 return files;
             }
 
-            public static void CreateScriptsIndividual(System.Configuration.ConnectionStringSettings connectionString, System.IO.DirectoryInfo directory, Models.DatabaseType targetDatabaseType, IProgress<ScriptProgress> progress, string objectFilter = "")
+            public void CreateScriptsIndividual(System.Configuration.ConnectionStringSettings connectionString, System.IO.DirectoryInfo directory, Models.DatabaseType targetDatabaseType, IProgress<ScriptProgress> progress, string objectFilter = "")
             {
-                Models.DatabaseModel database = new Models.DatabaseModel(connectionString, targetDatabaseType) { ObjectFilter = objectFilter, ExcludeDoubleUnderscoreObjects = true };
+                Models.DatabaseModel database = new Models.DatabaseModel(connectionString, _databaseProviders, _connectionCreatedNotifications, targetDatabaseType) { ObjectFilter = objectFilter, ExcludeDoubleUnderscoreObjects = true };
 
                 var directoryList = new List<string>()
                 {
@@ -476,9 +485,9 @@ namespace DatabaseTools
 
             }
 
-            public static void CreateScriptIndividual(System.Configuration.ConnectionStringSettings connectionString, System.IO.DirectoryInfo directory, Models.DatabaseType targetDatabaseType, string fileName)
+            public void CreateScriptIndividual(System.Configuration.ConnectionStringSettings connectionString, System.IO.DirectoryInfo directory, Models.DatabaseType targetDatabaseType, string fileName)
             {
-                Models.DatabaseModel database = new Models.DatabaseModel(connectionString, targetDatabaseType) { ExcludeDoubleUnderscoreObjects = true };
+                Models.DatabaseModel database = new Models.DatabaseModel(connectionString, _databaseProviders, _connectionCreatedNotifications, targetDatabaseType) { ExcludeDoubleUnderscoreObjects = true };
                 if (directory.Name.StartsWith("01_Drops", StringComparison.InvariantCultureIgnoreCase))
                 {
                     CreateDropScripts(database, directory, fileName);
@@ -521,7 +530,7 @@ namespace DatabaseTools
                 }
             }
 
-            private static string MakeValidFileName(string name)
+            private string MakeValidFileName(string name)
             {
                 string invalidChars = System.Text.RegularExpressions.Regex.Escape(new string(System.IO.Path.GetInvalidFileNameChars()));
                 string invalidRegStr = string.Format(@"([{0}]*\.+$)|([{0}]+)", invalidChars);
@@ -529,7 +538,7 @@ namespace DatabaseTools
                 return System.Text.RegularExpressions.Regex.Replace(name, invalidRegStr, "_");
             }
 
-            public static void ExecuteScripts(System.Configuration.ConnectionStringSettings connectionString, IEnumerable<System.IO.FileInfo> fileList, bool continueOnError, IProgress<ScriptProgress> progress)
+            public void ExecuteScripts(System.Configuration.ConnectionStringSettings connectionString, IEnumerable<System.IO.FileInfo> fileList, bool continueOnError, IProgress<ScriptProgress> progress)
             {
                 int intFileCount = 1;
 
@@ -566,7 +575,9 @@ namespace DatabaseTools
                     {
                         try
                         {
-                            Database.ExecuteFile(connectionString, strFile);
+                            var databaseType = Database.GetDatabaseType(connectionString);
+                            var database = new Database(databaseType, _databaseProviders, _connectionCreatedNotifications);
+                            database.ExecuteFile(connectionString, strFile);
                         }
                         catch (Exception ex)
                         {
@@ -603,7 +614,7 @@ namespace DatabaseTools
 
             }
 
-            public static string MergeScripts(IList<string> scripts)
+            public string MergeScripts(IList<string> scripts)
             {
                 System.Text.StringBuilder sbFile = new System.Text.StringBuilder();
 
@@ -628,7 +639,7 @@ namespace DatabaseTools
                 return sbFile.ToString();
             }
 
-            public static void MergeScripts(IList<string> scripts, string toFile)
+            public void MergeScripts(IList<string> scripts, string toFile)
             {
                 var strFile = MergeScripts(scripts);
 

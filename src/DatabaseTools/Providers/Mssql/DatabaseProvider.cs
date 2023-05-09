@@ -1,19 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Data;
 using System.Data.Common;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DatabaseTools.Models;
-using DatabaseTools.Configuration;
+using DatabaseTools.Processes;
+using Microsoft.Data.SqlClient;
 
 namespace DatabaseTools.Providers.Mssql
 {
-    [Export(typeof(IDatabaseProvider))]
     public class DatabaseProvider : IDatabaseProvider
     {
+
+        private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
+        private readonly Database _database;
+
+        public DatabaseProvider(IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications)
+        {
+            _connectionCreatedNotifications = connectionCreatedNotifications;
+            _database = new Database(this, connectionCreatedNotifications);
+        }
 
         public DatabaseTools.Models.DatabaseType ForDatabaseType
         {
@@ -25,7 +30,7 @@ namespace DatabaseTools.Providers.Mssql
 
         public DbProviderFactory CreateProvider()
         {
-            return System.Data.SqlClient.SqlClientFactory.Instance;
+            return SqlClientFactory.Instance;
         }
 
         public ColumnTypeModel GetColumnType(ColumnTypeModel sourceColumnType, DatabaseType targetDatabaseType)
@@ -90,7 +95,7 @@ namespace DatabaseTools.Providers.Mssql
                             sysobjects.name, 
                             r.referencing_entity_name
                         ";
-            System.Data.DataSet ds = Processes.Database.Execute(connection, sql);
+            System.Data.DataSet ds = _database.Execute(connection, sql);
             DataTable dataTable = ds.Tables[0];
             return dataTable;
         }
@@ -119,7 +124,7 @@ namespace DatabaseTools.Providers.Mssql
                             sysobjects.xtype, 
                             sysobjects.name
                         ";
-            System.Data.DataSet ds = Processes.Database.Execute(connection, sql);
+            System.Data.DataSet ds = _database.Execute(connection, sql);
             DataTable dataTable = ds.Tables[0];
             return dataTable;
         }
@@ -141,7 +146,7 @@ FROM sys.security_policies
      INNER JOIN sys.sysobjects [target] ON [target].id = target_object_id
      INNER JOIN sys.schemas targetSchema ON targetSchema.schema_id = [target].uid
                         ";
-            System.Data.DataSet ds = Processes.Database.Execute(connection, sql);
+            System.Data.DataSet ds = _database.Execute(connection, sql);
             DataTable dataTable = ds.Tables[0];
             return dataTable;
         }
@@ -186,7 +191,7 @@ ORDER BY
     sys.foreign_key_columns.constraint_column_id
                         ";
 
-            System.Data.DataSet ds = Processes.Database.Execute(connection, sql);
+            System.Data.DataSet ds = _database.Execute(connection, sql);
             DataTable dataTable = ds.Tables[0];
             return dataTable;
         }
@@ -195,7 +200,7 @@ ORDER BY
         {
             try
             {
-                var dtIndexes = Processes.Database.Execute(connection, @"
+                var dtIndexes = _database.Execute(connection, @"
 SELECT
     sys.tables.name AS table_name, 
     sys.schemas.name schema_name,
@@ -223,7 +228,7 @@ FROM
 
         public DataTable GetIndexes(DbConnection connection)
         {
-            var dtIndexes = Processes.Database.Execute(connection, @"
+            var dtIndexes = _database.Execute(connection, @"
 SELECT
 	sys.tables.name AS table_name,
 	sys.schemas.name schema_name,
@@ -426,11 +431,11 @@ ORDER BY
 
             try
             {
-                ds = Processes.Database.Execute(connection, sql2016);
+                ds = _database.Execute(connection, sql2016);
             }
             catch
             {
-                ds = Processes.Database.Execute(connection, sql2014);
+                ds = _database.Execute(connection, sql2014);
             }
 
             DataTable dataTable = ds.Tables[0];
@@ -559,11 +564,11 @@ ORDER BY
             DataSet ds = null;
             try
             {
-                ds = Processes.Database.Execute(connection, sql2016);
+                ds = _database.Execute(connection, sql2016);
             }
             catch
             {
-                ds = Processes.Database.Execute(connection, sql2014);
+                ds = _database.Execute(connection, sql2014);
             }
 
             DataTable dataTable = ds.Tables[0];
@@ -618,7 +623,7 @@ ORDER BY
                         t1.trigger_name
                         ";
 
-            System.Data.DataSet ds = Processes.Database.Execute(connection, sql);
+            System.Data.DataSet ds = _database.Execute(connection, sql);
             DataTable dataTable = ds.Tables[0];
             return dataTable;
         }
@@ -764,11 +769,11 @@ ORDER BY
             DataSet ds = null;
             try
             {
-                ds = Processes.Database.Execute(connection, sql2016);
+                ds = _database.Execute(connection, sql2016);
             }
             catch
             {
-                ds = Processes.Database.Execute(connection, sql2014);
+                ds = _database.Execute(connection, sql2014);
             }
             DataTable dataTable = ds.Tables[0];
             return dataTable;
@@ -817,11 +822,11 @@ ORDER BY
             DataSet ds = null;
             try
             {
-                ds = Processes.Database.Execute(connection, sql2016);
+                ds = _database.Execute(connection, sql2016);
             }
             catch
             {
-                ds = Processes.Database.Execute(connection, sql2014);
+                ds = _database.Execute(connection, sql2014);
             }
 
             DataTable dataTable = ds.Tables[0];
@@ -835,7 +840,7 @@ ORDER BY
 
         public string TransformConnectionString(string connectionString)
         {
-            System.Data.SqlClient.SqlConnectionStringBuilder csb = new System.Data.SqlClient.SqlConnectionStringBuilder(connectionString);
+            var csb = new SqlConnectionStringBuilder(connectionString);
             return csb.ConnectionString;
         }
 
@@ -854,9 +859,9 @@ ORDER BY
                     parameter.Size = column.Precision;
                     break;
                 case System.Data.DbType.Time:
-                    if ((parameter) is System.Data.SqlClient.SqlParameter)
+                    if ((parameter) is SqlParameter)
                     {
-                        ((System.Data.SqlClient.SqlParameter)parameter).SqlDbType = System.Data.SqlDbType.Time;
+                        ((SqlParameter)parameter).SqlDbType = System.Data.SqlDbType.Time;
                     }
                     break;
             }

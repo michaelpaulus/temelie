@@ -14,6 +14,10 @@ using System.Windows.Shapes;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
+using DatabaseTools.Processes;
+using DatabaseTools.Providers;
+using DatabaseTools.UI;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DatabaseTools
 {
@@ -23,10 +27,13 @@ namespace DatabaseTools
         private System.ComponentModel.BackgroundWorker ScriptBackgroundWorker = new System.ComponentModel.BackgroundWorker();
 
         private DatabaseTools.Models.DatabaseModel SourceDatabase;
+        private readonly IEnumerable<IDatabaseProvider> _databaseProviders;
+        private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
 
         public CreateMergeScript()
         {
-
+            _databaseProviders = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetServices<IDatabaseProvider>();
+            _connectionCreatedNotifications = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetServices<IConnectionCreatedNotification>();
             // This call is required by the Windows Form Designer.
             InitializeComponent();
 
@@ -68,7 +75,7 @@ namespace DatabaseTools
         {
             var targetConnectionString = (System.Configuration.ConnectionStringSettings)e.Argument;
 
-            DatabaseTools.Models.DatabaseModel targetDatabase = new DatabaseTools.Models.DatabaseModel(targetConnectionString);
+            DatabaseTools.Models.DatabaseModel targetDatabase = new DatabaseTools.Models.DatabaseModel(targetConnectionString, _databaseProviders, _connectionCreatedNotifications);
 
             e.Result = this.SourceDatabase.GetMergeScript(targetDatabase);
         }
@@ -88,7 +95,7 @@ namespace DatabaseTools
                 try
                 {
                     var connectionString = (System.Configuration.ConnectionStringSettings)obj;
-                    var database = new DatabaseTools.Models.DatabaseModel(connectionString);
+                    var database = new DatabaseTools.Models.DatabaseModel(connectionString, _databaseProviders, _connectionCreatedNotifications);
                     var tables = database.Tables;
                     Dispatcher.Invoke(new Action<DatabaseTools.Models.DatabaseModel>((DatabaseTools.Models.DatabaseModel results) =>
                     {

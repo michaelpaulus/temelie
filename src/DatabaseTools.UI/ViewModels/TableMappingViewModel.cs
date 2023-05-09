@@ -17,6 +17,8 @@ using System.Windows.Navigation;
 
 using System.Collections.ObjectModel;
 using DatabaseTools.Processes;
+using Microsoft.Data.SqlClient;
+using DatabaseTools.Providers;
 
 namespace DatabaseTools
 {
@@ -25,8 +27,14 @@ namespace DatabaseTools
         public class TableMappingViewModel : ViewModel
         {
 
-            public TableMappingViewModel()
+            private readonly IEnumerable<IDatabaseProvider> _databaseProviders;
+            private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
+
+            public TableMappingViewModel(IEnumerable<IDatabaseProvider> databaseProviders,
+                IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications)
             {
+                _connectionCreatedNotifications = connectionCreatedNotifications;
+                _databaseProviders = databaseProviders;
                 this.AddMappingCommand = new Command(() =>
                 {
                     this.AddMapping();
@@ -266,13 +274,13 @@ namespace DatabaseTools
 
                 if (this.IncludeSourceDatabase)
                 {
-                    System.Data.SqlClient.SqlConnectionStringBuilder builder = new System.Data.SqlClient.SqlConnectionStringBuilder(this.SourceDatabaseConnectionString.ConnectionString);
+                    SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(this.SourceDatabaseConnectionString.ConnectionString);
                     tableMapping.SourceDatabase = builder.InitialCatalog;
                 }
 
                 if (this.IncludeTargetDatabase)
                 {
-                    System.Data.SqlClient.SqlConnectionStringBuilder builder = new System.Data.SqlClient.SqlConnectionStringBuilder(this.TargetDatabaseConnectionString.ConnectionString);
+                    SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(this.TargetDatabaseConnectionString.ConnectionString);
                     tableMapping.TargetDatabase = builder.InitialCatalog;
                 }
 
@@ -298,12 +306,15 @@ namespace DatabaseTools
 
             public void UpdateTargetTables()
             {
-                using (var conn = Database.CreateDbConnection(TargetDatabaseConnectionString))
+                var targetDatbaseType = Database.GetDatabaseType(TargetDatabaseConnectionString);
+                var database = new Database(targetDatbaseType, _databaseProviders, _connectionCreatedNotifications);
+
+                using (var conn = database.CreateDbConnection(TargetDatabaseConnectionString))
                 {
-                    var columns = DatabaseTools.Processes.Database.GetTableColumns(conn);
-                    var viewColumns = DatabaseTools.Processes.Database.GetViewColumns(conn);
-                    var tables = DatabaseTools.Processes.Database.GetTables(conn, columns, true);
-                    var views = DatabaseTools.Processes.Database.GetViews(conn, viewColumns);
+                    var columns = database.GetTableColumns(conn);
+                    var viewColumns = database.GetViewColumns(conn);
+                    var tables = database.GetTables(conn, columns, true);
+                    var views = database.GetViews(conn, viewColumns);
                     this.TargetTables.Clear();
                     foreach (var item in tables)
                     {
@@ -321,12 +332,16 @@ namespace DatabaseTools
 
             public void UpdateSourceTables()
             {
-                using (var conn = Database.CreateDbConnection(SourceDatabaseConnectionString))
+                var datbaseType = Database.GetDatabaseType(SourceDatabaseConnectionString);
+                var database = new Database(datbaseType, _databaseProviders, _connectionCreatedNotifications);
+
+
+                using (var conn = database.CreateDbConnection(SourceDatabaseConnectionString))
                 {
-                    var columns = DatabaseTools.Processes.Database.GetTableColumns(conn);
-                    var viewColumns = DatabaseTools.Processes.Database.GetViewColumns(conn);
-                    var tables = DatabaseTools.Processes.Database.GetTables(conn, columns, true);
-                    var views = DatabaseTools.Processes.Database.GetViews(conn, viewColumns);
+                    var columns = database.GetTableColumns(conn);
+                    var viewColumns = database.GetViewColumns(conn);
+                    var tables = database.GetTables(conn, columns, true);
+                    var views = database.GetViews(conn, viewColumns);
                     this.SourceTables.Clear();
                     foreach (var item in tables)
                     {

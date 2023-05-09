@@ -14,14 +14,24 @@ using System.Windows.Shapes;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
+using DatabaseTools.Processes;
+using DatabaseTools.Providers;
+using DatabaseTools.UI;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DatabaseTools
 {
     public partial class Convert
     {
 
+        private readonly IEnumerable<IDatabaseProvider> _databaseProviders;
+        private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
+
         public Convert()
         {
+            _databaseProviders = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetServices<IDatabaseProvider>();
+            _connectionCreatedNotifications = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetServices<IConnectionCreatedNotification>();
+
 
             // This call is required by the Windows Form Designer.
             InitializeComponent();
@@ -44,7 +54,7 @@ namespace DatabaseTools
             {
                 if (this._viewModel == null)
                 {
-                    this._viewModel = new ViewModels.ConvertViewModel();
+                    this._viewModel = new ViewModels.ConvertViewModel(_databaseProviders, _connectionCreatedNotifications);
                 }
                 return this._viewModel;
             }

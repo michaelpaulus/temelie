@@ -13,7 +13,7 @@ namespace DatabaseTools.Processes
 
         private IDatabaseProvider _sourceDatabaseProvider;
 
-        public TableConverterReader(IDataReader parent, IList<Models.ColumnModel> sourceColumns, IList<Models.ColumnModel> targetColumns, bool trimStrings, Models.DatabaseType sourceDatabasetype, Models.DatabaseType targetDatabaseType)
+        public TableConverterReader(IDataReader parent, IList<Models.ColumnModel> sourceColumns, IList<Models.ColumnModel> targetColumns, bool trimStrings, Models.DatabaseType sourceDatabasetype, Models.DatabaseType targetDatabaseType, IEnumerable<IDatabaseProvider> databaseProviders)
         {
             this._parent = parent;
             this._sourceColumns = sourceColumns;
@@ -21,7 +21,7 @@ namespace DatabaseTools.Processes
             this.TrimStrings = trimStrings;
             this.SourceDatabaseType = sourceDatabasetype;
             this.TargetDatabaseType = targetDatabaseType;
-            _sourceDatabaseProvider = Processes.Database.GetDatabaseProvider(this.SourceDatabaseType);
+            _sourceDatabaseProvider = Processes.Database.GetDatabaseProvider(databaseProviders, this.SourceDatabaseType);
         }
 
         private IDataReader _parent;
@@ -291,9 +291,9 @@ namespace DatabaseTools.Processes
                             }
                             else
                             {
-                               returnValue = new Guid(valueAsString);
+                                returnValue = new Guid(valueAsString);
                             }
-                            
+
                         }
                         break;
                     case System.Data.DbType.AnsiString:

@@ -14,6 +14,10 @@ using System.Windows.Shapes;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
+using DatabaseTools.Processes;
+using DatabaseTools.Providers;
+using DatabaseTools.UI;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DatabaseTools
 {
@@ -22,8 +26,14 @@ namespace DatabaseTools
 
         private System.ComponentModel.BackgroundWorker ExecuteBackgroundWorker = new System.ComponentModel.BackgroundWorker { WorkerReportsProgress = true };
 
+        private readonly IEnumerable<IDatabaseProvider> _databaseProviders;
+        private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
+
         public ExecuteScripts()
         {
+            _databaseProviders = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetServices<IDatabaseProvider>();
+            _connectionCreatedNotifications = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetServices<IConnectionCreatedNotification>();
+
             this.InitializeComponent();
             SubscribeToEvents();
             this.DataContext = this.ViewModel;
@@ -39,7 +49,7 @@ namespace DatabaseTools
             {
                 if (this._viewModel == null)
                 {
-                    this._viewModel = new ViewModels.ExecuteScriptsViewModel();
+                    this._viewModel = new ViewModels.ExecuteScriptsViewModel(_databaseProviders, _connectionCreatedNotifications);
                 }
                 return this._viewModel;
             }

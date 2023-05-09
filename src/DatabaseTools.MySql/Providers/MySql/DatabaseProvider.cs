@@ -11,12 +11,21 @@ using System.Threading.Tasks;
 using DatabaseTools.Models;
 using System.Data.Common;
 using MySql.Data.Types;
+using DatabaseTools.Processes;
 
 namespace DatabaseTools.Providers.MySql
 {
-    [Export(typeof(IDatabaseProvider))]
     public class DatabaseProvider : IDatabaseProvider
     {
+
+        private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
+        private readonly Database _database;
+
+        public DatabaseProvider(IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications)
+        {
+            _connectionCreatedNotifications = connectionCreatedNotifications;
+            _database = new Database(this, connectionCreatedNotifications);
+        }
 
         public DatabaseTools.Models.DatabaseType ForDatabaseType
         {
@@ -159,7 +168,7 @@ namespace DatabaseTools.Providers.MySql
         {
             var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connection.ConnectionString);
             var sql = $"SELECT KCU.table_name, KCU.constraint_name AS foreign_key_name, KCU.column_name, KCU.referenced_table_name, KCU.referenced_column_name, 0 AS is_not_for_replication, CASE WHEN RC.delete_rule = 'RESTRICT' THEN 'NO ACTION' ELSE RC.delete_rule END delete_action, CASE WHEN RC.update_rule = 'RESTRICT' THEN 'NO ACTION' ELSE RC.update_rule END update_action FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE KCU JOIN INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS RC ON KCU.CONSTRAINT_CATALOG = RC.CONSTRAINT_CATALOG AND KCU.CONSTRAINT_SCHEMA = RC.CONSTRAINT_SCHEMA AND KCU.CONSTRAINT_NAME = RC.CONSTRAINT_NAME WHERE RC.constraint_schema = '{csb.Database}' ORDER BY KCU.table_name, KCU.CONSTRAINT_NAME, KCU.ORDINAL_POSITION";
-            System.Data.DataSet ds = Processes.Database.Execute(connection, sql);
+            System.Data.DataSet ds = _database.Execute(connection, sql);
             DataTable dataTable = ds.Tables[0];
             return dataTable;
         }
@@ -169,7 +178,7 @@ namespace DatabaseTools.Providers.MySql
             var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connection.ConnectionString);
             var sql = $"SELECT statistics.table_name, statistics.index_name, statistics.column_name, statistics.seq_in_index AS key_ordinal, CASE WHEN statistics.non_unique = 0 THEN 1 ELSE 0 END AS is_unique FROM information_schema.statistics WHERE table_schema = '{csb.Database}'";
 
-            System.Data.DataSet ds = Processes.Database.Execute(connection, sql);
+            System.Data.DataSet ds = _database.Execute(connection, sql);
             DataTable dataTable = ds.Tables[0];
 
             dataTable.Columns.Add("is_descending_key");
@@ -203,7 +212,7 @@ namespace DatabaseTools.Providers.MySql
         {
             var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connection.ConnectionString);
             var sql = $"SELECT *, table_schema schema_name FROM INFORMATION_SCHEMA.COLUMNS WHERE table_schema = '{csb.Database}'";
-            System.Data.DataSet ds = Processes.Database.Execute(connection, sql);
+            System.Data.DataSet ds = _database.Execute(connection, sql);
             DataTable dataTable = ds.Tables[0];
             DataTable dataTypes;
 
@@ -217,7 +226,7 @@ namespace DatabaseTools.Providers.MySql
         {
             var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connection.ConnectionString);
             var sql = $"SELECT table_name, table_schema schema_name FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = '{csb.Database}'";
-            System.Data.DataSet ds = Processes.Database.Execute(connection, sql);
+            System.Data.DataSet ds = _database.Execute(connection, sql);
             DataTable dataTable = ds.Tables[0];
             return dataTable;
         }

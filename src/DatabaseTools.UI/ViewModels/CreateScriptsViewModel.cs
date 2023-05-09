@@ -1,4 +1,5 @@
 ﻿using DatabaseTools.Processes;
+using DatabaseTools.Providers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,8 +12,14 @@ namespace DatabaseTools.ViewModels
     public class CreateScriptsViewModel : ViewModel
     {
 
-        public CreateScriptsViewModel()
+        private readonly IEnumerable<IDatabaseProvider> _databaseProviders;
+        private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
+
+        public CreateScriptsViewModel(IEnumerable<IDatabaseProvider> databaseProviders,
+            IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications)
         {
+            _connectionCreatedNotifications = connectionCreatedNotifications;
+            _databaseProviders = databaseProviders;
             this.CreateScriptsCommand = new Command(() =>
             {
                 this.CreateScripts();
@@ -78,7 +85,8 @@ namespace DatabaseTools.ViewModels
         private void CreateScriptsInternal(IProgress<ScriptProgress> progress)
         {
             System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(this.ScriptPath);
-            Script.CreateScriptsIndividual(this.DatabaseConnectionString, di, Models.DatabaseType.MicrosoftSQLServer, progress, this.ObjectFilter);
+            var script = new Script(_databaseProviders, _connectionCreatedNotifications);
+            script.CreateScriptsIndividual(this.DatabaseConnectionString, di, Models.DatabaseType.MicrosoftSQLServer, progress, this.ObjectFilter);
         }
 
         private void ReportProgress(ScriptProgress progress)

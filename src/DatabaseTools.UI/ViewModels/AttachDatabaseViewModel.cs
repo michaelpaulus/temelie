@@ -14,6 +14,8 @@ using System.Windows.Shapes;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
+using DatabaseTools.Processes;
+using DatabaseTools.Providers;
 
 namespace DatabaseTools
 {
@@ -22,8 +24,14 @@ namespace DatabaseTools
         public class AttachDatabaseViewModel : ViewModel
         {
 
-            public AttachDatabaseViewModel()
+            private readonly IEnumerable<IDatabaseProvider> _databaseProviders;
+            private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
+
+            public AttachDatabaseViewModel(IEnumerable<IDatabaseProvider> databaseProviders,
+                IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications)
             {
+                _connectionCreatedNotifications = connectionCreatedNotifications;
+                _databaseProviders = databaseProviders;
                 this.AttachCommand = new Command<System.Configuration.ConnectionStringSettings>((System.Configuration.ConnectionStringSettings connectionString) =>
                 {
                     this.AttachDatabases(connectionString);
@@ -78,7 +86,11 @@ namespace DatabaseTools
                         System.Text.StringBuilder sbCommand = new System.Text.StringBuilder();
                         sbCommand.AppendLine(string.Format("EXEC sp_detach_db @dbname = N'{0}'", model.DatabaseName));
 
-                        DatabaseTools.Processes.Database.ExecuteNonQuery(connectionString, sbCommand.ToString());
+                        var databaseType = Database.GetDatabaseType(connectionString);
+
+                        var database = new Database(databaseType, _databaseProviders, _connectionCreatedNotifications);
+
+                        database.ExecuteNonQuery(connectionString, sbCommand.ToString());
 
                         model.IsSelected = false;
                     }
@@ -109,7 +121,12 @@ namespace DatabaseTools
                             sbCommand.AppendLine(string.Format(", @filename{0} = N'{1}'", intFileCount, file));
                         }
 
-                        DatabaseTools.Processes.Database.ExecuteNonQuery(connectionString, sbCommand.ToString());
+
+                        var databaseType = Database.GetDatabaseType(connectionString);
+
+                        var database = new Database(databaseType, _databaseProviders, _connectionCreatedNotifications);
+
+                        database.ExecuteNonQuery(connectionString, sbCommand.ToString());
 
                         model.IsSelected = false;
 

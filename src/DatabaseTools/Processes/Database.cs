@@ -4,15 +4,11 @@ using DatabaseTools.Models;
 using DatabaseTools.Providers;
 using Newtonsoft.Json;
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.Common;
-using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Transactions;
-using System.Xml.Linq;
 
 namespace DatabaseTools
 {
@@ -21,27 +17,30 @@ namespace DatabaseTools
         public class Database
         {
 
-            public static Action<IDbConnection> ConnectionCreatedCallback { get; set; }
-
             public const int DefaultCommandTimeout = 0;
 
-            private static IEnumerable<IDatabaseProvider> _databaseProviders;
+            private readonly IDatabaseProvider _databaseProvider;
+            private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
 
-            static Database()
+            public Database(IDatabaseProvider databaseProvider, IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications)
             {
-                _databaseProviders = Configuration.DependencyInjection.ResolveAll<IDatabaseProvider>();
+                _databaseProvider = databaseProvider;
+                _connectionCreatedNotifications = connectionCreatedNotifications;
             }
 
-            private Database()
+            public Database(DatabaseType databaseType, IEnumerable<IDatabaseProvider> databaseProviders, IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications)
             {
-
+                _databaseProvider = GetDatabaseProvider(databaseProviders, databaseType);
+                _connectionCreatedNotifications = connectionCreatedNotifications;
             }
+
+            public IDatabaseProvider Provider => _databaseProvider;
 
             #region Create Database Methods
 
-            public static System.Data.Common.DbConnection CloneDbConnection(System.Data.Common.DbConnection dbConnection)
+            public DbConnection CloneDbConnection(DbConnection dbConnection)
             {
-                System.Data.Common.DbConnection connection = CreateDbProviderFactory(dbConnection).CreateConnection();
+                DbConnection connection = _databaseProvider.CreateProvider().CreateConnection();
                 connection.ConnectionString = dbConnection.ConnectionString;
                 NotifyConnections(connection);
                 if (connection.State != ConnectionState.Open)
@@ -51,9 +50,9 @@ namespace DatabaseTools
                 return connection;
             }
 
-            public static System.Data.Common.DbCommand CreateDbCommand(System.Data.Common.DbConnection dbConnection)
+            public DbCommand CreateDbCommand(DbConnection dbConnection)
             {
-                System.Data.Common.DbCommand command = dbConnection.CreateCommand();
+                DbCommand command = dbConnection.CreateCommand();
                 command.Connection = dbConnection;
 
                 command.CommandTimeout = DefaultCommandTimeout;
@@ -66,23 +65,16 @@ namespace DatabaseTools
                 return command;
             }
 
-            public static System.Data.Common.DbConnection CreateDbConnection(System.Configuration.ConnectionStringSettings connectionString)
+            public DbConnection CreateDbConnection(System.Configuration.ConnectionStringSettings connectionString)
             {
-                return CreateDbConnection(CreateDbProviderFactory(connectionString), connectionString);
+                return CreateDbConnection(_databaseProvider.CreateProvider(), connectionString);
             }
 
-            public static System.Data.Common.DbConnection CreateDbConnection(System.Data.Common.DbProviderFactory dbProviderFactory, System.Configuration.ConnectionStringSettings connectionString)
+            public DbConnection CreateDbConnection(DbProviderFactory dbProviderFactory, System.Configuration.ConnectionStringSettings connectionString)
             {
-                System.Data.Common.DbConnection connection = dbProviderFactory.CreateConnection();
+                DbConnection connection = dbProviderFactory.CreateConnection();
 
-                var dbType = GetDatabaseType(connectionString);
-
-                var databaseProvider = GetDatabaseProvider(dbType);
-
-                if (databaseProvider != null)
-                {
-                    connection.ConnectionString = databaseProvider.TransformConnectionString(connection.ConnectionString);
-                }
+                connection.ConnectionString = _databaseProvider.TransformConnectionString(connection.ConnectionString);
 
                 connection.ConnectionString = connectionString.ConnectionString;
 
@@ -95,63 +87,19 @@ namespace DatabaseTools
                 return connection;
             }
 
-            public static System.Data.Common.DbConnection CreateDbConnection(System.Data.SqlClient.SqlConnectionStringBuilder csb)
-            {
-                System.Data.Common.DbConnection connection = new System.Data.SqlClient.SqlConnection();
-                connection.ConnectionString = csb.ConnectionString;
-                connection.Open();
-                return connection;
-            }
-
-            public static System.Data.Common.DbProviderFactory CreateDbProviderFactory(System.Data.Common.DbConnection connection)
-            {
-                string strProviderName = GetProviderName(connection);
-                return CreateDbProviderFactory(strProviderName);
-            }
-
-            public static System.Data.Common.DbProviderFactory CreateDbProviderFactory(System.Configuration.ConnectionStringSettings connectionString)
-            {
-                string strProviderName = GetProviderName(connectionString);
-                return CreateDbProviderFactory(strProviderName);
-            }
-
-            public static System.Data.Common.DbProviderFactory CreateDbProviderFactory(string providerName)
-            {
-                IDatabaseProvider provider = null;
-
-                switch (providerName)
-                {
-                    case "MySql.Data.MySqlClient":
-                        provider = GetDatabaseProvider(Models.DatabaseType.MySql);
-                        if (provider != null)
-                        {
-                            return provider.CreateProvider();
-                        }
-                        break;
-                    case "System.Data.SqlClient":
-                        provider = GetDatabaseProvider(Models.DatabaseType.MicrosoftSQLServer);
-                        if (provider != null)
-                        {
-                            return provider.CreateProvider();
-                        }
-                        break;
-                }
-                return null;
-            }
-
             #endregion
 
             #region Execute Database Methods
 
 
-            public static System.Data.DataSet Execute(System.Data.Common.DbConnection connection, string sqlCommand)
+            public System.Data.DataSet Execute(DbConnection connection, string sqlCommand)
             {
-                System.Data.DataSet ds = new System.Data.DataSet();
+                var ds = new System.Data.DataSet();
 
-                using (System.Data.Common.DbCommand command = Database.CreateDbCommand(connection))
+                using (var command = CreateDbCommand(connection))
                 {
                     command.CommandText = sqlCommand;
-                    using (System.Data.Common.DbDataReader reader = command.ExecuteReader())
+                    using (DbDataReader reader = command.ExecuteReader())
                     {
                         ds.Load(reader, LoadOption.OverwriteChanges, "Table");
                     }
@@ -160,14 +108,14 @@ namespace DatabaseTools
                 return ds;
             }
 
-            public static System.Data.DataSet Execute(System.Configuration.ConnectionStringSettings connectionString, string sqlCommand)
+            public System.Data.DataSet Execute(System.Configuration.ConnectionStringSettings connectionString, string sqlCommand)
             {
                 System.Data.DataSet ds = new System.Data.DataSet();
 
                 if (!(string.IsNullOrEmpty(sqlCommand)))
                 {
-                    System.Data.Common.DbProviderFactory factory = Database.CreateDbProviderFactory(connectionString);
-                    using (System.Data.Common.DbConnection connection = Database.CreateDbConnection(factory, connectionString))
+                    var factory = _databaseProvider.CreateProvider();
+                    using (var connection = CreateDbConnection(factory, connectionString))
                     {
                         ds = Execute(connection, sqlCommand);
                     }
@@ -176,14 +124,14 @@ namespace DatabaseTools
                 return ds;
             }
 
-            public static void ExecuteFile(System.Data.Common.DbConnection connection, string sqlCommand)
+            public void ExecuteFile(DbConnection connection, string sqlCommand)
             {
                 if (!(string.IsNullOrEmpty(sqlCommand)))
                 {
                     System.Text.RegularExpressions.Regex regEx = new System.Text.RegularExpressions.Regex("^[\\s]*GO[^a-zA-Z0-9]", System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Multiline);
                     foreach (string commandText in regEx.Split(sqlCommand))
                     {
-                        System.Data.Common.DbConnection commandConnection = connection;
+                        DbConnection commandConnection = connection;
 
                         if (commandText.IndexOf("ALTER DATABASE", StringComparison.InvariantCultureIgnoreCase) != -1 && Data.DbTransactionScope.Current != null && Data.DbTransactionScope.Current.Connection == connection)
                         {
@@ -200,23 +148,23 @@ namespace DatabaseTools
                 }
             }
 
-            public static void ExecuteFile(System.Configuration.ConnectionStringSettings connectionString, string sqlCommand)
+            public void ExecuteFile(System.Configuration.ConnectionStringSettings connectionString, string sqlCommand)
             {
                 if (!(string.IsNullOrEmpty(sqlCommand)))
                 {
-                    System.Data.Common.DbProviderFactory factory = Database.CreateDbProviderFactory(connectionString);
-                    using (System.Data.Common.DbConnection connection = Database.CreateDbConnection(factory, connectionString))
+                    var factory = _databaseProvider.CreateProvider();
+                    using (DbConnection connection = CreateDbConnection(factory, connectionString))
                     {
                         ExecuteFile(connection, sqlCommand);
                     }
                 }
             }
 
-            public static void ExecuteNonQuery(System.Data.Common.DbConnection connection, string sqlCommand)
+            public void ExecuteNonQuery(DbConnection connection, string sqlCommand)
             {
                 if (!(string.IsNullOrEmpty(sqlCommand)))
                 {
-                    using (System.Data.Common.DbCommand command = Database.CreateDbCommand(connection))
+                    using (DbCommand command = CreateDbCommand(connection))
                     {
                         command.CommandText = sqlCommand;
                         command.ExecuteNonQuery();
@@ -224,28 +172,28 @@ namespace DatabaseTools
                 }
             }
 
-            public static void ExecuteNonQuery(System.Configuration.ConnectionStringSettings connectionString, string sqlCommand)
+            public void ExecuteNonQuery(System.Configuration.ConnectionStringSettings connectionString, string sqlCommand)
             {
                 if (!(string.IsNullOrEmpty(sqlCommand)))
                 {
-                    System.Data.Common.DbProviderFactory factory = Database.CreateDbProviderFactory(connectionString);
-                    using (System.Data.Common.DbConnection connection = Database.CreateDbConnection(factory, connectionString))
+                    var factory = _databaseProvider.CreateProvider();
+                    using (DbConnection connection = CreateDbConnection(factory, connectionString))
                     {
                         ExecuteNonQuery(connection, sqlCommand);
                     }
                 }
             }
 
-            public static object ExecuteScalar(System.Configuration.ConnectionStringSettings connectionString, string sqlCommand)
+            public object ExecuteScalar(System.Configuration.ConnectionStringSettings connectionString, string sqlCommand)
             {
                 object returnValue = null;
                 if (!(string.IsNullOrEmpty(sqlCommand)))
                 {
-                    System.Data.Common.DbProviderFactory factory = Database.CreateDbProviderFactory(connectionString);
+                    var factory = _databaseProvider.CreateProvider();
 
-                    using (System.Data.Common.DbConnection connection = Database.CreateDbConnection(factory, connectionString))
+                    using (DbConnection connection = CreateDbConnection(factory, connectionString))
                     {
-                        using (System.Data.Common.DbCommand command = Database.CreateDbCommand(connection))
+                        using (DbCommand command = CreateDbCommand(connection))
                         {
                             command.CommandText = sqlCommand;
 
@@ -265,27 +213,23 @@ namespace DatabaseTools
 
             #region Helper Methods
 
-            private static void NotifyConnections(IDbConnection connection)
+            private void NotifyConnections(IDbConnection connection)
             {
-                if (ConnectionCreatedCallback != null)
-                {
-                    ConnectionCreatedCallback.Invoke(connection);
-                }
-                foreach (var notification in Configuration.DependencyInjection.ResolveAll<IConnectionCreatedNotification>())
+                foreach (var notification in _connectionCreatedNotifications)
                 {
                     notification.Notify(connection);
                 }
             }
 
-            private static bool ContainsTable(IEnumerable<string> tables, string table)
+            private bool ContainsTable(IEnumerable<string> tables, string table)
             {
                 return (from i in tables where i.EqualsIgnoreCase(table) select i).Any();
             }
 
 
-            public static IDatabaseProvider GetDatabaseProvider(Models.DatabaseType databaseType, bool throwOnNotFound = false)
+            public static IDatabaseProvider GetDatabaseProvider(IEnumerable<IDatabaseProvider> providers, DatabaseType databaseType, bool throwOnNotFound = false)
             {
-                var provider = (from i in _databaseProviders where i.ForDatabaseType == databaseType select i).FirstOrDefault();
+                var provider = (from i in providers where i.ForDatabaseType == databaseType select i).FirstOrDefault();
                 if (throwOnNotFound &&
                     provider == null)
                 {
@@ -318,9 +262,9 @@ namespace DatabaseTools
                 return value;
             }
 
-            public static Int32 GetInt32Value(DataRow row, string columnName)
+            public static int GetInt32Value(DataRow row, string columnName)
             {
-                Int32 value = 0;
+                int value = 0;
 
                 try
                 {
@@ -367,7 +311,7 @@ namespace DatabaseTools
                 return value;
             }
 
-            public static Models.DatabaseType GetDatabaseType(System.Data.Common.DbConnection connection)
+            public static Models.DatabaseType GetDatabaseType(DbConnection connection)
             {
                 if (connection.GetType().FullName.StartsWith("System.Data.Odbc.OdbcConnection"))
                 {
@@ -509,7 +453,7 @@ namespace DatabaseTools
                 return typeof(string);
             }
 
-            public static string GetProviderName(System.Data.Common.DbConnection connection)
+            public static string GetProviderName(DbConnection connection)
             {
                 switch (GetDatabaseType(connection))
                 {
@@ -537,13 +481,13 @@ namespace DatabaseTools
 
             #region Database Structure
 
-            private static IList<Models.ColumnModel> GetColumns(DataTable dataTable, IDatabaseProvider provider)
+            private IList<Models.ColumnModel> GetColumns(DataTable dataTable)
             {
                 IList<Models.ColumnModel> list = new List<Models.ColumnModel>();
                 foreach (System.Data.DataRow row in dataTable.Rows)
                 {
                     Models.ColumnModel column = new Models.ColumnModel();
-                    InitializeColumn(column, row, provider);
+                    InitializeColumn(column, row);
                     list.Add(column);
                 }
                 //the database sometimes skips column numbers, we don't really care about that here,
@@ -557,50 +501,42 @@ namespace DatabaseTools
                         index += 1;
                     }
                 }
-                
+
                 return list;
             }
 
-            public static IList<Models.ColumnModel> GetTableColumns(DbConnection connection)
+            public IList<Models.ColumnModel> GetTableColumns(DbConnection connection)
             {
 
                 IList<Models.ColumnModel> list = new List<Models.ColumnModel>();
 
-                var databaseType = GetDatabaseType(connection);
-                var provider = GetDatabaseProvider(databaseType, true);
-
                 DataTable dataTable = null;
 
-                dataTable = provider.GetTableColumns(connection);
+                dataTable = _databaseProvider.GetTableColumns(connection);
 
                 if (dataTable != null)
                 {
-                    list = GetColumns(dataTable, GetDatabaseProvider(databaseType));
+                    list = GetColumns(dataTable);
                 }
 
                 return list;
             }
 
-            public static IList<Models.ColumnModel> GetViewColumns(DbConnection connection)
+            public IList<Models.ColumnModel> GetViewColumns(DbConnection connection)
             {
                 IList<Models.ColumnModel> list = new List<Models.ColumnModel>();
 
-                var databaseType = GetDatabaseType(connection);
-                var provider = GetDatabaseProvider(databaseType, true);
-
-                DataTable dataTable = null;
-
-                dataTable = provider.GetViewColumns(connection);
+                var dataTable = _databaseProvider.GetViewColumns(connection);
 
                 if (dataTable != null)
                 {
-                    list = GetColumns(dataTable, provider);
+                    list = GetColumns(dataTable);
                 }
 
                 return list;
             }
 
-            private static void InitializeColumn(Models.ColumnModel column, DataRow row, IDatabaseProvider converter)
+            private void InitializeColumn(Models.ColumnModel column, DataRow row)
             {
 
                 column.TableName = GetStringValue(row, "table_name");
@@ -627,27 +563,22 @@ namespace DatabaseTools
                     }
                 }
 
-                if (converter != null)
+                var targetColumnType = _databaseProvider.GetColumnType(new Models.ColumnTypeModel() { ColumnType = column.ColumnType, Precision = column.Precision, Scale = column.Scale }, Models.DatabaseType.MicrosoftSQLServer);
+                if (targetColumnType != null)
                 {
-                    var targetColumnType = converter.GetColumnType(new Models.ColumnTypeModel() { ColumnType = column.ColumnType, Precision = column.Precision, Scale = column.Scale }, Models.DatabaseType.MicrosoftSQLServer);
-                    if (targetColumnType != null)
-                    {
-                        column.ColumnType = targetColumnType.ColumnType;
-                        column.Precision = targetColumnType.Precision.GetValueOrDefault();
-                        column.Scale = targetColumnType.Scale.GetValueOrDefault();
-                    }
+                    column.ColumnType = targetColumnType.ColumnType;
+                    column.Precision = targetColumnType.Precision.GetValueOrDefault();
+                    column.Scale = targetColumnType.Scale.GetValueOrDefault();
                 }
+
 
             }
 
-            public static IList<Models.DefinitionModel> GetDefinitions(DbConnection connection)
+            public IList<Models.DefinitionModel> GetDefinitions(DbConnection connection)
             {
                 List<Models.DefinitionModel> list = new List<Models.DefinitionModel>();
 
-                var databaseType = GetDatabaseType(connection);
-                var provider = GetDatabaseProvider(databaseType, true);
-
-                var dtDefinitions = provider.GetDefinitions(connection);
+                var dtDefinitions = _databaseProvider.GetDefinitions(connection);
 
                 if (dtDefinitions != null)
                 {
@@ -669,36 +600,33 @@ namespace DatabaseTools
 
                 return list;
             }
-            public static IList<Models.SecurityPolicyModel> GetSecurityPolicies(DbConnection connection)
+            public IList<Models.SecurityPolicyModel> GetSecurityPolicies(DbConnection connection)
             {
                 var list = new List<Models.SecurityPolicyModel>();
 
-                var databaseType = GetDatabaseType(connection);
-                var provider = GetDatabaseProvider(databaseType, true);
+                var dtDefinitions = _databaseProvider.GetSecurityPolicies(connection);
 
-                var dtDefinitions = provider.GetSecurityPolicies(connection);
-
-                var dtDependencies = provider.GetDefinitionDependencies(connection);
+                var dtDependencies = _databaseProvider.GetDefinitionDependencies(connection);
 
                 if (dtDefinitions != null)
                 {
                     list = (
                         from i in dtDefinitions.Rows.OfType<System.Data.DataRow>()
                         group new Models.SecurityPolicyPredicate { TargetSchema = i["TargetSchema"].ToString(), Operation = i["Operation"].ToString(), PredicateDefinition = i["PredicateDefinition"].ToString(), PredicateType = i["PredicateType"].ToString(), TargetName = i["TargetName"].ToString() }
-                        by new { PolicySchema = i["PolicySchema"].ToString(), PolicyName = i["PolicyName"].ToString(), IsEnabled = (bool)i["IsEnabled"], IsSchemaBound=(bool)i["IsSchemaBound"] } into g
+                        by new { PolicySchema = i["PolicySchema"].ToString(), PolicyName = i["PolicyName"].ToString(), IsEnabled = (bool)i["IsEnabled"], IsSchemaBound = (bool)i["IsSchemaBound"] } into g
                         select new Models.SecurityPolicyModel
                         {
                             IsEnabled = g.Key.IsEnabled,
                             PolicyName = g.Key.PolicyName,
                             PolicySchema = g.Key.PolicySchema,
                             Predicates = g.ToList(),
-                            IsSchemaBound=g.Key.IsSchemaBound
+                            IsSchemaBound = g.Key.IsSchemaBound
                         }
                         ).ToList();
                 }
                 return list;
             }
-            private static void VerifyDefinitionsDependencies(IList<Models.DefinitionModel> list, DataTable dependencies)
+            private void VerifyDefinitionsDependencies(IList<Models.DefinitionModel> list, DataTable dependencies)
             {
                 bool blnListChanged = false;
                 foreach (System.Data.DataRow row in dependencies.Rows)
@@ -736,14 +664,11 @@ namespace DatabaseTools
                 }
             }
 
-            public static IList<Models.ForeignKeyModel> GetForeignKeys(DbConnection connection, IList<string> tables)
+            public IList<Models.ForeignKeyModel> GetForeignKeys(DbConnection connection, IList<string> tables)
             {
                 IList<Models.ForeignKeyModel> list = new List<Models.ForeignKeyModel>();
 
-                var databaseType = GetDatabaseType(connection);
-                var provider = GetDatabaseProvider(databaseType, true);
-
-                DataTable dataTable = provider.GetForeignKeys(connection);
+                DataTable dataTable = _databaseProvider.GetForeignKeys(connection);
 
                 if (dataTable != null)
                 {
@@ -799,35 +724,34 @@ namespace DatabaseTools
             private class IndexBucket
             {
                 public string TableName { get; set; }
-                public string IndexName { get; set; } 
+                public string IndexName { get; set; }
                 public string SchemaName { get; set; }
                 public int BucketCount { get; set; }
             }
 
-            public static IList<Models.IndexModel> GetIndexes(DbConnection connection, IEnumerable<string> tables, bool? isPrimaryKey = null)
+            public IList<Models.IndexModel> GetIndexes(DbConnection connection, IEnumerable<string> tables, bool? isPrimaryKey = null)
             {
                 IList<Models.IndexModel> list = new List<Models.IndexModel>();
-                var provider = GetDatabaseProvider(GetDatabaseType(connection), true);
                 System.Data.DataTable dtIndexes = null;
 
-                dtIndexes = provider.GetIndexes(connection);
+                dtIndexes = _databaseProvider.GetIndexes(connection);
 
                 if (dtIndexes != null)
                 {
 
                     var indexBucketCounts = new List<IndexBucket>();
 
-                    var dtIndexBucketCounts = provider.GetIndexeBucketCounts(connection);
+                    var dtIndexBucketCounts = _databaseProvider.GetIndexeBucketCounts(connection);
                     if (dtIndexBucketCounts != null)
                     {
                         indexBucketCounts = (from i in dtIndexBucketCounts.Rows.OfType<System.Data.DataRow>()
-                           select new IndexBucket
-                           {
-                               TableName = i["table_name"].ToString(),
-                               IndexName = i["index_name"].ToString(),
-                               SchemaName = i["schema_name"].ToString(),
-                               BucketCount = Convert.ToInt32(i["total_bucket_count"])
-                           }).ToList();
+                                             select new IndexBucket
+                                             {
+                                                 TableName = i["table_name"].ToString(),
+                                                 IndexName = i["index_name"].ToString(),
+                                                 SchemaName = i["schema_name"].ToString(),
+                                                 BucketCount = Convert.ToInt32(i["total_bucket_count"])
+                                             }).ToList();
                     }
 
                     foreach (var indexGroup in (
@@ -854,10 +778,11 @@ namespace DatabaseTools
                                 IsPrimaryKey = Convert.ToBoolean(summaryRow["is_primary_key"])
                             };
 
-                            var indexBucketCount = (from i in indexBucketCounts where i.SchemaName == index.SchemaName &&
+                            var indexBucketCount = (from i in indexBucketCounts
+                                                    where i.SchemaName == index.SchemaName &&
                                                    i.TableName == index.TableName &&
                                                    i.IndexName == index.IndexName
-                                                   select i).FirstOrDefault();
+                                                    select i).FirstOrDefault();
 
                             if (indexBucketCount != null)
                             {
@@ -894,7 +819,7 @@ namespace DatabaseTools
                 return list;
             }
 
-            private static List<Models.TableModel> GetTables(DataTable dataTable, IList<Models.ColumnModel> columns)
+            private List<Models.TableModel> GetTables(DataTable dataTable, IList<Models.ColumnModel> columns)
             {
                 List<Models.TableModel> list = new List<Models.TableModel>();
 
@@ -913,16 +838,16 @@ namespace DatabaseTools
                 foreach (System.Data.DataRow row in dataTable.Rows)
                 {
                     Models.TableModel table = new Models.TableModel();
-                    table.TableName = Processes.Database.GetStringValue(row, "table_name");
-                    table.SchemaName = Processes.Database.GetStringValue(row, "schema_name");
-                    table.TemporalType = Processes.Database.GetInt32Value(row, "temporal_type");
-                    table.HistoryTableName = Processes.Database.GetStringValue(row, "history_table_name");
-                    table.IsMemoryOptimized = Processes.Database.GetBoolValue(row, "is_memory_optimized");
-                    table.DurabilityDesc = Processes.Database.GetStringValue(row, "durability_desc");
-                    table.IsExternal = Processes.Database.GetBoolValue(row, "is_external");
-                    table.DataSourceName = Processes.Database.GetStringValue(row, "data_source_name");
-                    table.PartitionSchemeColumns = Processes.Database.GetStringValue(row, "partition_scheme_columns");
-                    table.PartitionSchemeName = Processes.Database.GetStringValue(row, "partition_scheme_name");
+                    table.TableName = GetStringValue(row, "table_name");
+                    table.SchemaName = GetStringValue(row, "schema_name");
+                    table.TemporalType = GetInt32Value(row, "temporal_type");
+                    table.HistoryTableName = GetStringValue(row, "history_table_name");
+                    table.IsMemoryOptimized = GetBoolValue(row, "is_memory_optimized");
+                    table.DurabilityDesc = GetStringValue(row, "durability_desc");
+                    table.IsExternal = GetBoolValue(row, "is_external");
+                    table.DataSourceName = GetStringValue(row, "data_source_name");
+                    table.PartitionSchemeColumns = GetStringValue(row, "partition_scheme_columns");
+                    table.PartitionSchemeName = GetStringValue(row, "partition_scheme_name");
                     var extendedProperites = GetStringValue(row, "extended_properties");
                     if (!string.IsNullOrEmpty(extendedProperites))
                     {
@@ -956,15 +881,13 @@ namespace DatabaseTools
                 return list;
             }
 
-            public static IList<Models.TableModel> GetTables(DbConnection connection, IList<Models.ColumnModel> columns, bool withBackup = false)
+            public IList<Models.TableModel> GetTables(DbConnection connection, IList<Models.ColumnModel> columns, bool withBackup = false)
             {
                 System.Data.DataTable dataTable = null;
 
                 var databaseType = GetDatabaseType(connection);
 
-                var provider = GetDatabaseProvider(databaseType, true);
-
-                dataTable = provider.GetTables(connection);
+                dataTable = _databaseProvider.GetTables(connection);
 
                 IList<Models.TableModel> list = new List<Models.TableModel>();
 
@@ -1008,38 +931,28 @@ namespace DatabaseTools
                 return list;
             }
 
-            public static IList<Models.TableModel> GetViews(DbConnection connection, IList<Models.ColumnModel> columns)
+            public IList<Models.TableModel> GetViews(DbConnection connection, IList<Models.ColumnModel> columns)
             {
                 IList<Models.TableModel> list = new List<Models.TableModel>();
 
-                var databaseType = GetDatabaseType(connection);
-
-                var provider = GetDatabaseProvider(databaseType);
-
-                if (provider != null)
+                System.Data.DataTable dataTable = _databaseProvider.GetViews(connection);
+                if (dataTable != null)
                 {
-                    System.Data.DataTable dataTable = provider.GetViews(connection);
-                    if (dataTable != null)
+                    list = GetTables(dataTable, columns);
+                    foreach (var item in list)
                     {
-                        list = GetTables(dataTable, columns);
-                        foreach (var item in list)
-                        {
-                            item.IsView = true;
-                        }
+                        item.IsView = true;
                     }
                 }
 
                 return list;
             }
 
-            public static IList<Models.TriggerModel> GetTriggers(DbConnection connection, IList<string> tables, IList<string> views, string objectFilter)
+            public IList<Models.TriggerModel> GetTriggers(DbConnection connection, IList<string> tables, IList<string> views, string objectFilter)
             {
                 IList<Models.TriggerModel> list = new List<Models.TriggerModel>();
 
-                var databaseType = GetDatabaseType(connection);
-                var provider = GetDatabaseProvider(databaseType, true);
-
-                var dataTable = provider.GetTriggers(connection);
+                var dataTable = _databaseProvider.GetTriggers(connection);
 
                 if (dataTable != null)
                 {
@@ -1068,10 +981,10 @@ namespace DatabaseTools
                 return list;
             }
 
-            public static bool IsDatabaseEmpty(System.Configuration.ConnectionStringSettings connectionString)
+            public bool IsDatabaseEmpty(System.Configuration.ConnectionStringSettings connectionString)
             {
-                Models.DatabaseModel database = new Models.DatabaseModel(connectionString);
-                return database.Tables.Count == 0;
+                var model = new Models.DatabaseModel(connectionString, new[] { _databaseProvider }, _connectionCreatedNotifications);
+                return model.Tables.Count == 0;
             }
 
             #endregion

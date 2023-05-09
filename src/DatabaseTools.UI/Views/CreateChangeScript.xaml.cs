@@ -14,6 +14,10 @@ using System.Windows.Shapes;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
+using DatabaseTools.Processes;
+using DatabaseTools.Providers;
+using DatabaseTools.UI;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DatabaseTools
 {
@@ -22,11 +26,15 @@ namespace DatabaseTools
 
 		private System.ComponentModel.BackgroundWorker ScriptBackgroundWorker = new System.ComponentModel.BackgroundWorker();
 
-		public CreateChangeScript()
-		{
+        private readonly IEnumerable<IDatabaseProvider> _databaseProviders;
+        private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
 
-			// This call is required by the Windows Form Designer.
-			InitializeComponent();
+        public CreateChangeScript()
+        {
+            _databaseProviders = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetServices<IDatabaseProvider>();
+            _connectionCreatedNotifications = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetServices<IConnectionCreatedNotification>();
+            // This call is required by the Windows Form Designer.
+            InitializeComponent();
 
 			// Add any initialization after the InitializeComponent() call.
 			this.SourceDatabaseConnection.IsSource = true;
@@ -47,8 +55,8 @@ namespace DatabaseTools
 			var sourceConnectionString = (System.Configuration.ConnectionStringSettings)args[0];
 			var targetConnectionString = (System.Configuration.ConnectionStringSettings)args[1];
 
-			DatabaseTools.Models.DatabaseModel sourceDatabase = new DatabaseTools.Models.DatabaseModel(sourceConnectionString) { ExcludeDoubleUnderscoreObjects = true };
-			DatabaseTools.Models.DatabaseModel targetDatabase = new DatabaseTools.Models.DatabaseModel(targetConnectionString) { ExcludeDoubleUnderscoreObjects = true };
+			DatabaseTools.Models.DatabaseModel sourceDatabase = new DatabaseTools.Models.DatabaseModel(sourceConnectionString, _databaseProviders, _connectionCreatedNotifications) { ExcludeDoubleUnderscoreObjects = true };
+			DatabaseTools.Models.DatabaseModel targetDatabase = new DatabaseTools.Models.DatabaseModel(targetConnectionString, _databaseProviders, _connectionCreatedNotifications) { ExcludeDoubleUnderscoreObjects = true };
 
 			e.Result = targetDatabase.GetChangeScript(sourceDatabase);
 		}
