@@ -9,7 +9,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatabaseTools.UI", "Databas
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatabaseTools.MySql", "DatabaseTools.MySql\DatabaseTools.MySql.csproj", "{79C8655C-1CE2-4E5D-92B7-86FC33FB1B67}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseTools.App", "DatabaseTools.App\DatabaseTools.App.csproj", "{19138110-61C8-4A37-A7B1-F5FC88A2870A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatabaseTools.App", "DatabaseTools.App\DatabaseTools.App.csproj", "{19138110-61C8-4A37-A7B1-F5FC88A2870A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6102F825-2FDF-431A-88C2-564D7F9C78F4}"
+	ProjectSection(SolutionItems) = preProject
+		publish.cmd = publish.cmd
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

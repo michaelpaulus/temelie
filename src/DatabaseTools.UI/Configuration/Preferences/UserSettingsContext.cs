@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace DatabaseTools.Configuration.Preferences
@@ -23,7 +24,7 @@ namespace DatabaseTools.Configuration.Preferences
             {
                 try
                 {
-                    settings = Newtonsoft.Json.JsonConvert.DeserializeObject<UserSettings>(System.IO.File.ReadAllText(strFileName));
+                    settings = JsonSerializer.Deserialize<UserSettings>(System.IO.File.ReadAllText(strFileName), new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
                 }
                 catch
                 {
@@ -58,14 +59,20 @@ namespace DatabaseTools.Configuration.Preferences
         {
             string strFileName = GetFileName();
 
-            var fileContents = Newtonsoft.Json.JsonConvert.SerializeObject(UserSettingsContext.Current);
+            var fileContents = JsonSerializer.Serialize(Current, new JsonSerializerOptions()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+                WriteIndented = true,
+                DictionaryKeyPolicy = JsonNamingPolicy.CamelCase
+            });
 
             if (System.IO.File.Exists(strFileName))
             {
                 System.IO.File.Delete(strFileName);
             }
 
-            System.IO.File.WriteAllText(strFileName, fileContents, System.Text.ASCIIEncoding.UTF8);
+            System.IO.File.WriteAllText(strFileName, fileContents, Encoding.UTF8);
         }
 
     }

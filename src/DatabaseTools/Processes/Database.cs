@@ -2,13 +2,14 @@
 using DatabaseTools.Extensions;
 using DatabaseTools.Models;
 using DatabaseTools.Providers;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
+using System.Text.Json;
 
 namespace DatabaseTools
 {
@@ -557,7 +558,7 @@ namespace DatabaseTools
                 var extendedProperites = GetStringValue(row, "extended_properties");
                 if (!string.IsNullOrEmpty(extendedProperites))
                 {
-                    foreach (var item in JsonConvert.DeserializeObject<List<ExtendedProperty>>(extendedProperites))
+                    foreach (var item in JsonSerializer.Deserialize<List<ExtendedProperty>>(extendedProperites, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true }))
                     {
                         column.ExtendedProperties.Add(item.Name, item.Value);
                     }
@@ -851,7 +852,7 @@ namespace DatabaseTools
                     var extendedProperites = GetStringValue(row, "extended_properties");
                     if (!string.IsNullOrEmpty(extendedProperites))
                     {
-                        foreach (var item in JsonConvert.DeserializeObject<List<ExtendedProperty>>(extendedProperites))
+                        foreach (var item in JsonSerializer.Deserialize<List<ExtendedProperty>>(extendedProperites, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true }))
                         {
                             table.ExtendedProperties.Add(item.Name, item.Value);
                         }

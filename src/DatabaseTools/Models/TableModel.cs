@@ -1,6 +1,6 @@
 ﻿
 using DatabaseTools.Extensions;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
+using System.Text.Json;
 
 namespace DatabaseTools
 {
@@ -41,7 +42,7 @@ namespace DatabaseTools
             public bool IsMemoryOptimized { get; set; }
             public string DurabilityDesc { get; set; }
             public bool IsExternal { get; set; }
-            public string DataSourceName { get; set; } 
+            public string DataSourceName { get; set; }
             public bool IsHistoryTable { get { return TemporalType == 1; } }
             public bool IsView { get; set; }
 
@@ -58,7 +59,7 @@ namespace DatabaseTools
                 }
             }
 
-            public Dictionary<string, string> ExtendedProperties { get; set; } =  new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            public Dictionary<string, string> ExtendedProperties { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
             public string PartitionSchemeName { get; set; }
             public string PartitionSchemeColumns { get; set; }
@@ -191,10 +192,14 @@ namespace DatabaseTools
 
             public void AppendJsonScript(DatabaseModel database, System.Text.StringBuilder sb)
             {
-                var settings = new JsonSerializerSettings();
-                settings.ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver();
-                settings.NullValueHandling = NullValueHandling.Ignore;
-                var json = JsonConvert.SerializeObject(this, Formatting.Indented, settings);
+                var json = JsonSerializer.Serialize(this, new JsonSerializerOptions()
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    IgnoreNullValues = true,
+                    WriteIndented = true,
+                    DictionaryKeyPolicy = JsonNamingPolicy.CamelCase
+                });
+                json = json.Replace("\\u0027", "'").Replace("\\u003C", "<").Replace("\\u003E", ">").Replace("\\u002B",  "+");
                 sb.Append(json);
             }
 
