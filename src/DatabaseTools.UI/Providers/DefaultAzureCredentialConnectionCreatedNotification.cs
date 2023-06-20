@@ -18,12 +18,10 @@ namespace DatabaseTools.Providers
                 var csb = new SqlConnectionStringBuilder(sqlConnection.ConnectionString);
                 if (!csb.IntegratedSecurity && (string.IsNullOrEmpty(csb.UserID) || string.IsNullOrEmpty(csb.Password)))
                 {
-                    var credential = new DefaultAzureCredential(true);
-                    var result = credential.GetToken(new TokenRequestContext(new string[] { "https://database.windows.net/.default" }));
                     csb.UserID = "";
                     csb.Password = "";
                     connection.ConnectionString = csb.ConnectionString;
-                    sqlConnection.AccessToken = result.Token;
+                    sqlConnection.AccessToken =  TokenService.GetToken("https://database.windows.net/.default");
                 }
             }
         }
