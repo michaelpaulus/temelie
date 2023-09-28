@@ -22,6 +22,7 @@ namespace DatabaseTools.Providers
 
         DataTable GetTriggers(DbConnection connection);
         DataTable GetForeignKeys(DbConnection connection);
+        DataTable GetCheckConstraints(DbConnection connection);
         DataTable GetDefinitions(DbConnection connection);
         DataTable GetDefinitionDependencies(DbConnection connection);
 

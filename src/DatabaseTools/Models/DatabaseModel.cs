@@ -142,6 +142,22 @@ namespace DatabaseTools
                 }
             }
 
+            private IList<Models.CheckConstraintModel> _checkConstraints;
+            public IList<Models.CheckConstraintModel> CheckConstraints
+            {
+                get
+                {
+                    if (this._checkConstraints == null)
+                    {
+                        using (var conn = _database.CreateDbConnection(this.ConnectionString))
+                        {
+                            this._checkConstraints = (from i in _database.GetCheckConstraints(conn, this.TableNames) orderby i.TableName, i.CheckConstraintName select i).ToList();
+                        }
+                    }
+                    return this._checkConstraints;
+                }
+            }
+
             private IList<Models.IndexModel> _allIndexes;
             private IList<Models.IndexModel> AllIndexes
             {
@@ -554,6 +570,18 @@ namespace DatabaseTools
                 return sb.ToString();
             }
 
+            public string GetCheckConstraintScripts()
+            {
+                var sb = new System.Text.StringBuilder();
+
+                foreach (var constraint in this.CheckConstraints)
+                {
+                    constraint.AppendCreateScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                }
+
+                return sb.ToString();
+            }
+
             public string GetFkDropScripts()
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
@@ -874,6 +902,8 @@ GO
                 sb.AppendLine(this.GetTriggerScripts());
 
                 sb.AppendLine(this.GetFkScripts());
+
+                sb.AppendLine(this.GetCheckConstraintScripts());
 
                 sb.AppendLine(this.GetSecurityPolicyScripts());
 

@@ -722,6 +722,37 @@ namespace DatabaseTools
                 return list;
             }
 
+            public IList<Models.CheckConstraintModel> GetCheckConstraints(DbConnection connection, IList<string> tables)
+            {
+                var list = new List<Models.CheckConstraintModel>();
+
+                var dataTable = _databaseProvider.GetCheckConstraints(connection);
+
+                if (dataTable != null)
+                {
+                    foreach (System.Data.DataRow detailRow in dataTable.Rows)
+                    {
+                        var strTableName = detailRow["table_name"].ToString();
+                        var strSchemaName = detailRow["schema_name"].ToString();
+                        var strConstraintName = detailRow["check_constraint_name"].ToString();
+                        var strDefinition = detailRow["check_constraint_definition"].ToString();
+
+                        if (ContainsTable(tables, strTableName))
+                        {
+                            list.Add(new Models.CheckConstraintModel
+                            {
+                                CheckConstraintName = strConstraintName,
+                                TableName = strTableName,
+                                SchemaName = strSchemaName,
+                                CheckConstraintDefinition = strDefinition
+                            });
+                        }
+                    }
+                }
+
+                return list;
+            }
+
             private class IndexBucket
             {
                 public string TableName { get; set; }

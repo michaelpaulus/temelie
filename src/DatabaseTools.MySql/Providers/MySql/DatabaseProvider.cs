@@ -173,6 +173,11 @@ namespace DatabaseTools.Providers.MySql
             return dataTable;
         }
 
+        public DataTable GetCheckConstraints(DbConnection connection)
+        {
+            return null;
+        }
+
         public DataTable GetIndexes(DbConnection connection)
         {
             var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connection.ConnectionString);
