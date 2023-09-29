@@ -152,7 +152,26 @@ namespace DatabaseTools
 
                 return files;
             }
+            private IEnumerable<FileInfo> CreateCheckConstraintScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
+            {
+                var files = new List<FileInfo>();
 
+                foreach (var constraint in database.CheckConstraints)
+                {
+                    var fileName = MakeValidFileName($"{constraint.SchemaName}.{constraint.CheckConstraintName}.sql");
+                    if (string.IsNullOrEmpty(fileFilter) ||
+                        fileFilter.EqualsIgnoreCase(fileName))
+                    {
+                        var sb = new StringBuilder();
+                        constraint.AppendDropScript(database, sb, database.QuoteCharacterStart, database.QuoteCharacterEnd);
+                        constraint.AppendCreateScript(database, sb, database.QuoteCharacterStart, database.QuoteCharacterEnd);
+
+                        files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()));
+                    }
+                }
+
+                return files;
+            }
             private IEnumerable<FileInfo> CreateViewsAndProgrammabilityScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, bool includeViews, bool includeProgrammability, string fileFilter = "")
             {
                 var files = new List<FileInfo>();
@@ -273,6 +292,7 @@ namespace DatabaseTools
                     "01_Drops",
                     "02_Tables",
                     "03_Indexes",
+                    "04_CheckConstraints",
                     "05_ViewsAndProgrammability",
                     "05_Views",
                     "05_Programmability",
@@ -337,6 +357,18 @@ namespace DatabaseTools
                         {
 
                             var files = CreateIndexScripts(database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
+                            foreach (var file in subDirectory.GetFiles("*.sql"))
+                            {
+                                if (!files.ContainsKey(file.Name))
+                                {
+                                    file.Delete();
+                                }
+                            }
+                        }
+                        else if (subDirectory.Name.StartsWith("04_CheckConstraints", StringComparison.InvariantCultureIgnoreCase))
+                        {
+
+                            var files = CreateCheckConstraintScripts(database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
                             foreach (var file in subDirectory.GetFiles("*.sql"))
                             {
                                 if (!files.ContainsKey(file.Name))

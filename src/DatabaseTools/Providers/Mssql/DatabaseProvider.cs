@@ -196,6 +196,30 @@ ORDER BY
             return dataTable;
         }
 
+        public DataTable GetCheckConstraints(DbConnection connection)
+        {
+            string sql = @"
+SELECT 
+    sys.tables.name AS table_name, 
+    sys.schemas.name schema_name,
+    sys.check_constraints.name AS check_constraint_name, 
+    sys.check_constraints.definition AS check_constraint_definition
+FROM 
+    sys.check_constraints INNER JOIN 
+    sys.tables ON 
+        sys.check_constraints.parent_object_id = sys.tables.object_id INNER JOIN 
+    sys.schemas ON
+        sys.tables.schema_id = sys.schemas.schema_id
+ORDER BY 
+    sys.tables.name, 
+    sys.check_constraints.name
+                        ";
+
+            System.Data.DataSet ds = _database.Execute(connection, sql);
+            DataTable dataTable = ds.Tables[0];
+            return dataTable;
+        }
+
         public DataTable GetIndexeBucketCounts(DbConnection connection)
         {
             try
