@@ -883,9 +883,19 @@ namespace DatabaseTools
                     var extendedProperites = GetStringValue(row, "extended_properties");
                     if (!string.IsNullOrEmpty(extendedProperites))
                     {
-                        foreach (var item in JsonSerializer.Deserialize<List<ExtendedProperty>>(extendedProperites, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true }))
+                        try
                         {
-                            table.ExtendedProperties.Add(item.Name, item.Value);
+                            var props = JsonSerializer.Deserialize<List<ExtendedProperty>>(extendedProperites,
+                                new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+
+                            foreach (var item in props)
+                            {
+                                table.ExtendedProperties.Add(item.Name, item.Value);
+                            }
+                        }
+                        catch
+                        {
+
                         }
                     }
 
