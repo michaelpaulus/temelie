@@ -6,8 +6,6 @@
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	</PropertyGroup>
 	<PropertyGroup Label="Globals">
-		<Authors>Michael Cornerstone</Authors>
-		<Company />
 		<Version>2.4.0</Version>
 	</PropertyGroup>
 	<ItemGroup>
