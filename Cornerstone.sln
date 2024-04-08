@@ -1,0 +1,76 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34723.18
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.Repository.EntityFrameworkCore", "src\Cornerstone.Repository.EntityFrameworkCore\Cornerstone.Repository.EntityFrameworkCore.csproj", "{C87900E4-E309-4BC5-BE55-D662F3CAFF88}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.Repository.Interfaces", "src\Cornerstone.Repository.Interfaces\Cornerstone.Repository.Interfaces.csproj", "{F9737980-BAFA-409F-B9EE-DD5438BE8BC1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{84FB3FB9-3CCB-47D2-A2F4-46F6E4550D96}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+		Directory.Build.props = Directory.Build.props
+		global.json = global.json
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.Repository.EntityFrameworkCore.UnitTests", "src\Cornerstone.Repository.EntityFrameworkCore.UnitTests\Cornerstone.Repository.EntityFrameworkCore.UnitTests.csproj", "{A8B79BC8-BFD8-4E89-9342-318A3D04F6BD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.Example.Entities", "src\Cornerstone.Example.Entities\Cornerstone.Example.Entities.csproj", "{607992F6-0500-4D96-B81E-2B900EBC0303}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.Example.Repository", "src\Cornerstone.Example.Repository\Cornerstone.Example.Repository.csproj", "{6A236501-48A6-4C60-953A-9792FDFBB9C7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cornerstone.Example.Repository.EntityFrameworkCore", "src\Cornerstone.Example.Repository.EntityFrameworkCore\Cornerstone.Example.Repository.EntityFrameworkCore.csproj", "{9377498D-F4D5-44D8-8DD9-59E7B7614742}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cornerstone.Entities.Interfaces", "src\Cornerstone.Entities.Interfaces\Cornerstone.Entities.Interfaces.csproj", "{210404EF-C9C6-45AA-9F14-ADBC16271104}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{30112702-D630-4509-A81F-FCADF7FC194A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C87900E4-E309-4BC5-BE55-D662F3CAFF88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C87900E4-E309-4BC5-BE55-D662F3CAFF88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C87900E4-E309-4BC5-BE55-D662F3CAFF88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C87900E4-E309-4BC5-BE55-D662F3CAFF88}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9737980-BAFA-409F-B9EE-DD5438BE8BC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9737980-BAFA-409F-B9EE-DD5438BE8BC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9737980-BAFA-409F-B9EE-DD5438BE8BC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9737980-BAFA-409F-B9EE-DD5438BE8BC1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8B79BC8-BFD8-4E89-9342-318A3D04F6BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8B79BC8-BFD8-4E89-9342-318A3D04F6BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8B79BC8-BFD8-4E89-9342-318A3D04F6BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8B79BC8-BFD8-4E89-9342-318A3D04F6BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{607992F6-0500-4D96-B81E-2B900EBC0303}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{607992F6-0500-4D96-B81E-2B900EBC0303}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{607992F6-0500-4D96-B81E-2B900EBC0303}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{607992F6-0500-4D96-B81E-2B900EBC0303}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A236501-48A6-4C60-953A-9792FDFBB9C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A236501-48A6-4C60-953A-9792FDFBB9C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A236501-48A6-4C60-953A-9792FDFBB9C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A236501-48A6-4C60-953A-9792FDFBB9C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9377498D-F4D5-44D8-8DD9-59E7B7614742}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9377498D-F4D5-44D8-8DD9-59E7B7614742}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9377498D-F4D5-44D8-8DD9-59E7B7614742}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9377498D-F4D5-44D8-8DD9-59E7B7614742}.Release|Any CPU.Build.0 = Release|Any CPU
+		{210404EF-C9C6-45AA-9F14-ADBC16271104}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{210404EF-C9C6-45AA-9F14-ADBC16271104}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{210404EF-C9C6-45AA-9F14-ADBC16271104}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{210404EF-C9C6-45AA-9F14-ADBC16271104}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{607992F6-0500-4D96-B81E-2B900EBC0303} = {30112702-D630-4509-A81F-FCADF7FC194A}
+		{6A236501-48A6-4C60-953A-9792FDFBB9C7} = {30112702-D630-4509-A81F-FCADF7FC194A}
+		{9377498D-F4D5-44D8-8DD9-59E7B7614742} = {30112702-D630-4509-A81F-FCADF7FC194A}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C5C70245-81E3-4BAC-A963-F8DF17AAB825}
+	EndGlobalSection
+EndGlobal

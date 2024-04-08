@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Cornerstone.Example.Entities\Cornerstone.Example.Entities.csproj" />
+    <ProjectReference Include="..\Cornerstone.Repository.Interfaces\Cornerstone.Repository.Interfaces.csproj" />
+  </ItemGroup>
+
+</Project>

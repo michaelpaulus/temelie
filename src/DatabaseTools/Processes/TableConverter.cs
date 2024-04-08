@@ -1,4 +1,4 @@
-﻿using DatabaseTools.Models;
+using DatabaseTools.Models;
 using DatabaseTools.Providers;
 using Microsoft.Data.SqlClient;
 using System;
@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.Common;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
