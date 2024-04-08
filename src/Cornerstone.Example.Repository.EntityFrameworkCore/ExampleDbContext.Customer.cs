@@ -1,5 +1,5 @@
-using Microsoft.EntityFrameworkCore;
 using Cornerstone.Example.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Cornerstone.Repository.EntityFrameworkCore.UnitTests;
 

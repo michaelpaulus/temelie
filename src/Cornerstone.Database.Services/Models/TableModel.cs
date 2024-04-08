@@ -1,15 +1,6 @@
-﻿
-using Cornerstone.Database.Extensions;
-using System.Text.Json.Serialization;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics;
-using System.Linq;
 using System.Text;
-using System.Xml.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Cornerstone.Database
 {
@@ -199,10 +190,9 @@ namespace Cornerstone.Database
                     WriteIndented = true,
                     DictionaryKeyPolicy = JsonNamingPolicy.CamelCase
                 });
-                json = json.Replace("\\u0027", "'").Replace("\\u003C", "<").Replace("\\u003E", ">").Replace("\\u002B",  "+");
+                json = json.Replace("\\u0027", "'").Replace("\\u003C", "<").Replace("\\u003E", ">").Replace("\\u002B", "+");
                 sb.Append(json);
             }
-
 
             public static void AddExtendedProperties(TableModel table, StringBuilder sb)
             {

@@ -1,15 +1,9 @@
-﻿
+using System.Data;
+using System.Data.Common;
+using System.Text.Json;
 using Cornerstone.Database.Extensions;
 using Cornerstone.Database.Models;
 using Cornerstone.Database.Providers;
-using System.Text.Json.Serialization;
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Data.Common;
-using System.Linq;
-using System.Text.Json;
 
 namespace Cornerstone.Database
 {
@@ -91,7 +85,6 @@ namespace Cornerstone.Database
             #endregion
 
             #region Execute Database Methods
-
 
             public System.Data.DataSet Execute(DbConnection connection, string sqlCommand)
             {
@@ -226,7 +219,6 @@ namespace Cornerstone.Database
             {
                 return (from i in tables where i.EqualsIgnoreCase(table) select i).Any();
             }
-
 
             public static IDatabaseProvider GetDatabaseProvider(IEnumerable<IDatabaseProvider> providers, DatabaseType databaseType, bool throwOnNotFound = false)
             {
@@ -510,11 +502,7 @@ namespace Cornerstone.Database
             {
 
                 IList<Models.ColumnModel> list = new List<Models.ColumnModel>();
-
-                DataTable dataTable = null;
-
-                dataTable = _databaseProvider.GetTableColumns(connection);
-
+                var dataTable = _databaseProvider.GetTableColumns(connection);
                 if (dataTable != null)
                 {
                     list = GetColumns(dataTable);
@@ -571,7 +559,6 @@ namespace Cornerstone.Database
                     column.Precision = targetColumnType.Precision.GetValueOrDefault();
                     column.Scale = targetColumnType.Scale.GetValueOrDefault();
                 }
-
 
             }
 
@@ -795,7 +782,6 @@ namespace Cornerstone.Database
                         {
                             System.Data.DataRow summaryRow = indexGroup.Items[0];
 
-
                             Models.IndexModel index = new Models.IndexModel
                             {
                                 TableName = indexGroup.TableName,
@@ -1018,7 +1004,6 @@ namespace Cornerstone.Database
                         }
                     }
                 }
-
 
                 return list;
             }

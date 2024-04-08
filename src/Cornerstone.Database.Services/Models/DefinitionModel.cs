@@ -1,15 +1,4 @@
-﻿
 using Cornerstone.Database.Extensions;
-using System.Text.Json.Serialization;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
 
 namespace Cornerstone.Database
 {
@@ -68,7 +57,7 @@ namespace Cornerstone.Database
                 string strPattern = $"(CREATE\\s*{this.Type}\\s*[\\[]?)([\\[]?{SchemaName}[\\.]?[\\]]?[\\.]?[\\[]?)?({this.DefinitionName})([\\]]?)";
 
                 string strDefinitionReplacement = $"CREATE {this.Type} {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.DefinitionName}{quoteCharacterEnd}";
-                                
+
                 Definition = System.Text.RegularExpressions.Regex.Replace(Definition, strPattern, strDefinitionReplacement, System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Multiline);
 
                 sb.AppendLine(Definition.Replace("\t", "    ").RemoveLeadingAndTrailingLines());
@@ -85,6 +74,5 @@ namespace Cornerstone.Database
 
         }
     }
-
 
 }

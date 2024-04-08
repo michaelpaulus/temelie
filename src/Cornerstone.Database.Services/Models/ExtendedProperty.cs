@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+namespace Cornerstone.Database.Models;
 
-namespace Cornerstone.Database.Models
+public class ExtendedProperty
 {
-    public class ExtendedProperty
-    {
-        public string Name { get; set; }
-        public string Value { get; set; }
-    }
+    public string Name { get; set; }
+    public string Value { get; set; }
 }

@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+using System;
 
-namespace Cornerstone.Database.UI
+namespace Cornerstone.Database.UI;
+
+public interface IServiceProviderApplication
 {
-    public interface IServiceProviderApplication
-    {
 
-        public IServiceProvider ServiceProvider { get; set; }
+    public IServiceProvider ServiceProvider { get; set; }
 
-    }
 }

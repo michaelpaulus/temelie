@@ -1,7 +1,7 @@
-using FluentAssertions;
-using Microsoft.Data.Sqlite;
 using Cornerstone.Example.Entities;
 using Cornerstone.Example.Repository;
+using FluentAssertions;
+using Microsoft.Data.Sqlite;
 
 namespace Cornerstone.Repository.EntityFrameworkCore.UnitTests;
 

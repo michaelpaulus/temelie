@@ -1,24 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using PropertyChanged;
 
-namespace Cornerstone.Database
-{
-    [AddINotifyPropertyChangedInterface()]
-    public class PropertyChangedObject : INotifyPropertyChanged
-    {
-        protected virtual void OnPropertyChanged(string propertyName)
-        {
-            if (this.PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
+namespace Cornerstone.Database;
 
-        public event PropertyChangedEventHandler PropertyChanged;
+[AddINotifyPropertyChangedInterface()]
+public class PropertyChangedObject : INotifyPropertyChanged
+{
+    protected virtual void OnPropertyChanged(string propertyName)
+    {
+        if (this.PropertyChanged != null)
+        {
+            PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
+
+    public event PropertyChangedEventHandler PropertyChanged;
 }

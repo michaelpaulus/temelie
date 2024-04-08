@@ -1,116 +1,100 @@
-﻿
-using System.Linq;
-using System.Xml.Linq;
+
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Shapes;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using Cornerstone.Database.Processes;
 using Cornerstone.Database.Providers;
 using Cornerstone.Database.UI;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Cornerstone.Database
+namespace Cornerstone.Database;
+
+public partial class ExecuteScripts
 {
-    public partial class ExecuteScripts
+    private readonly IEnumerable<IDatabaseProvider> _databaseProviders;
+    private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
+
+    public ExecuteScripts()
+    {
+        _databaseProviders = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetServices<IDatabaseProvider>();
+        _connectionCreatedNotifications = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetServices<IConnectionCreatedNotification>();
+
+        this.InitializeComponent();
+        SubscribeToEvents();
+        this.DataContext = this.ViewModel;
+
+        this.DatabaseConnection.ViewModel.LoadConnections();
+
+    }
+
+    private ViewModels.ExecuteScriptsViewModel _viewModel;
+    public ViewModels.ExecuteScriptsViewModel ViewModel
+    {
+        get
+        {
+            if (this._viewModel == null)
+            {
+                this._viewModel = new ViewModels.ExecuteScriptsViewModel(_databaseProviders, _connectionCreatedNotifications);
+            }
+            return this._viewModel;
+        }
+    }
+
+    #region Event Handlers
+
+    private void BrowseButton_Click(object sender, System.Windows.RoutedEventArgs e)
     {
 
-        private System.ComponentModel.BackgroundWorker ExecuteBackgroundWorker = new System.ComponentModel.BackgroundWorker { WorkerReportsProgress = true };
-
-        private readonly IEnumerable<IDatabaseProvider> _databaseProviders;
-        private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
-
-        public ExecuteScripts()
+        using (System.Windows.Forms.FolderBrowserDialog fd = new System.Windows.Forms.FolderBrowserDialog())
         {
-            _databaseProviders = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetServices<IDatabaseProvider>();
-            _connectionCreatedNotifications = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetServices<IConnectionCreatedNotification>();
-
-            this.InitializeComponent();
-            SubscribeToEvents();
-            this.DataContext = this.ViewModel;
-
-            this.DatabaseConnection.ViewModel.LoadConnections();
-
-        }
-
-        private ViewModels.ExecuteScriptsViewModel _viewModel;
-        public ViewModels.ExecuteScriptsViewModel ViewModel
-        {
-            get
+            if (!(string.IsNullOrEmpty(this.ViewModel.ScriptPath)) && System.IO.Directory.Exists(this.ViewModel.ScriptPath))
             {
-                if (this._viewModel == null)
-                {
-                    this._viewModel = new ViewModels.ExecuteScriptsViewModel(_databaseProviders, _connectionCreatedNotifications);
-                }
-                return this._viewModel;
+                fd.SelectedPath = this.ViewModel.ScriptPath;
+            }
+            if (fd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                this.ViewModel.ScriptPath = fd.SelectedPath;
             }
         }
+    }
 
-
-        #region Event Handlers
-
-        private void BrowseButton_Click(object sender, System.Windows.RoutedEventArgs e)
+    private void CustomScriptsBrowseButton_Click(object sender, System.Windows.RoutedEventArgs e)
+    {
+        using (System.Windows.Forms.FolderBrowserDialog fd = new System.Windows.Forms.FolderBrowserDialog())
         {
-
-            using (System.Windows.Forms.FolderBrowserDialog fd = new System.Windows.Forms.FolderBrowserDialog())
+            if (!(string.IsNullOrEmpty(this.ViewModel.CustomScriptPath)) && System.IO.Directory.Exists(this.ViewModel.CustomScriptPath))
             {
-                if (!(string.IsNullOrEmpty(this.ViewModel.ScriptPath)) && System.IO.Directory.Exists(this.ViewModel.ScriptPath))
-                {
-                    fd.SelectedPath = this.ViewModel.ScriptPath;
-                }
-                if (fd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                {
-                    this.ViewModel.ScriptPath = fd.SelectedPath;
-                }
+                fd.SelectedPath = this.ViewModel.CustomScriptPath;
+            }
+            if (fd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                this.ViewModel.CustomScriptPath = fd.SelectedPath;
             }
         }
+    }
 
-        private void CustomScriptsBrowseButton_Click(object sender, System.Windows.RoutedEventArgs e)
+    private void DatabaseConnection_SelectionChanged(object sender, EventArgs e)
+    {
+        this.ViewModel.DatabaseConnectionString = this.DatabaseConnection.ConnectionString;
+    }
+
+    #endregion
+
+    private bool EventsSubscribed;
+    private void SubscribeToEvents()
+    {
+        if (EventsSubscribed)
         {
-            using (System.Windows.Forms.FolderBrowserDialog fd = new System.Windows.Forms.FolderBrowserDialog())
-            {
-                if (!(string.IsNullOrEmpty(this.ViewModel.CustomScriptPath)) && System.IO.Directory.Exists(this.ViewModel.CustomScriptPath))
-                {
-                    fd.SelectedPath = this.ViewModel.CustomScriptPath;
-                }
-                if (fd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                {
-                    this.ViewModel.CustomScriptPath = fd.SelectedPath;
-                }
-            }
+            return;
+        }
+        else
+        {
+            EventsSubscribed = true;
         }
 
-        private void DatabaseConnection_SelectionChanged(object sender, EventArgs e)
-        {
-            this.ViewModel.DatabaseConnectionString = this.DatabaseConnection.ConnectionString;
-        }
-
-
-        #endregion
-
-
-        private bool EventsSubscribed = false;
-        private void SubscribeToEvents()
-        {
-            if (EventsSubscribed)
-                return;
-            else
-                EventsSubscribed = true;
-
-            BrowseButton.Click += BrowseButton_Click;
-            CustomScriptsBrowseButton.Click += CustomScriptsBrowseButton_Click;
-            DatabaseConnection.ViewModel.SelectionChanged += DatabaseConnection_SelectionChanged;
-        }
-
+        BrowseButton.Click += BrowseButton_Click;
+        CustomScriptsBrowseButton.Click += CustomScriptsBrowseButton_Click;
+        DatabaseConnection.ViewModel.SelectionChanged += DatabaseConnection_SelectionChanged;
     }
 
 }

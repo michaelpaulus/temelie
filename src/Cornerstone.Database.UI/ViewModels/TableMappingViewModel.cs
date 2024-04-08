@@ -1,24 +1,9 @@
-
-using System.Linq;
-using System.Xml.Linq;
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Shapes;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-
 using System.Collections.ObjectModel;
+using System.Linq;
 using Cornerstone.Database.Processes;
-using Microsoft.Data.SqlClient;
 using Cornerstone.Database.Providers;
+using Microsoft.Data.SqlClient;
 
 namespace Cornerstone.Database
 {
@@ -35,18 +20,9 @@ namespace Cornerstone.Database
             {
                 _connectionCreatedNotifications = connectionCreatedNotifications;
                 _databaseProviders = databaseProviders;
-                this.AddMappingCommand = new Command(() =>
-                {
-                    this.AddMapping();
-                });
-                this.RemoveMappingCommand = new Command(() =>
-                {
-                    this.RemoveMapping();
-                });
-                this.AutoMatchCommand = new Command(() =>
-                {
-                    this.AutoMatchMappings();
-                });
+                this.AddMappingCommand = new Command(this.AddMapping);
+                this.RemoveMappingCommand = new Command(this.RemoveMapping);
+                this.AutoMatchCommand = new Command(this.AutoMatchMappings);
             }
 
             #region Commands
@@ -56,7 +32,6 @@ namespace Cornerstone.Database
             public Command AutoMatchCommand { get; set; }
 
             #endregion
-
 
             #region Properties
 
@@ -78,18 +53,15 @@ namespace Cornerstone.Database
             public bool IncludeSourceDatabase { get; set; }
 
             public bool IncludeTargetDatabase { get; set; }
-          
+
             public bool IncludeNotExists { get; set; }
-          
 
             public Cornerstone.Database.Models.ColumnMappingModel SelectedColumnMapping { get; set; }
-            
-            public System.Configuration.ConnectionStringSettings SourceDatabaseConnectionString { get; set; }
-            
 
-           public Cornerstone.Database.Models.TableModel SourceTable { get; set;}
+            public System.Configuration.ConnectionStringSettings SourceDatabaseConnectionString { get; set; }
+
+            public Cornerstone.Database.Models.TableModel SourceTable { get; set; }
             public Cornerstone.Database.Models.ColumnModel SourceColumn { get; set; }
-           
 
             private ObservableCollection<Cornerstone.Database.Models.TableModel> _sourceTables;
             public ObservableCollection<Cornerstone.Database.Models.TableModel> SourceTables
@@ -118,13 +90,10 @@ namespace Cornerstone.Database
             }
 
             public Cornerstone.Database.Models.TableModel TargetTable { get; set; }
-           
 
             public Cornerstone.Database.Models.ColumnModel TargetColumn { get; set; }
-           
 
             public System.Configuration.ConnectionStringSettings TargetDatabaseConnectionString { get; set; }
-          
 
             private ObservableCollection<Cornerstone.Database.Models.TableModel> _targetTables;
             public ObservableCollection<Cornerstone.Database.Models.TableModel> TargetTables
@@ -327,14 +296,13 @@ namespace Cornerstone.Database
                     this.TargetTable = null;
                     this.ColumnMappings.Clear();
                 }
-                
+
             }
 
             public void UpdateSourceTables()
             {
                 var datbaseType = Processes.Database.GetDatabaseType(SourceDatabaseConnectionString);
                 var database = new Processes.Database(datbaseType, _databaseProviders, _connectionCreatedNotifications);
-
 
                 using (var conn = database.CreateDbConnection(SourceDatabaseConnectionString))
                 {
@@ -420,6 +388,5 @@ namespace Cornerstone.Database
 
         }
     }
-
 
 }

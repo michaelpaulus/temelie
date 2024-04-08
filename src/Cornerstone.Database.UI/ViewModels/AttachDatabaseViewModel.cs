@@ -1,19 +1,7 @@
 
-using System.Linq;
-using System.Xml.Linq;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Shapes;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
+using System.Linq;
 using Cornerstone.Database.Processes;
 using Cornerstone.Database.Providers;
 
@@ -32,25 +20,15 @@ namespace Cornerstone.Database
             {
                 _connectionCreatedNotifications = connectionCreatedNotifications;
                 _databaseProviders = databaseProviders;
-                this.AttachCommand = new Command<System.Configuration.ConnectionStringSettings>((System.Configuration.ConnectionStringSettings connectionString) =>
-                {
-                    this.AttachDatabases(connectionString);
-                });
-                this.DetachCommand = new Command<System.Configuration.ConnectionStringSettings>((System.Configuration.ConnectionStringSettings connectionString) =>
-                {
-                    this.DetachDatabases(connectionString);
-                });
-                this.ToggleCommand = new Command(() =>
-                {
-                    this.ToggleSelected();
-                });
+                this.AttachCommand = new Command<System.Configuration.ConnectionStringSettings>(this.AttachDatabases);
+                this.DetachCommand = new Command<System.Configuration.ConnectionStringSettings>(this.DetachDatabases);
+                this.ToggleCommand = new Command(this.ToggleSelected);
             }
-
 
             #region Properties
 
             public string Directory { get; set; }
-            
+
             public string Results { get; set; }
 
             public Command<System.Configuration.ConnectionStringSettings> AttachCommand { get; set; }
@@ -120,7 +98,6 @@ namespace Cornerstone.Database
                             intFileCount += 1;
                             sbCommand.AppendLine(string.Format(", @filename{0} = N'{1}'", intFileCount, file));
                         }
-
 
                         var databaseType = Processes.Database.GetDatabaseType(connectionString);
 

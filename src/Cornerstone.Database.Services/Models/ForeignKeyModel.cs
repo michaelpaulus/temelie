@@ -1,13 +1,3 @@
-﻿
-using Cornerstone.Database.Extensions;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics;
-using System.Linq;
-using System.Xml.Linq;
-
 namespace Cornerstone.Database
 {
     namespace Models
@@ -178,7 +168,7 @@ GO");
 
                 if (this.DeleteAction != "NO_ACTION")
                 {
-                   sb.AppendLine("    " + string.Format("ON DELETE {0}", this.DeleteAction.Replace("_", " ")));
+                    sb.AppendLine("    " + string.Format("ON DELETE {0}", this.DeleteAction.Replace("_", " ")));
                 }
 
                 sb.AppendLine("GO");
@@ -188,6 +178,5 @@ GO");
 
         }
     }
-
 
 }

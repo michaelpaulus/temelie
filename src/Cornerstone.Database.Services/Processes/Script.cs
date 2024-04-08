@@ -1,15 +1,6 @@
-﻿
+using System.Text;
 using Cornerstone.Database.Extensions;
 using Cornerstone.Database.Providers;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
 
 namespace Cornerstone.Database
 {
@@ -307,7 +298,6 @@ namespace Cornerstone.Database
 
                 int intProgress = 0;
 
-
                 foreach (var subDirectoryName in directoryList)
                 {
 
@@ -317,11 +307,7 @@ namespace Cornerstone.Database
                     {
                         var subDirectory = new System.IO.DirectoryInfo(subDirectoryPath);
 
-                        if (progress != null)
-                        {
-                            progress.Report(new ScriptProgress() { ProgressPercentage = intProgress, ProgressStatus = subDirectory.Name });
-                        }
-
+                        progress?.Report(new ScriptProgress() { ProgressPercentage = intProgress, ProgressStatus = subDirectory.Name });
 
                         if (subDirectory.Name.StartsWith("01_Drops", StringComparison.InvariantCultureIgnoreCase))
                         {
@@ -480,7 +466,6 @@ namespace Cornerstone.Database
                     intProgress = Convert.ToInt32((intIndex / (double)intTotalCount) * 100);
 
                     intIndex += 1;
-
 
                 }
 
@@ -680,6 +665,5 @@ namespace Cornerstone.Database
 
         }
     }
-
 
 }

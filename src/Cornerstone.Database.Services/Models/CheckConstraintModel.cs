@@ -1,13 +1,3 @@
-﻿
-using Cornerstone.Database.Extensions;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics;
-using System.Linq;
-using System.Xml.Linq;
-
 namespace Cornerstone.Database
 {
     namespace Models
@@ -59,7 +49,7 @@ IF NOT EXISTS
             schemas.name = '{SchemaName}' AND
             check_constraints.definition = '{CheckConstraintDefinition.Replace("'", "''")}'
     )");
-            sb.AppendLine($@"BEGIN
+                sb.AppendLine($@"BEGIN
 ALTER TABLE {quoteCharacterStart}{this.SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd} DROP CONSTRAINT {quoteCharacterStart}{this.CheckConstraintName}{quoteCharacterEnd}
 END
 END
@@ -93,6 +83,5 @@ GO");
 
         }
     }
-
 
 }

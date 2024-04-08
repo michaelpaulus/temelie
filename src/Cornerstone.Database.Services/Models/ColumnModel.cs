@@ -1,13 +1,5 @@
-﻿
-using Cornerstone.Database.Extensions;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
-using System.Linq;
 using System.Text.Json.Serialization;
-using System.Xml.Linq;
 
 namespace Cornerstone.Database
 {
@@ -16,7 +8,6 @@ namespace Cornerstone.Database
         public class ColumnModel : Model
         {
             #region Properties
-
 
             private string _tableName;
             [JsonIgnore]
@@ -115,7 +106,6 @@ namespace Cornerstone.Database
                     this.OnPropertyChanged("IsNullable");
                 }
             }
-
 
             private bool _isIdentity;
             public bool IsIdentity
@@ -302,7 +292,6 @@ namespace Cornerstone.Database
 
                 string defaultValue = "";
 
-
                 if (!string.IsNullOrEmpty(this.ColumnDefault))
                 {
                     string columnDefault = this.ColumnDefault.Trim();
@@ -347,6 +336,5 @@ namespace Cornerstone.Database
 
         }
     }
-
 
 }

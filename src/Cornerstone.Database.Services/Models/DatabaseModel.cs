@@ -1,16 +1,9 @@
-
+using System.Data;
+using System.Text;
 using Cornerstone.Database.Extensions;
 using Cornerstone.Database.Processes;
 using Cornerstone.Database.Providers;
 using Microsoft.Data.SqlClient;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
 
 namespace Cornerstone.Database
 {
@@ -61,7 +54,7 @@ namespace Cornerstone.Database
 
             #region Properties
 
-            private System.Configuration.ConnectionStringSettings _connectionString;
+            private readonly System.Configuration.ConnectionStringSettings _connectionString;
             public System.Configuration.ConnectionStringSettings ConnectionString
             {
                 get
@@ -70,7 +63,7 @@ namespace Cornerstone.Database
                 }
             }
 
-            private string _databaseName;
+            private readonly string _databaseName;
             public string DatabaseName
             {
                 get
@@ -79,7 +72,7 @@ namespace Cornerstone.Database
                 }
             }
 
-            private DatabaseType _databaseType;
+            private readonly DatabaseType _databaseType;
             public DatabaseType DatabaseType
             {
                 get
@@ -200,7 +193,6 @@ namespace Cornerstone.Database
                 }
             }
 
-
             public IList<string> TableNames
             {
                 get
@@ -270,7 +262,6 @@ namespace Cornerstone.Database
 
                 return filteredList.ToList();
             }
-
 
             private IList<Models.TableModel> _tables;
             public IList<Models.TableModel> Tables
@@ -1074,8 +1065,5 @@ GO
 
         }
     }
-
-
-
 
 }

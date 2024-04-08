@@ -1,13 +1,4 @@
-﻿
-using Cornerstone.Database.Extensions;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics;
-using System.Linq;
 using System.Text;
-using System.Xml.Linq;
 
 namespace Cornerstone.Database
 {
@@ -55,7 +46,6 @@ namespace Cornerstone.Database
                     return this._includeColumns;
                 }
             }
-
 
             #endregion
 
@@ -248,7 +238,7 @@ namespace Cornerstone.Database
             indexes.name = '{this.IndexName}' AND
             schemas.name = '{this.SchemaName}'
     )");
-                    sb.AppendLine("    " + $"ALTER TABLE {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd} ADD CONSTRAINT {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd} PRIMARY KEY { this.IndexType}");
+                    sb.AppendLine("    " + $"ALTER TABLE {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd} ADD CONSTRAINT {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd} PRIMARY KEY {this.IndexType}");
                     sb.AppendLine("    " + "(");
 
                     int intColumnCount = 0;
@@ -280,8 +270,6 @@ namespace Cornerstone.Database
                         indexType = "UNIQUE " + this.IndexType;
                     }
 
-
-
                     sb.AppendLine($@"IF NOT EXISTS
     (
         SELECT
@@ -297,7 +285,7 @@ namespace Cornerstone.Database
             schemas.name = '{this.SchemaName}'
     )");
                     sb.AppendLine("    " + $"CREATE {indexType} INDEX {quoteCharacterStart}{this.IndexName}{quoteCharacterEnd} ON {quoteCharacterStart}{SchemaName}{quoteCharacterEnd}.{quoteCharacterStart}{this.TableName}{quoteCharacterEnd}");
-                    
+
                     if (Columns.Any())
                     {
                         sb.AppendLine("    " + "(");
@@ -399,6 +387,5 @@ namespace Cornerstone.Database
 
         }
     }
-
 
 }

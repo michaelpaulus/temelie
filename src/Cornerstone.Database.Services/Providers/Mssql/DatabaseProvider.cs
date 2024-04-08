@@ -1,83 +1,81 @@
-using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using Cornerstone.Database.Models;
 using Cornerstone.Database.Processes;
 using Microsoft.Data.SqlClient;
 
-namespace Cornerstone.Database.Providers.Mssql
+namespace Cornerstone.Database.Providers.Mssql;
+
+public class DatabaseProvider : IDatabaseProvider
 {
-    public class DatabaseProvider : IDatabaseProvider
+
+    private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
+    private readonly Processes.Database _database;
+
+    public DatabaseProvider(IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications)
     {
+        _connectionCreatedNotifications = connectionCreatedNotifications;
+        _database = new Processes.Database(this, connectionCreatedNotifications);
+    }
 
-        private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
-        private readonly Processes.Database _database;
-
-        public DatabaseProvider(IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications)
+    public Cornerstone.Database.Models.DatabaseType ForDatabaseType
+    {
+        get
         {
-            _connectionCreatedNotifications = connectionCreatedNotifications;
-            _database = new Processes.Database(this, connectionCreatedNotifications);
+            return Models.DatabaseType.MicrosoftSQLServer;
         }
+    }
 
-        public Cornerstone.Database.Models.DatabaseType ForDatabaseType
+    public DbProviderFactory CreateProvider()
+    {
+        return SqlClientFactory.Instance;
+    }
+
+    public ColumnTypeModel GetColumnType(ColumnTypeModel sourceColumnType, DatabaseType targetDatabaseType)
+    {
+        if (targetDatabaseType == Models.DatabaseType.MicrosoftSQLServer)
         {
-            get
+            var targetColumnType = new Models.ColumnTypeModel();
+
+            targetColumnType.ColumnType = sourceColumnType.ColumnType.ToUpper().Trim();
+
+            targetColumnType.Precision = sourceColumnType.Precision;
+            targetColumnType.Scale = sourceColumnType.Scale;
+
+            switch (targetColumnType.ColumnType)
             {
-                return Models.DatabaseType.MicrosoftSQLServer;
-            }
-        }
-
-        public DbProviderFactory CreateProvider()
-        {
-            return SqlClientFactory.Instance;
-        }
-
-        public ColumnTypeModel GetColumnType(ColumnTypeModel sourceColumnType, DatabaseType targetDatabaseType)
-        {
-            if (targetDatabaseType == Models.DatabaseType.MicrosoftSQLServer)
-            {
-                var targetColumnType = new Models.ColumnTypeModel();
-
-                targetColumnType.ColumnType = sourceColumnType.ColumnType.ToUpper().Trim();
-
-                targetColumnType.Precision = sourceColumnType.Precision;
-                targetColumnType.Scale = sourceColumnType.Scale;
-
-                switch (targetColumnType.ColumnType)
-                {
-                    case "TEXT":
-                        targetColumnType.ColumnType = "NVARCHAR";
-                        if (targetColumnType.Precision.GetValueOrDefault() < 4000)
-                        {
-                            targetColumnType.Precision = int.MaxValue;
-                        }
-                        break;
-                }
-
-                switch (targetColumnType.ColumnType)
-                {
-                    case "NVARCHAR":
-                    case "VARCHAR":
-                    case "VARBINARY":
-                        if (targetColumnType.Precision.GetValueOrDefault() > 4000 ||
-                            targetColumnType.Precision.GetValueOrDefault() == 0)
-                        {
-                            targetColumnType.Precision = int.MaxValue;
-                        }
-                        break;
-                }
-
-                return targetColumnType;
-
+                case "TEXT":
+                    targetColumnType.ColumnType = "NVARCHAR";
+                    if (targetColumnType.Precision.GetValueOrDefault() < 4000)
+                    {
+                        targetColumnType.Precision = int.MaxValue;
+                    }
+                    break;
             }
 
-            return null;
+            switch (targetColumnType.ColumnType)
+            {
+                case "NVARCHAR":
+                case "VARCHAR":
+                case "VARBINARY":
+                    if (targetColumnType.Precision.GetValueOrDefault() > 4000 ||
+                        targetColumnType.Precision.GetValueOrDefault() == 0)
+                    {
+                        targetColumnType.Precision = int.MaxValue;
+                    }
+                    break;
+            }
+
+            return targetColumnType;
+
         }
 
-        public DataTable GetDefinitionDependencies(DbConnection connection)
-        {
-            string sql = @"
+        return null;
+    }
+
+    public DataTable GetDefinitionDependencies(DbConnection connection)
+    {
+        string sql = @"
                         SELECT 
                             sysobjects.name, 
                             sys.schemas.name schema_name,
@@ -95,14 +93,14 @@ namespace Cornerstone.Database.Providers.Mssql
                             sysobjects.name, 
                             r.referencing_entity_name
                         ";
-            System.Data.DataSet ds = _database.Execute(connection, sql);
-            DataTable dataTable = ds.Tables[0];
-            return dataTable;
-        }
+        System.Data.DataSet ds = _database.Execute(connection, sql);
+        DataTable dataTable = ds.Tables[0];
+        return dataTable;
+    }
 
-        public DataTable GetDefinitions(DbConnection connection)
-        {
-            string sql = @"
+    public DataTable GetDefinitions(DbConnection connection)
+    {
+        string sql = @"
                         SELECT 
                             sysobjects.name, 
                             sysobjects.xtype, 
@@ -124,13 +122,13 @@ namespace Cornerstone.Database.Providers.Mssql
                             sysobjects.xtype, 
                             sysobjects.name
                         ";
-            System.Data.DataSet ds = _database.Execute(connection, sql);
-            DataTable dataTable = ds.Tables[0];
-            return dataTable;
-        }
-        public DataTable GetSecurityPolicies(DbConnection connection)
-        {
-            string sql = @"
+        System.Data.DataSet ds = _database.Execute(connection, sql);
+        DataTable dataTable = ds.Tables[0];
+        return dataTable;
+    }
+    public DataTable GetSecurityPolicies(DbConnection connection)
+    {
+        string sql = @"
        SELECT policySchema.name PolicySchema,
        sys.security_policies.name PolicyName,
        predicate_type_desc PredicateType,
@@ -146,14 +144,14 @@ FROM sys.security_policies
      INNER JOIN sys.sysobjects [target] ON [target].id = target_object_id
      INNER JOIN sys.schemas targetSchema ON targetSchema.schema_id = [target].uid
                         ";
-            System.Data.DataSet ds = _database.Execute(connection, sql);
-            DataTable dataTable = ds.Tables[0];
-            return dataTable;
-        }
+        System.Data.DataSet ds = _database.Execute(connection, sql);
+        DataTable dataTable = ds.Tables[0];
+        return dataTable;
+    }
 
-        public DataTable GetForeignKeys(DbConnection connection)
-        {
-            string sql = @"
+    public DataTable GetForeignKeys(DbConnection connection)
+    {
+        string sql = @"
 SELECT 
     sys.tables.name AS table_name, 
     sys.schemas.name schema_name,
@@ -191,14 +189,14 @@ ORDER BY
     sys.foreign_key_columns.constraint_column_id
                         ";
 
-            System.Data.DataSet ds = _database.Execute(connection, sql);
-            DataTable dataTable = ds.Tables[0];
-            return dataTable;
-        }
+        System.Data.DataSet ds = _database.Execute(connection, sql);
+        DataTable dataTable = ds.Tables[0];
+        return dataTable;
+    }
 
-        public DataTable GetCheckConstraints(DbConnection connection)
-        {
-            string sql = @"
+    public DataTable GetCheckConstraints(DbConnection connection)
+    {
+        string sql = @"
 SELECT 
     sys.tables.name AS table_name, 
     sys.schemas.name schema_name,
@@ -215,16 +213,16 @@ ORDER BY
     sys.check_constraints.name
                         ";
 
-            System.Data.DataSet ds = _database.Execute(connection, sql);
-            DataTable dataTable = ds.Tables[0];
-            return dataTable;
-        }
+        System.Data.DataSet ds = _database.Execute(connection, sql);
+        DataTable dataTable = ds.Tables[0];
+        return dataTable;
+    }
 
-        public DataTable GetIndexeBucketCounts(DbConnection connection)
+    public DataTable GetIndexeBucketCounts(DbConnection connection)
+    {
+        try
         {
-            try
-            {
-                var dtIndexes = _database.Execute(connection, @"
+            var dtIndexes = _database.Execute(connection, @"
 SELECT
     sys.tables.name AS table_name, 
     sys.schemas.name schema_name,
@@ -241,18 +239,18 @@ FROM
         sys.tables.schema_id = sys.schemas.schema_id
 ").Tables[0];
 
-                return dtIndexes;
-            }
-            catch
-            {
-
-            }
-            return null;
+            return dtIndexes;
         }
-
-        public DataTable GetIndexes(DbConnection connection)
+        catch
         {
-            var dtIndexes = _database.Execute(connection, @"
+
+        }
+        return null;
+    }
+
+    public DataTable GetIndexes(DbConnection connection)
+    {
+        var dtIndexes = _database.Execute(connection, @"
 SELECT
 	sys.tables.name AS table_name,
 	sys.schemas.name schema_name,
@@ -309,12 +307,12 @@ ORDER BY
 	sys.index_columns.index_column_id
 ").Tables[0];
 
-            return dtIndexes;
-        }
+        return dtIndexes;
+    }
 
-        public DataTable GetTableColumns(DbConnection connection)
-        {
-            string sql2014 = @"
+    public DataTable GetTableColumns(DbConnection connection)
+    {
+        string sql2014 = @"
                         SELECT
                             sys.tables.name AS table_name, 
                             sys.schemas.name schema_name,
@@ -367,8 +365,7 @@ ORDER BY
                             sys.columns.column_id
                         ";
 
-
-            string sql2016 = @"
+        string sql2016 = @"
 SELECT
     sys.tables.name AS table_name,
     sys.schemas.name schema_name,
@@ -451,24 +448,23 @@ ORDER BY
     sys.columns.column_id
 ";
 
-            DataSet ds = null;
-
-            try
-            {
-                ds = _database.Execute(connection, sql2016);
-            }
-            catch
-            {
-                ds = _database.Execute(connection, sql2014);
-            }
-
-            DataTable dataTable = ds.Tables[0];
-            return dataTable;
+        DataSet ds;
+        try
+        {
+            ds = _database.Execute(connection, sql2016);
+        }
+        catch
+        {
+            ds = _database.Execute(connection, sql2014);
         }
 
-        public DataTable GetTables(DbConnection connection)
-        {
-            string sql2014 = @"
+        DataTable dataTable = ds.Tables[0];
+        return dataTable;
+    }
+
+    public DataTable GetTables(DbConnection connection)
+    {
+        string sql2014 = @"
 SELECT 
     tables.name AS table_name,
     schemas.name schema_name,
@@ -491,7 +487,7 @@ ORDER BY
     tables.name
                         ";
 
-            string sql2016 = @"
+        string sql2016 = @"
 SELECT
 	t1.table_name,
 	t1.schema_name,
@@ -585,23 +581,23 @@ ORDER BY
 	t1.table_name
                         ";
 
-            DataSet ds = null;
-            try
-            {
-                ds = _database.Execute(connection, sql2016);
-            }
-            catch
-            {
-                ds = _database.Execute(connection, sql2014);
-            }
-
-            DataTable dataTable = ds.Tables[0];
-            return dataTable;
+        DataSet ds;
+        try
+        {
+            ds = _database.Execute(connection, sql2016);
+        }
+        catch
+        {
+            ds = _database.Execute(connection, sql2014);
         }
 
-        public DataTable GetTriggers(DbConnection connection)
-        {
-            string sql = @"
+        DataTable dataTable = ds.Tables[0];
+        return dataTable;
+    }
+
+    public DataTable GetTriggers(DbConnection connection)
+    {
+        string sql = @"
                     SELECT
                         *
                     FROM
@@ -647,14 +643,14 @@ ORDER BY
                         t1.trigger_name
                         ";
 
-            System.Data.DataSet ds = _database.Execute(connection, sql);
-            DataTable dataTable = ds.Tables[0];
-            return dataTable;
-        }
+        System.Data.DataSet ds = _database.Execute(connection, sql);
+        DataTable dataTable = ds.Tables[0];
+        return dataTable;
+    }
 
-        public DataTable GetViewColumns(DbConnection connection)
-        {
-            string sql2014 = @"
+    public DataTable GetViewColumns(DbConnection connection)
+    {
+        string sql2014 = @"
 SELECT
     sys.views.name AS table_name,
     sys.schemas.name schema_name,
@@ -717,7 +713,7 @@ ORDER BY
     sys.columns.column_id
                         ";
 
-            string sql2016 = @"
+        string sql2016 = @"
 SELECT
     sys.views.name AS table_name,
     sys.schemas.name schema_name,
@@ -790,23 +786,23 @@ ORDER BY
     sys.columns.column_id
                         ";
 
-            DataSet ds = null;
-            try
-            {
-                ds = _database.Execute(connection, sql2016);
-            }
-            catch
-            {
-                ds = _database.Execute(connection, sql2014);
-            }
-            DataTable dataTable = ds.Tables[0];
-            return dataTable;
-        }
-
-        public DataTable GetViews(DbConnection connection)
+        DataSet ds;
+        try
         {
+            ds = _database.Execute(connection, sql2016);
+        }
+        catch
+        {
+            ds = _database.Execute(connection, sql2014);
+        }
+        DataTable dataTable = ds.Tables[0];
+        return dataTable;
+    }
 
-            string sql2014 = @"
+    public DataTable GetViews(DbConnection connection)
+    {
+
+        string sql2014 = @"
 SELECT
     sys.views.name AS table_name,
     sys.schemas.name schema_name,
@@ -821,8 +817,7 @@ ORDER BY
     sys.views.name
                         ";
 
-
-            string sql2016 = @"
+        string sql2016 = @"
 SELECT
     sys.views.name AS table_name,
     sys.schemas.name schema_name,
@@ -843,52 +838,51 @@ ORDER BY
     sys.views.name
                         ";
 
-            DataSet ds = null;
-            try
-            {
-                ds = _database.Execute(connection, sql2016);
-            }
-            catch
-            {
-                ds = _database.Execute(connection, sql2014);
-            }
-
-            DataTable dataTable = ds.Tables[0];
-            return dataTable;
+        DataSet ds;
+        try
+        {
+            ds = _database.Execute(connection, sql2016);
+        }
+        catch
+        {
+            ds = _database.Execute(connection, sql2014);
         }
 
-        public void SetReadTimeout(DbCommand sourceCommand)
-        {
+        DataTable dataTable = ds.Tables[0];
+        return dataTable;
+    }
 
-        }
+    public void SetReadTimeout(DbCommand sourceCommand)
+    {
 
-        public string TransformConnectionString(string connectionString)
-        {
-            var csb = new SqlConnectionStringBuilder(connectionString);
-            return csb.ConnectionString;
-        }
+    }
 
-        public bool TryHandleColumnValueLoadException(Exception ex, ColumnModel column, out object value)
-        {
-            value = null;
-            return false;
-        }
+    public string TransformConnectionString(string connectionString)
+    {
+        var csb = new SqlConnectionStringBuilder(connectionString);
+        return csb.ConnectionString;
+    }
 
-        public void UpdateParameter(DbParameter parameter, ColumnModel column)
+    public bool TryHandleColumnValueLoadException(Exception ex, ColumnModel column, out object value)
+    {
+        value = null;
+        return false;
+    }
+
+    public void UpdateParameter(DbParameter parameter, ColumnModel column)
+    {
+        switch (parameter.DbType)
         {
-            switch (parameter.DbType)
-            {
-                case System.Data.DbType.StringFixedLength:
-                case System.Data.DbType.String:
-                    parameter.Size = column.Precision;
-                    break;
-                case System.Data.DbType.Time:
-                    if ((parameter) is SqlParameter)
-                    {
-                        ((SqlParameter)parameter).SqlDbType = System.Data.SqlDbType.Time;
-                    }
-                    break;
-            }
+            case System.Data.DbType.StringFixedLength:
+            case System.Data.DbType.String:
+                parameter.Size = column.Precision;
+                break;
+            case System.Data.DbType.Time:
+                if ((parameter) is SqlParameter)
+                {
+                    ((SqlParameter)parameter).SqlDbType = System.Data.SqlDbType.Time;
+                }
+                break;
         }
     }
 }
