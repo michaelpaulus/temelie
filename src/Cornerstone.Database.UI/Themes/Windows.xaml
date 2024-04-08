@@ -1,0 +1,63 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:Cornerstone.Database.Controls"
+                    >
+
+    <ControlTemplate x:Key="BorderlessWindowTemplate" TargetType="{x:Type Window}">
+        <Border Background="{TemplateBinding Background}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="25" />
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid Background="{TemplateBinding Background}" Grid.Row="0">
+                    <Image Stretch="None" HorizontalAlignment="Left" Visibility="Collapsed">
+                        <Image.Resources>
+                            <Style TargetType="{x:Type Image}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" Value="Maximized">
+                                        <Setter Property="Margin" Value="16,16,16,0"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" Value="Normal">
+                                        <Setter Property="Margin" Value="8"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Image.Resources>
+                    </Image>
+                    <local:WindowChrome Margin="0,0,10,0"  HorizontalAlignment="Right" 
+                                        Foreground="White" FontSize="14" 
+                                        VerticalAlignment="Center" WindowChrome.IsHitTestVisibleInChrome="True" />
+                </Grid>
+                <ContentPresenter Grid.Row="1" Content="{TemplateBinding Content}">
+                    <ContentPresenter.Resources>
+                        <Style TargetType="{x:Type ContentPresenter}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" Value="Maximized">
+                                    <Setter Property="Margin" Value="8"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" Value="Normal">
+                                    <Setter Property="Margin" Value="1"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ContentPresenter.Resources>
+                </ContentPresenter>
+            </Grid>
+        </Border>
+    </ControlTemplate>
+    <Style x:Key="BorderlessWindowStyle" TargetType="{x:Type Window}">
+        <Setter Property="WindowChrome.WindowChrome">
+            <Setter.Value>
+                <WindowChrome
+                        ResizeBorderThickness="7"
+                        CaptionHeight="25"
+                        CornerRadius="0"
+                        GlassFrameThickness="0"/>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Background" Value="#FF333333" />
+        <Setter Property="Title" Value="Cornerstone.Database" />
+        <Setter Property="Template" Value="{DynamicResource BorderlessWindowTemplate}"/>
+    </Style>
+</ResourceDictionary>

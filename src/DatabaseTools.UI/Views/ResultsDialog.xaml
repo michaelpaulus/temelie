@@ -1,8 +1,0 @@
-﻿<Window x:Class="DatabaseTools.ResultsDialog"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="ResultsDialog" Height="300" Width="300">
-    <Grid>
-        <TextBox x:Name="ResultsTextBox" AcceptsReturn="True" />
-    </Grid>
-</Window>

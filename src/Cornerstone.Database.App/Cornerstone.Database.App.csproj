@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net6.0-windows</TargetFramework>
+		<UseWPF>true</UseWPF>
+		<UseWindowsForms>True</UseWindowsForms>
+		<Version>2.4.0</Version>
+    <ImplicitUsings>disabled</ImplicitUsings>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.SqlServer.Types" Version="160.1000.6" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Cornerstone.Database.Services.MySql\Cornerstone.Database.Services.MySql.csproj" />
+	  <ProjectReference Include="..\Cornerstone.Database.Services\Cornerstone.Database.Services.csproj" />
+	  <ProjectReference Include="..\Cornerstone.Database.UI\Cornerstone.Database.UI.csproj" />
+	</ItemGroup>
+
+</Project>
