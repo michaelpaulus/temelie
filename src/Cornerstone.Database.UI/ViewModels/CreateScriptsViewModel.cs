@@ -77,7 +77,7 @@ public class CreateScriptsViewModel : ViewModel
     {
         System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(this.ScriptPath);
         var script = new ScriptService(_databaseFactory);
-        script.CreateScriptsIndividual(this.DatabaseConnectionString, di, progress, this.ObjectFilter);
+        script.CreateScripts(this.DatabaseConnectionString, di, progress, this.ObjectFilter);
     }
     private void ReportProgress(ScriptProgress progress)
     {

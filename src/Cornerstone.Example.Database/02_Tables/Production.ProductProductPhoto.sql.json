@@ -1,0 +1,93 @@
+﻿{
+  "tableName": "ProductProductPhoto",
+  "schemaName": "Production",
+  "temporalType": 0,
+  "isMemoryOptimized": false,
+  "durabilityDesc": "SCHEMA_AND_DATA",
+  "isExternal": false,
+  "isHistoryTable": false,
+  "isView": false,
+  "columns": [
+    {
+      "schemaName": "Production",
+      "columnName": "ProductID",
+      "columnID": 1,
+      "isPrimaryKey": true,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Product identification number. Foreign key to Product.ProductID."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "ProductPhotoID",
+      "columnID": 2,
+      "isPrimaryKey": true,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Product photo identification number. Foreign key to ProductPhoto.ProductPhotoID."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "Primary",
+      "columnID": 3,
+      "isPrimaryKey": false,
+      "precision": 1,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "FLAG",
+      "columnDefault": "((0))",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "0 = Photo is not the principal image. 1 = Photo is the principal image."
+      },
+      "fullColumnType": "FLAG"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "ModifiedDate",
+      "columnID": 4,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "columnDefault": "(getdate())",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Date and time the record was last updated."
+      },
+      "fullColumnType": "DATETIME"
+    }
+  ],
+  "extendedProperties": {
+    "mS_Description": "Cross-reference table mapping products and product photos."
+  }
+}

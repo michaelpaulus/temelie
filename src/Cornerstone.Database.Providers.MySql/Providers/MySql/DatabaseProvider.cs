@@ -1,3 +1,4 @@
+using System.Configuration;
 using System.Data;
 using System.Data.Common;
 using Cornerstone.Database.Models;
@@ -22,8 +23,6 @@ public class DatabaseProvider : IDatabaseProvider
 
     public string QuoteCharacterStart => "`";
     public string QuoteCharacterEnd => "`";
-    public string ProviderName => "MySql.Data.MySqlClient";
-
     public System.Data.Common.DbProviderFactory CreateProvider()
     {
         return new global::MySql.Data.MySqlClient.MySqlClientFactory();
@@ -472,5 +471,10 @@ public class DatabaseProvider : IDatabaseProvider
     public bool SupportsConnection(DbConnection connection)
     {
         return connection is MySqlConnection;
+    }
+
+    public bool SupportsConnectionString(ConnectionStringSettings connectionStringSettings)
+    {
+        return connectionStringSettings.ProviderName == "MySql.Data.MySqlClient";
     }
 }

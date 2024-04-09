@@ -1,0 +1,112 @@
+﻿{
+  "tableName": "ProductSubcategory",
+  "schemaName": "Production",
+  "temporalType": 0,
+  "isMemoryOptimized": false,
+  "durabilityDesc": "SCHEMA_AND_DATA",
+  "isExternal": false,
+  "isHistoryTable": false,
+  "isView": false,
+  "columns": [
+    {
+      "schemaName": "Production",
+      "columnName": "ProductSubcategoryID",
+      "columnID": 1,
+      "isPrimaryKey": true,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": true,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Primary key for ProductSubcategory records."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "ProductCategoryID",
+      "columnID": 2,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Product category identification number. Foreign key to ProductCategory.ProductCategoryID."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "Name",
+      "columnID": 3,
+      "isPrimaryKey": false,
+      "precision": 100,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NAME",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Subcategory description."
+      },
+      "fullColumnType": "NAME"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "rowguid",
+      "columnID": 4,
+      "isPrimaryKey": false,
+      "precision": 16,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "UNIQUEIDENTIFIER",
+      "columnDefault": "(newid())",
+      "dbType": 9,
+      "extendedProperties": {
+        "mS_Description": "ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample."
+      },
+      "fullColumnType": "UNIQUEIDENTIFIER"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "ModifiedDate",
+      "columnID": 5,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "columnDefault": "(getdate())",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Date and time the record was last updated."
+      },
+      "fullColumnType": "DATETIME"
+    }
+  ],
+  "extendedProperties": {
+    "mS_Description": "Product subcategories. See ProductCategory table."
+  }
+}

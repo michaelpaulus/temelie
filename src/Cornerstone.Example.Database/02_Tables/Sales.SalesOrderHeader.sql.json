@@ -1,0 +1,520 @@
+﻿{
+  "tableName": "SalesOrderHeader",
+  "schemaName": "Sales",
+  "temporalType": 0,
+  "isMemoryOptimized": false,
+  "durabilityDesc": "SCHEMA_AND_DATA",
+  "isExternal": false,
+  "isHistoryTable": false,
+  "isView": false,
+  "columns": [
+    {
+      "schemaName": "Sales",
+      "columnName": "SalesOrderID",
+      "columnID": 1,
+      "isPrimaryKey": true,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": true,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Primary key."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "RevisionNumber",
+      "columnID": 2,
+      "isPrimaryKey": false,
+      "precision": 3,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "TINYINT",
+      "columnDefault": "((0))",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Incremental number to track changes to the sales order over time."
+      },
+      "fullColumnType": "TINYINT"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "OrderDate",
+      "columnID": 3,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "columnDefault": "(getdate())",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Dates the sales order was created."
+      },
+      "fullColumnType": "DATETIME"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "DueDate",
+      "columnID": 4,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Date the order is due to the customer."
+      },
+      "fullColumnType": "DATETIME"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "ShipDate",
+      "columnID": 5,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Date the order was shipped to the customer."
+      },
+      "fullColumnType": "DATETIME"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "Status",
+      "columnID": 6,
+      "isPrimaryKey": false,
+      "precision": 3,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "TINYINT",
+      "columnDefault": "((1))",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Order current status. 1 = In process; 2 = Approved; 3 = Backordered; 4 = Rejected; 5 = Shipped; 6 = Cancelled"
+      },
+      "fullColumnType": "TINYINT"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "OnlineOrderFlag",
+      "columnID": 7,
+      "isPrimaryKey": false,
+      "precision": 1,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "FLAG",
+      "columnDefault": "((1))",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "0 = Order placed by sales person. 1 = Order placed online by customer."
+      },
+      "fullColumnType": "FLAG"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "SalesOrderNumber",
+      "columnID": 8,
+      "isPrimaryKey": false,
+      "precision": 25,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": true,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "computedDefinition": "(isnull(N'SO'+CONVERT([nvarchar](23),[SalesOrderID]),N'*** ERROR ***'))",
+      "columnType": "NVARCHAR",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Unique sales order identification number."
+      },
+      "fullColumnType": "NVARCHAR(25)"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "PurchaseOrderNumber",
+      "columnID": 9,
+      "isPrimaryKey": false,
+      "precision": 50,
+      "scale": 0,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "ORDERNUMBER",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Customer purchase order number reference. "
+      },
+      "fullColumnType": "ORDERNUMBER"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "AccountNumber",
+      "columnID": 10,
+      "isPrimaryKey": false,
+      "precision": 30,
+      "scale": 0,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "ACCOUNTNUMBER",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Financial accounting number reference."
+      },
+      "fullColumnType": "ACCOUNTNUMBER"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "CustomerID",
+      "columnID": 11,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Customer identification number. Foreign key to Customer.BusinessEntityID."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "SalesPersonID",
+      "columnID": 12,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Sales person who created the sales order. Foreign key to SalesPerson.BusinessEntityID."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "TerritoryID",
+      "columnID": 13,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Territory in which the sale was made. Foreign key to SalesTerritory.SalesTerritoryID."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "BillToAddressID",
+      "columnID": 14,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Customer billing address. Foreign key to Address.AddressID."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "ShipToAddressID",
+      "columnID": 15,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Customer shipping address. Foreign key to Address.AddressID."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "ShipMethodID",
+      "columnID": 16,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Shipping method. Foreign key to ShipMethod.ShipMethodID."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "CreditCardID",
+      "columnID": 17,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Credit card identification number. Foreign key to CreditCard.CreditCardID."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "CreditCardApprovalCode",
+      "columnID": 18,
+      "isPrimaryKey": false,
+      "precision": 15,
+      "scale": 0,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "VARCHAR",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Approval code provided by the credit card company."
+      },
+      "fullColumnType": "VARCHAR(15)"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "CurrencyRateID",
+      "columnID": 19,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Currency exchange rate used. Foreign key to CurrencyRate.CurrencyRateID."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "SubTotal",
+      "columnID": 20,
+      "isPrimaryKey": false,
+      "precision": 19,
+      "scale": 4,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "MONEY",
+      "columnDefault": "((0.00))",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Sales subtotal. Computed as SUM(SalesOrderDetail.LineTotal)for the appropriate SalesOrderID."
+      },
+      "fullColumnType": "MONEY"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "TaxAmt",
+      "columnID": 21,
+      "isPrimaryKey": false,
+      "precision": 19,
+      "scale": 4,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "MONEY",
+      "columnDefault": "((0.00))",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Tax amount."
+      },
+      "fullColumnType": "MONEY"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "Freight",
+      "columnID": 22,
+      "isPrimaryKey": false,
+      "precision": 19,
+      "scale": 4,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "MONEY",
+      "columnDefault": "((0.00))",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Shipping cost."
+      },
+      "fullColumnType": "MONEY"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "TotalDue",
+      "columnID": 23,
+      "isPrimaryKey": false,
+      "precision": 19,
+      "scale": 4,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": true,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "computedDefinition": "(isnull(([SubTotal]+[TaxAmt])+[Freight],(0)))",
+      "columnType": "MONEY",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Total due from customer. Computed as Subtotal + TaxAmt + Freight."
+      },
+      "fullColumnType": "MONEY"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "Comment",
+      "columnID": 24,
+      "isPrimaryKey": false,
+      "precision": 128,
+      "scale": 0,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NVARCHAR",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Sales representative comments."
+      },
+      "fullColumnType": "NVARCHAR(128)"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "rowguid",
+      "columnID": 25,
+      "isPrimaryKey": false,
+      "precision": 16,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "UNIQUEIDENTIFIER",
+      "columnDefault": "(newid())",
+      "dbType": 9,
+      "extendedProperties": {
+        "mS_Description": "ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample."
+      },
+      "fullColumnType": "UNIQUEIDENTIFIER"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "ModifiedDate",
+      "columnID": 26,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "columnDefault": "(getdate())",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Date and time the record was last updated."
+      },
+      "fullColumnType": "DATETIME"
+    }
+  ],
+  "extendedProperties": {
+    "mS_Description": "General sales order information."
+  }
+}

@@ -1,0 +1,92 @@
+﻿{
+  "tableName": "JobCandidate",
+  "schemaName": "HumanResources",
+  "temporalType": 0,
+  "isMemoryOptimized": false,
+  "durabilityDesc": "SCHEMA_AND_DATA",
+  "isExternal": false,
+  "isHistoryTable": false,
+  "isView": false,
+  "columns": [
+    {
+      "schemaName": "HumanResources",
+      "columnName": "JobCandidateID",
+      "columnID": 1,
+      "isPrimaryKey": true,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": true,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Primary key for JobCandidate records."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "HumanResources",
+      "columnName": "BusinessEntityID",
+      "columnID": 2,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Employee identification number if applicant was hired. Foreign key to Employee.BusinessEntityID."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "HumanResources",
+      "columnName": "Resume",
+      "columnID": 3,
+      "isPrimaryKey": false,
+      "precision": -1,
+      "scale": 0,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "XML",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "R\u00E9sum\u00E9 in XML format."
+      },
+      "fullColumnType": "XML"
+    },
+    {
+      "schemaName": "HumanResources",
+      "columnName": "ModifiedDate",
+      "columnID": 4,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "columnDefault": "(getdate())",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Date and time the record was last updated."
+      },
+      "fullColumnType": "DATETIME"
+    }
+  ],
+  "extendedProperties": {
+    "mS_Description": "R\u00E9sum\u00E9s submitted to Human Resources by job applicants."
+  }
+}

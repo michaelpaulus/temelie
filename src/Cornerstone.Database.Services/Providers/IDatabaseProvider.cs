@@ -1,3 +1,4 @@
+using System.Configuration;
 using System.Data;
 using System.Data.Common;
 using Cornerstone.Database.Services;
@@ -8,7 +9,6 @@ public interface IDatabaseProvider
 {
     string QuoteCharacterStart { get; }
     string QuoteCharacterEnd { get; }
-    string ProviderName { get; }
 
     void SetReadTimeout(System.Data.Common.DbCommand sourceCommand);
     string TransformConnectionString(string connectionString);
@@ -50,5 +50,6 @@ public interface IDatabaseProvider
 
     string GetDatabaseName(string connectionString);
     bool SupportsConnection(DbConnection connection);
- 
+    bool SupportsConnectionString(ConnectionStringSettings connectionStringSettings);
+
 }

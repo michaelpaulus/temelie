@@ -1,0 +1,111 @@
+﻿{
+  "tableName": "ProductListPriceHistory",
+  "schemaName": "Production",
+  "temporalType": 0,
+  "isMemoryOptimized": false,
+  "durabilityDesc": "SCHEMA_AND_DATA",
+  "isExternal": false,
+  "isHistoryTable": false,
+  "isView": false,
+  "columns": [
+    {
+      "schemaName": "Production",
+      "columnName": "ProductID",
+      "columnID": 1,
+      "isPrimaryKey": true,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Product identification number. Foreign key to Product.ProductID"
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "StartDate",
+      "columnID": 2,
+      "isPrimaryKey": true,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "List price start date."
+      },
+      "fullColumnType": "DATETIME"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "EndDate",
+      "columnID": 3,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "List price end date"
+      },
+      "fullColumnType": "DATETIME"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "ListPrice",
+      "columnID": 4,
+      "isPrimaryKey": false,
+      "precision": 19,
+      "scale": 4,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "MONEY",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Product list price."
+      },
+      "fullColumnType": "MONEY"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "ModifiedDate",
+      "columnID": 5,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "columnDefault": "(getdate())",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Date and time the record was last updated."
+      },
+      "fullColumnType": "DATETIME"
+    }
+  ],
+  "extendedProperties": {
+    "mS_Description": "Changes in the list price of a product over time."
+  }
+}

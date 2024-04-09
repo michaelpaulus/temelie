@@ -1,0 +1,189 @@
+﻿{
+  "tableName": "BillOfMaterials",
+  "schemaName": "Production",
+  "temporalType": 0,
+  "isMemoryOptimized": false,
+  "durabilityDesc": "SCHEMA_AND_DATA",
+  "isExternal": false,
+  "isHistoryTable": false,
+  "isView": false,
+  "columns": [
+    {
+      "schemaName": "Production",
+      "columnName": "BillOfMaterialsID",
+      "columnID": 1,
+      "isPrimaryKey": true,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": true,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Primary key for BillOfMaterials records."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "ProductAssemblyID",
+      "columnID": 2,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Parent product identification number. Foreign key to Product.ProductID."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "ComponentID",
+      "columnID": 3,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Component identification number. Foreign key to Product.ProductID."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "StartDate",
+      "columnID": 4,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "columnDefault": "(getdate())",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Date the component started being used in the assembly item."
+      },
+      "fullColumnType": "DATETIME"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "EndDate",
+      "columnID": 5,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Date the component stopped being used in the assembly item."
+      },
+      "fullColumnType": "DATETIME"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "UnitMeasureCode",
+      "columnID": 6,
+      "isPrimaryKey": false,
+      "precision": 3,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NCHAR",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Standard code identifying the unit of measure for the quantity."
+      },
+      "fullColumnType": "NCHAR(3)"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "BOMLevel",
+      "columnID": 7,
+      "isPrimaryKey": false,
+      "precision": 5,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "SMALLINT",
+      "dbType": 10,
+      "extendedProperties": {
+        "mS_Description": "Indicates the depth the component is from its parent (AssemblyID)."
+      },
+      "fullColumnType": "SMALLINT"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "PerAssemblyQty",
+      "columnID": 8,
+      "isPrimaryKey": false,
+      "precision": 8,
+      "scale": 2,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DECIMAL",
+      "columnDefault": "((1.00))",
+      "dbType": 7,
+      "extendedProperties": {
+        "mS_Description": "Quantity of the component needed to create the assembly."
+      },
+      "fullColumnType": "DECIMAL(8, 2)"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "ModifiedDate",
+      "columnID": 9,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "columnDefault": "(getdate())",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Date and time the record was last updated."
+      },
+      "fullColumnType": "DATETIME"
+    }
+  ],
+  "extendedProperties": {
+    "mS_Description": "Items required to make bicycles and bicycle subassemblies. It identifies the heirarchical relationship between a parent product and its components."
+  }
+}

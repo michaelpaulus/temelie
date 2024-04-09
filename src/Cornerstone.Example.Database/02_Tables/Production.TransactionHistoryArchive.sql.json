@@ -1,0 +1,189 @@
+﻿{
+  "tableName": "TransactionHistoryArchive",
+  "schemaName": "Production",
+  "temporalType": 0,
+  "isMemoryOptimized": false,
+  "durabilityDesc": "SCHEMA_AND_DATA",
+  "isExternal": false,
+  "isHistoryTable": false,
+  "isView": false,
+  "columns": [
+    {
+      "schemaName": "Production",
+      "columnName": "TransactionID",
+      "columnID": 1,
+      "isPrimaryKey": true,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Primary key for TransactionHistoryArchive records."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "ProductID",
+      "columnID": 2,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Product identification number. Foreign key to Product.ProductID."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "ReferenceOrderID",
+      "columnID": 3,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Purchase order, sales order, or work order identification number."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "ReferenceOrderLineID",
+      "columnID": 4,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "columnDefault": "((0))",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Line number associated with the purchase order, sales order, or work order."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "TransactionDate",
+      "columnID": 5,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "columnDefault": "(getdate())",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Date and time of the transaction."
+      },
+      "fullColumnType": "DATETIME"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "TransactionType",
+      "columnID": 6,
+      "isPrimaryKey": false,
+      "precision": 1,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NCHAR",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "W = Work Order, S = Sales Order, P = Purchase Order"
+      },
+      "fullColumnType": "NCHAR(1)"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "Quantity",
+      "columnID": 7,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Product quantity."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "ActualCost",
+      "columnID": 8,
+      "isPrimaryKey": false,
+      "precision": 19,
+      "scale": 4,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "MONEY",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Product cost."
+      },
+      "fullColumnType": "MONEY"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "ModifiedDate",
+      "columnID": 9,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "columnDefault": "(getdate())",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Date and time the record was last updated."
+      },
+      "fullColumnType": "DATETIME"
+    }
+  ],
+  "extendedProperties": {
+    "mS_Description": "Transactions for previous years."
+  }
+}

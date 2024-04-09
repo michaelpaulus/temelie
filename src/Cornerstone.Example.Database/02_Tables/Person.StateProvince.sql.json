@@ -1,0 +1,170 @@
+﻿{
+  "tableName": "StateProvince",
+  "schemaName": "Person",
+  "temporalType": 0,
+  "isMemoryOptimized": false,
+  "durabilityDesc": "SCHEMA_AND_DATA",
+  "isExternal": false,
+  "isHistoryTable": false,
+  "isView": false,
+  "columns": [
+    {
+      "schemaName": "Person",
+      "columnName": "StateProvinceID",
+      "columnID": 1,
+      "isPrimaryKey": true,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": true,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Primary key for StateProvince records."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Person",
+      "columnName": "StateProvinceCode",
+      "columnID": 2,
+      "isPrimaryKey": false,
+      "precision": 3,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NCHAR",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "ISO standard state or province code."
+      },
+      "fullColumnType": "NCHAR(3)"
+    },
+    {
+      "schemaName": "Person",
+      "columnName": "CountryRegionCode",
+      "columnID": 3,
+      "isPrimaryKey": false,
+      "precision": 3,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NVARCHAR",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "ISO standard country or region code. Foreign key to CountryRegion.CountryRegionCode. "
+      },
+      "fullColumnType": "NVARCHAR(3)"
+    },
+    {
+      "schemaName": "Person",
+      "columnName": "IsOnlyStateProvinceFlag",
+      "columnID": 4,
+      "isPrimaryKey": false,
+      "precision": 1,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "FLAG",
+      "columnDefault": "((1))",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "0 = StateProvinceCode exists. 1 = StateProvinceCode unavailable, using CountryRegionCode."
+      },
+      "fullColumnType": "FLAG"
+    },
+    {
+      "schemaName": "Person",
+      "columnName": "Name",
+      "columnID": 5,
+      "isPrimaryKey": false,
+      "precision": 100,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NAME",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "State or province description."
+      },
+      "fullColumnType": "NAME"
+    },
+    {
+      "schemaName": "Person",
+      "columnName": "TerritoryID",
+      "columnID": 6,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "ID of the territory in which the state or province is located. Foreign key to SalesTerritory.SalesTerritoryID."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Person",
+      "columnName": "rowguid",
+      "columnID": 7,
+      "isPrimaryKey": false,
+      "precision": 16,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "UNIQUEIDENTIFIER",
+      "columnDefault": "(newid())",
+      "dbType": 9,
+      "extendedProperties": {
+        "mS_Description": "ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample."
+      },
+      "fullColumnType": "UNIQUEIDENTIFIER"
+    },
+    {
+      "schemaName": "Person",
+      "columnName": "ModifiedDate",
+      "columnID": 8,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "columnDefault": "(getdate())",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Date and time the record was last updated."
+      },
+      "fullColumnType": "DATETIME"
+    }
+  ],
+  "extendedProperties": {
+    "mS_Description": "State and province lookup table."
+  }
+}

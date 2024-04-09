@@ -1,0 +1,151 @@
+﻿{
+  "tableName": "Customer",
+  "schemaName": "Sales",
+  "temporalType": 0,
+  "isMemoryOptimized": false,
+  "durabilityDesc": "SCHEMA_AND_DATA",
+  "isExternal": false,
+  "isHistoryTable": false,
+  "isView": false,
+  "columns": [
+    {
+      "schemaName": "Sales",
+      "columnName": "CustomerID",
+      "columnID": 1,
+      "isPrimaryKey": true,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": true,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Primary key."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "PersonID",
+      "columnID": 2,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Foreign key to Person.BusinessEntityID"
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "StoreID",
+      "columnID": 3,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Foreign key to Store.BusinessEntityID"
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "TerritoryID",
+      "columnID": 4,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "ID of the territory in which the customer is located. Foreign key to SalesTerritory.SalesTerritoryID."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "AccountNumber",
+      "columnID": 5,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": true,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "computedDefinition": "(isnull('AW'+[dbo].[ufnLeadingZeros]([CustomerID]),''))",
+      "columnType": "VARCHAR",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Unique number identifying the customer assigned by the accounting system."
+      },
+      "fullColumnType": "VARCHAR(10)"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "rowguid",
+      "columnID": 6,
+      "isPrimaryKey": false,
+      "precision": 16,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "UNIQUEIDENTIFIER",
+      "columnDefault": "(newid())",
+      "dbType": 9,
+      "extendedProperties": {
+        "mS_Description": "ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample."
+      },
+      "fullColumnType": "UNIQUEIDENTIFIER"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "ModifiedDate",
+      "columnID": 7,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "columnDefault": "(getdate())",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Date and time the record was last updated."
+      },
+      "fullColumnType": "DATETIME"
+    }
+  ],
+  "extendedProperties": {
+    "mS_Description": "Current customer information. Also see the Person and Store tables."
+  }
+}

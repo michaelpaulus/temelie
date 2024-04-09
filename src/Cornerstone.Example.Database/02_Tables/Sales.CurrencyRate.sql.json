@@ -1,0 +1,149 @@
+﻿{
+  "tableName": "CurrencyRate",
+  "schemaName": "Sales",
+  "temporalType": 0,
+  "isMemoryOptimized": false,
+  "durabilityDesc": "SCHEMA_AND_DATA",
+  "isExternal": false,
+  "isHistoryTable": false,
+  "isView": false,
+  "columns": [
+    {
+      "schemaName": "Sales",
+      "columnName": "CurrencyRateID",
+      "columnID": 1,
+      "isPrimaryKey": true,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": true,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Primary key for CurrencyRate records."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "CurrencyRateDate",
+      "columnID": 2,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Date and time the exchange rate was obtained."
+      },
+      "fullColumnType": "DATETIME"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "FromCurrencyCode",
+      "columnID": 3,
+      "isPrimaryKey": false,
+      "precision": 3,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NCHAR",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Exchange rate was converted from this currency code."
+      },
+      "fullColumnType": "NCHAR(3)"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "ToCurrencyCode",
+      "columnID": 4,
+      "isPrimaryKey": false,
+      "precision": 3,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NCHAR",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Exchange rate was converted to this currency code."
+      },
+      "fullColumnType": "NCHAR(3)"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "AverageRate",
+      "columnID": 5,
+      "isPrimaryKey": false,
+      "precision": 19,
+      "scale": 4,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "MONEY",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Average exchange rate for the day."
+      },
+      "fullColumnType": "MONEY"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "EndOfDayRate",
+      "columnID": 6,
+      "isPrimaryKey": false,
+      "precision": 19,
+      "scale": 4,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "MONEY",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Final exchange rate for the day."
+      },
+      "fullColumnType": "MONEY"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "ModifiedDate",
+      "columnID": 7,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "columnDefault": "(getdate())",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Date and time the record was last updated."
+      },
+      "fullColumnType": "DATETIME"
+    }
+  ],
+  "extendedProperties": {
+    "mS_Description": "Currency exchange rates."
+  }
+}

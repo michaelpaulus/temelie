@@ -1,0 +1,244 @@
+﻿{
+  "tableName": "WorkOrderRouting",
+  "schemaName": "Production",
+  "temporalType": 0,
+  "isMemoryOptimized": false,
+  "durabilityDesc": "SCHEMA_AND_DATA",
+  "isExternal": false,
+  "isHistoryTable": false,
+  "isView": false,
+  "columns": [
+    {
+      "schemaName": "Production",
+      "columnName": "WorkOrderID",
+      "columnID": 1,
+      "isPrimaryKey": true,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Primary key. Foreign key to WorkOrder.WorkOrderID."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "ProductID",
+      "columnID": 2,
+      "isPrimaryKey": true,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Primary key. Foreign key to Product.ProductID."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "OperationSequence",
+      "columnID": 3,
+      "isPrimaryKey": true,
+      "precision": 5,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "SMALLINT",
+      "dbType": 10,
+      "extendedProperties": {
+        "mS_Description": "Primary key. Indicates the manufacturing process sequence."
+      },
+      "fullColumnType": "SMALLINT"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "LocationID",
+      "columnID": 4,
+      "isPrimaryKey": false,
+      "precision": 5,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "SMALLINT",
+      "dbType": 10,
+      "extendedProperties": {
+        "mS_Description": "Manufacturing location where the part is processed. Foreign key to Location.LocationID."
+      },
+      "fullColumnType": "SMALLINT"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "ScheduledStartDate",
+      "columnID": 5,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Planned manufacturing start date."
+      },
+      "fullColumnType": "DATETIME"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "ScheduledEndDate",
+      "columnID": 6,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Planned manufacturing end date."
+      },
+      "fullColumnType": "DATETIME"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "ActualStartDate",
+      "columnID": 7,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Actual start date."
+      },
+      "fullColumnType": "DATETIME"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "ActualEndDate",
+      "columnID": 8,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Actual end date."
+      },
+      "fullColumnType": "DATETIME"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "ActualResourceHrs",
+      "columnID": 9,
+      "isPrimaryKey": false,
+      "precision": 9,
+      "scale": 4,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DECIMAL",
+      "dbType": 7,
+      "extendedProperties": {
+        "mS_Description": "Number of manufacturing hours used."
+      },
+      "fullColumnType": "DECIMAL(9, 4)"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "PlannedCost",
+      "columnID": 10,
+      "isPrimaryKey": false,
+      "precision": 19,
+      "scale": 4,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "MONEY",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Estimated manufacturing cost."
+      },
+      "fullColumnType": "MONEY"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "ActualCost",
+      "columnID": 11,
+      "isPrimaryKey": false,
+      "precision": 19,
+      "scale": 4,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "MONEY",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Actual manufacturing cost."
+      },
+      "fullColumnType": "MONEY"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "ModifiedDate",
+      "columnID": 12,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "columnDefault": "(getdate())",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Date and time the record was last updated."
+      },
+      "fullColumnType": "DATETIME"
+    }
+  ],
+  "extendedProperties": {
+    "mS_Description": "Work order details."
+  }
+}

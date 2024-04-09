@@ -1,0 +1,132 @@
+﻿{
+  "tableName": "ShoppingCartItem",
+  "schemaName": "Sales",
+  "temporalType": 0,
+  "isMemoryOptimized": false,
+  "durabilityDesc": "SCHEMA_AND_DATA",
+  "isExternal": false,
+  "isHistoryTable": false,
+  "isView": false,
+  "columns": [
+    {
+      "schemaName": "Sales",
+      "columnName": "ShoppingCartItemID",
+      "columnID": 1,
+      "isPrimaryKey": true,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": true,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Primary key for ShoppingCartItem records."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "ShoppingCartID",
+      "columnID": 2,
+      "isPrimaryKey": false,
+      "precision": 50,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NVARCHAR",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Shopping cart identification number."
+      },
+      "fullColumnType": "NVARCHAR(50)"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "Quantity",
+      "columnID": 3,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "columnDefault": "((1))",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Product quantity ordered."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "ProductID",
+      "columnID": 4,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Product ordered. Foreign key to Product.ProductID."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "DateCreated",
+      "columnID": 5,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "columnDefault": "(getdate())",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Date the time the record was created."
+      },
+      "fullColumnType": "DATETIME"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "ModifiedDate",
+      "columnID": 6,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "columnDefault": "(getdate())",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Date and time the record was last updated."
+      },
+      "fullColumnType": "DATETIME"
+    }
+  ],
+  "extendedProperties": {
+    "mS_Description": "Contains online customer orders until the order is submitted or cancelled."
+  }
+}

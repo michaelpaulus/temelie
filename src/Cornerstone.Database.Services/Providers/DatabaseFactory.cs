@@ -23,19 +23,7 @@ public class DatabaseFactory : IDatabaseFactory
 
     public IDatabaseProvider GetDatabaseProvider(System.Configuration.ConnectionStringSettings connectionString)
     {
-        var providerName = GetProviderName(connectionString);
-        return DatabaseProviders.FirstOrDefault(i => i.ProviderName.EqualsIgnoreCase(providerName));
-    }
-
-    public string GetProviderName(DbConnection connection)
-    {
-        var provider = GetDatabaseProvider(connection);
-        return provider.ProviderName;
-    }
-
-    public string GetProviderName(System.Configuration.ConnectionStringSettings connectionString)
-    {
-        return connectionString.ProviderName;
+        return DatabaseProviders.FirstOrDefault(i => i.SupportsConnectionString(connectionString));
     }
 
     public void NotifyConnections(IDbConnection connection)

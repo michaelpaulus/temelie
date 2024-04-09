@@ -1,0 +1,494 @@
+﻿{
+  "tableName": "Product",
+  "schemaName": "Production",
+  "temporalType": 0,
+  "isMemoryOptimized": false,
+  "durabilityDesc": "SCHEMA_AND_DATA",
+  "isExternal": false,
+  "isHistoryTable": false,
+  "isView": false,
+  "columns": [
+    {
+      "schemaName": "Production",
+      "columnName": "ProductID",
+      "columnID": 1,
+      "isPrimaryKey": true,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": true,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Primary key for Product records."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "Name",
+      "columnID": 2,
+      "isPrimaryKey": false,
+      "precision": 100,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NAME",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Name of the product."
+      },
+      "fullColumnType": "NAME"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "ProductNumber",
+      "columnID": 3,
+      "isPrimaryKey": false,
+      "precision": 25,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NVARCHAR",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Unique product identification number."
+      },
+      "fullColumnType": "NVARCHAR(25)"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "MakeFlag",
+      "columnID": 4,
+      "isPrimaryKey": false,
+      "precision": 1,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "FLAG",
+      "columnDefault": "((1))",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "0 = Product is purchased, 1 = Product is manufactured in-house."
+      },
+      "fullColumnType": "FLAG"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "FinishedGoodsFlag",
+      "columnID": 5,
+      "isPrimaryKey": false,
+      "precision": 1,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "FLAG",
+      "columnDefault": "((1))",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "0 = Product is not a salable item. 1 = Product is salable."
+      },
+      "fullColumnType": "FLAG"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "Color",
+      "columnID": 6,
+      "isPrimaryKey": false,
+      "precision": 15,
+      "scale": 0,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NVARCHAR",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Product color."
+      },
+      "fullColumnType": "NVARCHAR(15)"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "SafetyStockLevel",
+      "columnID": 7,
+      "isPrimaryKey": false,
+      "precision": 5,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "SMALLINT",
+      "dbType": 10,
+      "extendedProperties": {
+        "mS_Description": "Minimum inventory quantity. "
+      },
+      "fullColumnType": "SMALLINT"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "ReorderPoint",
+      "columnID": 8,
+      "isPrimaryKey": false,
+      "precision": 5,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "SMALLINT",
+      "dbType": 10,
+      "extendedProperties": {
+        "mS_Description": "Inventory level that triggers a purchase order or work order. "
+      },
+      "fullColumnType": "SMALLINT"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "StandardCost",
+      "columnID": 9,
+      "isPrimaryKey": false,
+      "precision": 19,
+      "scale": 4,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "MONEY",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Standard cost of the product."
+      },
+      "fullColumnType": "MONEY"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "ListPrice",
+      "columnID": 10,
+      "isPrimaryKey": false,
+      "precision": 19,
+      "scale": 4,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "MONEY",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Selling price."
+      },
+      "fullColumnType": "MONEY"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "Size",
+      "columnID": 11,
+      "isPrimaryKey": false,
+      "precision": 5,
+      "scale": 0,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NVARCHAR",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Product size."
+      },
+      "fullColumnType": "NVARCHAR(5)"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "SizeUnitMeasureCode",
+      "columnID": 12,
+      "isPrimaryKey": false,
+      "precision": 3,
+      "scale": 0,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NCHAR",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Unit of measure for Size column."
+      },
+      "fullColumnType": "NCHAR(3)"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "WeightUnitMeasureCode",
+      "columnID": 13,
+      "isPrimaryKey": false,
+      "precision": 3,
+      "scale": 0,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NCHAR",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Unit of measure for Weight column."
+      },
+      "fullColumnType": "NCHAR(3)"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "Weight",
+      "columnID": 14,
+      "isPrimaryKey": false,
+      "precision": 8,
+      "scale": 2,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DECIMAL",
+      "dbType": 7,
+      "extendedProperties": {
+        "mS_Description": "Product weight."
+      },
+      "fullColumnType": "DECIMAL(8, 2)"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "DaysToManufacture",
+      "columnID": 15,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Number of days required to manufacture the product."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "ProductLine",
+      "columnID": 16,
+      "isPrimaryKey": false,
+      "precision": 2,
+      "scale": 0,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NCHAR",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "R = Road, M = Mountain, T = Touring, S = Standard"
+      },
+      "fullColumnType": "NCHAR(2)"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "Class",
+      "columnID": 17,
+      "isPrimaryKey": false,
+      "precision": 2,
+      "scale": 0,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NCHAR",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "H = High, M = Medium, L = Low"
+      },
+      "fullColumnType": "NCHAR(2)"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "Style",
+      "columnID": 18,
+      "isPrimaryKey": false,
+      "precision": 2,
+      "scale": 0,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NCHAR",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "W = Womens, M = Mens, U = Universal"
+      },
+      "fullColumnType": "NCHAR(2)"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "ProductSubcategoryID",
+      "columnID": 19,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Product is a member of this product subcategory. Foreign key to ProductSubCategory.ProductSubCategoryID. "
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "ProductModelID",
+      "columnID": 20,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Product is a member of this product model. Foreign key to ProductModel.ProductModelID."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "SellStartDate",
+      "columnID": 21,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Date the product was available for sale."
+      },
+      "fullColumnType": "DATETIME"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "SellEndDate",
+      "columnID": 22,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Date the product was no longer available for sale."
+      },
+      "fullColumnType": "DATETIME"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "DiscontinuedDate",
+      "columnID": 23,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Date the product was discontinued."
+      },
+      "fullColumnType": "DATETIME"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "rowguid",
+      "columnID": 24,
+      "isPrimaryKey": false,
+      "precision": 16,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "UNIQUEIDENTIFIER",
+      "columnDefault": "(newid())",
+      "dbType": 9,
+      "extendedProperties": {
+        "mS_Description": "ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample."
+      },
+      "fullColumnType": "UNIQUEIDENTIFIER"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "ModifiedDate",
+      "columnID": 25,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "columnDefault": "(getdate())",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Date and time the record was last updated."
+      },
+      "fullColumnType": "DATETIME"
+    }
+  ],
+  "extendedProperties": {
+    "mS_Description": "Products sold or used in the manfacturing of sold products."
+  }
+}

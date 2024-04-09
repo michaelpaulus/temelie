@@ -1,0 +1,326 @@
+﻿{
+  "tableName": "Employee",
+  "schemaName": "HumanResources",
+  "temporalType": 0,
+  "isMemoryOptimized": false,
+  "durabilityDesc": "SCHEMA_AND_DATA",
+  "isExternal": false,
+  "isHistoryTable": false,
+  "isView": false,
+  "columns": [
+    {
+      "schemaName": "HumanResources",
+      "columnName": "BusinessEntityID",
+      "columnID": 1,
+      "isPrimaryKey": true,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Primary key for Employee records.  Foreign key to BusinessEntity.BusinessEntityID."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "HumanResources",
+      "columnName": "NationalIDNumber",
+      "columnID": 2,
+      "isPrimaryKey": false,
+      "precision": 15,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NVARCHAR",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Unique national identification number such as a social security number."
+      },
+      "fullColumnType": "NVARCHAR(15)"
+    },
+    {
+      "schemaName": "HumanResources",
+      "columnName": "LoginID",
+      "columnID": 3,
+      "isPrimaryKey": false,
+      "precision": 256,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NVARCHAR",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Network login."
+      },
+      "fullColumnType": "NVARCHAR(256)"
+    },
+    {
+      "schemaName": "HumanResources",
+      "columnName": "OrganizationNode",
+      "columnID": 4,
+      "isPrimaryKey": false,
+      "precision": 892,
+      "scale": 0,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "HIERARCHYID",
+      "dbType": 13,
+      "extendedProperties": {
+        "mS_Description": "Where the employee is located in corporate hierarchy."
+      },
+      "fullColumnType": "HIERARCHYID"
+    },
+    {
+      "schemaName": "HumanResources",
+      "columnName": "OrganizationLevel",
+      "columnID": 5,
+      "isPrimaryKey": false,
+      "precision": 5,
+      "scale": 0,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": true,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "computedDefinition": "([OrganizationNode].[GetLevel]())",
+      "columnType": "SMALLINT",
+      "dbType": 10,
+      "extendedProperties": {
+        "mS_Description": "The depth of the employee in the corporate hierarchy."
+      },
+      "fullColumnType": "SMALLINT"
+    },
+    {
+      "schemaName": "HumanResources",
+      "columnName": "JobTitle",
+      "columnID": 6,
+      "isPrimaryKey": false,
+      "precision": 50,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NVARCHAR",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Work title such as Buyer or Sales Representative."
+      },
+      "fullColumnType": "NVARCHAR(50)"
+    },
+    {
+      "schemaName": "HumanResources",
+      "columnName": "BirthDate",
+      "columnID": 7,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATE",
+      "dbType": 5,
+      "extendedProperties": {
+        "mS_Description": "Date of birth."
+      },
+      "fullColumnType": "DATE"
+    },
+    {
+      "schemaName": "HumanResources",
+      "columnName": "MaritalStatus",
+      "columnID": 8,
+      "isPrimaryKey": false,
+      "precision": 1,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NCHAR",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "M = Married, S = Single"
+      },
+      "fullColumnType": "NCHAR(1)"
+    },
+    {
+      "schemaName": "HumanResources",
+      "columnName": "Gender",
+      "columnID": 9,
+      "isPrimaryKey": false,
+      "precision": 1,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NCHAR",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "M = Male, F = Female"
+      },
+      "fullColumnType": "NCHAR(1)"
+    },
+    {
+      "schemaName": "HumanResources",
+      "columnName": "HireDate",
+      "columnID": 10,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATE",
+      "dbType": 5,
+      "extendedProperties": {
+        "mS_Description": "Employee hired on this date."
+      },
+      "fullColumnType": "DATE"
+    },
+    {
+      "schemaName": "HumanResources",
+      "columnName": "SalariedFlag",
+      "columnID": 11,
+      "isPrimaryKey": false,
+      "precision": 1,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "FLAG",
+      "columnDefault": "((1))",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Job classification. 0 = Hourly, not exempt from collective bargaining. 1 = Salaried, exempt from collective bargaining."
+      },
+      "fullColumnType": "FLAG"
+    },
+    {
+      "schemaName": "HumanResources",
+      "columnName": "VacationHours",
+      "columnID": 12,
+      "isPrimaryKey": false,
+      "precision": 5,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "SMALLINT",
+      "columnDefault": "((0))",
+      "dbType": 10,
+      "extendedProperties": {
+        "mS_Description": "Number of available vacation hours."
+      },
+      "fullColumnType": "SMALLINT"
+    },
+    {
+      "schemaName": "HumanResources",
+      "columnName": "SickLeaveHours",
+      "columnID": 13,
+      "isPrimaryKey": false,
+      "precision": 5,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "SMALLINT",
+      "columnDefault": "((0))",
+      "dbType": 10,
+      "extendedProperties": {
+        "mS_Description": "Number of available sick leave hours."
+      },
+      "fullColumnType": "SMALLINT"
+    },
+    {
+      "schemaName": "HumanResources",
+      "columnName": "CurrentFlag",
+      "columnID": 14,
+      "isPrimaryKey": false,
+      "precision": 1,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "FLAG",
+      "columnDefault": "((1))",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "0 = Inactive, 1 = Active"
+      },
+      "fullColumnType": "FLAG"
+    },
+    {
+      "schemaName": "HumanResources",
+      "columnName": "rowguid",
+      "columnID": 15,
+      "isPrimaryKey": false,
+      "precision": 16,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "UNIQUEIDENTIFIER",
+      "columnDefault": "(newid())",
+      "dbType": 9,
+      "extendedProperties": {
+        "mS_Description": "ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample."
+      },
+      "fullColumnType": "UNIQUEIDENTIFIER"
+    },
+    {
+      "schemaName": "HumanResources",
+      "columnName": "ModifiedDate",
+      "columnID": 16,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "columnDefault": "(getdate())",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Date and time the record was last updated."
+      },
+      "fullColumnType": "DATETIME"
+    }
+  ],
+  "extendedProperties": {
+    "mS_Description": "Employee information such as salary, department, and title."
+  }
+}

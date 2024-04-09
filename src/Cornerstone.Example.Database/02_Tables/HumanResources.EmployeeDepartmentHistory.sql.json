@@ -1,0 +1,130 @@
+﻿{
+  "tableName": "EmployeeDepartmentHistory",
+  "schemaName": "HumanResources",
+  "temporalType": 0,
+  "isMemoryOptimized": false,
+  "durabilityDesc": "SCHEMA_AND_DATA",
+  "isExternal": false,
+  "isHistoryTable": false,
+  "isView": false,
+  "columns": [
+    {
+      "schemaName": "HumanResources",
+      "columnName": "BusinessEntityID",
+      "columnID": 1,
+      "isPrimaryKey": true,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Employee identification number. Foreign key to Employee.BusinessEntityID."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "HumanResources",
+      "columnName": "DepartmentID",
+      "columnID": 2,
+      "isPrimaryKey": true,
+      "precision": 5,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "SMALLINT",
+      "dbType": 10,
+      "extendedProperties": {
+        "mS_Description": "Department in which the employee worked including currently. Foreign key to Department.DepartmentID."
+      },
+      "fullColumnType": "SMALLINT"
+    },
+    {
+      "schemaName": "HumanResources",
+      "columnName": "ShiftID",
+      "columnID": 3,
+      "isPrimaryKey": true,
+      "precision": 3,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "TINYINT",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Identifies which 8-hour shift the employee works. Foreign key to Shift.Shift.ID."
+      },
+      "fullColumnType": "TINYINT"
+    },
+    {
+      "schemaName": "HumanResources",
+      "columnName": "StartDate",
+      "columnID": 4,
+      "isPrimaryKey": true,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATE",
+      "dbType": 5,
+      "extendedProperties": {
+        "mS_Description": "Date the employee started work in the department."
+      },
+      "fullColumnType": "DATE"
+    },
+    {
+      "schemaName": "HumanResources",
+      "columnName": "EndDate",
+      "columnID": 5,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATE",
+      "dbType": 5,
+      "extendedProperties": {
+        "mS_Description": "Date the employee left the department. NULL = Current department."
+      },
+      "fullColumnType": "DATE"
+    },
+    {
+      "schemaName": "HumanResources",
+      "columnName": "ModifiedDate",
+      "columnID": 6,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "columnDefault": "(getdate())",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Date and time the record was last updated."
+      },
+      "fullColumnType": "DATETIME"
+    }
+  ],
+  "extendedProperties": {
+    "mS_Description": "Employee department transfers."
+  }
+}

@@ -1,0 +1,192 @@
+﻿{
+  "tableName": "SalesPerson",
+  "schemaName": "Sales",
+  "temporalType": 0,
+  "isMemoryOptimized": false,
+  "durabilityDesc": "SCHEMA_AND_DATA",
+  "isExternal": false,
+  "isHistoryTable": false,
+  "isView": false,
+  "columns": [
+    {
+      "schemaName": "Sales",
+      "columnName": "BusinessEntityID",
+      "columnID": 1,
+      "isPrimaryKey": true,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Primary key for SalesPerson records. Foreign key to Employee.BusinessEntityID"
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "TerritoryID",
+      "columnID": 2,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Territory currently assigned to. Foreign key to SalesTerritory.SalesTerritoryID."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "SalesQuota",
+      "columnID": 3,
+      "isPrimaryKey": false,
+      "precision": 19,
+      "scale": 4,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "MONEY",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Projected yearly sales."
+      },
+      "fullColumnType": "MONEY"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "Bonus",
+      "columnID": 4,
+      "isPrimaryKey": false,
+      "precision": 19,
+      "scale": 4,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "MONEY",
+      "columnDefault": "((0.00))",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Bonus due if quota is met."
+      },
+      "fullColumnType": "MONEY"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "CommissionPct",
+      "columnID": 5,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 4,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "SMALLMONEY",
+      "columnDefault": "((0.00))",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Commision percent received per sale."
+      },
+      "fullColumnType": "SMALLMONEY"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "SalesYTD",
+      "columnID": 6,
+      "isPrimaryKey": false,
+      "precision": 19,
+      "scale": 4,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "MONEY",
+      "columnDefault": "((0.00))",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Sales total year to date."
+      },
+      "fullColumnType": "MONEY"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "SalesLastYear",
+      "columnID": 7,
+      "isPrimaryKey": false,
+      "precision": 19,
+      "scale": 4,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "MONEY",
+      "columnDefault": "((0.00))",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Sales total of previous year."
+      },
+      "fullColumnType": "MONEY"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "rowguid",
+      "columnID": 8,
+      "isPrimaryKey": false,
+      "precision": 16,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "UNIQUEIDENTIFIER",
+      "columnDefault": "(newid())",
+      "dbType": 9,
+      "extendedProperties": {
+        "mS_Description": "ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample."
+      },
+      "fullColumnType": "UNIQUEIDENTIFIER"
+    },
+    {
+      "schemaName": "Sales",
+      "columnName": "ModifiedDate",
+      "columnID": 9,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "columnDefault": "(getdate())",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Date and time the record was last updated."
+      },
+      "fullColumnType": "DATETIME"
+    }
+  ],
+  "extendedProperties": {
+    "mS_Description": "Sales representative current information."
+  }
+}

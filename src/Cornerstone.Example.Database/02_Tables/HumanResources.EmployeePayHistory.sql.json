@@ -1,0 +1,111 @@
+﻿{
+  "tableName": "EmployeePayHistory",
+  "schemaName": "HumanResources",
+  "temporalType": 0,
+  "isMemoryOptimized": false,
+  "durabilityDesc": "SCHEMA_AND_DATA",
+  "isExternal": false,
+  "isHistoryTable": false,
+  "isView": false,
+  "columns": [
+    {
+      "schemaName": "HumanResources",
+      "columnName": "BusinessEntityID",
+      "columnID": 1,
+      "isPrimaryKey": true,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Employee identification number. Foreign key to Employee.BusinessEntityID."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "HumanResources",
+      "columnName": "RateChangeDate",
+      "columnID": 2,
+      "isPrimaryKey": true,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Date the change in pay is effective"
+      },
+      "fullColumnType": "DATETIME"
+    },
+    {
+      "schemaName": "HumanResources",
+      "columnName": "Rate",
+      "columnID": 3,
+      "isPrimaryKey": false,
+      "precision": 19,
+      "scale": 4,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "MONEY",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Salary hourly rate."
+      },
+      "fullColumnType": "MONEY"
+    },
+    {
+      "schemaName": "HumanResources",
+      "columnName": "PayFrequency",
+      "columnID": 4,
+      "isPrimaryKey": false,
+      "precision": 3,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "TINYINT",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "1 = Salary received monthly, 2 = Salary received biweekly"
+      },
+      "fullColumnType": "TINYINT"
+    },
+    {
+      "schemaName": "HumanResources",
+      "columnName": "ModifiedDate",
+      "columnID": 5,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "columnDefault": "(getdate())",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Date and time the record was last updated."
+      },
+      "fullColumnType": "DATETIME"
+    }
+  ],
+  "extendedProperties": {
+    "mS_Description": "Employee pay history."
+  }
+}

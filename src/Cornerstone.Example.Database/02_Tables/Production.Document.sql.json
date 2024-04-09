@@ -1,0 +1,286 @@
+﻿{
+  "tableName": "Document",
+  "schemaName": "Production",
+  "temporalType": 0,
+  "isMemoryOptimized": false,
+  "durabilityDesc": "SCHEMA_AND_DATA",
+  "isExternal": false,
+  "isHistoryTable": false,
+  "isView": false,
+  "columns": [
+    {
+      "schemaName": "Production",
+      "columnName": "DocumentNode",
+      "columnID": 1,
+      "isPrimaryKey": true,
+      "precision": 892,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "HIERARCHYID",
+      "dbType": 13,
+      "extendedProperties": {
+        "mS_Description": "Primary key for Document records."
+      },
+      "fullColumnType": "HIERARCHYID"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "DocumentLevel",
+      "columnID": 2,
+      "isPrimaryKey": false,
+      "precision": 5,
+      "scale": 0,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": true,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "computedDefinition": "([DocumentNode].[GetLevel]())",
+      "columnType": "SMALLINT",
+      "dbType": 10,
+      "extendedProperties": {
+        "mS_Description": "Depth in the document hierarchy."
+      },
+      "fullColumnType": "SMALLINT"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "Title",
+      "columnID": 3,
+      "isPrimaryKey": false,
+      "precision": 50,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NVARCHAR",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Title of the document."
+      },
+      "fullColumnType": "NVARCHAR(50)"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "Owner",
+      "columnID": 4,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Employee who controls the document.  Foreign key to Employee.BusinessEntityID"
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "FolderFlag",
+      "columnID": 5,
+      "isPrimaryKey": false,
+      "precision": 1,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "BIT",
+      "columnDefault": "((0))",
+      "dbType": 3,
+      "extendedProperties": {
+        "mS_Description": "0 = This is a folder, 1 = This is a document."
+      },
+      "fullColumnType": "BIT"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "FileName",
+      "columnID": 6,
+      "isPrimaryKey": false,
+      "precision": 400,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NVARCHAR",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "File name of the document"
+      },
+      "fullColumnType": "NVARCHAR(400)"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "FileExtension",
+      "columnID": 7,
+      "isPrimaryKey": false,
+      "precision": 8,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NVARCHAR",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "File extension indicating the document type. For example, .doc or .txt."
+      },
+      "fullColumnType": "NVARCHAR(8)"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "Revision",
+      "columnID": 8,
+      "isPrimaryKey": false,
+      "precision": 5,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NCHAR",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Revision number of the document. "
+      },
+      "fullColumnType": "NCHAR(5)"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "ChangeNumber",
+      "columnID": 9,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "columnDefault": "((0))",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Engineering change approval number."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "Status",
+      "columnID": 10,
+      "isPrimaryKey": false,
+      "precision": 3,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "TINYINT",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "1 = Pending approval, 2 = Approved, 3 = Obsolete"
+      },
+      "fullColumnType": "TINYINT"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "DocumentSummary",
+      "columnID": 11,
+      "isPrimaryKey": false,
+      "precision": 2147483647,
+      "scale": 0,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NVARCHAR",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Document abstract."
+      },
+      "fullColumnType": "NVARCHAR(MAX)"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "Document",
+      "columnID": 12,
+      "isPrimaryKey": false,
+      "precision": -1,
+      "scale": 0,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "VARBINARY",
+      "dbType": 1,
+      "extendedProperties": {
+        "mS_Description": "Complete document."
+      },
+      "fullColumnType": "VARBINARY(MAX)"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "rowguid",
+      "columnID": 13,
+      "isPrimaryKey": false,
+      "precision": 16,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "UNIQUEIDENTIFIER",
+      "columnDefault": "(newid())",
+      "dbType": 9,
+      "extendedProperties": {
+        "mS_Description": "ROWGUIDCOL number uniquely identifying the record. Required for FileStream."
+      },
+      "fullColumnType": "UNIQUEIDENTIFIER"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "ModifiedDate",
+      "columnID": 14,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "columnDefault": "(getdate())",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Date and time the record was last updated."
+      },
+      "fullColumnType": "DATETIME"
+    }
+  ],
+  "extendedProperties": {
+    "mS_Description": "Product maintenance documents."
+  }
+}

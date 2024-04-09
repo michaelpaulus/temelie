@@ -1,0 +1,170 @@
+﻿{
+  "tableName": "Vendor",
+  "schemaName": "Purchasing",
+  "temporalType": 0,
+  "isMemoryOptimized": false,
+  "durabilityDesc": "SCHEMA_AND_DATA",
+  "isExternal": false,
+  "isHistoryTable": false,
+  "isView": false,
+  "columns": [
+    {
+      "schemaName": "Purchasing",
+      "columnName": "BusinessEntityID",
+      "columnID": 1,
+      "isPrimaryKey": true,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Primary key for Vendor records.  Foreign key to BusinessEntity.BusinessEntityID"
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Purchasing",
+      "columnName": "AccountNumber",
+      "columnID": 2,
+      "isPrimaryKey": false,
+      "precision": 30,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "ACCOUNTNUMBER",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Vendor account (identification) number."
+      },
+      "fullColumnType": "ACCOUNTNUMBER"
+    },
+    {
+      "schemaName": "Purchasing",
+      "columnName": "Name",
+      "columnID": 3,
+      "isPrimaryKey": false,
+      "precision": 100,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NAME",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Company name."
+      },
+      "fullColumnType": "NAME"
+    },
+    {
+      "schemaName": "Purchasing",
+      "columnName": "CreditRating",
+      "columnID": 4,
+      "isPrimaryKey": false,
+      "precision": 3,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "TINYINT",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "1 = Superior, 2 = Excellent, 3 = Above average, 4 = Average, 5 = Below average"
+      },
+      "fullColumnType": "TINYINT"
+    },
+    {
+      "schemaName": "Purchasing",
+      "columnName": "PreferredVendorStatus",
+      "columnID": 5,
+      "isPrimaryKey": false,
+      "precision": 1,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "FLAG",
+      "columnDefault": "((1))",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "0 = Do not use if another vendor is available. 1 = Preferred over other vendors supplying the same product."
+      },
+      "fullColumnType": "FLAG"
+    },
+    {
+      "schemaName": "Purchasing",
+      "columnName": "ActiveFlag",
+      "columnID": 6,
+      "isPrimaryKey": false,
+      "precision": 1,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "FLAG",
+      "columnDefault": "((1))",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "0 = Vendor no longer used. 1 = Vendor is actively used."
+      },
+      "fullColumnType": "FLAG"
+    },
+    {
+      "schemaName": "Purchasing",
+      "columnName": "PurchasingWebServiceURL",
+      "columnID": 7,
+      "isPrimaryKey": false,
+      "precision": 1024,
+      "scale": 0,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NVARCHAR",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Vendor URL."
+      },
+      "fullColumnType": "NVARCHAR(1024)"
+    },
+    {
+      "schemaName": "Purchasing",
+      "columnName": "ModifiedDate",
+      "columnID": 8,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "columnDefault": "(getdate())",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Date and time the record was last updated."
+      },
+      "fullColumnType": "DATETIME"
+    }
+  ],
+  "extendedProperties": {
+    "mS_Description": "Companies from whom Adventure Works Cycles purchases parts or other goods."
+  }
+}

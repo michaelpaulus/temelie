@@ -1,0 +1,227 @@
+﻿{
+  "tableName": "PurchaseOrderDetail",
+  "schemaName": "Purchasing",
+  "temporalType": 0,
+  "isMemoryOptimized": false,
+  "durabilityDesc": "SCHEMA_AND_DATA",
+  "isExternal": false,
+  "isHistoryTable": false,
+  "isView": false,
+  "columns": [
+    {
+      "schemaName": "Purchasing",
+      "columnName": "PurchaseOrderID",
+      "columnID": 1,
+      "isPrimaryKey": true,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Primary key. Foreign key to PurchaseOrderHeader.PurchaseOrderID."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Purchasing",
+      "columnName": "PurchaseOrderDetailID",
+      "columnID": 2,
+      "isPrimaryKey": true,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": true,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Primary key. One line number per purchased product."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Purchasing",
+      "columnName": "DueDate",
+      "columnID": 3,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Date the product is expected to be received."
+      },
+      "fullColumnType": "DATETIME"
+    },
+    {
+      "schemaName": "Purchasing",
+      "columnName": "OrderQty",
+      "columnID": 4,
+      "isPrimaryKey": false,
+      "precision": 5,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "SMALLINT",
+      "dbType": 10,
+      "extendedProperties": {
+        "mS_Description": "Quantity ordered."
+      },
+      "fullColumnType": "SMALLINT"
+    },
+    {
+      "schemaName": "Purchasing",
+      "columnName": "ProductID",
+      "columnID": 5,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Product identification number. Foreign key to Product.ProductID."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Purchasing",
+      "columnName": "UnitPrice",
+      "columnID": 6,
+      "isPrimaryKey": false,
+      "precision": 19,
+      "scale": 4,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "MONEY",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Vendor's selling price of a single product."
+      },
+      "fullColumnType": "MONEY"
+    },
+    {
+      "schemaName": "Purchasing",
+      "columnName": "LineTotal",
+      "columnID": 7,
+      "isPrimaryKey": false,
+      "precision": 19,
+      "scale": 4,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": true,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "computedDefinition": "(isnull([OrderQty]*[UnitPrice],(0.00)))",
+      "columnType": "MONEY",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Per product subtotal. Computed as OrderQty * UnitPrice."
+      },
+      "fullColumnType": "MONEY"
+    },
+    {
+      "schemaName": "Purchasing",
+      "columnName": "ReceivedQty",
+      "columnID": 8,
+      "isPrimaryKey": false,
+      "precision": 8,
+      "scale": 2,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DECIMAL",
+      "dbType": 7,
+      "extendedProperties": {
+        "mS_Description": "Quantity actually received from the vendor."
+      },
+      "fullColumnType": "DECIMAL(8, 2)"
+    },
+    {
+      "schemaName": "Purchasing",
+      "columnName": "RejectedQty",
+      "columnID": 9,
+      "isPrimaryKey": false,
+      "precision": 8,
+      "scale": 2,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DECIMAL",
+      "dbType": 7,
+      "extendedProperties": {
+        "mS_Description": "Quantity rejected during inspection."
+      },
+      "fullColumnType": "DECIMAL(8, 2)"
+    },
+    {
+      "schemaName": "Purchasing",
+      "columnName": "StockedQty",
+      "columnID": 10,
+      "isPrimaryKey": false,
+      "precision": 9,
+      "scale": 2,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": true,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "computedDefinition": "(isnull([ReceivedQty]-[RejectedQty],(0.00)))",
+      "columnType": "DECIMAL",
+      "dbType": 7,
+      "extendedProperties": {
+        "mS_Description": "Quantity accepted into inventory. Computed as ReceivedQty - RejectedQty."
+      },
+      "fullColumnType": "DECIMAL(9, 2)"
+    },
+    {
+      "schemaName": "Purchasing",
+      "columnName": "ModifiedDate",
+      "columnID": 11,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "columnDefault": "(getdate())",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Date and time the record was last updated."
+      },
+      "fullColumnType": "DATETIME"
+    }
+  ],
+  "extendedProperties": {
+    "mS_Description": "Individual products associated with a specific purchase order. See PurchaseOrderHeader."
+  }
+}

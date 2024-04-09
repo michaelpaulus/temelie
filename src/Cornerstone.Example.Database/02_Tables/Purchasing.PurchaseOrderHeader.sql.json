@@ -1,0 +1,270 @@
+﻿{
+  "tableName": "PurchaseOrderHeader",
+  "schemaName": "Purchasing",
+  "temporalType": 0,
+  "isMemoryOptimized": false,
+  "durabilityDesc": "SCHEMA_AND_DATA",
+  "isExternal": false,
+  "isHistoryTable": false,
+  "isView": false,
+  "columns": [
+    {
+      "schemaName": "Purchasing",
+      "columnName": "PurchaseOrderID",
+      "columnID": 1,
+      "isPrimaryKey": true,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": true,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Primary key."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Purchasing",
+      "columnName": "RevisionNumber",
+      "columnID": 2,
+      "isPrimaryKey": false,
+      "precision": 3,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "TINYINT",
+      "columnDefault": "((0))",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Incremental number to track changes to the purchase order over time."
+      },
+      "fullColumnType": "TINYINT"
+    },
+    {
+      "schemaName": "Purchasing",
+      "columnName": "Status",
+      "columnID": 3,
+      "isPrimaryKey": false,
+      "precision": 3,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "TINYINT",
+      "columnDefault": "((1))",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Order current status. 1 = Pending; 2 = Approved; 3 = Rejected; 4 = Complete"
+      },
+      "fullColumnType": "TINYINT"
+    },
+    {
+      "schemaName": "Purchasing",
+      "columnName": "EmployeeID",
+      "columnID": 4,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Employee who created the purchase order. Foreign key to Employee.BusinessEntityID."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Purchasing",
+      "columnName": "VendorID",
+      "columnID": 5,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Vendor with whom the purchase order is placed. Foreign key to Vendor.BusinessEntityID."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Purchasing",
+      "columnName": "ShipMethodID",
+      "columnID": 6,
+      "isPrimaryKey": false,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Shipping method. Foreign key to ShipMethod.ShipMethodID."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Purchasing",
+      "columnName": "OrderDate",
+      "columnID": 7,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "columnDefault": "(getdate())",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Purchase order creation date."
+      },
+      "fullColumnType": "DATETIME"
+    },
+    {
+      "schemaName": "Purchasing",
+      "columnName": "ShipDate",
+      "columnID": 8,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Estimated shipment date from the vendor."
+      },
+      "fullColumnType": "DATETIME"
+    },
+    {
+      "schemaName": "Purchasing",
+      "columnName": "SubTotal",
+      "columnID": 9,
+      "isPrimaryKey": false,
+      "precision": 19,
+      "scale": 4,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "MONEY",
+      "columnDefault": "((0.00))",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Purchase order subtotal. Computed as SUM(PurchaseOrderDetail.LineTotal)for the appropriate PurchaseOrderID."
+      },
+      "fullColumnType": "MONEY"
+    },
+    {
+      "schemaName": "Purchasing",
+      "columnName": "TaxAmt",
+      "columnID": 10,
+      "isPrimaryKey": false,
+      "precision": 19,
+      "scale": 4,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "MONEY",
+      "columnDefault": "((0.00))",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Tax amount."
+      },
+      "fullColumnType": "MONEY"
+    },
+    {
+      "schemaName": "Purchasing",
+      "columnName": "Freight",
+      "columnID": 11,
+      "isPrimaryKey": false,
+      "precision": 19,
+      "scale": 4,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "MONEY",
+      "columnDefault": "((0.00))",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Shipping cost."
+      },
+      "fullColumnType": "MONEY"
+    },
+    {
+      "schemaName": "Purchasing",
+      "columnName": "TotalDue",
+      "columnID": 12,
+      "isPrimaryKey": false,
+      "precision": 19,
+      "scale": 4,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": true,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "computedDefinition": "(isnull(([SubTotal]+[TaxAmt])+[Freight],(0)))",
+      "columnType": "MONEY",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Total due to vendor. Computed as Subtotal + TaxAmt + Freight."
+      },
+      "fullColumnType": "MONEY"
+    },
+    {
+      "schemaName": "Purchasing",
+      "columnName": "ModifiedDate",
+      "columnID": 13,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "columnDefault": "(getdate())",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Date and time the record was last updated."
+      },
+      "fullColumnType": "DATETIME"
+    }
+  ],
+  "extendedProperties": {
+    "mS_Description": "General purchase order information. See PurchaseOrderDetail."
+  }
+}

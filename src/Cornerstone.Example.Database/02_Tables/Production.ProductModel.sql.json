@@ -1,0 +1,131 @@
+﻿{
+  "tableName": "ProductModel",
+  "schemaName": "Production",
+  "temporalType": 0,
+  "isMemoryOptimized": false,
+  "durabilityDesc": "SCHEMA_AND_DATA",
+  "isExternal": false,
+  "isHistoryTable": false,
+  "isView": false,
+  "columns": [
+    {
+      "schemaName": "Production",
+      "columnName": "ProductModelID",
+      "columnID": 1,
+      "isPrimaryKey": true,
+      "precision": 10,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": true,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "INT",
+      "dbType": 11,
+      "extendedProperties": {
+        "mS_Description": "Primary key for ProductModel records."
+      },
+      "fullColumnType": "INT"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "Name",
+      "columnID": 2,
+      "isPrimaryKey": false,
+      "precision": 100,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NAME",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Product model description."
+      },
+      "fullColumnType": "NAME"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "CatalogDescription",
+      "columnID": 3,
+      "isPrimaryKey": false,
+      "precision": -1,
+      "scale": 0,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "XML",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Detailed product catalog information in xml format."
+      },
+      "fullColumnType": "XML"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "Instructions",
+      "columnID": 4,
+      "isPrimaryKey": false,
+      "precision": -1,
+      "scale": 0,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "XML",
+      "dbType": 16,
+      "extendedProperties": {
+        "mS_Description": "Manufacturing instructions in xml format."
+      },
+      "fullColumnType": "XML"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "rowguid",
+      "columnID": 5,
+      "isPrimaryKey": false,
+      "precision": 16,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "UNIQUEIDENTIFIER",
+      "columnDefault": "(newid())",
+      "dbType": 9,
+      "extendedProperties": {
+        "mS_Description": "ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample."
+      },
+      "fullColumnType": "UNIQUEIDENTIFIER"
+    },
+    {
+      "schemaName": "Production",
+      "columnName": "ModifiedDate",
+      "columnID": 6,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "columnDefault": "(getdate())",
+      "dbType": 6,
+      "extendedProperties": {
+        "mS_Description": "Date and time the record was last updated."
+      },
+      "fullColumnType": "DATETIME"
+    }
+  ],
+  "extendedProperties": {
+    "mS_Description": "Product model classification."
+  }
+}

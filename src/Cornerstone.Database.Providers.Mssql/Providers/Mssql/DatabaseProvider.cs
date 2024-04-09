@@ -1,3 +1,4 @@
+using System.Configuration;
 using System.Data;
 using System.Data.Common;
 using Cornerstone.Database.Models;
@@ -21,8 +22,6 @@ public class DatabaseProvider : IDatabaseProvider
 
     public string QuoteCharacterStart => "[";
     public string QuoteCharacterEnd => "]";
-
-    public string ProviderName => "System.Data.SqlClient";
 
     public DbProviderFactory CreateProvider()
     {
@@ -973,5 +972,11 @@ ORDER BY
     public bool SupportsConnection(DbConnection connection)
     {
         return connection is SqlConnection;
+    }
+
+    public bool SupportsConnectionString(ConnectionStringSettings connectionStringSettings)
+    {
+        return string.IsNullOrEmpty(connectionStringSettings.ProviderName) ||
+            connectionStringSettings.ProviderName == "System.Data.SqlClient";
     }
 }

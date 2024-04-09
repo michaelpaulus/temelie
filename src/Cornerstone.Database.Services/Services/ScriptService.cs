@@ -4,7 +4,7 @@ using Cornerstone.Database.Providers;
 
 namespace Cornerstone.Database.Services;
 
-public class ScriptService
+public class ScriptService : IScriptService
 {
     private readonly IDatabaseFactory _databaseFactory;
 
@@ -243,7 +243,7 @@ public class ScriptService
         return files;
     }
 
-    public void CreateScriptsIndividual(System.Configuration.ConnectionStringSettings connectionString, System.IO.DirectoryInfo directory, IProgress<ScriptProgress> progress, string objectFilter = "")
+    public void CreateScripts(System.Configuration.ConnectionStringSettings connectionString, System.IO.DirectoryInfo directory, IProgress<ScriptProgress> progress, string objectFilter = "")
     {
         Models.DatabaseModel database = new DatabaseModelService(_databaseFactory).CreateModel(connectionString, new Models.DatabaseModelOptions { ObjectFilter = objectFilter, ExcludeDoubleUnderscoreObjects = true });
 
@@ -265,7 +265,9 @@ public class ScriptService
                     "05_ViewsAndProgrammability",
                 };
 
-        if (!directory.EnumerateDirectories().Any())
+        var directoryList = preferredList.Union(extraList).Where(i => Directory.Exists(Path.Combine(directory.FullName, i))).OrderBy(i => i).ToList();
+
+        if (!directoryList.Any())
         {
             foreach (var di in preferredList)
             {
@@ -274,9 +276,8 @@ public class ScriptService
                     Directory.CreateDirectory(Path.Combine(directory.FullName, di));
                 }
             }
+            directoryList = preferredList.OrderBy(i => i).ToList();
         }
-
-        var directoryList = preferredList.Union(extraList).Where(i => Directory.Exists(Path.Combine(directory.FullName, i))).OrderBy(i => i).ToList();
 
         int intIndex = 1;
         int intTotalCount = directoryList.Count();
@@ -526,7 +527,7 @@ public class ScriptService
 
     }
 
-    public string MergeScripts(IList<string> scripts)
+    public string MergeScripts(IEnumerable<string> scripts)
     {
         System.Text.StringBuilder sbFile = new System.Text.StringBuilder();
 
@@ -551,7 +552,7 @@ public class ScriptService
         return sbFile.ToString();
     }
 
-    public void MergeScripts(IList<string> scripts, string toFile)
+    public void MergeScripts(IEnumerable<string> scripts, string toFile)
     {
         var strFile = MergeScripts(scripts);
 
