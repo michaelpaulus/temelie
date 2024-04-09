@@ -270,7 +270,7 @@ public class ScriptService
         return files;
     }
 
-    public void CreateScriptsIndividual(System.Configuration.ConnectionStringSettings connectionString, System.IO.DirectoryInfo directory, Models.DatabaseType targetDatabaseType, IProgress<ScriptProgress> progress, string objectFilter = "")
+    public void CreateScriptsIndividual(System.Configuration.ConnectionStringSettings connectionString, System.IO.DirectoryInfo directory, IProgress<ScriptProgress> progress, string objectFilter = "")
     {
         Models.DatabaseModel database = new Models.DatabaseModel(_databaseFactory, connectionString) { ObjectFilter = objectFilter, ExcludeDoubleUnderscoreObjects = true };
 
@@ -498,7 +498,7 @@ public class ScriptService
 
     }
 
-    public void CreateScriptIndividual(System.Configuration.ConnectionStringSettings connectionString, System.IO.DirectoryInfo directory, Models.DatabaseType targetDatabaseType, string fileName)
+    public void CreateScriptIndividual(System.Configuration.ConnectionStringSettings connectionString, System.IO.DirectoryInfo directory, string fileName)
     {
         Models.DatabaseModel database = new Models.DatabaseModel(_databaseFactory, connectionString) { ExcludeDoubleUnderscoreObjects = true };
         if (directory.Name.StartsWith("01_Drops", StringComparison.InvariantCultureIgnoreCase))
@@ -588,8 +588,8 @@ public class ScriptService
             {
                 try
                 {
-                    var databaseType = _databaseFactory.GetDatabaseType(connectionString);
-                    var database = new DatabaseService(_databaseFactory, databaseType);
+                    var databaseProvider = _databaseFactory.GetDatabaseProvider(connectionString);
+                    var database = new DatabaseService(_databaseFactory, databaseProvider);
                     database.ExecuteFile(connectionString, strFile);
                 }
                 catch (Exception ex)

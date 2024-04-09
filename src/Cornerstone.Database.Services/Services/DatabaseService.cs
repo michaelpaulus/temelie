@@ -13,26 +13,19 @@ public class DatabaseService
     public const int DefaultCommandTimeout = 0;
 
     private readonly IDatabaseFactory _databaseFactory;
-
-    public IDatabaseProvider DatabaseProvider { get; }
+    private readonly IDatabaseProvider _databaseProvider;
 
     public DatabaseService(IDatabaseFactory databaseFactory, IDatabaseProvider databaseProvider)
     {
-        DatabaseProvider = databaseProvider;
         _databaseFactory = databaseFactory;
-    }
-
-    public DatabaseService(IDatabaseFactory databaseFactory, DatabaseType databaseType)
-    {
-        DatabaseProvider = databaseFactory.GetDatabaseProvider(databaseType);
-        _databaseFactory = databaseFactory;
+        _databaseProvider = databaseProvider;
     }
 
     #region Create Database Methods
 
     public DbConnection CloneDbConnection(DbConnection dbConnection)
     {
-        DbConnection connection = DatabaseProvider.CreateProvider().CreateConnection();
+        DbConnection connection = _databaseProvider.CreateProvider().CreateConnection();
         connection.ConnectionString = dbConnection.ConnectionString;
         _databaseFactory.NotifyConnections(connection);
         if (connection.State != ConnectionState.Open)
@@ -59,14 +52,14 @@ public class DatabaseService
 
     public DbConnection CreateDbConnection(System.Configuration.ConnectionStringSettings connectionString)
     {
-        return CreateDbConnection(DatabaseProvider.CreateProvider(), connectionString);
+        return CreateDbConnection(_databaseProvider.CreateProvider(), connectionString);
     }
 
     public DbConnection CreateDbConnection(DbProviderFactory dbProviderFactory, System.Configuration.ConnectionStringSettings connectionString)
     {
         DbConnection connection = dbProviderFactory.CreateConnection();
 
-        connection.ConnectionString = DatabaseProvider.TransformConnectionString(connection.ConnectionString);
+        connection.ConnectionString = _databaseProvider.TransformConnectionString(connection.ConnectionString);
 
         connection.ConnectionString = connectionString.ConnectionString;
 
@@ -105,7 +98,7 @@ public class DatabaseService
 
         if (!(string.IsNullOrEmpty(sqlCommand)))
         {
-            var factory = DatabaseProvider.CreateProvider();
+            var factory = _databaseProvider.CreateProvider();
             using (var connection = CreateDbConnection(factory, connectionString))
             {
                 ds = Execute(connection, sqlCommand);
@@ -143,7 +136,7 @@ public class DatabaseService
     {
         if (!(string.IsNullOrEmpty(sqlCommand)))
         {
-            var factory = DatabaseProvider.CreateProvider();
+            var factory = _databaseProvider.CreateProvider();
             using (DbConnection connection = CreateDbConnection(factory, connectionString))
             {
                 ExecuteFile(connection, sqlCommand);
@@ -167,7 +160,7 @@ public class DatabaseService
     {
         if (!(string.IsNullOrEmpty(sqlCommand)))
         {
-            var factory = DatabaseProvider.CreateProvider();
+            var factory = _databaseProvider.CreateProvider();
             using (DbConnection connection = CreateDbConnection(factory, connectionString))
             {
                 ExecuteNonQuery(connection, sqlCommand);
@@ -180,7 +173,7 @@ public class DatabaseService
         object returnValue = null;
         if (!(string.IsNullOrEmpty(sqlCommand)))
         {
-            var factory = DatabaseProvider.CreateProvider();
+            var factory = _databaseProvider.CreateProvider();
 
             using (DbConnection connection = CreateDbConnection(factory, connectionString))
             {
@@ -403,7 +396,7 @@ public class DatabaseService
     {
 
         IList<Models.ColumnModel> list = new List<Models.ColumnModel>();
-        var dataTable = DatabaseProvider.GetTableColumns(connection);
+        var dataTable = _databaseProvider.GetTableColumns(connection);
         if (dataTable != null)
         {
             list = GetColumns(dataTable);
@@ -416,7 +409,7 @@ public class DatabaseService
     {
         IList<Models.ColumnModel> list = new List<Models.ColumnModel>();
 
-        var dataTable = DatabaseProvider.GetViewColumns(connection);
+        var dataTable = _databaseProvider.GetViewColumns(connection);
 
         if (dataTable != null)
         {
@@ -453,7 +446,7 @@ public class DatabaseService
             }
         }
 
-        var targetColumnType = DatabaseProvider.GetColumnType(new Models.ColumnTypeModel() { ColumnType = column.ColumnType, Precision = column.Precision, Scale = column.Scale }, Models.DatabaseType.MicrosoftSQLServer);
+        var targetColumnType = _databaseProvider.GetColumnType(new Models.ColumnTypeModel() { ColumnType = column.ColumnType, Precision = column.Precision, Scale = column.Scale });
         if (targetColumnType != null)
         {
             column.ColumnType = targetColumnType.ColumnType;
@@ -467,7 +460,7 @@ public class DatabaseService
     {
         List<Models.DefinitionModel> list = new List<Models.DefinitionModel>();
 
-        var dtDefinitions = DatabaseProvider.GetDefinitions(connection);
+        var dtDefinitions = _databaseProvider.GetDefinitions(connection);
 
         if (dtDefinitions != null)
         {
@@ -493,9 +486,9 @@ public class DatabaseService
     {
         var list = new List<Models.SecurityPolicyModel>();
 
-        var dtDefinitions = DatabaseProvider.GetSecurityPolicies(connection);
+        var dtDefinitions = _databaseProvider.GetSecurityPolicies(connection);
 
-        var dtDependencies = DatabaseProvider.GetDefinitionDependencies(connection);
+        var dtDependencies = _databaseProvider.GetDefinitionDependencies(connection);
 
         if (dtDefinitions != null)
         {
@@ -557,7 +550,7 @@ public class DatabaseService
     {
         IList<Models.ForeignKeyModel> list = new List<Models.ForeignKeyModel>();
 
-        DataTable dataTable = DatabaseProvider.GetForeignKeys(connection);
+        DataTable dataTable = _databaseProvider.GetForeignKeys(connection);
 
         if (dataTable != null)
         {
@@ -614,7 +607,7 @@ public class DatabaseService
     {
         var list = new List<Models.CheckConstraintModel>();
 
-        var dataTable = DatabaseProvider.GetCheckConstraints(connection);
+        var dataTable = _databaseProvider.GetCheckConstraints(connection);
 
         if (dataTable != null)
         {
@@ -654,14 +647,14 @@ public class DatabaseService
         IList<Models.IndexModel> list = new List<Models.IndexModel>();
         System.Data.DataTable dtIndexes = null;
 
-        dtIndexes = DatabaseProvider.GetIndexes(connection);
+        dtIndexes = _databaseProvider.GetIndexes(connection);
 
         if (dtIndexes != null)
         {
 
             var indexBucketCounts = new List<IndexBucket>();
 
-            var dtIndexBucketCounts = DatabaseProvider.GetIndexeBucketCounts(connection);
+            var dtIndexBucketCounts = _databaseProvider.GetIndexeBucketCounts(connection);
             if (dtIndexBucketCounts != null)
             {
                 indexBucketCounts = (from i in dtIndexBucketCounts.Rows.OfType<System.Data.DataRow>()
@@ -814,21 +807,15 @@ public class DatabaseService
     {
         System.Data.DataTable dataTable = null;
 
-        var databaseType = _databaseFactory.GetDatabaseType(connection);
+        var databaseType = _databaseFactory.GetDatabaseProvider(connection);
 
-        dataTable = DatabaseProvider.GetTables(connection);
+        dataTable = _databaseProvider.GetTables(connection);
 
         IList<Models.TableModel> list = new List<Models.TableModel>();
 
         if (dataTable != null)
         {
             list = GetTables(dataTable, columns);
-
-            if (list.Count == 0 && databaseType == Models.DatabaseType.Odbc)
-            {
-
-                list = GetViews(connection, columns);
-            }
 
             //Remove PowerBuilder Tables
             list = (
@@ -864,7 +851,7 @@ public class DatabaseService
     {
         IList<Models.TableModel> list = new List<Models.TableModel>();
 
-        System.Data.DataTable dataTable = DatabaseProvider.GetViews(connection);
+        System.Data.DataTable dataTable = _databaseProvider.GetViews(connection);
         if (dataTable != null)
         {
             list = GetTables(dataTable, columns);
@@ -881,7 +868,7 @@ public class DatabaseService
     {
         IList<Models.TriggerModel> list = new List<Models.TriggerModel>();
 
-        var dataTable = DatabaseProvider.GetTriggers(connection);
+        var dataTable = _databaseProvider.GetTriggers(connection);
 
         if (dataTable != null)
         {

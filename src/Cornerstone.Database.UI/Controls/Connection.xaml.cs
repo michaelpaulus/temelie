@@ -67,7 +67,7 @@ public partial class DatabaseConnection : UserControl
     {
         IList<Cornerstone.Database.Models.TableModel> tables = new List<Cornerstone.Database.Models.TableModel>();
 
-        var databaseType = databaseFactory.GetDatabaseType(connectionString);
+        var databaseType = databaseFactory.GetDatabaseProvider(connectionString);
         var database = new Services.DatabaseService(databaseFactory, databaseType);
 
         try
@@ -90,7 +90,7 @@ public partial class DatabaseConnection : UserControl
     {
         IList<Cornerstone.Database.Models.TableModel> tables = new List<Cornerstone.Database.Models.TableModel>();
 
-        var databaseType = databaseFactory.GetDatabaseType(connectionString);
+        var databaseType = databaseFactory.GetDatabaseProvider(connectionString);
         var database = new Services.DatabaseService(databaseFactory, databaseType);
 
         try

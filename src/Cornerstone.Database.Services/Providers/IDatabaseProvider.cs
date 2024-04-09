@@ -6,8 +6,11 @@ namespace Cornerstone.Database.Providers;
 
 public interface IDatabaseProvider
 {
+    string QuoteCharacterStart { get; }
+    string QuoteCharacterEnd { get; }
+    string ProviderName { get; }
+
     void SetReadTimeout(System.Data.Common.DbCommand sourceCommand);
-    Cornerstone.Database.Models.DatabaseType ForDatabaseType { get; }
     string TransformConnectionString(string connectionString);
 
     void UpdateParameter(DbParameter parameter, Models.ColumnModel column);
@@ -26,11 +29,12 @@ public interface IDatabaseProvider
     DataTable GetIndexeBucketCounts(DbConnection connection);
     DataTable GetIndexes(DbConnection connection);
 
-    Models.ColumnTypeModel GetColumnType(Models.ColumnTypeModel sourceColumnType, Models.DatabaseType targetDatabaseType);
+    Models.ColumnTypeModel GetColumnType(Models.ColumnTypeModel sourceColumnType);
     DbProviderFactory CreateProvider();
 
     bool TryHandleColumnValueLoadException(Exception ex, Models.ColumnModel column, out object value);
     DataTable GetSecurityPolicies(DbConnection connection);
+
     void ConvertBulk(
        TableConverterService service,
        IProgress<TableProgress> progress,
@@ -45,4 +49,6 @@ public interface IDatabaseProvider
        bool validateTargetTable = true);
 
     string GetDatabaseName(string connectionString);
+    bool SupportsConnection(DbConnection connection);
+ 
 }

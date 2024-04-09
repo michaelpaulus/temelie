@@ -237,15 +237,13 @@ namespace Cornerstone.Database
 
                 if (this.IncludeSourceDatabase)
                 {
-                    var dbType = _databaseFactory.GetDatabaseType(this.SourceDatabaseConnectionString);
-                    var provider = _databaseFactory.GetDatabaseProvider(dbType);
+                    var provider = _databaseFactory.GetDatabaseProvider(this.SourceDatabaseConnectionString);
                     tableMapping.SourceDatabase = provider.GetDatabaseName(this.SourceDatabaseConnectionString.ConnectionString);
                 }
 
                 if (this.IncludeTargetDatabase)
                 {
-                    var dbType = _databaseFactory.GetDatabaseType(this.TargetDatabaseConnectionString);
-                    var provider = _databaseFactory.GetDatabaseProvider(dbType);
+                    var provider = _databaseFactory.GetDatabaseProvider(this.TargetDatabaseConnectionString);
                     tableMapping.TargetDatabase = provider.GetDatabaseName(this.TargetDatabaseConnectionString.ConnectionString);
                 }
 
@@ -271,7 +269,7 @@ namespace Cornerstone.Database
 
             public void UpdateTargetTables()
             {
-                var targetDatbaseType = _databaseFactory.GetDatabaseType(TargetDatabaseConnectionString);
+                var targetDatbaseType = _databaseFactory.GetDatabaseProvider(TargetDatabaseConnectionString);
                 var database = new Services.DatabaseService(_databaseFactory, targetDatbaseType);
 
                 using (var conn = database.CreateDbConnection(TargetDatabaseConnectionString))
@@ -297,7 +295,7 @@ namespace Cornerstone.Database
 
             public void UpdateSourceTables()
             {
-                var datbaseType = _databaseFactory.GetDatabaseType(SourceDatabaseConnectionString);
+                var datbaseType = _databaseFactory.GetDatabaseProvider(SourceDatabaseConnectionString);
                 var database = new Services.DatabaseService(_databaseFactory, datbaseType);
 
                 using (var conn = database.CreateDbConnection(SourceDatabaseConnectionString))

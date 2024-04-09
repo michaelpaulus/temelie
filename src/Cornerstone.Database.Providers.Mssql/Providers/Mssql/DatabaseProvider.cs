@@ -19,59 +19,52 @@ public class DatabaseProvider : IDatabaseProvider
         _databaseService = new Services.DatabaseService(factory, this);
     }
 
-    public Cornerstone.Database.Models.DatabaseType ForDatabaseType
-    {
-        get
-        {
-            return Models.DatabaseType.MicrosoftSQLServer;
-        }
-    }
+    public string QuoteCharacterStart => "[";
+    public string QuoteCharacterEnd => "]";
+
+    public string ProviderName => "System.Data.SqlClient";
 
     public DbProviderFactory CreateProvider()
     {
         return SqlClientFactory.Instance;
     }
 
-    public ColumnTypeModel GetColumnType(ColumnTypeModel sourceColumnType, DatabaseType targetDatabaseType)
+    public ColumnTypeModel GetColumnType(ColumnTypeModel sourceColumnType)
     {
-        if (targetDatabaseType == Models.DatabaseType.MicrosoftSQLServer)
+
+        var targetColumnType = new Models.ColumnTypeModel();
+
+        targetColumnType.ColumnType = sourceColumnType.ColumnType.ToUpper().Trim();
+
+        targetColumnType.Precision = sourceColumnType.Precision;
+        targetColumnType.Scale = sourceColumnType.Scale;
+
+        switch (targetColumnType.ColumnType)
         {
-            var targetColumnType = new Models.ColumnTypeModel();
-
-            targetColumnType.ColumnType = sourceColumnType.ColumnType.ToUpper().Trim();
-
-            targetColumnType.Precision = sourceColumnType.Precision;
-            targetColumnType.Scale = sourceColumnType.Scale;
-
-            switch (targetColumnType.ColumnType)
-            {
-                case "TEXT":
-                    targetColumnType.ColumnType = "NVARCHAR";
-                    if (targetColumnType.Precision.GetValueOrDefault() < 4000)
-                    {
-                        targetColumnType.Precision = int.MaxValue;
-                    }
-                    break;
-            }
-
-            switch (targetColumnType.ColumnType)
-            {
-                case "NVARCHAR":
-                case "VARCHAR":
-                case "VARBINARY":
-                    if (targetColumnType.Precision.GetValueOrDefault() > 4000 ||
-                        targetColumnType.Precision.GetValueOrDefault() == 0)
-                    {
-                        targetColumnType.Precision = int.MaxValue;
-                    }
-                    break;
-            }
-
-            return targetColumnType;
-
+            case "TEXT":
+                targetColumnType.ColumnType = "NVARCHAR";
+                if (targetColumnType.Precision.GetValueOrDefault() < 4000)
+                {
+                    targetColumnType.Precision = int.MaxValue;
+                }
+                break;
         }
 
-        return null;
+        switch (targetColumnType.ColumnType)
+        {
+            case "NVARCHAR":
+            case "VARCHAR":
+            case "VARBINARY":
+                if (targetColumnType.Precision.GetValueOrDefault() > 4000 ||
+                    targetColumnType.Precision.GetValueOrDefault() == 0)
+                {
+                    targetColumnType.Precision = int.MaxValue;
+                }
+                break;
+        }
+
+        return targetColumnType;
+
     }
 
     public DataTable GetDefinitionDependencies(DbConnection connection)
@@ -975,5 +968,10 @@ ORDER BY
     {
         var sqlCommandBuilder = new SqlConnectionStringBuilder(connectionString);
         return sqlCommandBuilder.InitialCatalog;
+    }
+
+    public bool SupportsConnection(DbConnection connection)
+    {
+        return connection is SqlConnection;
     }
 }

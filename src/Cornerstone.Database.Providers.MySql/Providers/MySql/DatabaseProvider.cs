@@ -21,13 +21,9 @@ public class DatabaseProvider : IDatabaseProvider
         _database = new Services.DatabaseService(factory, this);
     }
 
-    public Cornerstone.Database.Models.DatabaseType ForDatabaseType
-    {
-        get
-        {
-            return Models.DatabaseType.MySql;
-        }
-    }
+    public string QuoteCharacterStart => "`";
+    public string QuoteCharacterEnd => "`";
+    public string ProviderName => "MySql.Data.MySqlClient";
 
     public System.Data.Common.DbProviderFactory CreateProvider()
     {
@@ -55,96 +51,91 @@ public class DatabaseProvider : IDatabaseProvider
         return false;
     }
 
-    public Models.ColumnTypeModel GetColumnType(Models.ColumnTypeModel sourceColumnType, Models.DatabaseType targetDatabaseType)
+    public Models.ColumnTypeModel GetColumnType(Models.ColumnTypeModel sourceColumnType)
     {
-        if (targetDatabaseType == Models.DatabaseType.MicrosoftSQLServer)
+
+        var targetColumnType = new Models.ColumnTypeModel();
+
+        targetColumnType.ColumnType = sourceColumnType.ColumnType.ToUpper().Replace("UNSIGNED", "").Trim();
+
+        if (targetColumnType.ColumnType.Contains("(") &&
+        targetColumnType.ColumnType.EndsWith(")"))
         {
-            var targetColumnType = new Models.ColumnTypeModel();
-
-            targetColumnType.ColumnType = sourceColumnType.ColumnType.ToUpper().Replace("UNSIGNED", "").Trim();
-
-            if (targetColumnType.ColumnType.Contains("(") &&
-            targetColumnType.ColumnType.EndsWith(")"))
+            if (targetColumnType.ColumnType == "TINYINT(1)")
             {
-                if (targetColumnType.ColumnType == "TINYINT(1)")
-                {
-                    targetColumnType.ColumnType = "BIT";
-                }
-                else
-                {
-                    targetColumnType.ColumnType = targetColumnType.ColumnType.Substring(0, targetColumnType.ColumnType.IndexOf("("));
-                }
+                targetColumnType.ColumnType = "BIT";
             }
-
-            targetColumnType.Precision = sourceColumnType.Precision;
-            targetColumnType.Scale = sourceColumnType.Scale;
-
-            switch (targetColumnType.ColumnType)
+            else
             {
-                case "LONG VARCHAR":
-                case "TEXT":
-                case "MEDIUMTEXT":
-                case "LONGTEXT":
-                    targetColumnType.ColumnType = "NVARCHAR";
-                    if (targetColumnType.Precision.GetValueOrDefault() < 4000)
-                    {
-                        targetColumnType.Precision = int.MaxValue;
-                    }
-                    break;
-                case "VARCHAR":
-                case "STRING":
-                    targetColumnType.ColumnType = "NVARCHAR";
-                    break;
-                case "INTEGER":
-                case "INT32":
-                case "MEDIUMINT":
-                    targetColumnType.ColumnType = "INT";
-                    break;
-                case "INT16":
-                case "TINYINT":
-                    targetColumnType.ColumnType = "SMALLINT";
-                    break;
-                case "NUMERIC":
-                case "DOUBLE":
-                case "SINGLE":
-                case "DEC":
-                    targetColumnType.ColumnType = "DECIMAL";
-                    break;
-                case "TIMESTAMP":
-                    targetColumnType.ColumnType = "DATETIME2";
-                    break;
-                case "DATETIME":
-                    targetColumnType.ColumnType = "DATETIME2";
-                    break;
-                case "CHAR":
-                    targetColumnType.ColumnType = "NCHAR";
-                    break;
-                case "BOOLEAN":
-                    targetColumnType.ColumnType = "BIT";
-                    break;
-                case "BYTE[]":
-                case "BLOB":
-                case "LONGBLOB":
-                    targetColumnType.ColumnType = "VARBINARY";
-                    break;
+                targetColumnType.ColumnType = targetColumnType.ColumnType.Substring(0, targetColumnType.ColumnType.IndexOf("("));
             }
-
-            switch (targetColumnType.ColumnType)
-            {
-                case "NVARCHAR":
-                case "VARBINARY":
-                    if (targetColumnType.Precision.GetValueOrDefault() > 4000)
-                    {
-                        targetColumnType.Precision = int.MaxValue;
-                    }
-                    break;
-            }
-
-            return targetColumnType;
-
         }
 
-        return null;
+        targetColumnType.Precision = sourceColumnType.Precision;
+        targetColumnType.Scale = sourceColumnType.Scale;
+
+        switch (targetColumnType.ColumnType)
+        {
+            case "LONG VARCHAR":
+            case "TEXT":
+            case "MEDIUMTEXT":
+            case "LONGTEXT":
+                targetColumnType.ColumnType = "NVARCHAR";
+                if (targetColumnType.Precision.GetValueOrDefault() < 4000)
+                {
+                    targetColumnType.Precision = int.MaxValue;
+                }
+                break;
+            case "VARCHAR":
+            case "STRING":
+                targetColumnType.ColumnType = "NVARCHAR";
+                break;
+            case "INTEGER":
+            case "INT32":
+            case "MEDIUMINT":
+                targetColumnType.ColumnType = "INT";
+                break;
+            case "INT16":
+            case "TINYINT":
+                targetColumnType.ColumnType = "SMALLINT";
+                break;
+            case "NUMERIC":
+            case "DOUBLE":
+            case "SINGLE":
+            case "DEC":
+                targetColumnType.ColumnType = "DECIMAL";
+                break;
+            case "TIMESTAMP":
+                targetColumnType.ColumnType = "DATETIME2";
+                break;
+            case "DATETIME":
+                targetColumnType.ColumnType = "DATETIME2";
+                break;
+            case "CHAR":
+                targetColumnType.ColumnType = "NCHAR";
+                break;
+            case "BOOLEAN":
+                targetColumnType.ColumnType = "BIT";
+                break;
+            case "BYTE[]":
+            case "BLOB":
+            case "LONGBLOB":
+                targetColumnType.ColumnType = "VARBINARY";
+                break;
+        }
+
+        switch (targetColumnType.ColumnType)
+        {
+            case "NVARCHAR":
+            case "VARBINARY":
+                if (targetColumnType.Precision.GetValueOrDefault() > 4000)
+                {
+                    targetColumnType.Precision = int.MaxValue;
+                }
+                break;
+        }
+
+        return targetColumnType;
 
     }
 
@@ -477,5 +468,10 @@ public class DatabaseProvider : IDatabaseProvider
     public string GetDatabaseName(string connectionString)
     {
         return new MySqlConnectionStringBuilder(connectionString).Database;
+    }
+
+    public bool SupportsConnection(DbConnection connection)
+    {
+        return connection is MySqlConnection;
     }
 }

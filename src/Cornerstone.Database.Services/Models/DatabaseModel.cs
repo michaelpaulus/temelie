@@ -11,35 +11,17 @@ namespace Cornerstone.Database
         public class DatabaseModel
         {
 
-            private readonly Services.DatabaseService _database;
-            private readonly IDatabaseFactory _databaseFactory;
+            private readonly Services.DatabaseService _databaseService;
+            private readonly IDatabaseProvider _databaseProvider;
 
             public DatabaseModel(IDatabaseFactory databaseFactory, System.Configuration.ConnectionStringSettings connectionString)
             {
-                _databaseFactory = databaseFactory;
                 this._connectionString = connectionString;
-                this._databaseType = databaseFactory.GetDatabaseType(connectionString);
-                _database = new DatabaseService(databaseFactory, _databaseType);
-                this._databaseName = _database.DatabaseProvider.GetDatabaseName(connectionString.ConnectionString);
-
-                switch (_databaseType)
-                {
-                    case Models.DatabaseType.AccessOLE:
-                    case Models.DatabaseType.OLE:
-                    case Models.DatabaseType.Odbc:
-                        this.QuoteCharacterStart = "\"";
-                        this.QuoteCharacterEnd = "\"";
-                        break;
-                    case Models.DatabaseType.MySql:
-                        this.QuoteCharacterStart = "`";
-                        this.QuoteCharacterEnd = "`";
-                        break;
-                    case Models.DatabaseType.MicrosoftSQLServer:
-                        this.QuoteCharacterStart = "[";
-                        this.QuoteCharacterEnd = "]";
-                        break;
-                }
-
+                _databaseProvider = databaseFactory.GetDatabaseProvider(connectionString);
+                _databaseService = new DatabaseService(databaseFactory, _databaseProvider);
+                this._databaseName = _databaseProvider.GetDatabaseName(connectionString.ConnectionString);
+                QuoteCharacterEnd = _databaseProvider.QuoteCharacterEnd;
+                QuoteCharacterStart = _databaseProvider.QuoteCharacterStart;
             }
 
             #region Properties
@@ -62,15 +44,6 @@ namespace Cornerstone.Database
                 }
             }
 
-            private readonly DatabaseType _databaseType;
-            public DatabaseType DatabaseType
-            {
-                get
-                {
-                    return this._databaseType;
-                }
-            }
-
             private IList<Models.DefinitionModel> _definitions;
             public IList<Models.DefinitionModel> Definitions
             {
@@ -78,9 +51,9 @@ namespace Cornerstone.Database
                 {
                     if (this._definitions == null)
                     {
-                        using (var conn = _database.CreateDbConnection(this.ConnectionString))
+                        using (var conn = _databaseService.CreateDbConnection(this.ConnectionString))
                         {
-                            this._definitions = _database.GetDefinitions(conn);
+                            this._definitions = _databaseService.GetDefinitions(conn);
                         }
 
                         foreach (var def in _definitions.Where(i => i.Type == "VIEW"))
@@ -116,9 +89,9 @@ namespace Cornerstone.Database
                 {
                     if (this._foreignKeys == null)
                     {
-                        using (var conn = _database.CreateDbConnection(this.ConnectionString))
+                        using (var conn = _databaseService.CreateDbConnection(this.ConnectionString))
                         {
-                            this._foreignKeys = (from i in _database.GetForeignKeys(conn, this.TableNames) orderby i.TableName, i.ForeignKeyName select i).ToList();
+                            this._foreignKeys = (from i in _databaseService.GetForeignKeys(conn, this.TableNames) orderby i.TableName, i.ForeignKeyName select i).ToList();
                         }
                     }
                     return this._foreignKeys;
@@ -132,9 +105,9 @@ namespace Cornerstone.Database
                 {
                     if (this._checkConstraints == null)
                     {
-                        using (var conn = _database.CreateDbConnection(this.ConnectionString))
+                        using (var conn = _databaseService.CreateDbConnection(this.ConnectionString))
                         {
-                            this._checkConstraints = (from i in _database.GetCheckConstraints(conn, this.TableNames) orderby i.TableName, i.CheckConstraintName select i).ToList();
+                            this._checkConstraints = (from i in _databaseService.GetCheckConstraints(conn, this.TableNames) orderby i.TableName, i.CheckConstraintName select i).ToList();
                         }
                     }
                     return this._checkConstraints;
@@ -148,9 +121,9 @@ namespace Cornerstone.Database
                 {
                     if (this._allIndexes == null)
                     {
-                        using (var conn = _database.CreateDbConnection(this.ConnectionString))
+                        using (var conn = _databaseService.CreateDbConnection(this.ConnectionString))
                         {
-                            this._allIndexes = (from i in _database.GetIndexes(conn, this.TableNames, null) orderby i.TableName, i.IndexName select i).ToList();
+                            this._allIndexes = (from i in _databaseService.GetIndexes(conn, this.TableNames, null) orderby i.TableName, i.IndexName select i).ToList();
                         }
                     }
                     return this._allIndexes;
@@ -260,9 +233,9 @@ namespace Cornerstone.Database
                 {
                     if (this._tables == null)
                     {
-                        using (var conn = _database.CreateDbConnection(this.ConnectionString))
+                        using (var conn = _databaseService.CreateDbConnection(this.ConnectionString))
                         {
-                            this._tables = _database.GetTables(conn, this.TableColumns).OrderBy(i => i.TableName).ToList();
+                            this._tables = _databaseService.GetTables(conn, this.TableColumns).OrderBy(i => i.TableName).ToList();
                         }
                     }
                     return GetFilteredTables();
@@ -276,9 +249,9 @@ namespace Cornerstone.Database
                 {
                     if (this._tableColumns == null)
                     {
-                        using (var conn = _database.CreateDbConnection(this.ConnectionString))
+                        using (var conn = _databaseService.CreateDbConnection(this.ConnectionString))
                         {
-                            this._tableColumns = _database.GetTableColumns(conn);
+                            this._tableColumns = _databaseService.GetTableColumns(conn);
                         }
                     }
                     return this._tableColumns;
@@ -292,9 +265,9 @@ namespace Cornerstone.Database
                 {
                     if (this._views == null)
                     {
-                        using (var conn = _database.CreateDbConnection(this.ConnectionString))
+                        using (var conn = _databaseService.CreateDbConnection(this.ConnectionString))
                         {
-                            this._views = _database.GetViews(conn, this.ViewColumns).OrderBy(i => i.TableName).ToList();
+                            this._views = _databaseService.GetViews(conn, this.ViewColumns).OrderBy(i => i.TableName).ToList();
                         }
                     }
 
@@ -319,9 +292,9 @@ namespace Cornerstone.Database
                 {
                     if (this._viewColumns == null)
                     {
-                        using (var conn = _database.CreateDbConnection(this.ConnectionString))
+                        using (var conn = _databaseService.CreateDbConnection(this.ConnectionString))
                         {
-                            this._viewColumns = _database.GetViewColumns(conn);
+                            this._viewColumns = _databaseService.GetViewColumns(conn);
                         }
                     }
                     return this._viewColumns;
@@ -335,9 +308,9 @@ namespace Cornerstone.Database
                 {
                     if (this._triggers == null)
                     {
-                        using (var conn = _database.CreateDbConnection(this.ConnectionString))
+                        using (var conn = _databaseService.CreateDbConnection(this.ConnectionString))
                         {
-                            this._triggers = _database.GetTriggers(conn, this.TableNames, this.ViewNames, this.ObjectFilter).OrderBy(i => i.TriggerName).ToList(); ;
+                            this._triggers = _databaseService.GetTriggers(conn, this.TableNames, this.ViewNames, this.ObjectFilter).OrderBy(i => i.TriggerName).ToList(); ;
                         }
                     }
                     return GetFilteredTriggers();
@@ -350,9 +323,9 @@ namespace Cornerstone.Database
                 {
                     if (this._securityPolicies == null)
                     {
-                        using (var conn = _database.CreateDbConnection(this.ConnectionString))
+                        using (var conn = _databaseService.CreateDbConnection(this.ConnectionString))
                         {
-                            this._securityPolicies = _database.GetSecurityPolicies(conn).OrderBy(i => i.PolicyName).ToList();
+                            this._securityPolicies = _databaseService.GetSecurityPolicies(conn).OrderBy(i => i.PolicyName).ToList();
                         }
                     }
                     return this._securityPolicies;
@@ -371,7 +344,7 @@ namespace Cornerstone.Database
 
             public System.Data.DataSet Execute(string sqlCommand)
             {
-                return _database.Execute(this.ConnectionString, sqlCommand);
+                return _databaseService.Execute(this.ConnectionString, sqlCommand);
             }
 
             public string FormatValue(System.Data.DbType dbType, object value)
@@ -703,7 +676,7 @@ namespace Cornerstone.Database
                     strOrderBy = "ORDER BY " + sbOrderBy.ToString();
                 }
 
-                var dsValues = _database.Execute(this.ConnectionString, $"SELECT * FROM {strQualifiedTableName} {(string.IsNullOrEmpty(where) ? "" : "WHERE " + where)} {strOrderBy}");
+                var dsValues = _databaseService.Execute(this.ConnectionString, $"SELECT * FROM {strQualifiedTableName} {(string.IsNullOrEmpty(where) ? "" : "WHERE " + where)} {strOrderBy}");
 
                 if (dsValues.Tables[0].Rows.Count > 0)
                 {
@@ -888,10 +861,7 @@ GO
 
                 sb.AppendLine(this.GetSecurityPolicyScripts());
 
-                if (_databaseFactory.GetDatabaseType(this.ConnectionString) == Models.DatabaseType.MicrosoftSQLServer)
-                {
-                    sb.AppendLine(this.GetInsertDefaultScripts());
-                }
+                sb.AppendLine(this.GetInsertDefaultScripts());
 
                 return sb.ToString();
             }

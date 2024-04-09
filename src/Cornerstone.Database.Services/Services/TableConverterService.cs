@@ -109,18 +109,20 @@ public class TableConverterService
       bool useTransaction = true,
       bool validateTargetTable = true)
     {
-        var targetDatabase = new DatabaseService(_databaseFactory, _databaseFactory.GetDatabaseType(targetConnectionString));
+
+        var targetDatabaseProvider = _databaseFactory.GetDatabaseProvider(targetConnectionString);
+        var targetDatabase = new DatabaseService(_databaseFactory, targetDatabaseProvider);
         using (System.Data.Common.DbConnection targetConnection = targetDatabase.CreateDbConnection(targetConnectionString))
         {
-            targetDatabase.DatabaseProvider.ConvertBulk(this, progress, sourceTable, sourceReader, sourceRowCount, targetTable, targetConnection, trimStrings, batchSize, useTransaction, validateTargetTable);
+            targetDatabaseProvider.ConvertBulk(this, progress, sourceTable, sourceReader, sourceRowCount, targetTable, targetConnection, trimStrings, batchSize, useTransaction, validateTargetTable);
         }
     }
 
     private DbCommand CreateSourceCommand(Models.TableModel sourceTable, Models.TableModel targetTable, System.Data.Common.DbConnection sourceConnection)
     {
-        var sourceDatabaseType = _databaseFactory.GetDatabaseType(sourceConnection);
+        var sourceDatabaseProvider = _databaseFactory.GetDatabaseProvider(sourceConnection);
 
-        var sourceDatabase = new DatabaseService(_databaseFactory, sourceDatabaseType);
+        var sourceDatabase = new DatabaseService(_databaseFactory, sourceDatabaseProvider);
 
         StringBuilder sbColumns = new System.Text.StringBuilder();
 
@@ -137,8 +139,8 @@ public class TableConverterService
 
         using (var command = sourceDatabase.CreateDbCommand(sourceConnection))
         {
-            this.SetReadTimeout(sourceDatabaseType, command);
-            command.CommandText = this.FormatCommandText($"SELECT {sbColumns.ToString()} FROM [{sourceTable.SchemaName}].[{sourceTable.TableName}]", sourceDatabaseType);
+            this.SetReadTimeout(sourceDatabaseProvider, command);
+            command.CommandText = this.FormatCommandText(sourceDatabaseProvider, $"SELECT {sbColumns.ToString()} FROM [{sourceTable.SchemaName}].[{sourceTable.TableName}]");
             return command;
         }
 
@@ -155,11 +157,11 @@ public class TableConverterService
     {
         progress?.Report(new TableProgress() { ProgressPercentage = 0, Table = sourceTable });
 
-        var sourceDatabaseType = _databaseFactory.GetDatabaseType(sourceConnectionString);
-        var targetDatabaseType = _databaseFactory.GetDatabaseType(targetConnectionString);
+        var sourceDatabaseProvider = _databaseFactory.GetDatabaseProvider(sourceConnectionString);
+        var targetDatabaseProvider = _databaseFactory.GetDatabaseProvider(targetConnectionString);
 
-        var sourceDatabase = new DatabaseService(_databaseFactory, sourceDatabaseType);
-        var targetDatabase = new DatabaseService(_databaseFactory, targetDatabaseType);
+        var sourceDatabase = new DatabaseService(_databaseFactory, sourceDatabaseProvider);
+        var targetDatabase = new DatabaseService(_databaseFactory, targetDatabaseProvider);
 
         using (var targetConnection = targetDatabase.CreateDbConnection(targetConnectionString))
         {
@@ -191,7 +193,7 @@ public class TableConverterService
                     {
                         var sourceMatchedColumns = this.GetMatchedColumns(sourceTable.Columns, targetTable.Columns);
                         var targetMatchedColumns = this.GetMatchedColumns(targetTable.Columns, sourceTable.Columns);
-                        var reader2 = new TableConverterReader(_databaseFactory, reader, sourceMatchedColumns, targetMatchedColumns, trimStrings, sourceDatabaseType, targetDatabaseType);
+                        var reader2 = new TableConverterReader(sourceDatabaseProvider, reader, sourceMatchedColumns, targetMatchedColumns, trimStrings);
                         ConvertBulk(progress, sourceTable, reader2, intSourceRowCount.GetValueOrDefault(), targetTable, targetConnectionString, trimStrings, batchSize, useTransaction, false);
                     }
                 }
@@ -209,11 +211,11 @@ public class TableConverterService
     {
         progress?.Report(new TableProgress() { ProgressPercentage = 0, Table = sourceTable });
 
-        var sourceDatabaseType = _databaseFactory.GetDatabaseType(sourceConnectionString);
-        var targetDatabaseType = _databaseFactory.GetDatabaseType(targetConnectionString);
+        var sourceDatabaseProvider = _databaseFactory.GetDatabaseProvider(sourceConnectionString);
+        var targetDatabaseProvider = _databaseFactory.GetDatabaseProvider(targetConnectionString);
 
-        var sourceDatabase = new DatabaseService(_databaseFactory, sourceDatabaseType);
-        var targetDatabase = new DatabaseService(_databaseFactory, targetDatabaseType);
+        var sourceDatabase = new DatabaseService(_databaseFactory, sourceDatabaseProvider);
+        var targetDatabase = new DatabaseService(_databaseFactory, targetDatabaseProvider);
 
         int intProgress = 0;
 
@@ -239,13 +241,13 @@ public class TableConverterService
 
             using (System.Data.Common.DbCommand sourceCommand = sourceDatabase.CreateDbCommand(sourceConnection))
             {
-                this.SetReadTimeout(sourceDatabaseType, sourceCommand);
+                this.SetReadTimeout(sourceDatabaseProvider, sourceCommand);
 
                 int? intSourceRowCount = null;
 
                 if (progress != null)
                 {
-                    intSourceRowCount = this.GetRowCount(sourceConnection, sourceTable.SchemaName, sourceTable.TableName, sourceDatabaseType);
+                    intSourceRowCount = this.GetRowCount(sourceConnection, sourceTable.SchemaName, sourceTable.TableName);
                 }
 
                 if (!intSourceRowCount.HasValue || intSourceRowCount.Value > 0)
@@ -262,12 +264,12 @@ public class TableConverterService
                         sbSelectColumns.AppendFormat("[{0}]", sourceColumn.ColumnName);
                     }
 
-                    sourceCommand.CommandText = this.FormatCommandText($"SELECT {sbSelectColumns.ToString()} FROM [{sourceTable.SchemaName}].[{sourceTable.TableName}]", sourceDatabaseType);
+                    sourceCommand.CommandText = this.FormatCommandText(sourceDatabaseProvider, $"SELECT {sbSelectColumns.ToString()} FROM [{sourceTable.SchemaName}].[{sourceTable.TableName}]");
 
                     using (System.Data.Common.DbDataReader sourceReader = sourceCommand.ExecuteReader())
                     {
 
-                        var converterReader = new TableConverterReader(_databaseFactory, sourceReader, sourceMatchedColumns, targetMatchedColumns, trimStrings, sourceDatabaseType, targetDatabaseType);
+                        var converterReader = new TableConverterReader(sourceDatabaseProvider, sourceReader, sourceMatchedColumns, targetMatchedColumns, trimStrings);
 
                         var intFieldCount = converterReader.FieldCount;
 
@@ -296,12 +298,12 @@ public class TableConverterService
                                         sbParamaters.Append(", ");
                                     }
 
-                                    System.Data.Common.DbParameter paramater = targetDatabase.DatabaseProvider.CreateProvider().CreateParameter();
+                                    System.Data.Common.DbParameter paramater = targetDatabaseProvider.CreateProvider().CreateParameter();
                                     paramater.ParameterName = string.Concat("@", this.GetParameterNameFromColumn(targetColumn.ColumnName));
 
                                     paramater.DbType = targetColumn.DbType;
 
-                                    targetDatabase.DatabaseProvider.UpdateParameter(paramater, targetColumn);
+                                    targetDatabaseProvider.UpdateParameter(paramater, targetColumn);
 
                                     sbParamaters.Append(paramater.ParameterName);
 
@@ -309,11 +311,11 @@ public class TableConverterService
 
                                 }
 
-                                targetCommand.CommandText = this.FormatCommandText(string.Format("INSERT INTO [{0}].[{1}] ({2}) VALUES ({3})", targetTable.SchemaName, targetTable.TableName, sbColumns.ToString(), sbParamaters.ToString()), targetDatabaseType);
+                                targetCommand.CommandText = this.FormatCommandText(targetDatabaseProvider, string.Format("INSERT INTO [{0}].[{1}] ({2}) VALUES ({3})", targetTable.SchemaName, targetTable.TableName, sbColumns.ToString(), sbParamaters.ToString()));
 
                                 if (blnContainsIdentity)
                                 {
-                                    targetCommand.CommandText = this.FormatCommandText(string.Format("SET IDENTITY_INSERT [{0}].[{1}] ON;" + Environment.NewLine + targetCommand.CommandText + Environment.NewLine + "SET IDENTITY_INSERT [{0}].[{1}] OFF;", targetTable.SchemaName, targetTable.TableName), targetDatabaseType);
+                                    targetCommand.CommandText = this.FormatCommandText(targetDatabaseProvider, string.Format("SET IDENTITY_INSERT [{0}].[{1}] ON;" + Environment.NewLine + targetCommand.CommandText + Environment.NewLine + "SET IDENTITY_INSERT [{0}].[{1}] OFF;", targetTable.SchemaName, targetTable.TableName));
                                 }
 
                                 int rowIndex = 0;
@@ -401,53 +403,36 @@ public class TableConverterService
         return list;
     }
 
-    private void SetReadTimeout(Models.DatabaseType databaseType, System.Data.Common.DbCommand sourceCommand)
+    private void SetReadTimeout(IDatabaseProvider databaseProvider, System.Data.Common.DbCommand sourceCommand)
     {
-        var databaseProvider = _databaseFactory.GetDatabaseProvider(databaseType);
-        databaseProvider?.SetReadTimeout(sourceCommand);
+        databaseProvider.SetReadTimeout(sourceCommand);
     }
 
-    private string FormatCommandText(string commandText, Cornerstone.Database.Models.DatabaseType databaseType)
+    private string FormatCommandText(IDatabaseProvider databaseProvider, string commandText)
     {
-        switch (databaseType)
-        {
-            case Models.DatabaseType.Odbc:
-                commandText = commandText.Replace("[", "\"").Replace("]", "\"");
-                break;
-            case Models.DatabaseType.OLE:
-                commandText = commandText.Replace("[", "\"").Replace("]", "\"");
-                break;
-            case Models.DatabaseType.AccessOLE:
-                //Do nothing, access likes brackets
-                break;
-            case Models.DatabaseType.MySql:
-                commandText = commandText.Replace("[", "`").Replace("]", "`");
-                break;
-        }
+        commandText = commandText.Replace("[", databaseProvider.QuoteCharacterStart).Replace("]", databaseProvider.QuoteCharacterEnd);
         return commandText;
     }
 
     public int GetRowCount(Models.TableModel table, System.Data.Common.DbConnection connection)
     {
-        var databaseType = _databaseFactory.GetDatabaseType(connection);
-        return this.GetRowCount(connection, table.SchemaName, table.TableName, databaseType);
+        return this.GetRowCount(connection, table.SchemaName, table.TableName);
     }
 
-    private int GetRowCount(System.Data.Common.DbConnection connection, string schemaName, string tableName, Cornerstone.Database.Models.DatabaseType databaseType)
+    private int GetRowCount(System.Data.Common.DbConnection connection, string schemaName, string tableName)
     {
         int rowCount = 0;
 
-        var database = new DatabaseService(_databaseFactory, databaseType);
+        var databaseProvider = _databaseFactory.GetDatabaseProvider(connection);
+
+        var database = new DatabaseService(_databaseFactory, databaseProvider);
 
         using (var command = database.CreateDbCommand(connection))
         {
             try
             {
-                if (databaseType == Cornerstone.Database.Models.DatabaseType.MicrosoftSQLServer)
-                {
-                    command.CommandText = string.Format("(SELECT sys.sysindexes.rows FROM sys.tables INNER JOIN sys.sysindexes ON sys.tables.object_id = sys.sysindexes.id AND sys.sysindexes.indid < 2 WHERE sys.tables.name = '{0}')", tableName);
-                    rowCount = System.Convert.ToInt32(command.ExecuteScalar());
-                }
+                command.CommandText = $"(SELECT sys.sysindexes.rows FROM sys.tables INNER JOIN sys.sysindexes ON sys.tables.object_id = sys.sysindexes.id AND sys.sysindexes.indid < 2 WHERE sys.tables.name = '{tableName}')";
+                rowCount = System.Convert.ToInt32(command.ExecuteScalar());
             }
             catch
             {
@@ -458,7 +443,7 @@ public class TableConverterService
             {
                 if (rowCount == 0)
                 {
-                    command.CommandText = this.FormatCommandText(string.Format("SELECT COUNT(1) FROM [{0}].[{1}]", schemaName, tableName), databaseType);
+                    command.CommandText = this.FormatCommandText(databaseProvider, $"SELECT COUNT(1) FROM [{schemaName}].[{tableName}]");
                     rowCount = System.Convert.ToInt32(command.ExecuteScalar());
                 }
             }

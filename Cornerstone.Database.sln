@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.Database.Provid
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.Database.Providers.MySql", "src\Cornerstone.Database.Providers.MySql\Cornerstone.Database.Providers.MySql.csproj", "{4AF7019C-2AD1-48D3-A5EC-D49F730303E3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cornerstone.Database.Models", "src\Cornerstone.Database.Models\Cornerstone.Database.Models.csproj", "{B4464F30-1D0D-4727-AF6B-141354F03003}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{4AF7019C-2AD1-48D3-A5EC-D49F730303E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4AF7019C-2AD1-48D3-A5EC-D49F730303E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4AF7019C-2AD1-48D3-A5EC-D49F730303E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4464F30-1D0D-4727-AF6B-141354F03003}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4464F30-1D0D-4727-AF6B-141354F03003}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4464F30-1D0D-4727-AF6B-141354F03003}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4464F30-1D0D-4727-AF6B-141354F03003}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -68,7 +68,7 @@ public class ConvertViewModel : ViewModel
 
         TableConverterSettings settings = new TableConverterSettings();
 
-        var targetDatabaseType = _databaseFactory.GetDatabaseType(TargetDatabaseConnectionString);
+        var targetDatabaseType = _databaseFactory.GetDatabaseProvider(TargetDatabaseConnectionString);
         var targetDatabase = new Services.DatabaseService(_databaseFactory, targetDatabaseType);
 
         using (var conn = targetDatabase.CreateDbConnection(TargetDatabaseConnectionString))

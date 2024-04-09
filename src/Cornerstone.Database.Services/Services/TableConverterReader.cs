@@ -6,20 +6,16 @@ namespace Cornerstone.Database.Services;
 public class TableConverterReader : System.Data.IDataReader
 {
 
-    private readonly IDatabaseProvider _sourceDatabaseProvider;
-    private readonly IDatabaseFactory _databaseFactory;
+    private readonly IDatabaseProvider _databaseProvider;
     private readonly IDataReader _parent;
 
-    public TableConverterReader(IDatabaseFactory databaseFactory, IDataReader parent, IList<Models.ColumnModel> sourceColumns, IList<Models.ColumnModel> targetColumns, bool trimStrings, Models.DatabaseType sourceDatabasetype, Models.DatabaseType targetDatabaseType)
+    public TableConverterReader(IDatabaseProvider databaseProvider, IDataReader parent, IList<Models.ColumnModel> sourceColumns, IList<Models.ColumnModel> targetColumns, bool trimStrings)
     {
-        _databaseFactory = databaseFactory;
+        _databaseProvider = databaseProvider;
         this._parent = parent;
         this._sourceColumns = sourceColumns;
         this._targetColumns = targetColumns;
         this.TrimStrings = trimStrings;
-        this.SourceDatabaseType = sourceDatabasetype;
-        this.TargetDatabaseType = targetDatabaseType;
-        _sourceDatabaseProvider = databaseFactory.GetDatabaseProvider(this.SourceDatabaseType);
     }
 
     public IDataReader Parent
@@ -49,9 +45,6 @@ public class TableConverterReader : System.Data.IDataReader
     }
 
     public bool TrimStrings { get; set; }
-
-    public Models.DatabaseType SourceDatabaseType { get; set; }
-    public Models.DatabaseType TargetDatabaseType { get; set; }
 
     public object this[string name]
     {
@@ -137,8 +130,8 @@ public class TableConverterReader : System.Data.IDataReader
         {
             var sourceColumn = this.SourceColumns[i];
             object newValue;
-            if (_sourceDatabaseProvider != null &&
-                _sourceDatabaseProvider.TryHandleColumnValueLoadException(ex, sourceColumn, out newValue))
+            if (_databaseProvider != null &&
+                _databaseProvider.TryHandleColumnValueLoadException(ex, sourceColumn, out newValue))
             {
                 value = newValue;
             }
