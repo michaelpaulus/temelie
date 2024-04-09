@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using Cornerstone.Database.Processes;
+using Cornerstone.Database.Services;
 using Cornerstone.Database.Providers;
 
 namespace Cornerstone.Database.ViewModels;
@@ -72,8 +72,8 @@ public class ConvertViewModel : ViewModel
 
         TableConverterSettings settings = new TableConverterSettings();
 
-        var targetDatabaseType = Processes.Database.GetDatabaseType(TargetDatabaseConnectionString);
-        var targetDatabase = new Processes.Database(targetDatabaseType, _databaseProviders, _connectionCreatedNotifications);
+        var targetDatabaseType = Services.DatabaseService.GetDatabaseType(TargetDatabaseConnectionString);
+        var targetDatabase = new Services.DatabaseService(targetDatabaseType, _databaseProviders, _connectionCreatedNotifications);
 
         using (var conn = targetDatabase.CreateDbConnection(TargetDatabaseConnectionString))
         {
@@ -110,7 +110,7 @@ public class ConvertViewModel : ViewModel
 
         Task.Factory.StartNew(() =>
         {
-            var converter = new TableConverter(_databaseProviders, _connectionCreatedNotifications);
+            var converter = new TableConverterService(_databaseProviders, _connectionCreatedNotifications);
             converter.ConvertTables(settings,
                 progress,
                 this.ThreadCount);

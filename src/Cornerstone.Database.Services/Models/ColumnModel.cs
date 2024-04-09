@@ -195,7 +195,7 @@ namespace Cornerstone.Database
             {
                 get
                 {
-                    return Processes.Database.GetDBType(this.ColumnType);
+                    return Services.DatabaseService.GetDBType(this.ColumnType);
                 }
             }
 

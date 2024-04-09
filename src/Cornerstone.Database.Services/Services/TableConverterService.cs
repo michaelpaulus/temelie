@@ -3,17 +3,16 @@ using System.Data;
 using System.Data.Common;
 using System.Text;
 using Cornerstone.Database.Providers;
-using Microsoft.Data.SqlClient;
 
-namespace Cornerstone.Database.Processes;
+namespace Cornerstone.Database.Services;
 
-public class TableConverter
+public class TableConverterService
 {
 
     private readonly IEnumerable<IDatabaseProvider> _databaseProviders;
     private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
 
-    public TableConverter(IEnumerable<IDatabaseProvider> databaseProviders, IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications)
+    public TableConverterService(IEnumerable<IDatabaseProvider> databaseProviders, IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications)
     {
         _databaseProviders = databaseProviders;
         _connectionCreatedNotifications = connectionCreatedNotifications;
@@ -112,126 +111,22 @@ public class TableConverter
       bool useTransaction = true,
       bool validateTargetTable = true)
     {
-        var targetDatabase = new Database(Database.GetDatabaseType(targetConnectionString), _databaseProviders, _connectionCreatedNotifications);
+        var targetDatabase = new DatabaseService(DatabaseService.GetDatabaseType(targetConnectionString), _databaseProviders, _connectionCreatedNotifications);
         using (System.Data.Common.DbConnection targetConnection = targetDatabase.CreateDbConnection(targetConnectionString))
         {
-            ConvertBulk(progress, sourceTable, sourceReader, sourceRowCount, targetTable, targetConnection, trimStrings, batchSize, useTransaction, validateTargetTable);
-        }
-    }
-
-    private void ConvertBulk(IProgress<TableProgress> progress,
-        Models.TableModel sourceTable,
-        IDataReader sourceReader,
-        int sourceRowCount,
-        Models.TableModel targetTable,
-        DbConnection targetConnection,
-        bool trimStrings,
-        int batchSize,
-        bool useTransaction = true,
-        bool validateTargetTable = true)
-    {
-        progress?.Report(new TableProgress() { ProgressPercentage = 0, Table = sourceTable });
-
-        var targetDatabaseType = Cornerstone.Database.Processes.Database.GetDatabaseType(targetConnection);
-
-        int intProgress = 0;
-
-        if (validateTargetTable)
-        {
-            var targetRowCount = GetRowCount(targetTable, targetConnection);
-            if (targetRowCount != 0)
-            {
-                progress?.Report(new TableProgress() { ProgressPercentage = 100, Table = sourceTable });
-                return;
-            }
-        }
-
-        if (targetDatabaseType == Models.DatabaseType.MySql)
-        {
-            throw new NotImplementedException();
-        }
-        else
-        {
-            void bulkCopy(SqlTransaction transaction1)
-            {
-                int intRowIndex = 0;
-
-                var sourceMatchedColumns = this.GetMatchedColumns(sourceTable.Columns, targetTable.Columns);
-                var targetMatchedColumns = this.GetMatchedColumns(targetTable.Columns, sourceTable.Columns);
-
-                using (SqlBulkCopy bcp = new SqlBulkCopy((SqlConnection)targetConnection, SqlBulkCopyOptions.KeepIdentity, transaction1))
-                {
-                    bcp.DestinationTableName = $"[{targetTable.SchemaName}].[{targetTable.TableName}]";
-                    bcp.BatchSize = batchSize == 0 ? 10000 : batchSize;
-                    bcp.BulkCopyTimeout = 600;
-                    bcp.NotifyAfter = bcp.BatchSize;
-
-                    foreach (var targetColumn in targetMatchedColumns)
-                    {
-                        bcp.ColumnMappings.Add(targetColumn.ColumnName, targetColumn.ColumnName);
-                    }
-
-                    bcp.SqlRowsCopied += (object sender, SqlRowsCopiedEventArgs e) =>
-                    {
-                        if (progress != null &&
-                            sourceRowCount > 0)
-                        {
-                            intRowIndex += bcp.BatchSize;
-
-                            if (intRowIndex > sourceRowCount)
-                            {
-                                intRowIndex = sourceRowCount;
-                            }
-
-                            int intNewProgress = System.Convert.ToInt32(intRowIndex / (double)sourceRowCount * 100);
-
-                            if (intProgress != intNewProgress &&
-                                intNewProgress < 100)
-                            {
-                                intProgress = intNewProgress;
-                                progress.Report(new TableProgress() { ProgressPercentage = intProgress, Table = sourceTable });
-                            }
-                        }
-                    };
-
-                    bcp.WriteToServer(sourceReader);
-
-                }
-
-            }
-
-            if (System.Transactions.Transaction.Current == null && useTransaction)
-            {
-                using (var transaction = targetConnection.BeginTransaction())
-                {
-                    bulkCopy((SqlTransaction)transaction);
-                    transaction.Commit();
-                }
-            }
-            else
-            {
-                bulkCopy(null);
-            }
-
-        }
-
-        if (progress != null &&
-            intProgress != 100)
-        {
-            progress.Report(new TableProgress() { ProgressPercentage = 100, Table = sourceTable });
+            targetDatabase.Provider.ConvertBulk(this, progress, sourceTable, sourceReader, sourceRowCount, targetTable, targetConnection, trimStrings, batchSize, useTransaction, validateTargetTable);
         }
     }
 
     private DbCommand CreateSourceCommand(Models.TableModel sourceTable, Models.TableModel targetTable, System.Data.Common.DbConnection sourceConnection)
     {
-        var sourceDatabaseType = Cornerstone.Database.Processes.Database.GetDatabaseType(sourceConnection);
+        var sourceDatabaseType = Cornerstone.Database.Services.DatabaseService.GetDatabaseType(sourceConnection);
 
-        var sourceDatabase = new Database(sourceDatabaseType, _databaseProviders, _connectionCreatedNotifications);
+        var sourceDatabase = new DatabaseService(sourceDatabaseType, _databaseProviders, _connectionCreatedNotifications);
 
         StringBuilder sbColumns = new System.Text.StringBuilder();
 
         var sourceMatchedColumns = this.GetMatchedColumns(sourceTable.Columns, targetTable.Columns);
-        var targetMatchedColumns = this.GetMatchedColumns(targetTable.Columns, sourceTable.Columns);
 
         foreach (var sourceColumn in sourceMatchedColumns)
         {
@@ -262,11 +157,11 @@ public class TableConverter
     {
         progress?.Report(new TableProgress() { ProgressPercentage = 0, Table = sourceTable });
 
-        var sourceDatabaseType = Database.GetDatabaseType(sourceConnectionString);
-        var targetDatabaseType = Database.GetDatabaseType(targetConnectionString);
+        var sourceDatabaseType = DatabaseService.GetDatabaseType(sourceConnectionString);
+        var targetDatabaseType = DatabaseService.GetDatabaseType(targetConnectionString);
 
-        var sourceDatabase = new Database(sourceDatabaseType, _databaseProviders, _connectionCreatedNotifications);
-        var targetDatabase = new Database(targetDatabaseType, _databaseProviders, _connectionCreatedNotifications);
+        var sourceDatabase = new DatabaseService(sourceDatabaseType, _databaseProviders, _connectionCreatedNotifications);
+        var targetDatabase = new DatabaseService(targetDatabaseType, _databaseProviders, _connectionCreatedNotifications);
 
         using (var targetConnection = targetDatabase.CreateDbConnection(targetConnectionString))
         {
@@ -316,11 +211,11 @@ public class TableConverter
     {
         progress?.Report(new TableProgress() { ProgressPercentage = 0, Table = sourceTable });
 
-        var sourceDatabaseType = Cornerstone.Database.Processes.Database.GetDatabaseType(sourceConnectionString);
-        var targetDatabaseType = Cornerstone.Database.Processes.Database.GetDatabaseType(targetConnectionString);
+        var sourceDatabaseType = Cornerstone.Database.Services.DatabaseService.GetDatabaseType(sourceConnectionString);
+        var targetDatabaseType = Cornerstone.Database.Services.DatabaseService.GetDatabaseType(targetConnectionString);
 
-        var sourceDatabase = new Database(sourceDatabaseType, _databaseProviders, _connectionCreatedNotifications);
-        var targetDatabase = new Database(targetDatabaseType, _databaseProviders, _connectionCreatedNotifications);
+        var sourceDatabase = new DatabaseService(sourceDatabaseType, _databaseProviders, _connectionCreatedNotifications);
+        var targetDatabase = new DatabaseService(targetDatabaseType, _databaseProviders, _connectionCreatedNotifications);
 
         int intProgress = 0;
 
@@ -390,10 +285,7 @@ public class TableConverter
                                 {
                                     if (targetColumn.IsIdentity)
                                     {
-                                        if (targetCommand as SqlCommand != null)
-                                        {
-                                            blnContainsIdentity = true;
-                                        }
+                                        blnContainsIdentity = true;
                                     }
 
                                     if (sbColumns.Length > 0)
@@ -587,9 +479,9 @@ public class TableConverter
     private DataTable GetTableValues(System.Configuration.ConnectionStringSettings sourceConnectionString, Models.TableModel sourceTable, Models.TableModel targetTable, bool trimStrings,
         int take, int skip)
     {
-        var sourceDatabaseType = Cornerstone.Database.Processes.Database.GetDatabaseType(sourceConnectionString);
+        var sourceDatabaseType = Cornerstone.Database.Services.DatabaseService.GetDatabaseType(sourceConnectionString);
 
-        var sourceDatabase = new Database(sourceDatabaseType, _databaseProviders, _connectionCreatedNotifications);
+        var sourceDatabase = new DatabaseService(sourceDatabaseType, _databaseProviders, _connectionCreatedNotifications);
 
         System.Text.StringBuilder sbColumns = new System.Text.StringBuilder();
         System.Text.StringBuilder sbKeyColumns = new System.Text.StringBuilder();
@@ -622,7 +514,7 @@ public class TableConverter
             column.AutoIncrement = targetColumn.IsIdentity;
             column.AllowDBNull = targetColumn.IsNullable;
 
-            column.DataType = Database.GetSystemType(targetColumn.DbType);
+            column.DataType = DatabaseService.GetSystemType(targetColumn.DbType);
 
             if (column.DataType == typeof(string))
             {
@@ -704,7 +596,7 @@ public class TableConverter
         return dataTable;
     }
 
-    private IList<Models.ColumnModel> GetMatchedColumns(IList<Models.ColumnModel> sourceColumns, IList<Models.ColumnModel> targetColumns)
+    public IList<Models.ColumnModel> GetMatchedColumns(IList<Models.ColumnModel> sourceColumns, IList<Models.ColumnModel> targetColumns)
     {
         var list = new List<Models.ColumnModel>();
 
@@ -728,7 +620,7 @@ public class TableConverter
 
     private void SetReadTimeout(Models.DatabaseType databaseType, System.Data.Common.DbCommand sourceCommand)
     {
-        var databaseProvider = Cornerstone.Database.Processes.Database.GetDatabaseProvider(_databaseProviders, databaseType);
+        var databaseProvider = Cornerstone.Database.Services.DatabaseService.GetDatabaseProvider(_databaseProviders, databaseType);
         databaseProvider?.SetReadTimeout(sourceCommand);
     }
 
@@ -754,7 +646,7 @@ public class TableConverter
 
     public int GetRowCount(Models.TableModel table, System.Data.Common.DbConnection connection)
     {
-        var databaseType = Cornerstone.Database.Processes.Database.GetDatabaseType(connection);
+        var databaseType = Cornerstone.Database.Services.DatabaseService.GetDatabaseType(connection);
         return this.GetRowCount(connection, table.SchemaName, table.TableName, databaseType);
     }
 
@@ -762,7 +654,7 @@ public class TableConverter
     {
         int rowCount = 0;
 
-        var database = new Database(databaseType, _databaseProviders, _connectionCreatedNotifications);
+        var database = new DatabaseService(databaseType, _databaseProviders, _connectionCreatedNotifications);
 
         using (var command = database.CreateDbCommand(connection))
         {

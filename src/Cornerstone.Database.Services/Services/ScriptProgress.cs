@@ -1,4 +1,4 @@
-namespace Cornerstone.Database.Processes;
+namespace Cornerstone.Database.Services;
 
 public class ScriptProgress
 {

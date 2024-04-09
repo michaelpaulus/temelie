@@ -1,7 +1,7 @@
 using System.Data;
 using Cornerstone.Database.Providers;
 
-namespace Cornerstone.Database.Processes;
+namespace Cornerstone.Database.Services;
 
 public class TableConverterReader : System.Data.IDataReader
 {
@@ -16,7 +16,7 @@ public class TableConverterReader : System.Data.IDataReader
         this.TrimStrings = trimStrings;
         this.SourceDatabaseType = sourceDatabasetype;
         this.TargetDatabaseType = targetDatabaseType;
-        _sourceDatabaseProvider = Processes.Database.GetDatabaseProvider(databaseProviders, this.SourceDatabaseType);
+        _sourceDatabaseProvider = Services.DatabaseService.GetDatabaseProvider(databaseProviders, this.SourceDatabaseType);
     }
 
     private readonly IDataReader _parent;

@@ -2,7 +2,7 @@ using System.Data;
 using System.Data.Common;
 using Cornerstone.Database.Extensions;
 using Cornerstone.Database.Models;
-using Cornerstone.Database.Processes;
+using Cornerstone.Database.Services;
 using MySql.Data.MySqlClient;
 using MySql.Data.Types;
 
@@ -12,12 +12,12 @@ public class DatabaseProvider : IDatabaseProvider
 {
 
     private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
-    private readonly Processes.Database _database;
+    private readonly Services.DatabaseService _database;
 
     public DatabaseProvider(IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications)
     {
         _connectionCreatedNotifications = connectionCreatedNotifications;
-        _database = new Processes.Database(this, connectionCreatedNotifications);
+        _database = new Services.DatabaseService(this, connectionCreatedNotifications);
     }
 
     public Cornerstone.Database.Models.DatabaseType ForDatabaseType
@@ -247,7 +247,7 @@ public class DatabaseProvider : IDatabaseProvider
     public string TransformConnectionString(string connectionString)
     {
         var csb = new MySqlConnectionStringBuilder(connectionString);
-        csb.DefaultCommandTimeout = Cornerstone.Database.Processes.Database.DefaultCommandTimeout;
+        csb.DefaultCommandTimeout = Cornerstone.Database.Services.DatabaseService.DefaultCommandTimeout;
         return csb.ConnectionString;
     }
 
@@ -388,7 +388,7 @@ public class DatabaseProvider : IDatabaseProvider
         foreach (var row in table.Rows.OfType<DataRow>())
         {
 
-            string columnDefault = Processes.Database.GetStringValue(row, "COLUMN_DEFAULT");
+            string columnDefault = Services.DatabaseService.GetStringValue(row, "COLUMN_DEFAULT");
 
             if (!string.IsNullOrEmpty(columnDefault))
             {
@@ -466,5 +466,15 @@ public class DatabaseProvider : IDatabaseProvider
     public DataTable GetSecurityPolicies(DbConnection connection)
     {
         return null;
+    }
+
+    public void ConvertBulk(TableConverterService service, IProgress<TableProgress> progress, TableModel sourceTable, IDataReader sourceReader, int sourceRowCount, TableModel targetTable, DbConnection targetConnection, bool trimStrings, int batchSize, bool useTransaction = true, bool validateTargetTable = true)
+    {
+        throw new NotImplementedException();
+    }
+
+    public string GetDatabaseName(string connectionString)
+    {
+        return new MySqlConnectionStringBuilder(connectionString).Database;
     }
 }

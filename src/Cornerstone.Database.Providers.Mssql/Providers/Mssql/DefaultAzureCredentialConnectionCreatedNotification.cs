@@ -1,8 +1,8 @@
 using System.Data;
-using Cornerstone.Database.Processes;
+using Cornerstone.Database.Services;
 using Microsoft.Data.SqlClient;
 
-namespace Cornerstone.Database.Providers;
+namespace Cornerstone.Database.Providers.Mssql;
 
 public class DefaultAzureCredentialConnectionCreatedNotification : IConnectionCreatedNotification
 {

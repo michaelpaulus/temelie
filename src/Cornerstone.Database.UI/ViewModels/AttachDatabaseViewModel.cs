@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Cornerstone.Database.Processes;
+using Cornerstone.Database.Services;
 using Cornerstone.Database.Providers;
 
 namespace Cornerstone.Database
@@ -64,9 +64,9 @@ namespace Cornerstone.Database
                         System.Text.StringBuilder sbCommand = new System.Text.StringBuilder();
                         sbCommand.AppendLine(string.Format("EXEC sp_detach_db @dbname = N'{0}'", model.DatabaseName));
 
-                        var databaseType = Processes.Database.GetDatabaseType(connectionString);
+                        var databaseType = Services.DatabaseService.GetDatabaseType(connectionString);
 
-                        var database = new Processes.Database(databaseType, _databaseProviders, _connectionCreatedNotifications);
+                        var database = new Services.DatabaseService(databaseType, _databaseProviders, _connectionCreatedNotifications);
 
                         database.ExecuteNonQuery(connectionString, sbCommand.ToString());
 
@@ -99,9 +99,9 @@ namespace Cornerstone.Database
                             sbCommand.AppendLine(string.Format(", @filename{0} = N'{1}'", intFileCount, file));
                         }
 
-                        var databaseType = Processes.Database.GetDatabaseType(connectionString);
+                        var databaseType = Services.DatabaseService.GetDatabaseType(connectionString);
 
-                        var database = new Processes.Database(databaseType, _databaseProviders, _connectionCreatedNotifications);
+                        var database = new Services.DatabaseService(databaseType, _databaseProviders, _connectionCreatedNotifications);
 
                         database.ExecuteNonQuery(connectionString, sbCommand.ToString());
 

@@ -1,9 +1,8 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using Cornerstone.Database.Processes;
+using Cornerstone.Database.Services;
 using Cornerstone.Database.Providers;
-using Microsoft.Data.SqlClient;
 
 namespace Cornerstone.Database
 {
@@ -143,8 +142,8 @@ namespace Cornerstone.Database
                         IsTargetColumnIdentity = this.TargetColumn.IsIdentity,
                         ColumnMapping = this.ColumnMapping,
                         WrapInIsNull = SourceColumn != null &&
-                                    Processes.Database.GetSystemType(TargetColumn.DbType) == typeof(string) &&
-                                    Processes.Database.GetSystemType(SourceColumn.DbType) == typeof(string) &&
+                                    Services.DatabaseService.GetSystemType(TargetColumn.DbType) == typeof(string) &&
+                                    Services.DatabaseService.GetSystemType(SourceColumn.DbType) == typeof(string) &&
                                     !TargetColumn.IsNullable &&
                                     SourceColumn.IsNullable
                     };
@@ -168,7 +167,7 @@ namespace Cornerstone.Database
                         where !i.IsComputed
                         select i).ToList();
 
-                    var mappings = Cornerstone.Database.Processes.Mapping.AutoMatch(sourceTableColumns, targetTableColumns);
+                    var mappings = Cornerstone.Database.Services.Mapping.AutoMatch(sourceTableColumns, targetTableColumns);
 
                     foreach (var mapping in mappings)
                     {
@@ -243,14 +242,16 @@ namespace Cornerstone.Database
 
                 if (this.IncludeSourceDatabase)
                 {
-                    SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(this.SourceDatabaseConnectionString.ConnectionString);
-                    tableMapping.SourceDatabase = builder.InitialCatalog;
+                    var dbType = DatabaseService.GetDatabaseType(this.SourceDatabaseConnectionString);
+                    var provider = DatabaseService.GetDatabaseProvider(_databaseProviders, dbType);
+                    tableMapping.SourceDatabase = provider.GetDatabaseName(this.SourceDatabaseConnectionString.ConnectionString);
                 }
 
                 if (this.IncludeTargetDatabase)
                 {
-                    SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(this.TargetDatabaseConnectionString.ConnectionString);
-                    tableMapping.TargetDatabase = builder.InitialCatalog;
+                    var dbType = DatabaseService.GetDatabaseType(this.TargetDatabaseConnectionString);
+                    var provider = DatabaseService.GetDatabaseProvider(_databaseProviders, dbType);
+                    tableMapping.TargetDatabase = provider.GetDatabaseName(this.TargetDatabaseConnectionString.ConnectionString);
                 }
 
                 if (this.IncludeNotExists)
@@ -264,19 +265,19 @@ namespace Cornerstone.Database
             public string CreateSql()
             {
                 var tableMapping = this.CreateTableMapping();
-                return Cornerstone.Database.Processes.Mapping.CreateScript(tableMapping);
+                return Cornerstone.Database.Services.Mapping.CreateScript(tableMapping);
             }
 
             public string CreateXml()
             {
                 var tableMapping = this.CreateTableMapping();
-                return Cornerstone.Database.Processes.Mapping.CreateXml(tableMapping);
+                return Cornerstone.Database.Services.Mapping.CreateXml(tableMapping);
             }
 
             public void UpdateTargetTables()
             {
-                var targetDatbaseType = Processes.Database.GetDatabaseType(TargetDatabaseConnectionString);
-                var database = new Processes.Database(targetDatbaseType, _databaseProviders, _connectionCreatedNotifications);
+                var targetDatbaseType = Services.DatabaseService.GetDatabaseType(TargetDatabaseConnectionString);
+                var database = new Services.DatabaseService(targetDatbaseType, _databaseProviders, _connectionCreatedNotifications);
 
                 using (var conn = database.CreateDbConnection(TargetDatabaseConnectionString))
                 {
@@ -301,8 +302,8 @@ namespace Cornerstone.Database
 
             public void UpdateSourceTables()
             {
-                var datbaseType = Processes.Database.GetDatabaseType(SourceDatabaseConnectionString);
-                var database = new Processes.Database(datbaseType, _databaseProviders, _connectionCreatedNotifications);
+                var datbaseType = Services.DatabaseService.GetDatabaseType(SourceDatabaseConnectionString);
+                var database = new Services.DatabaseService(datbaseType, _databaseProviders, _connectionCreatedNotifications);
 
                 using (var conn = database.CreateDbConnection(SourceDatabaseConnectionString))
                 {

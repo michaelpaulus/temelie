@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using Cornerstone.Database.Processes;
+using Cornerstone.Database.Services;
 using Cornerstone.Database.Providers;
 using Cornerstone.Database.UI;
 using Microsoft.Extensions.DependencyInjection;
@@ -72,8 +72,8 @@ public partial class DatabaseConnection : UserControl
     {
         IList<Cornerstone.Database.Models.TableModel> tables = new List<Cornerstone.Database.Models.TableModel>();
 
-        var databaseType = Processes.Database.GetDatabaseType(connectionString);
-        var database = new Processes.Database(databaseType, databaseProviders, connectionCreatedNotifications);
+        var databaseType = Services.DatabaseService.GetDatabaseType(connectionString);
+        var database = new Services.DatabaseService(databaseType, databaseProviders, connectionCreatedNotifications);
 
         try
         {
@@ -97,8 +97,8 @@ public partial class DatabaseConnection : UserControl
     {
         IList<Cornerstone.Database.Models.TableModel> tables = new List<Cornerstone.Database.Models.TableModel>();
 
-        var databaseType = Processes.Database.GetDatabaseType(connectionString);
-        var database = new Processes.Database(databaseType, databaseProviders, connectionCreatedNotifications);
+        var databaseType = Services.DatabaseService.GetDatabaseType(connectionString);
+        var database = new Services.DatabaseService(databaseType, databaseProviders, connectionCreatedNotifications);
 
         try
         {

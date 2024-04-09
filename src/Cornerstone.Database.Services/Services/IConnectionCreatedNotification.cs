@@ -1,6 +1,6 @@
 using System.Data;
 
-namespace Cornerstone.Database.Processes;
+namespace Cornerstone.Database.Services;
 
 public interface IConnectionCreatedNotification
 {

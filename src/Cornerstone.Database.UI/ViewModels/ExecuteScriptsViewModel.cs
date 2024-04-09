@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Cornerstone.Database.Processes;
+using Cornerstone.Database.Services;
 using Cornerstone.Database.Providers;
 
 namespace Cornerstone.Database.ViewModels;
@@ -104,7 +104,7 @@ public class ExecuteScriptsViewModel : ViewModel
 
     private void ExecuteScriptsInternal(IProgress<ScriptProgress> progress)
     {
-        var script = new Script(_databaseProviders, _connectionCreatedNotifications);
+        var script = new ScriptService(_databaseProviders, _connectionCreatedNotifications);
         script.ExecuteScripts(this.DatabaseConnectionString, this.Files, this.ContinueOnError, progress);
     }
 

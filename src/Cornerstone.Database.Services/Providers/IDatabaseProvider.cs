@@ -1,5 +1,6 @@
 using System.Data;
 using System.Data.Common;
+using Cornerstone.Database.Services;
 
 namespace Cornerstone.Database.Providers;
 
@@ -30,4 +31,18 @@ public interface IDatabaseProvider
 
     bool TryHandleColumnValueLoadException(Exception ex, Models.ColumnModel column, out object value);
     DataTable GetSecurityPolicies(DbConnection connection);
+    void ConvertBulk(
+       TableConverterService service,
+       IProgress<TableProgress> progress,
+       Models.TableModel sourceTable,
+       IDataReader sourceReader,
+       int sourceRowCount,
+       Models.TableModel targetTable,
+       DbConnection targetConnection,
+       bool trimStrings,
+       int batchSize,
+       bool useTransaction = true,
+       bool validateTargetTable = true);
+
+    string GetDatabaseName(string connectionString);
 }

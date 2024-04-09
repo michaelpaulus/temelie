@@ -1,9 +1,8 @@
 using System.Data;
 using System.Text;
 using Cornerstone.Database.Extensions;
-using Cornerstone.Database.Processes;
+using Cornerstone.Database.Services;
 using Cornerstone.Database.Providers;
-using Microsoft.Data.SqlClient;
 
 namespace Cornerstone.Database
 {
@@ -12,9 +11,9 @@ namespace Cornerstone.Database
         public class DatabaseModel
         {
 
-            private readonly Processes.Database _database;
+            private readonly Services.DatabaseService _database;
 
-            public DatabaseModel(System.Configuration.ConnectionStringSettings connectionString, IEnumerable<IDatabaseProvider> databaseProviders, IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications) : this(connectionString, databaseProviders, connectionCreatedNotifications, Processes.Database.GetDatabaseType(connectionString))
+            public DatabaseModel(System.Configuration.ConnectionStringSettings connectionString, IEnumerable<IDatabaseProvider> databaseProviders, IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications) : this(connectionString, databaseProviders, connectionCreatedNotifications, Services.DatabaseService.GetDatabaseType(connectionString))
             {
 
             }
@@ -22,15 +21,9 @@ namespace Cornerstone.Database
             public DatabaseModel(System.Configuration.ConnectionStringSettings connectionString, IEnumerable<IDatabaseProvider> databaseProviders, IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications, Models.DatabaseType targetDatabseType)
             {
                 this._connectionString = connectionString;
-                this._databaseType = Processes.Database.GetDatabaseType(connectionString);
-                _database = new Processes.Database(targetDatabseType, databaseProviders, connectionCreatedNotifications);
-                switch (this.DatabaseType)
-                {
-                    case Models.DatabaseType.MicrosoftSQLServer:
-                        var sqlCommandBuilder = new SqlConnectionStringBuilder(connectionString.ConnectionString);
-                        this._databaseName = sqlCommandBuilder.InitialCatalog;
-                        break;
-                }
+                this._databaseType = Services.DatabaseService.GetDatabaseType(connectionString);
+                _database = new Services.DatabaseService(targetDatabseType, databaseProviders, connectionCreatedNotifications);
+                this._databaseName = _database.Provider.GetDatabaseName(connectionString.ConnectionString);
 
                 switch (targetDatabseType)
                 {
@@ -898,7 +891,7 @@ GO
 
                 sb.AppendLine(this.GetSecurityPolicyScripts());
 
-                if (Processes.Database.GetDatabaseType(this.ConnectionString) == Models.DatabaseType.MicrosoftSQLServer)
+                if (Services.DatabaseService.GetDatabaseType(this.ConnectionString) == Models.DatabaseType.MicrosoftSQLServer)
                 {
                     sb.AppendLine(this.GetInsertDefaultScripts());
                 }
