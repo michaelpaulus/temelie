@@ -1,9 +1,6 @@
-
 using System;
-using System.Collections.Generic;
 using System.Windows;
 using Cornerstone.Database.Providers;
-using Cornerstone.Database.Services;
 using Cornerstone.Database.UI;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,13 +9,11 @@ namespace Cornerstone.Database;
 public partial class TableMappingScript
 {
 
-    private readonly IEnumerable<IDatabaseProvider> _databaseProviders;
-    private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
+    private readonly IDatabaseFactory _databaseFactory;
 
     public TableMappingScript()
     {
-        _databaseProviders = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetServices<IDatabaseProvider>();
-        _connectionCreatedNotifications = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetServices<IConnectionCreatedNotification>();
+        _databaseFactory = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetService<IDatabaseFactory>();
 
         // This call is required by the Windows Form Designer.
         InitializeComponent();
@@ -41,7 +36,7 @@ public partial class TableMappingScript
         {
             if (this._viewModel == null)
             {
-                this._viewModel = new ViewModels.TableMappingViewModel(_databaseProviders, _connectionCreatedNotifications);
+                this._viewModel = new ViewModels.TableMappingViewModel(_databaseFactory);
             }
             return this._viewModel;
         }

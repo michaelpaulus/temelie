@@ -12,20 +12,17 @@ namespace Cornerstone.Database
         {
 
             private readonly Services.DatabaseService _database;
+            private readonly IDatabaseFactory _databaseFactory;
 
-            public DatabaseModel(System.Configuration.ConnectionStringSettings connectionString, IEnumerable<IDatabaseProvider> databaseProviders, IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications) : this(connectionString, databaseProviders, connectionCreatedNotifications, Services.DatabaseService.GetDatabaseType(connectionString))
+            public DatabaseModel(IDatabaseFactory databaseFactory, System.Configuration.ConnectionStringSettings connectionString)
             {
-
-            }
-
-            public DatabaseModel(System.Configuration.ConnectionStringSettings connectionString, IEnumerable<IDatabaseProvider> databaseProviders, IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications, Models.DatabaseType targetDatabseType)
-            {
+                _databaseFactory = databaseFactory;
                 this._connectionString = connectionString;
-                this._databaseType = Services.DatabaseService.GetDatabaseType(connectionString);
-                _database = new Services.DatabaseService(targetDatabseType, databaseProviders, connectionCreatedNotifications);
-                this._databaseName = _database.Provider.GetDatabaseName(connectionString.ConnectionString);
+                this._databaseType = databaseFactory.GetDatabaseType(connectionString);
+                _database = new DatabaseService(databaseFactory, _databaseType);
+                this._databaseName = _database.DatabaseProvider.GetDatabaseName(connectionString.ConnectionString);
 
-                switch (targetDatabseType)
+                switch (_databaseType)
                 {
                     case Models.DatabaseType.AccessOLE:
                     case Models.DatabaseType.OLE:
@@ -891,7 +888,7 @@ GO
 
                 sb.AppendLine(this.GetSecurityPolicyScripts());
 
-                if (Services.DatabaseService.GetDatabaseType(this.ConnectionString) == Models.DatabaseType.MicrosoftSQLServer)
+                if (_databaseFactory.GetDatabaseType(this.ConnectionString) == Models.DatabaseType.MicrosoftSQLServer)
                 {
                     sb.AppendLine(this.GetInsertDefaultScripts());
                 }

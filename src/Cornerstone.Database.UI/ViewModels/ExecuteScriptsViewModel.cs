@@ -11,17 +11,13 @@ namespace Cornerstone.Database.ViewModels;
 public class ExecuteScriptsViewModel : ViewModel
 {
 
-    private readonly IEnumerable<IDatabaseProvider> _databaseProviders;
-    private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
+    private readonly IDatabaseFactory _databaseFactory;
 
-    public ExecuteScriptsViewModel(IEnumerable<IDatabaseProvider> databaseProviders,
-        IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications)
+    public ExecuteScriptsViewModel(IDatabaseFactory databaseFactory)
     {
-        _connectionCreatedNotifications = connectionCreatedNotifications;
-        _databaseProviders = databaseProviders;
+        _databaseFactory = databaseFactory;
         this.ExecuteScriptsCommand = new Command(this.ExecuteScripts);
         this.ScriptPath = Configuration.Preferences.UserSettingsContext.Current.CreateScriptsPath;
-
     }
 
     #region Properties
@@ -106,7 +102,7 @@ public class ExecuteScriptsViewModel : ViewModel
 
     private void ExecuteScriptsInternal(IProgress<ScriptProgress> progress)
     {
-        var script = new ScriptService(_databaseProviders, _connectionCreatedNotifications);
+        var script = new ScriptService(_databaseFactory);
         script.ExecuteScripts(this.DatabaseConnectionString, this.Files, this.ContinueOnError, progress);
     }
 

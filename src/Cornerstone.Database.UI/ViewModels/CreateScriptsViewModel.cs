@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,14 +10,11 @@ namespace Cornerstone.Database.ViewModels;
 public class CreateScriptsViewModel : ViewModel
 {
 
-    private readonly IEnumerable<IDatabaseProvider> _databaseProviders;
-    private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
+    private readonly IDatabaseFactory _databaseFactory;
 
-    public CreateScriptsViewModel(IEnumerable<IDatabaseProvider> databaseProviders,
-        IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications)
+    public CreateScriptsViewModel(IDatabaseFactory databaseFactory)
     {
-        _connectionCreatedNotifications = connectionCreatedNotifications;
-        _databaseProviders = databaseProviders;
+        _databaseFactory = databaseFactory;
         this.CreateScriptsCommand = new Command(this.CreateScripts);
         this.ScriptPath = Configuration.Preferences.UserSettingsContext.Current.CreateScriptsPath;
     }
@@ -80,10 +76,9 @@ public class CreateScriptsViewModel : ViewModel
     private void CreateScriptsInternal(IProgress<ScriptProgress> progress)
     {
         System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(this.ScriptPath);
-        var script = new ScriptService(_databaseProviders, _connectionCreatedNotifications);
+        var script = new ScriptService(_databaseFactory);
         script.CreateScriptsIndividual(this.DatabaseConnectionString, di, Models.DatabaseType.MicrosoftSQLServer, progress, this.ObjectFilter);
     }
-
     private void ReportProgress(ScriptProgress progress)
     {
         this.ProgressPercentage = progress.ProgressPercentage;

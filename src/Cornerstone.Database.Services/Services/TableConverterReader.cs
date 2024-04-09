@@ -7,19 +7,21 @@ public class TableConverterReader : System.Data.IDataReader
 {
 
     private readonly IDatabaseProvider _sourceDatabaseProvider;
+    private readonly IDatabaseFactory _databaseFactory;
+    private readonly IDataReader _parent;
 
-    public TableConverterReader(IDataReader parent, IList<Models.ColumnModel> sourceColumns, IList<Models.ColumnModel> targetColumns, bool trimStrings, Models.DatabaseType sourceDatabasetype, Models.DatabaseType targetDatabaseType, IEnumerable<IDatabaseProvider> databaseProviders)
+    public TableConverterReader(IDatabaseFactory databaseFactory, IDataReader parent, IList<Models.ColumnModel> sourceColumns, IList<Models.ColumnModel> targetColumns, bool trimStrings, Models.DatabaseType sourceDatabasetype, Models.DatabaseType targetDatabaseType)
     {
+        _databaseFactory = databaseFactory;
         this._parent = parent;
         this._sourceColumns = sourceColumns;
         this._targetColumns = targetColumns;
         this.TrimStrings = trimStrings;
         this.SourceDatabaseType = sourceDatabasetype;
         this.TargetDatabaseType = targetDatabaseType;
-        _sourceDatabaseProvider = Services.DatabaseService.GetDatabaseProvider(databaseProviders, this.SourceDatabaseType);
+        _sourceDatabaseProvider = databaseFactory.GetDatabaseProvider(this.SourceDatabaseType);
     }
 
-    private readonly IDataReader _parent;
     public IDataReader Parent
     {
         get

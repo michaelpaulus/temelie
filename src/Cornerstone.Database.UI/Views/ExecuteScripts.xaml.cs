@@ -1,9 +1,6 @@
-
 using System;
-using System.Collections.Generic;
 using System.Windows;
 using Cornerstone.Database.Providers;
-using Cornerstone.Database.Services;
 using Cornerstone.Database.UI;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,13 +8,11 @@ namespace Cornerstone.Database;
 
 public partial class ExecuteScripts
 {
-    private readonly IEnumerable<IDatabaseProvider> _databaseProviders;
-    private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
+    private readonly IDatabaseFactory _databaseFactory;
 
     public ExecuteScripts()
     {
-        _databaseProviders = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetServices<IDatabaseProvider>();
-        _connectionCreatedNotifications = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetServices<IConnectionCreatedNotification>();
+        _databaseFactory = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetService<IDatabaseFactory>();
 
         this.InitializeComponent();
         SubscribeToEvents();
@@ -34,7 +29,7 @@ public partial class ExecuteScripts
         {
             if (this._viewModel == null)
             {
-                this._viewModel = new ViewModels.ExecuteScriptsViewModel(_databaseProviders, _connectionCreatedNotifications);
+                this._viewModel = new ViewModels.ExecuteScriptsViewModel(_databaseFactory);
             }
             return this._viewModel;
         }

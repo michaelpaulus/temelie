@@ -9,13 +9,11 @@ namespace Cornerstone.Database.Services;
 public class TableConverterService
 {
 
-    private readonly IEnumerable<IDatabaseProvider> _databaseProviders;
-    private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
+    private readonly IDatabaseFactory _databaseFactory;
 
-    public TableConverterService(IEnumerable<IDatabaseProvider> databaseProviders, IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications)
+    public TableConverterService(IDatabaseFactory databaseFactory)
     {
-        _databaseProviders = databaseProviders;
-        _connectionCreatedNotifications = connectionCreatedNotifications;
+        _databaseFactory = databaseFactory;
     }
 
     public void ConvertTables(TableConverterSettings settings,
@@ -111,18 +109,18 @@ public class TableConverterService
       bool useTransaction = true,
       bool validateTargetTable = true)
     {
-        var targetDatabase = new DatabaseService(DatabaseService.GetDatabaseType(targetConnectionString), _databaseProviders, _connectionCreatedNotifications);
+        var targetDatabase = new DatabaseService(_databaseFactory, _databaseFactory.GetDatabaseType(targetConnectionString));
         using (System.Data.Common.DbConnection targetConnection = targetDatabase.CreateDbConnection(targetConnectionString))
         {
-            targetDatabase.Provider.ConvertBulk(this, progress, sourceTable, sourceReader, sourceRowCount, targetTable, targetConnection, trimStrings, batchSize, useTransaction, validateTargetTable);
+            targetDatabase.DatabaseProvider.ConvertBulk(this, progress, sourceTable, sourceReader, sourceRowCount, targetTable, targetConnection, trimStrings, batchSize, useTransaction, validateTargetTable);
         }
     }
 
     private DbCommand CreateSourceCommand(Models.TableModel sourceTable, Models.TableModel targetTable, System.Data.Common.DbConnection sourceConnection)
     {
-        var sourceDatabaseType = Cornerstone.Database.Services.DatabaseService.GetDatabaseType(sourceConnection);
+        var sourceDatabaseType = _databaseFactory.GetDatabaseType(sourceConnection);
 
-        var sourceDatabase = new DatabaseService(sourceDatabaseType, _databaseProviders, _connectionCreatedNotifications);
+        var sourceDatabase = new DatabaseService(_databaseFactory, sourceDatabaseType);
 
         StringBuilder sbColumns = new System.Text.StringBuilder();
 
@@ -157,11 +155,11 @@ public class TableConverterService
     {
         progress?.Report(new TableProgress() { ProgressPercentage = 0, Table = sourceTable });
 
-        var sourceDatabaseType = DatabaseService.GetDatabaseType(sourceConnectionString);
-        var targetDatabaseType = DatabaseService.GetDatabaseType(targetConnectionString);
+        var sourceDatabaseType = _databaseFactory.GetDatabaseType(sourceConnectionString);
+        var targetDatabaseType = _databaseFactory.GetDatabaseType(targetConnectionString);
 
-        var sourceDatabase = new DatabaseService(sourceDatabaseType, _databaseProviders, _connectionCreatedNotifications);
-        var targetDatabase = new DatabaseService(targetDatabaseType, _databaseProviders, _connectionCreatedNotifications);
+        var sourceDatabase = new DatabaseService(_databaseFactory, sourceDatabaseType);
+        var targetDatabase = new DatabaseService(_databaseFactory, targetDatabaseType);
 
         using (var targetConnection = targetDatabase.CreateDbConnection(targetConnectionString))
         {
@@ -193,7 +191,7 @@ public class TableConverterService
                     {
                         var sourceMatchedColumns = this.GetMatchedColumns(sourceTable.Columns, targetTable.Columns);
                         var targetMatchedColumns = this.GetMatchedColumns(targetTable.Columns, sourceTable.Columns);
-                        var reader2 = new TableConverterReader(reader, sourceMatchedColumns, targetMatchedColumns, trimStrings, sourceDatabaseType, targetDatabaseType, _databaseProviders);
+                        var reader2 = new TableConverterReader(_databaseFactory, reader, sourceMatchedColumns, targetMatchedColumns, trimStrings, sourceDatabaseType, targetDatabaseType);
                         ConvertBulk(progress, sourceTable, reader2, intSourceRowCount.GetValueOrDefault(), targetTable, targetConnectionString, trimStrings, batchSize, useTransaction, false);
                     }
                 }
@@ -211,11 +209,11 @@ public class TableConverterService
     {
         progress?.Report(new TableProgress() { ProgressPercentage = 0, Table = sourceTable });
 
-        var sourceDatabaseType = Cornerstone.Database.Services.DatabaseService.GetDatabaseType(sourceConnectionString);
-        var targetDatabaseType = Cornerstone.Database.Services.DatabaseService.GetDatabaseType(targetConnectionString);
+        var sourceDatabaseType = _databaseFactory.GetDatabaseType(sourceConnectionString);
+        var targetDatabaseType = _databaseFactory.GetDatabaseType(targetConnectionString);
 
-        var sourceDatabase = new DatabaseService(sourceDatabaseType, _databaseProviders, _connectionCreatedNotifications);
-        var targetDatabase = new DatabaseService(targetDatabaseType, _databaseProviders, _connectionCreatedNotifications);
+        var sourceDatabase = new DatabaseService(_databaseFactory, sourceDatabaseType);
+        var targetDatabase = new DatabaseService(_databaseFactory, targetDatabaseType);
 
         int intProgress = 0;
 
@@ -269,7 +267,7 @@ public class TableConverterService
                     using (System.Data.Common.DbDataReader sourceReader = sourceCommand.ExecuteReader())
                     {
 
-                        var converterReader = new TableConverterReader(sourceReader, sourceMatchedColumns, targetMatchedColumns, trimStrings, sourceDatabaseType, targetDatabaseType, _databaseProviders);
+                        var converterReader = new TableConverterReader(_databaseFactory, sourceReader, sourceMatchedColumns, targetMatchedColumns, trimStrings, sourceDatabaseType, targetDatabaseType);
 
                         var intFieldCount = converterReader.FieldCount;
 
@@ -298,12 +296,12 @@ public class TableConverterService
                                         sbParamaters.Append(", ");
                                     }
 
-                                    System.Data.Common.DbParameter paramater = targetDatabase.Provider.CreateProvider().CreateParameter();
+                                    System.Data.Common.DbParameter paramater = targetDatabase.DatabaseProvider.CreateProvider().CreateParameter();
                                     paramater.ParameterName = string.Concat("@", this.GetParameterNameFromColumn(targetColumn.ColumnName));
 
                                     paramater.DbType = targetColumn.DbType;
 
-                                    targetDatabase.Provider.UpdateParameter(paramater, targetColumn);
+                                    targetDatabase.DatabaseProvider.UpdateParameter(paramater, targetColumn);
 
                                     sbParamaters.Append(paramater.ParameterName);
 
@@ -381,221 +379,6 @@ public class TableConverterService
 
     }
 
-    private object GetColumnValue(Models.ColumnModel targetColumn, object value, bool trimStrings)
-    {
-        object returnValue = value;
-
-        if (value != DBNull.Value)
-        {
-            var dbType = targetColumn.DbType;
-
-            switch (dbType)
-            {
-                case System.Data.DbType.Date:
-                case System.Data.DbType.DateTime:
-                    try
-                    {
-                        DateTime dt = System.Convert.ToDateTime(value);
-
-                        if (dt <= new DateTime(1753, 1, 1))
-                        {
-                            returnValue = new DateTime(1753, 1, 1);
-                        }
-                        else if (dt > new DateTime(9999, 12, 31))
-                        {
-                            returnValue = new DateTime(9999, 12, 31);
-                        }
-                        else
-                        {
-                            returnValue = dt;
-                        }
-                    }
-                    catch
-                    {
-                        returnValue = new DateTime(1753, 1, 1);
-                    }
-                    break;
-                case System.Data.DbType.DateTime2:
-                    try
-                    {
-                        DateTime dt = System.Convert.ToDateTime(value);
-                        returnValue = dt;
-                    }
-                    catch
-                    {
-                        returnValue = DateTime.MinValue;
-                    }
-                    break;
-                case System.Data.DbType.Time:
-                    {
-                        if ((value) is TimeSpan)
-                        {
-                            returnValue = (new DateTime(1753, 1, 1)).Add((TimeSpan)value);
-                        }
-                        else if ((value) is DateTime)
-                        {
-                            DateTime dt = System.Convert.ToDateTime(value);
-
-                            if (dt <= new DateTime(1753, 1, 1))
-                            {
-                                returnValue = DBNull.Value;
-                            }
-                            else if (dt > new DateTime(9999, 12, 31))
-                            {
-                                returnValue = DBNull.Value;
-                            }
-                            else
-                            {
-                                returnValue = dt;
-                            }
-                        }
-                        else
-                        {
-                            returnValue = value;
-                        }
-                        break;
-                    }
-                case System.Data.DbType.AnsiString:
-                case System.Data.DbType.AnsiStringFixedLength:
-                case System.Data.DbType.String:
-                case System.Data.DbType.StringFixedLength:
-                    {
-                        if (trimStrings)
-                        {
-                            returnValue = System.Convert.ToString(value).TrimEnd();
-                        }
-                        else
-                        {
-                            returnValue = System.Convert.ToString(value);
-                        }
-                        break;
-                    }
-            }
-        }
-
-        return returnValue;
-    }
-
-    private DataTable GetTableValues(System.Configuration.ConnectionStringSettings sourceConnectionString, Models.TableModel sourceTable, Models.TableModel targetTable, bool trimStrings,
-        int take, int skip)
-    {
-        var sourceDatabaseType = Cornerstone.Database.Services.DatabaseService.GetDatabaseType(sourceConnectionString);
-
-        var sourceDatabase = new DatabaseService(sourceDatabaseType, _databaseProviders, _connectionCreatedNotifications);
-
-        System.Text.StringBuilder sbColumns = new System.Text.StringBuilder();
-        System.Text.StringBuilder sbKeyColumns = new System.Text.StringBuilder();
-
-        var sourceMatchedColumns = this.GetMatchedColumns(sourceTable.Columns, targetTable.Columns);
-        var targetMatchedColumns = this.GetMatchedColumns(targetTable.Columns, sourceTable.Columns);
-
-        foreach (var sourceColumn in sourceMatchedColumns)
-        {
-            if (sbColumns.Length > 0)
-            {
-                sbColumns.Append(", ");
-            }
-            sbColumns.AppendFormat("[{0}]", sourceColumn.ColumnName);
-            if (sourceColumn.IsPrimaryKey)
-            {
-                if (sbKeyColumns.Length > 0)
-                {
-                    sbKeyColumns.Append(", ");
-                }
-                sbKeyColumns.AppendFormat("[{0}]", sourceColumn.ColumnName);
-            }
-        }
-
-        var dataTable = new System.Data.DataTable($"[{targetTable.TableName}]");
-
-        foreach (var targetColumn in targetMatchedColumns)
-        {
-            var column = new System.Data.DataColumn($"[{targetColumn.ColumnName}]");
-            column.AutoIncrement = targetColumn.IsIdentity;
-            column.AllowDBNull = targetColumn.IsNullable;
-
-            column.DataType = DatabaseService.GetSystemType(targetColumn.DbType);
-
-            if (column.DataType == typeof(string))
-            {
-                column.MaxLength = targetColumn.Precision;
-            }
-
-            dataTable.Columns.Add(column);
-        }
-
-        using (System.Data.Common.DbConnection sourceConnection = sourceDatabase.CreateDbConnection(sourceConnectionString))
-        {
-
-            using (System.Data.Common.DbCommand sourceCommand = sourceDatabase.CreateDbCommand(sourceConnection))
-            {
-                this.SetReadTimeout(sourceDatabaseType, sourceCommand);
-
-                if (take != 0)
-                {
-                    if (sourceDatabaseType == Models.DatabaseType.MySql)
-                    {
-                        sourceCommand.CommandText = this.FormatCommandText($"SELECT {sbColumns.ToString()} FROM [{sourceTable.SchemaName}].[{sourceTable.TableName}] LIMIT {take} OFFSET {skip}", sourceDatabaseType);
-                    }
-                    else
-                    {
-                        sourceCommand.CommandText = this.FormatCommandText($"SELECT {sbColumns.ToString()} FROM [{sourceTable.SchemaName}].[{sourceTable.TableName}] ORDER BY {sbKeyColumns.ToString()} OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY", sourceDatabaseType);
-                    }
-                }
-                else
-                {
-                    sourceCommand.CommandText = this.FormatCommandText($"SELECT {sbColumns.ToString()} FROM [{sourceTable.SchemaName}].[{sourceTable.TableName}]", sourceDatabaseType);
-                }
-
-                using (System.Data.Common.DbDataReader sourceReader = sourceCommand.ExecuteReader())
-                {
-
-                    var intFieldCount = sourceReader.FieldCount;
-
-                    while (sourceReader.Read())
-                    {
-                        var dataRow = dataTable.NewRow();
-
-                        for (int i = 0; i < intFieldCount; i++)
-                        {
-
-                            var sourceColumn = sourceMatchedColumns[i];
-                            var targetColumn = targetMatchedColumns[i];
-
-                            object value;
-
-                            try
-                            {
-                                value = sourceReader.GetValue(i);
-                            }
-                            catch (Exception ex)
-                            {
-                                object newValue;
-
-                                if (sourceDatabase.Provider != null &&
-                                    sourceDatabase.Provider.TryHandleColumnValueLoadException(ex, sourceColumn, out newValue))
-                                {
-                                    value = newValue;
-                                }
-                                else
-                                {
-                                    throw;
-                                }
-
-                            }
-
-                            dataRow[i] = this.GetColumnValue(targetColumn, value, trimStrings);
-                        }
-
-                        dataTable.Rows.Add(dataRow);
-                    }
-                }
-            }
-        }
-
-        return dataTable;
-    }
-
     public IList<Models.ColumnModel> GetMatchedColumns(IList<Models.ColumnModel> sourceColumns, IList<Models.ColumnModel> targetColumns)
     {
         var list = new List<Models.ColumnModel>();
@@ -620,7 +403,7 @@ public class TableConverterService
 
     private void SetReadTimeout(Models.DatabaseType databaseType, System.Data.Common.DbCommand sourceCommand)
     {
-        var databaseProvider = Cornerstone.Database.Services.DatabaseService.GetDatabaseProvider(_databaseProviders, databaseType);
+        var databaseProvider = _databaseFactory.GetDatabaseProvider(databaseType);
         databaseProvider?.SetReadTimeout(sourceCommand);
     }
 
@@ -646,7 +429,7 @@ public class TableConverterService
 
     public int GetRowCount(Models.TableModel table, System.Data.Common.DbConnection connection)
     {
-        var databaseType = Cornerstone.Database.Services.DatabaseService.GetDatabaseType(connection);
+        var databaseType = _databaseFactory.GetDatabaseType(connection);
         return this.GetRowCount(connection, table.SchemaName, table.TableName, databaseType);
     }
 
@@ -654,7 +437,7 @@ public class TableConverterService
     {
         int rowCount = 0;
 
-        var database = new DatabaseService(databaseType, _databaseProviders, _connectionCreatedNotifications);
+        var database = new DatabaseService(_databaseFactory, databaseType);
 
         using (var command = database.CreateDbCommand(connection))
         {

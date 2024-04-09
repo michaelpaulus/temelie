@@ -12,30 +12,29 @@ public class DatabaseService
 
     public const int DefaultCommandTimeout = 0;
 
-    private readonly IDatabaseProvider _databaseProvider;
-    private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
+    private readonly IDatabaseFactory _databaseFactory;
 
-    public DatabaseService(IDatabaseProvider databaseProvider, IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications)
+    public IDatabaseProvider DatabaseProvider { get; }
+
+    public DatabaseService(IDatabaseFactory databaseFactory, IDatabaseProvider databaseProvider)
     {
-        _databaseProvider = databaseProvider;
-        _connectionCreatedNotifications = connectionCreatedNotifications;
+        DatabaseProvider = databaseProvider;
+        _databaseFactory = databaseFactory;
     }
 
-    public DatabaseService(DatabaseType databaseType, IEnumerable<IDatabaseProvider> databaseProviders, IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications)
+    public DatabaseService(IDatabaseFactory databaseFactory, DatabaseType databaseType)
     {
-        _databaseProvider = GetDatabaseProvider(databaseProviders, databaseType);
-        _connectionCreatedNotifications = connectionCreatedNotifications;
+        DatabaseProvider = databaseFactory.GetDatabaseProvider(databaseType);
+        _databaseFactory = databaseFactory;
     }
-
-    public IDatabaseProvider Provider => _databaseProvider;
 
     #region Create Database Methods
 
     public DbConnection CloneDbConnection(DbConnection dbConnection)
     {
-        DbConnection connection = _databaseProvider.CreateProvider().CreateConnection();
+        DbConnection connection = DatabaseProvider.CreateProvider().CreateConnection();
         connection.ConnectionString = dbConnection.ConnectionString;
-        NotifyConnections(connection);
+        _databaseFactory.NotifyConnections(connection);
         if (connection.State != ConnectionState.Open)
         {
             connection.Open();
@@ -60,18 +59,18 @@ public class DatabaseService
 
     public DbConnection CreateDbConnection(System.Configuration.ConnectionStringSettings connectionString)
     {
-        return CreateDbConnection(_databaseProvider.CreateProvider(), connectionString);
+        return CreateDbConnection(DatabaseProvider.CreateProvider(), connectionString);
     }
 
     public DbConnection CreateDbConnection(DbProviderFactory dbProviderFactory, System.Configuration.ConnectionStringSettings connectionString)
     {
         DbConnection connection = dbProviderFactory.CreateConnection();
 
-        connection.ConnectionString = _databaseProvider.TransformConnectionString(connection.ConnectionString);
+        connection.ConnectionString = DatabaseProvider.TransformConnectionString(connection.ConnectionString);
 
         connection.ConnectionString = connectionString.ConnectionString;
 
-        NotifyConnections(connection);
+        _databaseFactory.NotifyConnections(connection);
         if (connection.State != ConnectionState.Open)
         {
             connection.Open();
@@ -106,7 +105,7 @@ public class DatabaseService
 
         if (!(string.IsNullOrEmpty(sqlCommand)))
         {
-            var factory = _databaseProvider.CreateProvider();
+            var factory = DatabaseProvider.CreateProvider();
             using (var connection = CreateDbConnection(factory, connectionString))
             {
                 ds = Execute(connection, sqlCommand);
@@ -144,7 +143,7 @@ public class DatabaseService
     {
         if (!(string.IsNullOrEmpty(sqlCommand)))
         {
-            var factory = _databaseProvider.CreateProvider();
+            var factory = DatabaseProvider.CreateProvider();
             using (DbConnection connection = CreateDbConnection(factory, connectionString))
             {
                 ExecuteFile(connection, sqlCommand);
@@ -168,7 +167,7 @@ public class DatabaseService
     {
         if (!(string.IsNullOrEmpty(sqlCommand)))
         {
-            var factory = _databaseProvider.CreateProvider();
+            var factory = DatabaseProvider.CreateProvider();
             using (DbConnection connection = CreateDbConnection(factory, connectionString))
             {
                 ExecuteNonQuery(connection, sqlCommand);
@@ -181,7 +180,7 @@ public class DatabaseService
         object returnValue = null;
         if (!(string.IsNullOrEmpty(sqlCommand)))
         {
-            var factory = _databaseProvider.CreateProvider();
+            var factory = DatabaseProvider.CreateProvider();
 
             using (DbConnection connection = CreateDbConnection(factory, connectionString))
             {
@@ -205,28 +204,9 @@ public class DatabaseService
 
     #region Helper Methods
 
-    private void NotifyConnections(IDbConnection connection)
-    {
-        foreach (var notification in _connectionCreatedNotifications)
-        {
-            notification.Notify(connection);
-        }
-    }
-
     private bool ContainsTable(IEnumerable<string> tables, string table)
     {
         return (from i in tables where i.EqualsIgnoreCase(table) select i).Any();
-    }
-
-    public static IDatabaseProvider GetDatabaseProvider(IEnumerable<IDatabaseProvider> providers, DatabaseType databaseType, bool throwOnNotFound = false)
-    {
-        var provider = (from i in providers where i.ForDatabaseType == databaseType select i).FirstOrDefault();
-        if (throwOnNotFound &&
-            provider == null)
-        {
-            throw new ArgumentOutOfRangeException("databaseType", $"DatabaseType '{databaseType.ToString()}' has no provider.");
-        }
-        return provider;
     }
 
     public static System.Configuration.ConnectionStringSettings GetConnectionStringSetting(string connectionStringName)
@@ -300,59 +280,6 @@ public class DatabaseService
         }
 
         return value;
-    }
-
-    public static Models.DatabaseType GetDatabaseType(DbConnection connection)
-    {
-        if (connection.GetType().FullName.StartsWith("System.Data.Odbc.OdbcConnection"))
-        {
-            return Models.DatabaseType.Odbc;
-        }
-        else if (connection.GetType().FullName.StartsWith("System.Data.Oracle", StringComparison.InvariantCultureIgnoreCase))
-        {
-            return Models.DatabaseType.Oracle;
-        }
-        else if (connection.GetType().FullName.StartsWith("System.Data.SqlServerCe", StringComparison.InvariantCultureIgnoreCase))
-        {
-            return Models.DatabaseType.MicrosoftSQLServerCompact;
-        }
-        else if (connection.GetType().FullName.StartsWith("System.Data.Ole", StringComparison.InvariantCultureIgnoreCase))
-        {
-            if (connection.ConnectionString.Contains("Microsoft.ACE"))
-            {
-                return Models.DatabaseType.AccessOLE;
-            }
-            return Models.DatabaseType.OLE;
-        }
-        else if (connection.GetType().FullName.StartsWith("MySql", StringComparison.InvariantCultureIgnoreCase))
-        {
-            return Models.DatabaseType.MySql;
-        }
-        return Models.DatabaseType.MicrosoftSQLServer;
-    }
-
-    public static Models.DatabaseType GetDatabaseType(System.Configuration.ConnectionStringSettings connectionString)
-    {
-        switch (GetProviderName(connectionString).ToLower())
-        {
-            case "system.data.odbc":
-                return Models.DatabaseType.Odbc;
-            case "system.data.oracle":
-                return Models.DatabaseType.Oracle;
-            case "system.data.sqlserverce.3.5":
-                return Models.DatabaseType.MicrosoftSQLServerCompact;
-            case "system.data.sqlclient":
-                return Models.DatabaseType.MicrosoftSQLServer;
-            case "mysql.data.mysqlclient":
-                return Models.DatabaseType.MySql;
-            case "system.data.oledb":
-                if (connectionString.ConnectionString.Contains("Microsoft.ACE"))
-                {
-                    return Models.DatabaseType.AccessOLE;
-                }
-                return Models.DatabaseType.OLE;
-        }
-        return Models.DatabaseType.MicrosoftSQLServer;
     }
 
     public static System.Data.DbType GetDBType(string typeName)
@@ -444,30 +371,6 @@ public class DatabaseService
         return typeof(string);
     }
 
-    public static string GetProviderName(DbConnection connection)
-    {
-        switch (GetDatabaseType(connection))
-        {
-            case Models.DatabaseType.Oracle:
-                return "System.Data.Oracle";
-            case Models.DatabaseType.Odbc:
-                return "System.Data.Odbc";
-            case Models.DatabaseType.MicrosoftSQLServerCompact:
-                return "System.Data.SqlServerCe.3.5";
-            case Models.DatabaseType.OLE:
-            case Models.DatabaseType.AccessOLE:
-                return "System.Data.OleDb";
-            case Models.DatabaseType.MySql:
-                return "MySql.Data.MySqlClient";
-        }
-        return "System.Data.SqlClient";
-    }
-
-    public static string GetProviderName(System.Configuration.ConnectionStringSettings connectionString)
-    {
-        return connectionString.ProviderName;
-    }
-
     #endregion
 
     #region Database Structure
@@ -500,7 +403,7 @@ public class DatabaseService
     {
 
         IList<Models.ColumnModel> list = new List<Models.ColumnModel>();
-        var dataTable = _databaseProvider.GetTableColumns(connection);
+        var dataTable = DatabaseProvider.GetTableColumns(connection);
         if (dataTable != null)
         {
             list = GetColumns(dataTable);
@@ -513,7 +416,7 @@ public class DatabaseService
     {
         IList<Models.ColumnModel> list = new List<Models.ColumnModel>();
 
-        var dataTable = _databaseProvider.GetViewColumns(connection);
+        var dataTable = DatabaseProvider.GetViewColumns(connection);
 
         if (dataTable != null)
         {
@@ -550,7 +453,7 @@ public class DatabaseService
             }
         }
 
-        var targetColumnType = _databaseProvider.GetColumnType(new Models.ColumnTypeModel() { ColumnType = column.ColumnType, Precision = column.Precision, Scale = column.Scale }, Models.DatabaseType.MicrosoftSQLServer);
+        var targetColumnType = DatabaseProvider.GetColumnType(new Models.ColumnTypeModel() { ColumnType = column.ColumnType, Precision = column.Precision, Scale = column.Scale }, Models.DatabaseType.MicrosoftSQLServer);
         if (targetColumnType != null)
         {
             column.ColumnType = targetColumnType.ColumnType;
@@ -564,7 +467,7 @@ public class DatabaseService
     {
         List<Models.DefinitionModel> list = new List<Models.DefinitionModel>();
 
-        var dtDefinitions = _databaseProvider.GetDefinitions(connection);
+        var dtDefinitions = DatabaseProvider.GetDefinitions(connection);
 
         if (dtDefinitions != null)
         {
@@ -590,9 +493,9 @@ public class DatabaseService
     {
         var list = new List<Models.SecurityPolicyModel>();
 
-        var dtDefinitions = _databaseProvider.GetSecurityPolicies(connection);
+        var dtDefinitions = DatabaseProvider.GetSecurityPolicies(connection);
 
-        var dtDependencies = _databaseProvider.GetDefinitionDependencies(connection);
+        var dtDependencies = DatabaseProvider.GetDefinitionDependencies(connection);
 
         if (dtDefinitions != null)
         {
@@ -654,7 +557,7 @@ public class DatabaseService
     {
         IList<Models.ForeignKeyModel> list = new List<Models.ForeignKeyModel>();
 
-        DataTable dataTable = _databaseProvider.GetForeignKeys(connection);
+        DataTable dataTable = DatabaseProvider.GetForeignKeys(connection);
 
         if (dataTable != null)
         {
@@ -711,7 +614,7 @@ public class DatabaseService
     {
         var list = new List<Models.CheckConstraintModel>();
 
-        var dataTable = _databaseProvider.GetCheckConstraints(connection);
+        var dataTable = DatabaseProvider.GetCheckConstraints(connection);
 
         if (dataTable != null)
         {
@@ -751,14 +654,14 @@ public class DatabaseService
         IList<Models.IndexModel> list = new List<Models.IndexModel>();
         System.Data.DataTable dtIndexes = null;
 
-        dtIndexes = _databaseProvider.GetIndexes(connection);
+        dtIndexes = DatabaseProvider.GetIndexes(connection);
 
         if (dtIndexes != null)
         {
 
             var indexBucketCounts = new List<IndexBucket>();
 
-            var dtIndexBucketCounts = _databaseProvider.GetIndexeBucketCounts(connection);
+            var dtIndexBucketCounts = DatabaseProvider.GetIndexeBucketCounts(connection);
             if (dtIndexBucketCounts != null)
             {
                 indexBucketCounts = (from i in dtIndexBucketCounts.Rows.OfType<System.Data.DataRow>()
@@ -911,9 +814,9 @@ public class DatabaseService
     {
         System.Data.DataTable dataTable = null;
 
-        var databaseType = GetDatabaseType(connection);
+        var databaseType = _databaseFactory.GetDatabaseType(connection);
 
-        dataTable = _databaseProvider.GetTables(connection);
+        dataTable = DatabaseProvider.GetTables(connection);
 
         IList<Models.TableModel> list = new List<Models.TableModel>();
 
@@ -961,7 +864,7 @@ public class DatabaseService
     {
         IList<Models.TableModel> list = new List<Models.TableModel>();
 
-        System.Data.DataTable dataTable = _databaseProvider.GetViews(connection);
+        System.Data.DataTable dataTable = DatabaseProvider.GetViews(connection);
         if (dataTable != null)
         {
             list = GetTables(dataTable, columns);
@@ -978,7 +881,7 @@ public class DatabaseService
     {
         IList<Models.TriggerModel> list = new List<Models.TriggerModel>();
 
-        var dataTable = _databaseProvider.GetTriggers(connection);
+        var dataTable = DatabaseProvider.GetTriggers(connection);
 
         if (dataTable != null)
         {
@@ -1008,7 +911,7 @@ public class DatabaseService
 
     public bool IsDatabaseEmpty(System.Configuration.ConnectionStringSettings connectionString)
     {
-        var model = new Models.DatabaseModel(connectionString, new[] { _databaseProvider }, _connectionCreatedNotifications);
+        var model = new Models.DatabaseModel(_databaseFactory, connectionString);
         return model.Tables.Count == 0;
     }
 

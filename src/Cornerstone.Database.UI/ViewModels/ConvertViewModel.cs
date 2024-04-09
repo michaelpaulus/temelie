@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
@@ -12,14 +11,11 @@ namespace Cornerstone.Database.ViewModels;
 public class ConvertViewModel : ViewModel
 {
 
-    private readonly IEnumerable<IDatabaseProvider> _databaseProviders;
-    private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
+    private readonly IDatabaseFactory _databaseFactory;
 
-    public ConvertViewModel(IEnumerable<IDatabaseProvider> databaseProviders,
-        IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications)
+    public ConvertViewModel(IDatabaseFactory databaseFactory)
     {
-        _connectionCreatedNotifications = connectionCreatedNotifications;
-        _databaseProviders = databaseProviders;
+        _databaseFactory = databaseFactory;
         this.ThreadCount = 5;
         this.UseBulkCopy = true;
         this.BatchSize = 10000;
@@ -72,8 +68,8 @@ public class ConvertViewModel : ViewModel
 
         TableConverterSettings settings = new TableConverterSettings();
 
-        var targetDatabaseType = Services.DatabaseService.GetDatabaseType(TargetDatabaseConnectionString);
-        var targetDatabase = new Services.DatabaseService(targetDatabaseType, _databaseProviders, _connectionCreatedNotifications);
+        var targetDatabaseType = _databaseFactory.GetDatabaseType(TargetDatabaseConnectionString);
+        var targetDatabase = new Services.DatabaseService(_databaseFactory, targetDatabaseType);
 
         using (var conn = targetDatabase.CreateDbConnection(TargetDatabaseConnectionString))
         {
@@ -111,7 +107,7 @@ public class ConvertViewModel : ViewModel
 #pragma warning disable CA2008 // Do not create tasks without passing a TaskScheduler
         _ = Task.Factory.StartNew(() =>
         {
-            var converter = new TableConverterService(_databaseProviders, _connectionCreatedNotifications);
+            var converter = new TableConverterService(_databaseFactory);
             converter.ConvertTables(settings,
                 progress,
                 this.ThreadCount);
@@ -132,7 +128,7 @@ public class ConvertViewModel : ViewModel
     {
         try
         {
-            var tables = Controls.DatabaseConnection.GetTables(this.SourceDatabaseConnectionString, _databaseProviders, _connectionCreatedNotifications);
+            var tables = Controls.DatabaseConnection.GetTables(_databaseFactory, this.SourceDatabaseConnectionString);
             this.Tables.Clear();
             foreach (var table in tables)
             {

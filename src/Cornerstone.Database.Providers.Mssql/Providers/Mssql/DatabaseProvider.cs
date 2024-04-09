@@ -10,12 +10,13 @@ public class DatabaseProvider : IDatabaseProvider
 {
 
     private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
-    private readonly Services.DatabaseService _database;
+    private readonly Services.DatabaseService _databaseService;
 
     public DatabaseProvider(IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications)
     {
         _connectionCreatedNotifications = connectionCreatedNotifications;
-        _database = new Services.DatabaseService(this, connectionCreatedNotifications);
+        var factory = new DatabaseFactory([this], _connectionCreatedNotifications);
+        _databaseService = new Services.DatabaseService(factory, this);
     }
 
     public Cornerstone.Database.Models.DatabaseType ForDatabaseType
@@ -93,7 +94,7 @@ public class DatabaseProvider : IDatabaseProvider
                             sysobjects.name, 
                             r.referencing_entity_name
                         ";
-        System.Data.DataSet ds = _database.Execute(connection, sql);
+        System.Data.DataSet ds = _databaseService.Execute(connection, sql);
         DataTable dataTable = ds.Tables[0];
         return dataTable;
     }
@@ -122,7 +123,7 @@ public class DatabaseProvider : IDatabaseProvider
                             sysobjects.xtype, 
                             sysobjects.name
                         ";
-        System.Data.DataSet ds = _database.Execute(connection, sql);
+        System.Data.DataSet ds = _databaseService.Execute(connection, sql);
         DataTable dataTable = ds.Tables[0];
         return dataTable;
     }
@@ -144,7 +145,7 @@ FROM sys.security_policies
      INNER JOIN sys.sysobjects [target] ON [target].id = target_object_id
      INNER JOIN sys.schemas targetSchema ON targetSchema.schema_id = [target].uid
                         ";
-        System.Data.DataSet ds = _database.Execute(connection, sql);
+        System.Data.DataSet ds = _databaseService.Execute(connection, sql);
         DataTable dataTable = ds.Tables[0];
         return dataTable;
     }
@@ -189,7 +190,7 @@ ORDER BY
     sys.foreign_key_columns.constraint_column_id
                         ";
 
-        System.Data.DataSet ds = _database.Execute(connection, sql);
+        System.Data.DataSet ds = _databaseService.Execute(connection, sql);
         DataTable dataTable = ds.Tables[0];
         return dataTable;
     }
@@ -213,7 +214,7 @@ ORDER BY
     sys.check_constraints.name
                         ";
 
-        System.Data.DataSet ds = _database.Execute(connection, sql);
+        System.Data.DataSet ds = _databaseService.Execute(connection, sql);
         DataTable dataTable = ds.Tables[0];
         return dataTable;
     }
@@ -222,7 +223,7 @@ ORDER BY
     {
         try
         {
-            var dtIndexes = _database.Execute(connection, @"
+            var dtIndexes = _databaseService.Execute(connection, @"
 SELECT
     sys.tables.name AS table_name, 
     sys.schemas.name schema_name,
@@ -250,7 +251,7 @@ FROM
 
     public DataTable GetIndexes(DbConnection connection)
     {
-        var dtIndexes = _database.Execute(connection, @"
+        var dtIndexes = _databaseService.Execute(connection, @"
 SELECT
 	sys.tables.name AS table_name,
 	sys.schemas.name schema_name,
@@ -451,11 +452,11 @@ ORDER BY
         DataSet ds;
         try
         {
-            ds = _database.Execute(connection, sql2016);
+            ds = _databaseService.Execute(connection, sql2016);
         }
         catch
         {
-            ds = _database.Execute(connection, sql2014);
+            ds = _databaseService.Execute(connection, sql2014);
         }
 
         DataTable dataTable = ds.Tables[0];
@@ -584,11 +585,11 @@ ORDER BY
         DataSet ds;
         try
         {
-            ds = _database.Execute(connection, sql2016);
+            ds = _databaseService.Execute(connection, sql2016);
         }
         catch
         {
-            ds = _database.Execute(connection, sql2014);
+            ds = _databaseService.Execute(connection, sql2014);
         }
 
         DataTable dataTable = ds.Tables[0];
@@ -643,7 +644,7 @@ ORDER BY
                         t1.trigger_name
                         ";
 
-        System.Data.DataSet ds = _database.Execute(connection, sql);
+        System.Data.DataSet ds = _databaseService.Execute(connection, sql);
         DataTable dataTable = ds.Tables[0];
         return dataTable;
     }
@@ -789,11 +790,11 @@ ORDER BY
         DataSet ds;
         try
         {
-            ds = _database.Execute(connection, sql2016);
+            ds = _databaseService.Execute(connection, sql2016);
         }
         catch
         {
-            ds = _database.Execute(connection, sql2014);
+            ds = _databaseService.Execute(connection, sql2014);
         }
         DataTable dataTable = ds.Tables[0];
         return dataTable;
@@ -841,11 +842,11 @@ ORDER BY
         DataSet ds;
         try
         {
-            ds = _database.Execute(connection, sql2016);
+            ds = _databaseService.Execute(connection, sql2016);
         }
         catch
         {
-            ds = _database.Execute(connection, sql2014);
+            ds = _databaseService.Execute(connection, sql2014);
         }
 
         DataTable dataTable = ds.Tables[0];
@@ -890,8 +891,6 @@ ORDER BY
     {
         progress?.Report(new TableProgress() { ProgressPercentage = 0, Table = sourceTable });
 
-        var targetDatabaseType = Cornerstone.Database.Services.DatabaseService.GetDatabaseType(targetConnection);
-
         int intProgress = 0;
 
         if (validateTargetTable)
@@ -904,57 +903,49 @@ ORDER BY
             }
         }
 
-        if (targetDatabaseType == Models.DatabaseType.MySql)
+        void bulkCopy(SqlTransaction transaction1)
         {
-            throw new NotImplementedException();
-        }
-        else
-        {
-            void bulkCopy(SqlTransaction transaction1)
+            int intRowIndex = 0;
+
+            var sourceMatchedColumns = service.GetMatchedColumns(sourceTable.Columns, targetTable.Columns);
+            var targetMatchedColumns = service.GetMatchedColumns(targetTable.Columns, sourceTable.Columns);
+
+            using (SqlBulkCopy bcp = new SqlBulkCopy((SqlConnection)targetConnection, SqlBulkCopyOptions.KeepIdentity, transaction1))
             {
-                int intRowIndex = 0;
+                bcp.DestinationTableName = $"[{targetTable.SchemaName}].[{targetTable.TableName}]";
+                bcp.BatchSize = batchSize == 0 ? 10000 : batchSize;
+                bcp.BulkCopyTimeout = 600;
+                bcp.NotifyAfter = bcp.BatchSize;
 
-                var sourceMatchedColumns = service.GetMatchedColumns(sourceTable.Columns, targetTable.Columns);
-                var targetMatchedColumns = service.GetMatchedColumns(targetTable.Columns, sourceTable.Columns);
-
-                using (SqlBulkCopy bcp = new SqlBulkCopy((SqlConnection)targetConnection, SqlBulkCopyOptions.KeepIdentity, transaction1))
+                foreach (var targetColumn in targetMatchedColumns)
                 {
-                    bcp.DestinationTableName = $"[{targetTable.SchemaName}].[{targetTable.TableName}]";
-                    bcp.BatchSize = batchSize == 0 ? 10000 : batchSize;
-                    bcp.BulkCopyTimeout = 600;
-                    bcp.NotifyAfter = bcp.BatchSize;
-
-                    foreach (var targetColumn in targetMatchedColumns)
-                    {
-                        bcp.ColumnMappings.Add(targetColumn.ColumnName, targetColumn.ColumnName);
-                    }
-
-                    bcp.SqlRowsCopied += (object sender, SqlRowsCopiedEventArgs e) =>
-                    {
-                        if (progress != null &&
-                            sourceRowCount > 0)
-                        {
-                            intRowIndex += bcp.BatchSize;
-
-                            if (intRowIndex > sourceRowCount)
-                            {
-                                intRowIndex = sourceRowCount;
-                            }
-
-                            int intNewProgress = System.Convert.ToInt32(intRowIndex / (double)sourceRowCount * 100);
-
-                            if (intProgress != intNewProgress &&
-                                intNewProgress < 100)
-                            {
-                                intProgress = intNewProgress;
-                                progress.Report(new TableProgress() { ProgressPercentage = intProgress, Table = sourceTable });
-                            }
-                        }
-                    };
-
-                    bcp.WriteToServer(sourceReader);
-
+                    bcp.ColumnMappings.Add(targetColumn.ColumnName, targetColumn.ColumnName);
                 }
+
+                bcp.SqlRowsCopied += (object sender, SqlRowsCopiedEventArgs e) =>
+                {
+                    if (progress != null &&
+                        sourceRowCount > 0)
+                    {
+                        intRowIndex += bcp.BatchSize;
+
+                        if (intRowIndex > sourceRowCount)
+                        {
+                            intRowIndex = sourceRowCount;
+                        }
+
+                        int intNewProgress = System.Convert.ToInt32(intRowIndex / (double)sourceRowCount * 100);
+
+                        if (intProgress != intNewProgress &&
+                            intNewProgress < 100)
+                        {
+                            intProgress = intNewProgress;
+                            progress.Report(new TableProgress() { ProgressPercentage = intProgress, Table = sourceTable });
+                        }
+                    }
+                };
+
+                bcp.WriteToServer(sourceReader);
 
             }
 

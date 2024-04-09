@@ -6,13 +6,11 @@ namespace Cornerstone.Database.Services;
 
 public class ScriptService
 {
-    private readonly IEnumerable<IDatabaseProvider> _databaseProviders;
-    private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
+    private readonly IDatabaseFactory _databaseFactory;
 
-    public ScriptService(IEnumerable<IDatabaseProvider> databaseProviders, IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications)
+    public ScriptService(IDatabaseFactory databaseFactory)
     {
-        _databaseProviders = databaseProviders;
-        _connectionCreatedNotifications = connectionCreatedNotifications;
+        _databaseFactory = databaseFactory;
     }
 
     private FileInfo WriteIfDifferent(string path, string contents)
@@ -274,7 +272,7 @@ public class ScriptService
 
     public void CreateScriptsIndividual(System.Configuration.ConnectionStringSettings connectionString, System.IO.DirectoryInfo directory, Models.DatabaseType targetDatabaseType, IProgress<ScriptProgress> progress, string objectFilter = "")
     {
-        Models.DatabaseModel database = new Models.DatabaseModel(connectionString, _databaseProviders, _connectionCreatedNotifications, targetDatabaseType) { ObjectFilter = objectFilter, ExcludeDoubleUnderscoreObjects = true };
+        Models.DatabaseModel database = new Models.DatabaseModel(_databaseFactory, connectionString) { ObjectFilter = objectFilter, ExcludeDoubleUnderscoreObjects = true };
 
         var directoryList = new List<string>()
                 {
@@ -502,7 +500,7 @@ public class ScriptService
 
     public void CreateScriptIndividual(System.Configuration.ConnectionStringSettings connectionString, System.IO.DirectoryInfo directory, Models.DatabaseType targetDatabaseType, string fileName)
     {
-        Models.DatabaseModel database = new Models.DatabaseModel(connectionString, _databaseProviders, _connectionCreatedNotifications, targetDatabaseType) { ExcludeDoubleUnderscoreObjects = true };
+        Models.DatabaseModel database = new Models.DatabaseModel(_databaseFactory, connectionString) { ExcludeDoubleUnderscoreObjects = true };
         if (directory.Name.StartsWith("01_Drops", StringComparison.InvariantCultureIgnoreCase))
         {
             CreateDropScripts(database, directory, fileName);
@@ -590,8 +588,8 @@ public class ScriptService
             {
                 try
                 {
-                    var databaseType = DatabaseService.GetDatabaseType(connectionString);
-                    var database = new DatabaseService(databaseType, _databaseProviders, _connectionCreatedNotifications);
+                    var databaseType = _databaseFactory.GetDatabaseType(connectionString);
+                    var database = new DatabaseService(_databaseFactory, databaseType);
                     database.ExecuteFile(connectionString, strFile);
                 }
                 catch (Exception ex)

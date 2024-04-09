@@ -17,7 +17,8 @@ public class DatabaseProvider : IDatabaseProvider
     public DatabaseProvider(IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications)
     {
         _connectionCreatedNotifications = connectionCreatedNotifications;
-        _database = new Services.DatabaseService(this, connectionCreatedNotifications);
+        var factory = new DatabaseFactory([this], _connectionCreatedNotifications);
+        _database = new Services.DatabaseService(factory, this);
     }
 
     public Cornerstone.Database.Models.DatabaseType ForDatabaseType

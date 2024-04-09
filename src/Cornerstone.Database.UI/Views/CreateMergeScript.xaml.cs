@@ -7,7 +7,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using Cornerstone.Database.Providers;
-using Cornerstone.Database.Services;
 using Cornerstone.Database.UI;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -19,13 +18,12 @@ public partial class CreateMergeScript
     private readonly System.ComponentModel.BackgroundWorker ScriptBackgroundWorker = new System.ComponentModel.BackgroundWorker();
 
     private Cornerstone.Database.Models.DatabaseModel SourceDatabase;
-    private readonly IEnumerable<IDatabaseProvider> _databaseProviders;
-    private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
+    private readonly IDatabaseFactory _databaseFactory;
 
     public CreateMergeScript()
     {
-        _databaseProviders = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetServices<IDatabaseProvider>();
-        _connectionCreatedNotifications = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetServices<IConnectionCreatedNotification>();
+
+        _databaseFactory = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetService<IDatabaseFactory>();
         // This call is required by the Windows Form Designer.
         InitializeComponent();
 
@@ -67,7 +65,7 @@ public partial class CreateMergeScript
     {
         var targetConnectionString = (System.Configuration.ConnectionStringSettings)e.Argument;
 
-        Cornerstone.Database.Models.DatabaseModel targetDatabase = new Cornerstone.Database.Models.DatabaseModel(targetConnectionString, _databaseProviders, _connectionCreatedNotifications);
+        Cornerstone.Database.Models.DatabaseModel targetDatabase = new Cornerstone.Database.Models.DatabaseModel(_databaseFactory, targetConnectionString);
 
         e.Result = this.SourceDatabase.GetMergeScript(targetDatabase);
     }
@@ -87,7 +85,7 @@ public partial class CreateMergeScript
             try
             {
                 var connectionString = (System.Configuration.ConnectionStringSettings)obj;
-                var database = new Cornerstone.Database.Models.DatabaseModel(connectionString, _databaseProviders, _connectionCreatedNotifications);
+                var database = new Cornerstone.Database.Models.DatabaseModel(_databaseFactory, connectionString);
                 var tables = database.Tables;
                 Dispatcher.Invoke(new Action<Cornerstone.Database.Models.DatabaseModel>((Cornerstone.Database.Models.DatabaseModel results) =>
                 {

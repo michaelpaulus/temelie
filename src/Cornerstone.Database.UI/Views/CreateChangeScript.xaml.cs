@@ -1,7 +1,5 @@
-using System.Collections.Generic;
 using System.Windows;
 using Cornerstone.Database.Providers;
-using Cornerstone.Database.Services;
 using Cornerstone.Database.UI;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,13 +10,11 @@ public partial class CreateChangeScript
 
     private readonly System.ComponentModel.BackgroundWorker ScriptBackgroundWorker = new System.ComponentModel.BackgroundWorker();
 
-    private readonly IEnumerable<IDatabaseProvider> _databaseProviders;
-    private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
+    private readonly IDatabaseFactory _databaseFactory;
 
     public CreateChangeScript()
     {
-        _databaseProviders = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetServices<IDatabaseProvider>();
-        _connectionCreatedNotifications = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetServices<IConnectionCreatedNotification>();
+        _databaseFactory = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetService<IDatabaseFactory>();
         // This call is required by the Windows Form Designer.
         InitializeComponent();
 
@@ -41,8 +37,8 @@ public partial class CreateChangeScript
         var sourceConnectionString = (System.Configuration.ConnectionStringSettings)args[0];
         var targetConnectionString = (System.Configuration.ConnectionStringSettings)args[1];
 
-        Cornerstone.Database.Models.DatabaseModel sourceDatabase = new Cornerstone.Database.Models.DatabaseModel(sourceConnectionString, _databaseProviders, _connectionCreatedNotifications) { ExcludeDoubleUnderscoreObjects = true };
-        Cornerstone.Database.Models.DatabaseModel targetDatabase = new Cornerstone.Database.Models.DatabaseModel(targetConnectionString, _databaseProviders, _connectionCreatedNotifications) { ExcludeDoubleUnderscoreObjects = true };
+        Cornerstone.Database.Models.DatabaseModel sourceDatabase = new Cornerstone.Database.Models.DatabaseModel(_databaseFactory, sourceConnectionString) { ExcludeDoubleUnderscoreObjects = true };
+        Cornerstone.Database.Models.DatabaseModel targetDatabase = new Cornerstone.Database.Models.DatabaseModel(_databaseFactory, targetConnectionString) { ExcludeDoubleUnderscoreObjects = true };
 
         e.Result = targetDatabase.GetChangeScript(sourceDatabase);
     }

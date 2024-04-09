@@ -1,12 +1,9 @@
-
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows;
 using Cornerstone.Database.Providers;
-using Cornerstone.Database.Services;
 using Cornerstone.Database.UI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
@@ -16,13 +13,11 @@ namespace Cornerstone.Database;
 public partial class CreateInsertScript
 {
 
-    private readonly IEnumerable<IDatabaseProvider> _databaseProviders;
-    private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
+    private readonly IDatabaseFactory _databaseFactory;
 
     public CreateInsertScript()
     {
-        _databaseProviders = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetServices<IDatabaseProvider>();
-        _connectionCreatedNotifications = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetServices<IConnectionCreatedNotification>();
+        _databaseFactory = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetService<IDatabaseFactory>();
         this.InitializeComponent();
         SubscribeToEvents();
 
@@ -37,8 +32,8 @@ public partial class CreateInsertScript
             try
             {
                 var connectionString = (System.Configuration.ConnectionStringSettings)obj;
-                var tables = Controls.DatabaseConnection.GetTables(connectionString, _databaseProviders, _connectionCreatedNotifications);
-                var views = Controls.DatabaseConnection.GetViews(connectionString, _databaseProviders, _connectionCreatedNotifications);
+                var tables = Controls.DatabaseConnection.GetTables(_databaseFactory, connectionString);
+                var views = Controls.DatabaseConnection.GetViews(_databaseFactory, connectionString);
 
                 var list = tables.Union(views).ToList();
 
@@ -60,7 +55,7 @@ public partial class CreateInsertScript
 
     private void GenerateScriptButton_Click(object sender, System.Windows.RoutedEventArgs e)
     {
-        Cornerstone.Database.Models.DatabaseModel database = new Cornerstone.Database.Models.DatabaseModel(this.DatabaseConnection.ConnectionString, _databaseProviders, _connectionCreatedNotifications);
+        Cornerstone.Database.Models.DatabaseModel database = new Cornerstone.Database.Models.DatabaseModel(_databaseFactory, this.DatabaseConnection.ConnectionString);
         this.ResultTextBox.Text = database.GetInsertScript(this.TableComboBox.Text, WhereTextBox.Text);
     }
 

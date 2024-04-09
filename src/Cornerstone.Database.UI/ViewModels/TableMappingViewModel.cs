@@ -1,8 +1,6 @@
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Cornerstone.Database.Providers;
-using Cornerstone.Database.Services;
 
 namespace Cornerstone.Database
 {
@@ -11,14 +9,11 @@ namespace Cornerstone.Database
         public class TableMappingViewModel : ViewModel
         {
 
-            private readonly IEnumerable<IDatabaseProvider> _databaseProviders;
-            private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
+            private readonly IDatabaseFactory _databaseFactory;
 
-            public TableMappingViewModel(IEnumerable<IDatabaseProvider> databaseProviders,
-                IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications)
+            public TableMappingViewModel(IDatabaseFactory databaseFactory)
             {
-                _connectionCreatedNotifications = connectionCreatedNotifications;
-                _databaseProviders = databaseProviders;
+                _databaseFactory = databaseFactory;
                 this.AddMappingCommand = new Command(this.AddMapping);
                 this.RemoveMappingCommand = new Command(this.RemoveMapping);
                 this.AutoMatchCommand = new Command(this.AutoMatchMappings);
@@ -242,15 +237,15 @@ namespace Cornerstone.Database
 
                 if (this.IncludeSourceDatabase)
                 {
-                    var dbType = DatabaseService.GetDatabaseType(this.SourceDatabaseConnectionString);
-                    var provider = DatabaseService.GetDatabaseProvider(_databaseProviders, dbType);
+                    var dbType = _databaseFactory.GetDatabaseType(this.SourceDatabaseConnectionString);
+                    var provider = _databaseFactory.GetDatabaseProvider(dbType);
                     tableMapping.SourceDatabase = provider.GetDatabaseName(this.SourceDatabaseConnectionString.ConnectionString);
                 }
 
                 if (this.IncludeTargetDatabase)
                 {
-                    var dbType = DatabaseService.GetDatabaseType(this.TargetDatabaseConnectionString);
-                    var provider = DatabaseService.GetDatabaseProvider(_databaseProviders, dbType);
+                    var dbType = _databaseFactory.GetDatabaseType(this.TargetDatabaseConnectionString);
+                    var provider = _databaseFactory.GetDatabaseProvider(dbType);
                     tableMapping.TargetDatabase = provider.GetDatabaseName(this.TargetDatabaseConnectionString.ConnectionString);
                 }
 
@@ -276,8 +271,8 @@ namespace Cornerstone.Database
 
             public void UpdateTargetTables()
             {
-                var targetDatbaseType = Services.DatabaseService.GetDatabaseType(TargetDatabaseConnectionString);
-                var database = new Services.DatabaseService(targetDatbaseType, _databaseProviders, _connectionCreatedNotifications);
+                var targetDatbaseType = _databaseFactory.GetDatabaseType(TargetDatabaseConnectionString);
+                var database = new Services.DatabaseService(_databaseFactory, targetDatbaseType);
 
                 using (var conn = database.CreateDbConnection(TargetDatabaseConnectionString))
                 {
@@ -302,8 +297,8 @@ namespace Cornerstone.Database
 
             public void UpdateSourceTables()
             {
-                var datbaseType = Services.DatabaseService.GetDatabaseType(SourceDatabaseConnectionString);
-                var database = new Services.DatabaseService(datbaseType, _databaseProviders, _connectionCreatedNotifications);
+                var datbaseType = _databaseFactory.GetDatabaseType(SourceDatabaseConnectionString);
+                var database = new Services.DatabaseService(_databaseFactory, datbaseType);
 
                 using (var conn = database.CreateDbConnection(SourceDatabaseConnectionString))
                 {

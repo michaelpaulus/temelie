@@ -3,7 +3,6 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using Cornerstone.Database.Providers;
-using Cornerstone.Database.Services;
 using Cornerstone.Database.UI;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,13 +13,11 @@ namespace Cornerstone.Database.Controls;
 /// </summary>
 public partial class DatabaseConnection : UserControl
 {
-    private readonly IEnumerable<IDatabaseProvider> _databaseProviders;
-    private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
+    private readonly IDatabaseFactory _databaseFactory;
 
     public DatabaseConnection()
     {
-        _databaseProviders = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetServices<IDatabaseProvider>();
-        _connectionCreatedNotifications = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetServices<IConnectionCreatedNotification>();
+        _databaseFactory = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetService<IDatabaseFactory>();
         InitializeComponent();
         this.DataContext = new ViewModels.ConnectionViewModel();
     }
@@ -66,14 +63,12 @@ public partial class DatabaseConnection : UserControl
         }
     }
 
-    public static IList<Cornerstone.Database.Models.TableModel> GetTables(System.Configuration.ConnectionStringSettings connectionString,
-        IEnumerable<IDatabaseProvider> databaseProviders,
-        IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications)
+    public static IList<Cornerstone.Database.Models.TableModel> GetTables(IDatabaseFactory databaseFactory, System.Configuration.ConnectionStringSettings connectionString)
     {
         IList<Cornerstone.Database.Models.TableModel> tables = new List<Cornerstone.Database.Models.TableModel>();
 
-        var databaseType = Services.DatabaseService.GetDatabaseType(connectionString);
-        var database = new Services.DatabaseService(databaseType, databaseProviders, connectionCreatedNotifications);
+        var databaseType = databaseFactory.GetDatabaseType(connectionString);
+        var database = new Services.DatabaseService(databaseFactory, databaseType);
 
         try
         {
@@ -91,14 +86,12 @@ public partial class DatabaseConnection : UserControl
         return tables;
     }
 
-    public static IList<Cornerstone.Database.Models.TableModel> GetViews(System.Configuration.ConnectionStringSettings connectionString,
-        IEnumerable<IDatabaseProvider> databaseProviders,
-        IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications)
+    public static IList<Cornerstone.Database.Models.TableModel> GetViews(IDatabaseFactory databaseFactory, System.Configuration.ConnectionStringSettings connectionString)
     {
         IList<Cornerstone.Database.Models.TableModel> tables = new List<Cornerstone.Database.Models.TableModel>();
 
-        var databaseType = Services.DatabaseService.GetDatabaseType(connectionString);
-        var database = new Services.DatabaseService(databaseType, databaseProviders, connectionCreatedNotifications);
+        var databaseType = databaseFactory.GetDatabaseType(connectionString);
+        var database = new Services.DatabaseService(databaseFactory, databaseType);
 
         try
         {
