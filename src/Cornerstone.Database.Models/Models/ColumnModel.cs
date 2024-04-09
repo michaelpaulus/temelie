@@ -195,7 +195,7 @@ namespace Cornerstone.Database
             {
                 get
                 {
-                    return Services.DatabaseService.GetDBType(this.ColumnType);
+                    return GetDBType(this.ColumnType);
                 }
             }
 
@@ -245,6 +245,45 @@ namespace Cornerstone.Database
             #endregion
 
             #region Methods
+
+            private static System.Data.DbType GetDBType(string typeName)
+            {
+                switch (typeName.ToUpper())
+                {
+                    case "BIT":
+                        return System.Data.DbType.Boolean;
+                    case "CHAR":
+                        return System.Data.DbType.StringFixedLength;
+                    case "DATE":
+                        return DbType.Date;
+                    case "DATETIME":
+                        return System.Data.DbType.DateTime;
+                    case "DATETIME2":
+                        return System.Data.DbType.DateTime2;
+                    case "DECIMAL":
+                    case "FLOAT":
+                        return System.Data.DbType.Decimal;
+                    case "IMAGE":
+                    case "BINARY":
+                    case "VARBINARY":
+                        return System.Data.DbType.Binary;
+                    case "INT":
+                        return System.Data.DbType.Int32;
+                    case "SMALLINT":
+                        return System.Data.DbType.Int16;
+                    case "BIGINT":
+                        return DbType.Int64;
+                    case "UNIQUEIDENTIFIER":
+                        return System.Data.DbType.Guid;
+                    case "VARCHAR":
+                        return System.Data.DbType.String;
+                    case "TIME":
+                        return DbType.Time;
+                    case "HIERARCHYID":
+                        return DbType.Object;
+                }
+                return System.Data.DbType.String;
+            }
 
             public string ToString(string quoteCharacterStart, string quoteCharacterEnd)
             {

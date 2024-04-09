@@ -35,7 +35,7 @@ namespace Cornerstone.Database
 
             #region Methods
 
-            public override void AppendDropScript(DatabaseModel database, System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)
+            public override void AppendDropScript(System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)
             {
                 if (sb.Length > 0)
                 {
@@ -47,7 +47,7 @@ namespace Cornerstone.Database
                 sb.AppendLine("GO");
             }
 
-            public override void AppendCreateScript(DatabaseModel database, System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)
+            public override void AppendCreateScript(System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)
             {
                 if (sb.Length > 0)
                 {

@@ -57,11 +57,13 @@ namespace Cornerstone.Database
 
             public string Options { get; set; }
 
+            public IndexModel PrimaryKey { get; set; }
+
             #endregion
 
             #region Methods
 
-            public override void AppendDropScript(DatabaseModel database, System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)
+            public override void AppendDropScript(System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)
             {
                 sb.AppendLine($@"IF EXISTS
     (
@@ -79,7 +81,7 @@ namespace Cornerstone.Database
                 sb.AppendLine("GO");
             }
 
-            public void AppendCreateScript(DatabaseModel database, System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd, bool includeIfNotExists)
+            public void AppendCreateScript(System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd, bool includeIfNotExists)
             {
                 if (sb.Length > 0)
                 {
@@ -154,11 +156,10 @@ namespace Cornerstone.Database
 
                 if (IsMemoryOptimized)
                 {
-                    var pkIndex = (from i in database.PrimaryKeys where i.SchemaName == SchemaName && i.TableName == TableName select i).FirstOrDefault();
-                    if (pkIndex != null)
+                    if (PrimaryKey != null)
                     {
                         sb.AppendLine(",");
-                        pkIndex.AppendTableInlineCreateScript(database, sb, quoteCharacterStart, quoteCharacterEnd);
+                        PrimaryKey.AppendTableInlineCreateScript(sb, quoteCharacterStart, quoteCharacterEnd);
                     }
                 }
                 else
@@ -181,7 +182,7 @@ namespace Cornerstone.Database
 
             }
 
-            public void AppendJsonScript(DatabaseModel database, System.Text.StringBuilder sb)
+            public void AppendJsonScript(System.Text.StringBuilder sb)
             {
                 var json = JsonSerializer.Serialize(this, new JsonSerializerOptions()
                 {
@@ -290,9 +291,9 @@ GO
                 }
             }
 
-            public override void AppendCreateScript(DatabaseModel database, System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)
+            public override void AppendCreateScript(System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)
             {
-                this.AppendCreateScript(database, sb, quoteCharacterStart, quoteCharacterEnd, true);
+                this.AppendCreateScript(sb, quoteCharacterStart, quoteCharacterEnd, true);
             }
 
             #endregion

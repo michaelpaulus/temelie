@@ -10,7 +10,7 @@ public class SecurityPolicyModel : DatabaseObjectModel
     public bool IsEnabled { get; set; }
     public bool IsSchemaBound { get; set; }
 
-    public void AppendCreateScript(DatabaseModel database, System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd, bool includeIfNotExists)
+    public void AppendCreateScript(System.Text.StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd, bool includeIfNotExists)
     {
         if (sb.Length > 0)
         {
@@ -67,12 +67,12 @@ public class SecurityPolicyModel : DatabaseObjectModel
         sb.AppendLine("GO");
     }
 
-    public override void AppendCreateScript(DatabaseModel database, StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)
+    public override void AppendCreateScript(StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)
     {
-        this.AppendCreateScript(database, sb, quoteCharacterStart, quoteCharacterEnd, true);
+        this.AppendCreateScript(sb, quoteCharacterStart, quoteCharacterEnd, true);
     }
 
-    public override void AppendDropScript(DatabaseModel database, StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)
+    public override void AppendDropScript(StringBuilder sb, string quoteCharacterStart, string quoteCharacterEnd)
     {
         sb.AppendLine($@"IF EXISTS
     (

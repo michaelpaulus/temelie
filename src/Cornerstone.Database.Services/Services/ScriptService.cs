@@ -55,7 +55,7 @@ public class ScriptService
               fileFilter.EqualsIgnoreCase(fileName))
             {
                 var sb = new StringBuilder();
-                foreignKey.AppendDropScript(database, sb, database.QuoteCharacterStart, database.QuoteCharacterEnd);
+                foreignKey.AppendDropScript(sb, database.QuoteCharacterStart, database.QuoteCharacterEnd);
                 files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()));
             }
         }
@@ -74,13 +74,13 @@ public class ScriptService
                 fileFilter.EqualsIgnoreCase(fileName))
             {
                 var sbTableScript = new StringBuilder();
-                table.AppendCreateScript(database, sbTableScript, database.QuoteCharacterStart, database.QuoteCharacterEnd, true);
+                table.AppendCreateScript(sbTableScript, database.QuoteCharacterStart, database.QuoteCharacterEnd, true);
                 files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sbTableScript.ToString()));
 
                 fileName += ".json";
 
                 var sbJsonScript = new StringBuilder();
-                table.AppendJsonScript(database, sbJsonScript);
+                table.AppendJsonScript(sbJsonScript);
                 files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sbJsonScript.ToString()));
             }
         }
@@ -98,8 +98,8 @@ public class ScriptService
                 fileFilter.EqualsIgnoreCase(fileName))
             {
                 var sbSecurityPolicyScript = new StringBuilder();
-                securityPolicy.AppendDropScript(database, sbSecurityPolicyScript, database.QuoteCharacterStart, database.QuoteCharacterEnd);
-                securityPolicy.AppendCreateScript(database, sbSecurityPolicyScript, database.QuoteCharacterStart, database.QuoteCharacterEnd, true);
+                securityPolicy.AppendDropScript(sbSecurityPolicyScript, database.QuoteCharacterStart, database.QuoteCharacterEnd);
+                securityPolicy.AppendCreateScript(sbSecurityPolicyScript, database.QuoteCharacterStart, database.QuoteCharacterEnd, true);
 
                 files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sbSecurityPolicyScript.ToString()));
             }
@@ -119,7 +119,7 @@ public class ScriptService
                 fileFilter.EqualsIgnoreCase(fileName))
             {
                 var sb = new StringBuilder();
-                pk.AppendCreateScript(database, sb, database.QuoteCharacterStart, database.QuoteCharacterEnd);
+                pk.AppendCreateScript(sb, database.QuoteCharacterStart, database.QuoteCharacterEnd);
 
                 files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()));
             }
@@ -132,7 +132,7 @@ public class ScriptService
                 fileFilter.EqualsIgnoreCase(fileName))
             {
                 var sb = new StringBuilder();
-                index.AppendCreateScript(database, sb, database.QuoteCharacterStart, database.QuoteCharacterEnd);
+                index.AppendCreateScript(sb, database.QuoteCharacterStart, database.QuoteCharacterEnd);
                 files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()));
             }
         }
@@ -150,8 +150,8 @@ public class ScriptService
                 fileFilter.EqualsIgnoreCase(fileName))
             {
                 var sb = new StringBuilder();
-                constraint.AppendDropScript(database, sb, database.QuoteCharacterStart, database.QuoteCharacterEnd);
-                constraint.AppendCreateScript(database, sb, database.QuoteCharacterStart, database.QuoteCharacterEnd);
+                constraint.AppendDropScript(sb, database.QuoteCharacterStart, database.QuoteCharacterEnd);
+                constraint.AppendCreateScript(sb, database.QuoteCharacterStart, database.QuoteCharacterEnd);
 
                 files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()));
             }
@@ -180,8 +180,8 @@ public class ScriptService
                 }
 
                 var sb = new System.Text.StringBuilder();
-                definition.AppendDropScript(database, sb, database.QuoteCharacterStart, database.QuoteCharacterEnd);
-                definition.AppendCreateScript(database, sb, database.QuoteCharacterStart, database.QuoteCharacterEnd);
+                definition.AppendDropScript(sb, database.QuoteCharacterStart, database.QuoteCharacterEnd);
+                definition.AppendCreateScript(sb, database.QuoteCharacterStart, database.QuoteCharacterEnd);
 
                 files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()));
 
@@ -190,7 +190,7 @@ public class ScriptService
                     fileName += ".json";
 
                     var sbJsonScript = new StringBuilder();
-                    definition.View.AppendJsonScript(database, sbJsonScript);
+                    definition.View.AppendJsonScript(sbJsonScript);
                     files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sbJsonScript.ToString()));
                 }
             }
@@ -222,33 +222,6 @@ public class ScriptService
         return files;
     }
 
-    private IEnumerable<FileInfo> CreateInsertDefaultScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
-    {
-        var files = new List<FileInfo>();
-
-        foreach (var table in database.Tables)
-        {
-            if (table.TableName.StartsWith("default_"))
-            {
-                var fileName = MakeValidFileName($"{table.SchemaName}.{table.TableName}.sql");
-                if (string.IsNullOrEmpty(fileFilter) ||
-                    fileFilter.EqualsIgnoreCase(fileName))
-                {
-                    var strScript = database.GetInsertScript(table.TableName);
-
-                    if (!(string.IsNullOrEmpty(strScript)))
-                    {
-                        files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), strScript));
-                    }
-
-                }
-
-            }
-        }
-
-        return files;
-    }
-
     private IEnumerable<FileInfo> CreateFkScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
     {
         var files = new List<FileInfo>();
@@ -261,8 +234,8 @@ public class ScriptService
             {
                 var sb = new System.Text.StringBuilder();
 
-                foreignKey.AppendDropScript(database, sb, database.QuoteCharacterStart, database.QuoteCharacterEnd);
-                foreignKey.AppendCreateScript(database, sb, database.QuoteCharacterStart, database.QuoteCharacterEnd);
+                foreignKey.AppendDropScript(sb, database.QuoteCharacterStart, database.QuoteCharacterEnd);
+                foreignKey.AppendCreateScript(sb, database.QuoteCharacterStart, database.QuoteCharacterEnd);
                 files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()));
             }
         }
@@ -424,17 +397,6 @@ public class ScriptService
                         }
                     }
                 }
-                else if (subDirectory.Name.StartsWith("07_InsertDefaults", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    var files = CreateInsertDefaultScripts(database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
-                    foreach (var file in subDirectory.GetFiles("*.sql"))
-                    {
-                        if (!files.ContainsKey(file.Name))
-                        {
-                            file.Delete();
-                        }
-                    }
-                }
                 else if (subDirectory.Name.StartsWith("08_ForeignKeys", StringComparison.InvariantCultureIgnoreCase))
                 {
                     var files = CreateFkScripts(database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
@@ -528,10 +490,6 @@ public class ScriptService
         else if (directory.Name.StartsWith("06_Triggers", StringComparison.InvariantCultureIgnoreCase))
         {
             CreateTriggerScripts(database, directory, fileName);
-        }
-        else if (directory.Name.StartsWith("07_InsertDefaults", StringComparison.InvariantCultureIgnoreCase))
-        {
-            CreateInsertDefaultScripts(database, directory, fileName);
         }
         else if (directory.Name.StartsWith("08_ForeignKeys", StringComparison.InvariantCultureIgnoreCase))
         {

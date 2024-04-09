@@ -1,5 +1,3 @@
-using System.Data;
-using System.Text;
 using Cornerstone.Database.Extensions;
 using Cornerstone.Database.Providers;
 using Cornerstone.Database.Services;
@@ -342,47 +340,6 @@ namespace Cornerstone.Database
 
             #region Methods
 
-            public System.Data.DataSet Execute(string sqlCommand)
-            {
-                return _databaseService.Execute(this.ConnectionString, sqlCommand);
-            }
-
-            public string FormatValue(System.Data.DbType dbType, object value)
-            {
-                if (value == DBNull.Value || value == null)
-                {
-                    return "NULL";
-                }
-
-                switch (dbType)
-                {
-                    case System.Data.DbType.Boolean:
-                        if (Convert.ToBoolean(value))
-                        {
-                            return "1";
-                        }
-                        else
-                        {
-                            return "0";
-                        }
-                    case System.Data.DbType.Decimal:
-                    case System.Data.DbType.Double:
-                    case System.Data.DbType.Int16:
-                    case System.Data.DbType.Int32:
-                    case System.Data.DbType.Int64:
-                    case System.Data.DbType.Single:
-                    case System.Data.DbType.UInt16:
-                    case System.Data.DbType.UInt32:
-                    case System.Data.DbType.UInt64:
-                        return value.ToString();
-                    case DbType.DateTime:
-                    case DbType.DateTime2:
-                        return string.Format("'{0}'", ((DateTime)value).ToString("yyyy-MM-dd HH:mm:ss.fffffff"));
-                    default:
-                        return string.Format("'{0}'", value.ToString().Trim().Replace("'", "''").Replace(Environment.NewLine, "' + CHAR(13) + CHAR(10) + '"));
-                }
-            }
-
             public string GetChangeScript(DatabaseModel changedDatabase)
             {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
@@ -396,7 +353,7 @@ namespace Cornerstone.Database
                         select i2).Count() == 0
                     select i))
                 {
-                    definition.AppendDropScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                    definition.AppendDropScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 foreach (var foreignKey in (
@@ -407,7 +364,7 @@ namespace Cornerstone.Database
                         select i2).Count() == 0
                     select i))
                 {
-                    foreignKey.AppendDropScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                    foreignKey.AppendDropScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 foreach (var index in (
@@ -418,7 +375,7 @@ namespace Cornerstone.Database
                         select i2).Count() == 0
                     select i))
                 {
-                    index.AppendDropScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                    index.AppendDropScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 foreach (var primaryKey in (
@@ -429,7 +386,7 @@ namespace Cornerstone.Database
                         select i2).Count() == 0
                     select i))
                 {
-                    primaryKey.AppendDropScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                    primaryKey.AppendDropScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 foreach (var trigger in (
@@ -451,7 +408,7 @@ namespace Cornerstone.Database
                         select i2).Count() == 0
                     select i))
                 {
-                    table.AppendDropScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                    table.AppendDropScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 //Find objects that have been created (in the changedDatabase but not in me)
@@ -463,7 +420,7 @@ namespace Cornerstone.Database
                         select i2).Count() == 0
                     select i))
                 {
-                    table.AppendCreateScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                    table.AppendCreateScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 foreach (var trigger in (
@@ -485,7 +442,7 @@ namespace Cornerstone.Database
                         select i2).Count() == 0
                     select i))
                 {
-                    primaryKey.AppendCreateScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                    primaryKey.AppendCreateScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 foreach (var index in (
@@ -496,7 +453,7 @@ namespace Cornerstone.Database
                         select i2).Count() == 0
                     select i))
                 {
-                    index.AppendCreateScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                    index.AppendCreateScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 foreach (var foreignKey in (
@@ -507,7 +464,7 @@ namespace Cornerstone.Database
                         select i2).Count() == 0
                     select i))
                 {
-                    foreignKey.AppendCreateScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                    foreignKey.AppendCreateScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 foreach (var definition in (
@@ -518,278 +475,7 @@ namespace Cornerstone.Database
                         select i2).Count() == 0
                     select i))
                 {
-                    definition.AppendCreateScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
-                }
-
-                return sb.ToString();
-            }
-
-            public string GetCheckConstraintScripts()
-            {
-                var sb = new System.Text.StringBuilder();
-
-                foreach (var constraint in this.CheckConstraints)
-                {
-                    constraint.AppendCreateScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
-                }
-
-                return sb.ToString();
-            }
-
-            public string GetFkDropScripts()
-            {
-                System.Text.StringBuilder sb = new System.Text.StringBuilder();
-
-                foreach (var foreignKeyGroup in (
-                    from i in this.ForeignKeys
-                    group i by i.TableName into g
-                    select new { TableName = g.Key, Items = g }))
-                {
-                    if (sb.Length > 0)
-                    {
-                        sb.AppendLine();
-                    }
-
-                    sb.AppendLine(string.Format("-- {0}", foreignKeyGroup.TableName));
-
-                    foreach (var foreignKey in foreignKeyGroup.Items)
-                    {
-                        foreignKey.AppendDropScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
-                    }
-                }
-
-                return sb.ToString();
-            }
-
-            public string GetFkScripts()
-            {
-                System.Text.StringBuilder sb = new System.Text.StringBuilder();
-
-                foreach (var foreignKeyGroup in (
-                    from i in this.ForeignKeys
-                    group i by i.TableName into g
-                    select new { TableName = g.Key, Items = g }))
-                {
-                    if (sb.Length > 0)
-                    {
-                        sb.AppendLine();
-                    }
-
-                    sb.AppendLine(string.Format("-- {0}", foreignKeyGroup.TableName));
-
-                    foreach (var foreignKey in foreignKeyGroup.Items)
-                    {
-                        foreignKey.AppendCreateScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
-                    }
-                }
-
-                return sb.ToString();
-            }
-
-            public string GetInsertDefaultScripts()
-            {
-                System.Text.StringBuilder sb = new System.Text.StringBuilder();
-
-                Dictionary<string, string> tableScripts = new Dictionary<string, string>();
-
-                foreach (Models.TableModel tableRow in this.Tables)
-                {
-                    if (tableRow.TableName.StartsWith("default_"))
-                    {
-                        string strScript = this.GetInsertScript(tableRow.TableName);
-
-                        if (!(string.IsNullOrEmpty(strScript)))
-                        {
-                            tableScripts.Add(tableRow.TableName, strScript);
-                        }
-                    }
-                }
-
-                while (!(tableScripts.Keys.Count == 0))
-                {
-                    string key = tableScripts.Keys.ToList()[0];
-                    string value = tableScripts[key];
-
-                    sb.AppendLine(value);
-                    tableScripts.Remove(key);
-                }
-
-                return sb.ToString();
-            }
-
-            public string GetInsertScript(string tableName, string where = "")
-            {
-                System.Text.StringBuilder sb = new System.Text.StringBuilder();
-
-                System.Text.StringBuilder sbOrderBy = new System.Text.StringBuilder();
-
-                var table = (
-                    from i in this.Tables
-                    where i.TableName.EqualsIgnoreCase(tableName)
-                    select i).FirstOrDefault();
-
-                var blnIsView = (
-                    from i in this.Views
-                    where i.TableName.EqualsIgnoreCase(tableName)
-                    select i).Count() > 0;
-
-                List<Models.ColumnModel> columns = new List<Models.ColumnModel>();
-
-                if (blnIsView)
-                {
-                    columns = (
-                        from c in this.ViewColumns
-                        where c.TableName.EqualsIgnoreCase(tableName)
-                        select c).ToList();
-                }
-                else
-                {
-                    columns = (
-                        from c in this.TableColumns
-                        where c.TableName.EqualsIgnoreCase(tableName)
-                        select c).ToList();
-                }
-
-                foreach (Models.ColumnModel item in columns)
-                {
-                    if (!item.IsNullable)
-                    {
-                        if (sbOrderBy.Length != 0)
-                        {
-                            sbOrderBy.Append(", ");
-                        }
-                        sbOrderBy.Append(item.ColumnName);
-                    }
-                }
-
-                string strQualifiedTableName = tableName;
-
-                if (table != null)
-                {
-                    strQualifiedTableName = $"{table.SchemaName}.{table.TableName}";
-                }
-
-                string strOrderBy = string.Empty;
-
-                if (sbOrderBy.Length > 0)
-                {
-                    strOrderBy = "ORDER BY " + sbOrderBy.ToString();
-                }
-
-                var dsValues = _databaseService.Execute(this.ConnectionString, $"SELECT * FROM {strQualifiedTableName} {(string.IsNullOrEmpty(where) ? "" : "WHERE " + where)} {strOrderBy}");
-
-                if (dsValues.Tables[0].Rows.Count > 0)
-                {
-                    if (sb.Length > 0)
-                    {
-                        sb.AppendLine();
-                    }
-                    sb.AppendLine(string.Format("-- {0}", tableName));
-
-                    if (tableName.StartsWith("default_", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        sb.AppendLine();
-                        sb.AppendLine(string.Format("DELETE FROM {0}", strQualifiedTableName));
-                        sb.AppendLine();
-                    }
-
-                    System.Text.StringBuilder sbFields = new System.Text.StringBuilder();
-                    foreach (Models.ColumnModel item in columns)
-                    {
-
-                        if (sbFields.Length != 0)
-                        {
-                            sbFields.Append(", ");
-                        }
-
-                        sbFields.Append(string.Format("{0}", item.ColumnName));
-
-                    }
-
-                    int page = 0;
-                    int rowsPerPage = 500;
-
-                    var rows = dsValues.Tables[0].Rows.OfType<System.Data.DataRow>().ToList();
-
-                    while (true)
-                    {
-                        var pagedRows = rows.Skip(rowsPerPage * page).Take(rowsPerPage).ToList();
-
-                        if (pagedRows.Count == 0)
-                        {
-                            break;
-                        }
-
-                        System.Text.StringBuilder sbValues = new System.Text.StringBuilder();
-
-                        foreach (var pagedRow in pagedRows)
-                        {
-                            if (sbValues.Length > 0)
-                            {
-                                sbValues.AppendLine(",");
-                            }
-
-                            sbValues.Append("    (");
-
-                            var sbColumnValues = new StringBuilder();
-
-                            foreach (Models.ColumnModel item in columns)
-                            {
-                                if (sbColumnValues.Length != 0)
-                                {
-                                    sbColumnValues.Append(", ");
-                                }
-                                switch (item.ColumnName.ToLower())
-                                {
-                                    case "changed_date":
-                                    case "modifieddate":
-                                    case "createddate":
-                                        sbColumnValues.Append("GETDATE()");
-                                        break;
-                                    case "changed_user_id":
-                                    case "modifiedby":
-                                    case "createdby":
-                                        sbColumnValues.Append("''");
-                                        break;
-                                    default:
-                                        sbColumnValues.Append(string.Format("{0}", this.FormatValue(item.DbType, pagedRow[item.ColumnName])));
-                                        break;
-                                }
-                            }
-
-                            sbValues.Append($"{sbColumnValues.ToString()})");
-
-                        }
-
-                        sb.AppendLine($@"
-INSERT INTO 
-    {strQualifiedTableName} 
-    (
-        {sbFields.ToString()}
-    ) 
-    VALUES 
-{sbValues.ToString()}
-GO
-");
-
-                        page += 1;
-                    }
-                }
-                return sb.ToString();
-            }
-
-            public string GetIxPkScripts()
-            {
-                System.Text.StringBuilder sb = new System.Text.StringBuilder();
-
-                foreach (var pk in this.PrimaryKeys)
-                {
-                    pk.AppendCreateScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
-                }
-
-                foreach (var index in this.Indexes)
-                {
-                    index.AppendCreateScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
+                    definition.AppendCreateScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
                 }
 
                 return sb.ToString();
@@ -838,139 +524,6 @@ GO
                     sb.AppendLine($"       {this.DatabaseName}.{table.SchemaName}.{table.TableName} source_table");
                     sb.AppendLine("    WHERE");
                     sb.AppendLine($"        NOT EXISTS (SELECT 1 FROM {targetDatabase.DatabaseName}.{table.SchemaName}.{table.TableName} target_table WHERE {sbCriteria.ToString()})");
-                }
-
-                return sb.ToString();
-            }
-
-            public string GetScript(string quoteCharacter)
-            {
-                System.Text.StringBuilder sb = new System.Text.StringBuilder();
-
-                sb.AppendLine(this.GetTableScripts());
-
-                sb.AppendLine(this.GetIxPkScripts());
-
-                sb.AppendLine(this.GetDefinitionScripts());
-
-                sb.AppendLine(this.GetTriggerScripts());
-
-                sb.AppendLine(this.GetFkScripts());
-
-                sb.AppendLine(this.GetCheckConstraintScripts());
-
-                sb.AppendLine(this.GetSecurityPolicyScripts());
-
-                sb.AppendLine(this.GetInsertDefaultScripts());
-
-                return sb.ToString();
-            }
-
-            public string GetDefinitionDropScripts()
-            {
-                System.Text.StringBuilder sb = new System.Text.StringBuilder();
-
-                foreach (var definition in this.Definitions)
-                {
-                    definition.AppendDropScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
-                }
-
-                return sb.ToString();
-            }
-
-            public string GetDefinitionScripts()
-            {
-                System.Text.StringBuilder sb = new System.Text.StringBuilder();
-
-                foreach (var definition in this.Definitions)
-                {
-                    definition.AppendCreateScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
-                }
-
-                return sb.ToString();
-            }
-
-            public string GetTableScripts(bool includeIfNotExists = true)
-            {
-                System.Text.StringBuilder sb = new System.Text.StringBuilder();
-
-                foreach (Models.TableModel table in this.Tables.Where(i => !i.IsHistoryTable))
-                {
-                    table.AppendCreateScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd, includeIfNotExists);
-                }
-
-                return sb.ToString();
-            }
-
-            public string GetTableJsonScripts()
-            {
-                System.Text.StringBuilder sb = new System.Text.StringBuilder();
-
-                foreach (Models.TableModel table in this.Tables.Where(i => !i.IsHistoryTable))
-                {
-                    table.AppendJsonScript(this, sb);
-                }
-
-                return sb.ToString();
-            }
-
-            public string GetSecurityPolicyScripts(bool includeIfNotExists = true)
-            {
-                System.Text.StringBuilder sb = new System.Text.StringBuilder();
-
-                foreach (var securityPolicy in this.SecurityPolicies)
-                {
-                    securityPolicy.AppendCreateScript(this, sb, this.QuoteCharacterStart, this.QuoteCharacterEnd, includeIfNotExists);
-                }
-
-                return sb.ToString();
-            }
-
-            public string GetTriggerDropScripts()
-            {
-                System.Text.StringBuilder sb = new System.Text.StringBuilder();
-
-                foreach (var triggerGroup in (
-                    from i in this.Triggers
-                    group i by i.TableName into g
-                    select new { TableName = g.Key, Items = g }))
-                {
-                    if (sb.Length > 0)
-                    {
-                        sb.AppendLine();
-                    }
-
-                    sb.AppendLine(string.Format("-- {0}", triggerGroup.TableName));
-
-                    foreach (var trigger in triggerGroup.Items)
-                    {
-                        trigger.AppendDropScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
-                    }
-                }
-
-                return sb.ToString();
-            }
-
-            public string GetTriggerScripts()
-            {
-                System.Text.StringBuilder sb = new System.Text.StringBuilder();
-
-                foreach (var triggerGroup in (
-                    from i in this.Triggers
-                    group i by i.TableName into g
-                    select new { TableName = g.Key, Items = g }))
-                {
-                    if (sb.Length > 0)
-                    {
-                        sb.AppendLine();
-                    }
-
-                    sb.AppendLine(string.Format("-- {0}", triggerGroup.TableName));
-
-                    foreach (var trigger in triggerGroup.Items)
-                    {
-                        trigger.AppendScript(sb, this.QuoteCharacterStart, this.QuoteCharacterEnd);
-                    }
                 }
 
                 return sb.ToString();

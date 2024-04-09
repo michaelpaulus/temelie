@@ -1,5 +1,3 @@
-using Cornerstone.Database.Extensions;
-
 namespace Cornerstone.Database
 {
     namespace Models
@@ -40,7 +38,7 @@ namespace Cornerstone.Database
             {
                 get
                 {
-                    return _columnMapping.IsNull("");
+                    return _columnMapping ?? "";
                 }
                 set
                 {

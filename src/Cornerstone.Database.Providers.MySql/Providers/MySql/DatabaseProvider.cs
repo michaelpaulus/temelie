@@ -1,6 +1,5 @@
 using System.Data;
 using System.Data.Common;
-using Cornerstone.Database.Extensions;
 using Cornerstone.Database.Models;
 using Cornerstone.Database.Services;
 using MySql.Data.MySqlClient;
@@ -285,7 +284,7 @@ public class DatabaseProvider : IDatabaseProvider
                 {
                     string value = Convert.ToString(row["COLUMN_KEY"]);
                     if (value != null &&
-                        value.EqualsIgnoreCase("PRI"))
+                        value.Equals("PRI", StringComparison.OrdinalIgnoreCase))
                     {
                         row["is_primary_key"] = true;
                     }
@@ -304,7 +303,7 @@ public class DatabaseProvider : IDatabaseProvider
                 {
                     string value = Convert.ToString(row["EXTRA"]);
                     if (value != null &&
-                        value.EqualsIgnoreCase("auto_increment"))
+                        value.Equals("auto_increment", StringComparison.OrdinalIgnoreCase))
                     {
                         row["is_identity"] = true;
                     }

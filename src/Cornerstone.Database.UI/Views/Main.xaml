@@ -30,14 +30,7 @@
                 <MenuItem Header="|"  IsEnabled="False" />
 
                 <MenuItem Header="Table Mapping Script" CommandParameter="TableMappingScript" Click="MenuItem_Click"/>
-                <MenuItem Header="|"  IsEnabled="False" />
 
-                <MenuItem Header="Create Insert Script" CommandParameter="CreateInsertScript" Click="MenuItem_Click"/>
-                <MenuItem Header="|"  IsEnabled="False" />
-
-                <MenuItem Header="Create Change Script" CommandParameter="CreateChangeScript" Click="MenuItem_Click"/>
-                <MenuItem Header="|"  IsEnabled="False" />
-                <MenuItem Header="Create Merge Script" CommandParameter="CreateMergeScript" Click="MenuItem_Click"/>
             </Menu>
         </Grid>
         <Label x:Name="TitleLabel"  Grid.Column="0" Margin="4, 8, 0, 4" Grid.Row="1" FontSize="18" />
