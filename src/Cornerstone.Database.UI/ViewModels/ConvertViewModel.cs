@@ -75,7 +75,7 @@ public class ConvertViewModel : ViewModel
         {
             var targetColumns = targetDatabase.GetTableColumns(conn);
             var targetTables = targetDatabase.GetTables(conn, targetColumns);
-            settings.TargetTables = targetTables;
+            settings.TargetTables = targetTables.ToList();
         }
 
         settings.SourceConnectionString = this.SourceDatabaseConnectionString;

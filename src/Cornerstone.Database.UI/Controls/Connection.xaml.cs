@@ -75,7 +75,7 @@ public partial class DatabaseConnection : UserControl
             using (var conn = database.CreateDbConnection(connectionString))
             {
                 var columns = database.GetTableColumns(conn);
-                tables = database.GetTables(conn, columns);
+                tables = database.GetTables(conn, columns).ToList();
             }
         }
         catch
@@ -98,7 +98,7 @@ public partial class DatabaseConnection : UserControl
             using (var conn = database.CreateDbConnection(connectionString))
             {
                 var columns = database.GetTableColumns(conn);
-                tables = database.GetTables(conn, columns);
+                tables = database.GetTables(conn, columns).ToList();
             }
         }
         catch

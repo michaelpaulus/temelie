@@ -1,6 +1,7 @@
 using System.Data;
 using System.Data.Common;
 using System.Text.Json;
+using System.Transactions;
 using Cornerstone.Database.Extensions;
 using Cornerstone.Database.Models;
 using Cornerstone.Database.Providers;
@@ -23,29 +24,12 @@ public class DatabaseService
 
     #region Create Database Methods
 
-    public DbConnection CloneDbConnection(DbConnection dbConnection)
-    {
-        DbConnection connection = _databaseProvider.CreateProvider().CreateConnection();
-        connection.ConnectionString = dbConnection.ConnectionString;
-        _databaseFactory.NotifyConnections(connection);
-        if (connection.State != ConnectionState.Open)
-        {
-            connection.Open();
-        }
-        return connection;
-    }
-
     public DbCommand CreateDbCommand(DbConnection dbConnection)
     {
         DbCommand command = dbConnection.CreateCommand();
         command.Connection = dbConnection;
 
         command.CommandTimeout = DefaultCommandTimeout;
-
-        if (Data.DbTransactionScope.Current != null && Data.DbTransactionScope.Current.Connection == dbConnection)
-        {
-            command.Transaction = Data.DbTransactionScope.Current;
-        }
 
         return command;
     }
@@ -92,22 +76,6 @@ public class DatabaseService
         return ds;
     }
 
-    public System.Data.DataSet Execute(System.Configuration.ConnectionStringSettings connectionString, string sqlCommand)
-    {
-        System.Data.DataSet ds = new System.Data.DataSet();
-
-        if (!(string.IsNullOrEmpty(sqlCommand)))
-        {
-            var factory = _databaseProvider.CreateProvider();
-            using (var connection = CreateDbConnection(factory, connectionString))
-            {
-                ds = Execute(connection, sqlCommand);
-            }
-        }
-
-        return ds;
-    }
-
     public void ExecuteFile(DbConnection connection, string sqlCommand)
     {
         if (!(string.IsNullOrEmpty(sqlCommand)))
@@ -115,18 +83,20 @@ public class DatabaseService
             System.Text.RegularExpressions.Regex regEx = new System.Text.RegularExpressions.Regex("^[\\s]*GO[^a-zA-Z0-9]", System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Multiline);
             foreach (string commandText in regEx.Split(sqlCommand))
             {
-                DbConnection commandConnection = connection;
-
-                if (commandText.IndexOf("ALTER DATABASE", StringComparison.InvariantCultureIgnoreCase) != -1 && Data.DbTransactionScope.Current != null && Data.DbTransactionScope.Current.Connection == connection)
-                {
-
-                    //Cannot Alter Database inside Transaction
-                    commandConnection = CloneDbConnection(connection);
-                }
-
                 if (!(string.IsNullOrEmpty(commandText.Trim())))
                 {
-                    ExecuteNonQuery(commandConnection, commandText);
+                    if (commandText.ToUpper().Contains("ALTER DATABASE") && System.Transactions.Transaction.Current is not null)
+                    {
+                        using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Suppress))
+                        {
+                            ExecuteNonQuery(connection, commandText);
+                            scope.Complete();
+                        }
+                    }
+                    else
+                    {
+                        ExecuteNonQuery(connection, commandText);
+                    }
                 }
             }
         }
@@ -156,43 +126,6 @@ public class DatabaseService
         }
     }
 
-    public void ExecuteNonQuery(System.Configuration.ConnectionStringSettings connectionString, string sqlCommand)
-    {
-        if (!(string.IsNullOrEmpty(sqlCommand)))
-        {
-            var factory = _databaseProvider.CreateProvider();
-            using (DbConnection connection = CreateDbConnection(factory, connectionString))
-            {
-                ExecuteNonQuery(connection, sqlCommand);
-            }
-        }
-    }
-
-    public object ExecuteScalar(System.Configuration.ConnectionStringSettings connectionString, string sqlCommand)
-    {
-        object returnValue = null;
-        if (!(string.IsNullOrEmpty(sqlCommand)))
-        {
-            var factory = _databaseProvider.CreateProvider();
-
-            using (DbConnection connection = CreateDbConnection(factory, connectionString))
-            {
-                using (DbCommand command = CreateDbCommand(connection))
-                {
-                    command.CommandText = sqlCommand;
-
-                    returnValue = command.ExecuteScalar();
-
-                    if (returnValue == DBNull.Value)
-                    {
-                        returnValue = null;
-                    }
-                }
-            }
-        }
-        return returnValue;
-    }
-
     #endregion
 
     #region Helper Methods
@@ -200,11 +133,6 @@ public class DatabaseService
     private bool ContainsTable(IEnumerable<string> tables, string table)
     {
         return (from i in tables where i.EqualsIgnoreCase(table) select i).Any();
-    }
-
-    public static System.Configuration.ConnectionStringSettings GetConnectionStringSetting(string connectionStringName)
-    {
-        return Configuration.ConnectionInfo.GetConnectionStringSetting(connectionStringName);
     }
 
     public static string GetStringValue(DataRow row, string columnName)
@@ -417,7 +345,7 @@ public class DatabaseService
 
     }
 
-    public IList<Models.DefinitionModel> GetDefinitions(DbConnection connection)
+    public IEnumerable<Models.DefinitionModel> GetDefinitions(DbConnection connection)
     {
         List<Models.DefinitionModel> list = new List<Models.DefinitionModel>();
 
@@ -443,7 +371,7 @@ public class DatabaseService
 
         return list;
     }
-    public IList<Models.SecurityPolicyModel> GetSecurityPolicies(DbConnection connection)
+    public IEnumerable<Models.SecurityPolicyModel> GetSecurityPolicies(DbConnection connection)
     {
         var list = new List<Models.SecurityPolicyModel>();
 
@@ -469,45 +397,8 @@ public class DatabaseService
         }
         return list;
     }
-    private void VerifyDefinitionsDependencies(IList<Models.DefinitionModel> list, DataTable dependencies)
-    {
-        bool blnListChanged = false;
-        foreach (System.Data.DataRow row in dependencies.Rows)
-        {
-            string strName = row["name"].ToString();
-            string strReferencingName = row["referencing_entity_name"].ToString().Trim();
 
-            var nameDefinition = (
-                from i in list
-                where i.DefinitionName.EqualsIgnoreCase(strName)
-                select i).FirstOrDefault();
-            var referenceDefinition = (
-                from i in list
-                where i.DefinitionName.EqualsIgnoreCase(strReferencingName)
-                select i).FirstOrDefault();
-
-            if (nameDefinition != null && referenceDefinition != null)
-            {
-
-                int nameIndex = list.IndexOf(nameDefinition);
-                int referenceIndex = list.IndexOf(referenceDefinition);
-
-                if (nameIndex > referenceIndex)
-                {
-                    list.Remove(nameDefinition);
-                    list.Insert(list.IndexOf(referenceDefinition), nameDefinition);
-                    blnListChanged = true;
-                    break;
-                }
-            }
-        }
-        if (blnListChanged)
-        {
-            VerifyDefinitionsDependencies(list, dependencies);
-        }
-    }
-
-    public IList<Models.ForeignKeyModel> GetForeignKeys(DbConnection connection, IList<string> tables)
+    public IEnumerable<Models.ForeignKeyModel> GetForeignKeys(DbConnection connection, IEnumerable<string> tables)
     {
         IList<Models.ForeignKeyModel> list = new List<Models.ForeignKeyModel>();
 
@@ -564,7 +455,7 @@ public class DatabaseService
         return list;
     }
 
-    public IList<Models.CheckConstraintModel> GetCheckConstraints(DbConnection connection, IList<string> tables)
+    public IEnumerable<Models.CheckConstraintModel> GetCheckConstraints(DbConnection connection, IEnumerable<string> tables)
     {
         var list = new List<Models.CheckConstraintModel>();
 
@@ -603,7 +494,7 @@ public class DatabaseService
         public int BucketCount { get; set; }
     }
 
-    public IList<Models.IndexModel> GetIndexes(DbConnection connection, IEnumerable<string> tables, bool? isPrimaryKey = null)
+    public IEnumerable<Models.IndexModel> GetIndexes(DbConnection connection, IEnumerable<string> tables, bool? isPrimaryKey = null)
     {
         IList<Models.IndexModel> list = new List<Models.IndexModel>();
         System.Data.DataTable dtIndexes = null;
@@ -692,7 +583,7 @@ public class DatabaseService
         return list;
     }
 
-    private List<Models.TableModel> GetTables(DataTable dataTable, IList<Models.ColumnModel> columns)
+    private IEnumerable<Models.TableModel> GetTables(DataTable dataTable, IEnumerable<Models.ColumnModel> columns)
     {
         List<Models.TableModel> list = new List<Models.TableModel>();
 
@@ -764,7 +655,7 @@ public class DatabaseService
         return list;
     }
 
-    public IList<Models.TableModel> GetTables(DbConnection connection, IList<Models.ColumnModel> columns, bool withBackup = false)
+    public IEnumerable<Models.TableModel> GetTables(DbConnection connection, IEnumerable<Models.ColumnModel> columns, bool withBackup = false)
     {
         System.Data.DataTable dataTable = null;
 
@@ -776,7 +667,7 @@ public class DatabaseService
 
         if (dataTable != null)
         {
-            list = GetTables(dataTable, columns);
+            list = GetTables(dataTable, columns).ToList();
 
             //Remove PowerBuilder Tables
             list = (
@@ -808,14 +699,14 @@ public class DatabaseService
         return list;
     }
 
-    public IList<Models.TableModel> GetViews(DbConnection connection, IList<Models.ColumnModel> columns)
+    public IEnumerable<Models.TableModel> GetViews(DbConnection connection, IEnumerable<Models.ColumnModel> columns)
     {
         IList<Models.TableModel> list = new List<Models.TableModel>();
 
         System.Data.DataTable dataTable = _databaseProvider.GetViews(connection);
         if (dataTable != null)
         {
-            list = GetTables(dataTable, columns);
+            list = GetTables(dataTable, columns).ToList();
             foreach (var item in list)
             {
                 item.IsView = true;
@@ -825,7 +716,7 @@ public class DatabaseService
         return list;
     }
 
-    public IList<Models.TriggerModel> GetTriggers(DbConnection connection, IList<string> tables, IList<string> views, string objectFilter)
+    public IEnumerable<Models.TriggerModel> GetTriggers(DbConnection connection, IEnumerable<string> tables, IEnumerable<string> views, string objectFilter)
     {
         IList<Models.TriggerModel> list = new List<Models.TriggerModel>();
 
@@ -855,12 +746,6 @@ public class DatabaseService
         }
 
         return list;
-    }
-
-    public bool IsDatabaseEmpty(System.Configuration.ConnectionStringSettings connectionString)
-    {
-        var model = new Models.DatabaseModel(_databaseFactory, connectionString);
-        return model.Tables.Count == 0;
     }
 
     #endregion
