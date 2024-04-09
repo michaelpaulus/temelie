@@ -186,7 +186,7 @@ namespace Cornerstone.Database
                 var json = JsonSerializer.Serialize(this, new JsonSerializerOptions()
                 {
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                    IgnoreNullValues = true,
+                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
                     WriteIndented = true,
                     DictionaryKeyPolicy = JsonNamingPolicy.CamelCase
                 });
