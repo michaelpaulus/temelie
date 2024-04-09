@@ -7,7 +7,9 @@ namespace Cornerstone.Database.Configuration.Preferences;
 public class UserSettingsContext
 {
 
+#pragma warning disable CA1810 // Initialize reference type static fields inline
     static UserSettingsContext()
+#pragma warning restore CA1810 // Initialize reference type static fields inline
     {
         UserSettingsPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Cornerstone.Database");
         if (!(System.IO.Directory.Exists(UserSettingsPath)))

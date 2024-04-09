@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows;
-using Cornerstone.Database.Services;
 using Cornerstone.Database.Providers;
+using Cornerstone.Database.Services;
 using Cornerstone.Database.UI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
@@ -53,7 +53,9 @@ public partial class CreateInsertScript
             }
         });
 
-        System.Threading.Tasks.Task.Factory.StartNew(action, this.DatabaseConnection.ConnectionString);
+#pragma warning disable CA2008 // Do not create tasks without passing a TaskScheduler
+        _ = System.Threading.Tasks.Task.Factory.StartNew(action, DatabaseConnection.ConnectionString);
+#pragma warning restore CA2008 // Do not create tasks without passing a TaskScheduler
     }
 
     private void GenerateScriptButton_Click(object sender, System.Windows.RoutedEventArgs e)

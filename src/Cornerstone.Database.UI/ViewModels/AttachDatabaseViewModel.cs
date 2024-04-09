@@ -2,8 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Cornerstone.Database.Services;
 using Cornerstone.Database.Providers;
+using Cornerstone.Database.Services;
 
 namespace Cornerstone.Database
 {
@@ -62,7 +62,9 @@ namespace Cornerstone.Database
                     try
                     {
                         System.Text.StringBuilder sbCommand = new System.Text.StringBuilder();
-                        sbCommand.AppendLine(string.Format("EXEC sp_detach_db @dbname = N'{0}'", model.DatabaseName));
+#pragma warning disable CA1305 // Specify IFormatProvider
+                        sbCommand.AppendLine($"EXEC sp_detach_db @dbname = N'{model.DatabaseName}'");
+#pragma warning restore CA1305 // Specify IFormatProvider
 
                         var databaseType = Services.DatabaseService.GetDatabaseType(connectionString);
 
@@ -74,7 +76,7 @@ namespace Cornerstone.Database
                     }
                     catch
                     {
-                        this.Results += string.Format("Detach of database: {0} failed.", model.DatabaseName) + Environment.NewLine;
+                        this.Results += $"Detach of database: {model.DatabaseName} failed." + Environment.NewLine;
                     }
                 }
             }
@@ -89,14 +91,18 @@ namespace Cornerstone.Database
                     try
                     {
                         System.Text.StringBuilder sbCommand = new System.Text.StringBuilder();
-                        sbCommand.AppendLine(string.Format("EXEC sp_attach_db @dbname = N'{0}'", model.DatabaseName));
+#pragma warning disable CA1305 // Specify IFormatProvider
+                        sbCommand.AppendLine($"EXEC sp_attach_db @dbname = N'{model.DatabaseName}'");
+#pragma warning restore CA1305 // Specify IFormatProvider
 
                         int intFileCount = 0;
 
                         foreach (var file in model.Files)
                         {
                             intFileCount += 1;
-                            sbCommand.AppendLine(string.Format(", @filename{0} = N'{1}'", intFileCount, file));
+#pragma warning disable CA1305 // Specify IFormatProvider
+                            sbCommand.AppendLine($", @filename{intFileCount} = N'{file}'");
+#pragma warning restore CA1305 // Specify IFormatProvider
                         }
 
                         var databaseType = Services.DatabaseService.GetDatabaseType(connectionString);
@@ -110,7 +116,7 @@ namespace Cornerstone.Database
                     }
                     catch
                     {
-                        this.Results += string.Format("Attach of database: {0} failed.", model.DatabaseName) + Environment.NewLine;
+                        this.Results += $"Attach of database: {model.DatabaseName} failed." + Environment.NewLine;
                     }
                 }
             }

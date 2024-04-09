@@ -878,9 +878,9 @@ ORDER BY
                 parameter.Size = column.Precision;
                 break;
             case System.Data.DbType.Time:
-                if ((parameter) is SqlParameter)
+                if (parameter is SqlParameter parameter1)
                 {
-                    ((SqlParameter)parameter).SqlDbType = System.Data.SqlDbType.Time;
+                    parameter1.SqlDbType = System.Data.SqlDbType.Time;
                 }
                 break;
         }

@@ -4,8 +4,8 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using Cornerstone.Database.Services;
 using Cornerstone.Database.Providers;
+using Cornerstone.Database.Services;
 
 namespace Cornerstone.Database.ViewModels;
 
@@ -97,7 +97,7 @@ public class ConvertViewModel : ViewModel
 
     public void Convert()
     {
-        this.ErrorMessage = $"Started: {DateTime.Now.ToString()}\r\n";
+        this.ErrorMessage = $"Started: {DateTime.Now}\r\n";
         this.ConvertCommand.IsEnabled = false;
         this.ToggleAllCommand.IsEnabled = false;
 
@@ -108,7 +108,8 @@ public class ConvertViewModel : ViewModel
 
         var settings = this.GetTableConverterSettings();
 
-        Task.Factory.StartNew(() =>
+#pragma warning disable CA2008 // Do not create tasks without passing a TaskScheduler
+        _ = Task.Factory.StartNew(() =>
         {
             var converter = new TableConverterService(_databaseProviders, _connectionCreatedNotifications);
             converter.ConvertTables(settings,
@@ -119,11 +120,12 @@ public class ConvertViewModel : ViewModel
         {
             this.Stopwatch.Stop();
 
-            this.ErrorMessage += $"\r\n\r\nFinished: {DateTime.Now.ToString()}";
+            this.ErrorMessage += $"\r\n\r\nFinished: {DateTime.Now}";
             this.ErrorMessage += $"\r\nTotal Minutes: {this.Stopwatch.Elapsed.TotalMinutes}";
             this.ConvertCommand.IsEnabled = true;
             this.ToggleAllCommand.IsEnabled = true;
         }, TaskScheduler.FromCurrentSynchronizationContext());
+#pragma warning restore CA2008 // Do not create tasks without passing a TaskScheduler
     }
 
     public void UpdateTables()

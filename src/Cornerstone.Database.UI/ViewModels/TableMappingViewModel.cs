@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using Cornerstone.Database.Services;
 using Cornerstone.Database.Providers;
+using Cornerstone.Database.Services;
 
 namespace Cornerstone.Database
 {

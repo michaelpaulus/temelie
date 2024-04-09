@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Cornerstone.Database.Services;
 using Cornerstone.Database.Providers;
+using Cornerstone.Database.Services;
 
 namespace Cornerstone.Database.ViewModels;
 
@@ -64,7 +64,8 @@ public class CreateScriptsViewModel : ViewModel
 
         var progress = new Progress<ScriptProgress>(this.ReportProgress);
 
-        Task.Factory.StartNew(() =>
+#pragma warning disable CA2008 // Do not create tasks without passing a TaskScheduler
+        _ = Task.Factory.StartNew(() =>
         {
             this.CreateScriptsInternal(progress);
         }).ContinueWith((task) =>
@@ -73,6 +74,7 @@ public class CreateScriptsViewModel : ViewModel
             this.ProgressStatus = "Completed";
             this.CreateScriptsCommand.IsEnabled = true;
         }, TaskScheduler.FromCurrentSynchronizationContext());
+#pragma warning restore CA2008 // Do not create tasks without passing a TaskScheduler
     }
 
     private void CreateScriptsInternal(IProgress<ScriptProgress> progress)

@@ -6,8 +6,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using Cornerstone.Database.Services;
 using Cornerstone.Database.Providers;
+using Cornerstone.Database.Services;
 using Cornerstone.Database.UI;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -105,7 +105,9 @@ public partial class CreateMergeScript
             }
         });
 
-        System.Threading.Tasks.Task.Factory.StartNew(action, this.SourceDatabaseConnection.ConnectionString);
+#pragma warning disable CA2008 // Do not create tasks without passing a TaskScheduler
+        _ = System.Threading.Tasks.Task.Factory.StartNew(action, this.SourceDatabaseConnection.ConnectionString);
+#pragma warning restore CA2008 // Do not create tasks without passing a TaskScheduler
     }
 
     public void DataGridCell_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -189,14 +191,14 @@ public partial class CreateMergeScript
             {
                 if (Configuration.Preferences.UserSettingsContext.Current.MergeTableLists[intIndex].Split(':')[0] == strName)
                 {
-                    Configuration.Preferences.UserSettingsContext.Current.MergeTableLists[intIndex] = string.Format("{0}:{1}", strName, sbValue.ToString());
+                    Configuration.Preferences.UserSettingsContext.Current.MergeTableLists[intIndex] = $"{strName}:{sbValue.ToString()}";
                     blnFoundInList = true;
                 }
             }
 
             if (!blnFoundInList)
             {
-                Configuration.Preferences.UserSettingsContext.Current.MergeTableLists.Add(string.Format("{0}:{1}", strName, sbValue.ToString()));
+                Configuration.Preferences.UserSettingsContext.Current.MergeTableLists.Add($"{strName}:{sbValue.ToString()}");
             }
         }
         Configuration.Preferences.UserSettingsContext.Save();

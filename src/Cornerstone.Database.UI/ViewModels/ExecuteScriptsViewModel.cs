@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Cornerstone.Database.Services;
 using Cornerstone.Database.Providers;
+using Cornerstone.Database.Services;
 
 namespace Cornerstone.Database.ViewModels;
 
@@ -63,12 +63,13 @@ public class ExecuteScriptsViewModel : ViewModel
     {
         this.ProgressPercentage = 0;
         this.ProgressStatus = "";
-        this.ErrorMessage = $"Started: {DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss")}";
+        this.ErrorMessage = $"Started: {DateTime.Now:yyyy-MM-ddTHH:mm:ss}";
         this.ExecuteScriptsCommand.IsEnabled = false;
 
         var progress = new Progress<ScriptProgress>(this.ReportProgress);
 
-        Task.Factory.StartNew(() =>
+#pragma warning disable CA2008 // Do not create tasks without passing a TaskScheduler
+        _ = Task.Factory.StartNew(() =>
         {
             this.ExecuteScriptsInternal(progress);
         }).ContinueWith((task) =>
@@ -94,12 +95,13 @@ public class ExecuteScriptsViewModel : ViewModel
             else
             {
                 this.ProgressPercentage = 0;
-                this.ErrorMessage += $"Completed: {DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss")}";
+                this.ErrorMessage += $"Completed: {DateTime.Now:yyyy-MM-ddTHH:mm:ss}";
                 this.ProgressStatus = "Completed";
             }
 
             this.ExecuteScriptsCommand.IsEnabled = true;
         }, TaskScheduler.FromCurrentSynchronizationContext());
+#pragma warning restore CA2008 // Do not create tasks without passing a TaskScheduler
     }
 
     private void ExecuteScriptsInternal(IProgress<ScriptProgress> progress)

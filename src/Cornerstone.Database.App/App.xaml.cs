@@ -1,11 +1,11 @@
 using System;
 using System.Windows;
-using Cornerstone.Database.Services;
 using Cornerstone.Database.Providers;
+using Cornerstone.Database.Providers.Mssql;
+using Cornerstone.Database.Services;
 using Cornerstone.Database.UI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Cornerstone.Database.Providers.Mssql;
 
 namespace Cornerstone.Database.App;
 

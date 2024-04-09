@@ -1,8 +1,8 @@
 using System.Data;
 using System.Text;
 using Cornerstone.Database.Extensions;
-using Cornerstone.Database.Services;
 using Cornerstone.Database.Providers;
+using Cornerstone.Database.Services;
 
 namespace Cornerstone.Database
 {

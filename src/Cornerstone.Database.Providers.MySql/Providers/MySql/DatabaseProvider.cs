@@ -260,9 +260,9 @@ public class DatabaseProvider : IDatabaseProvider
                 parameter.Size = column.Precision;
                 break;
             case DbType.DateTime2:
-                if ((parameter) is MySqlParameter)
+                if (parameter is MySqlParameter parameter1)
                 {
-                    ((MySqlParameter)parameter).MySqlDbType = MySqlDbType.DateTime;
+                    parameter1.MySqlDbType = MySqlDbType.DateTime;
                 }
                 break;
         }

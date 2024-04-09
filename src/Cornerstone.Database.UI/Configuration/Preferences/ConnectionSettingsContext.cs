@@ -42,7 +42,9 @@ public class ConnectionSettingsContext
         configuration.Save();
     }
 
+#pragma warning disable CA1810 // Initialize reference type static fields inline
     static ConnectionSettingsContext()
+#pragma warning restore CA1810 // Initialize reference type static fields inline
     {
         _current = new ConnectionSettings();
 
