@@ -63,7 +63,7 @@ public class DatabaseModelService
         var secPol = GetSecurityPolicies(service, connection);
 
         return new DatabaseModel(databaseName, quoteCharacterStart, quoteCharacterEnd,
-            tables, tableColumns, views, viewColumns,
+            tables, views,
             indexes, triggers, fks, conts,
             defs, secPol);
     }

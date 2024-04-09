@@ -288,7 +288,6 @@ public class ScriptService
 
             string subDirectoryPath = System.IO.Path.Combine(directory.FullName, subDirectoryName);
 
-
             var subDirectory = new System.IO.DirectoryInfo(subDirectoryPath);
 
             progress?.Report(new ScriptProgress() { ProgressPercentage = intProgress, ProgressStatus = subDirectory.Name });
