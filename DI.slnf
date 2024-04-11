@@ -1,0 +1,10 @@
+{
+  "solution": {
+    "path": "Cornerstone.sln",
+    "projects": [
+      "src\\AdventureWorks.Database\\AdventureWorks.Database.csproj",
+      "src\\Cornerstone.DependencyInjection.SourceGenerator\\Cornerstone.DependencyInjection.SourceGenerator.csproj",
+      "src\\Cornerstone.DependencyInjection\\Cornerstone.DependencyInjection.csproj"
+    ]
+  }
+}

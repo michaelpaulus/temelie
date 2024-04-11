@@ -5,9 +5,9 @@ VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{E1751DAE-1BFD-4888-AC39-F890B65567F2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cornerstone.DependencyInjection.SourceGenerator", "src\Cornerstone.DependencyInjection.SourceGenerator\Cornerstone.DependencyInjection.SourceGenerator.csproj", "{BC0A2B0F-F4F4-42C0-AC62-6E5F218DB95F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.DependencyInjection.SourceGenerator", "src\Cornerstone.DependencyInjection.SourceGenerator\Cornerstone.DependencyInjection.SourceGenerator.csproj", "{BC0A2B0F-F4F4-42C0-AC62-6E5F218DB95F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cornerstone.DependencyInjection", "src\Cornerstone.DependencyInjection\Cornerstone.DependencyInjection.csproj", "{14A88F81-0F89-4C95-A4C5-5234C96B5B02}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.DependencyInjection", "src\Cornerstone.DependencyInjection\Cornerstone.DependencyInjection.csproj", "{14A88F81-0F89-4C95-A4C5-5234C96B5B02}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdventureWorks.Database", "src\AdventureWorks.Database\AdventureWorks.Database.csproj", "{7BC3F92E-1236-4238-94BD-ED6D84073333}"
 EndProject

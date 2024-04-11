@@ -23,6 +23,22 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdventureWorks.Database", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.DependencyInjection", "src\Cornerstone.DependencyInjection\Cornerstone.DependencyInjection.csproj", "{FC3328F9-65A7-4042-8DBB-3646E781D41B}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.Entities.Interfaces", "src\Cornerstone.Entities.Interfaces\Cornerstone.Entities.Interfaces.csproj", "{A9FC7A45-D529-4383-BADE-A10470E49452}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.Repository.EntityFrameworkCore", "src\Cornerstone.Repository.EntityFrameworkCore\Cornerstone.Repository.EntityFrameworkCore.csproj", "{56FBBE1B-F386-4823-BEFF-33B3F05ACFB7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.Repository.EntityFrameworkCore.UnitTests", "src\Cornerstone.Repository.EntityFrameworkCore.UnitTests\Cornerstone.Repository.EntityFrameworkCore.UnitTests.csproj", "{66A3261B-7AE7-4972-AF43-C5A8975C1FF4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.Repository.Interfaces", "src\Cornerstone.Repository.Interfaces\Cornerstone.Repository.Interfaces.csproj", "{4AFF4137-8E7F-4585-AECD-C18867E5A82D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.DependencyInjection.SourceGenerator", "src\Cornerstone.DependencyInjection.SourceGenerator\Cornerstone.DependencyInjection.SourceGenerator.csproj", "{E673EA03-E416-4B34-9C12-349CFE5853DF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdventureWorks.Entities", "src\AdventureWorks.Entities\AdventureWorks.Entities.csproj", "{83B9AD41-712C-498C-B35E-BF3F712E440B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdventureWorks.Server.Repository", "src\AdventureWorks.Server.Repository\AdventureWorks.Server.Repository.csproj", "{26D71722-40A9-475E-A18B-183A513E8192}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdventureWorks.Server.Repository.EntityFrameworkCore", "src\AdventureWorks.Server.Repository.EntityFrameworkCore\AdventureWorks.Server.Repository.EntityFrameworkCore.csproj", "{553CA04A-3D10-4C6D-A7B8-89D694A770EA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -65,6 +81,38 @@ Global
 		{FC3328F9-65A7-4042-8DBB-3646E781D41B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FC3328F9-65A7-4042-8DBB-3646E781D41B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FC3328F9-65A7-4042-8DBB-3646E781D41B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A9FC7A45-D529-4383-BADE-A10470E49452}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A9FC7A45-D529-4383-BADE-A10470E49452}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A9FC7A45-D529-4383-BADE-A10470E49452}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A9FC7A45-D529-4383-BADE-A10470E49452}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56FBBE1B-F386-4823-BEFF-33B3F05ACFB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56FBBE1B-F386-4823-BEFF-33B3F05ACFB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56FBBE1B-F386-4823-BEFF-33B3F05ACFB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56FBBE1B-F386-4823-BEFF-33B3F05ACFB7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66A3261B-7AE7-4972-AF43-C5A8975C1FF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66A3261B-7AE7-4972-AF43-C5A8975C1FF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66A3261B-7AE7-4972-AF43-C5A8975C1FF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66A3261B-7AE7-4972-AF43-C5A8975C1FF4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4AFF4137-8E7F-4585-AECD-C18867E5A82D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4AFF4137-8E7F-4585-AECD-C18867E5A82D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4AFF4137-8E7F-4585-AECD-C18867E5A82D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4AFF4137-8E7F-4585-AECD-C18867E5A82D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E673EA03-E416-4B34-9C12-349CFE5853DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E673EA03-E416-4B34-9C12-349CFE5853DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E673EA03-E416-4B34-9C12-349CFE5853DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E673EA03-E416-4B34-9C12-349CFE5853DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{83B9AD41-712C-498C-B35E-BF3F712E440B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{83B9AD41-712C-498C-B35E-BF3F712E440B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{83B9AD41-712C-498C-B35E-BF3F712E440B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{83B9AD41-712C-498C-B35E-BF3F712E440B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26D71722-40A9-475E-A18B-183A513E8192}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26D71722-40A9-475E-A18B-183A513E8192}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26D71722-40A9-475E-A18B-183A513E8192}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26D71722-40A9-475E-A18B-183A513E8192}.Release|Any CPU.Build.0 = Release|Any CPU
+		{553CA04A-3D10-4C6D-A7B8-89D694A770EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{553CA04A-3D10-4C6D-A7B8-89D694A770EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{553CA04A-3D10-4C6D-A7B8-89D694A770EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{553CA04A-3D10-4C6D-A7B8-89D694A770EA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -72,6 +120,9 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{AA1A1F1C-C232-48BF-AF13-F0E38B2F4476} = {E1751DAE-1BFD-4888-AC39-F890B65567F2}
 		{FE145D2D-F787-46EF-BAF3-06FF823398EE} = {E1751DAE-1BFD-4888-AC39-F890B65567F2}
+		{83B9AD41-712C-498C-B35E-BF3F712E440B} = {E1751DAE-1BFD-4888-AC39-F890B65567F2}
+		{26D71722-40A9-475E-A18B-183A513E8192} = {E1751DAE-1BFD-4888-AC39-F890B65567F2}
+		{553CA04A-3D10-4C6D-A7B8-89D694A770EA} = {E1751DAE-1BFD-4888-AC39-F890B65567F2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {93D79511-36CC-452F-9DF6-C3D742B4CF59}
