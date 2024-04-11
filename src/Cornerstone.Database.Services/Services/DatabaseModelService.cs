@@ -3,8 +3,10 @@ using System.Data.Common;
 using Cornerstone.Database.Extensions;
 using Cornerstone.Database.Models;
 using Cornerstone.Database.Providers;
+using Cornerstone.DependencyInjection;
 
 namespace Cornerstone.Database.Services;
+[ExportTransient(typeof(IDatabaseModelService))]
 public class DatabaseModelService : IDatabaseModelService
 {
     private readonly IDatabaseFactory _databaseFactory;

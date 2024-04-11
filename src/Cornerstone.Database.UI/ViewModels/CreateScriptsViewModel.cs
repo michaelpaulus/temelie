@@ -5,9 +5,10 @@ using System.Threading.Tasks;
 using Cornerstone.Database.Models;
 using Cornerstone.Database.Providers;
 using Cornerstone.Database.Services;
+using Cornerstone.DependencyInjection;
 
 namespace Cornerstone.Database.ViewModels;
-
+[ExportTransient(typeof(CreateScriptsViewModel))]
 public class CreateScriptsViewModel : ViewModel
 {
 

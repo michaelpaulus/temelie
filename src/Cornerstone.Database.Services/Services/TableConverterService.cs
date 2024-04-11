@@ -3,9 +3,10 @@ using System.Data.Common;
 using System.Text;
 using Cornerstone.Database.Models;
 using Cornerstone.Database.Providers;
+using Cornerstone.DependencyInjection;
 
 namespace Cornerstone.Database.Services;
-
+[ExportTransient(typeof(ITableConverterService))]
 public class TableConverterService : ITableConverterService
 {
 

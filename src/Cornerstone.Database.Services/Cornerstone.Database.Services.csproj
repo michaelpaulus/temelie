@@ -12,5 +12,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Cornerstone.Database.Models\Cornerstone.Database.Models.csproj" />
+    <ProjectReference Include="..\Cornerstone.DependencyInjection\Cornerstone.DependencyInjection.csproj" />
   </ItemGroup>
 </Project>

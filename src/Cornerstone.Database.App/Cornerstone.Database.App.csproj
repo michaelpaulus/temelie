@@ -17,6 +17,7 @@
 	  <ProjectReference Include="..\Cornerstone.Database.Providers.MySql\Cornerstone.Database.Providers.MySql.csproj" />
 	  <ProjectReference Include="..\Cornerstone.Database.Services\Cornerstone.Database.Services.csproj" />
 	  <ProjectReference Include="..\Cornerstone.Database.UI\Cornerstone.Database.UI.csproj" />
-	</ItemGroup>
+    <ProjectReference Include="..\Cornerstone.DependencyInjection.SourceGenerator\Cornerstone.DependencyInjection.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
 
 </Project>

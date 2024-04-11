@@ -3,9 +3,11 @@ using System.Data.Common;
 using System.Data;
 using System.Transactions;
 using Cornerstone.Database.Models;
+using Cornerstone.DependencyInjection;
 
 namespace Cornerstone.Database.Services;
 
+[ExportTransient(typeof(IDatabaseExecutionService))]
 public class DatabaseExecutionService : IDatabaseExecutionService
 {
     public const int DefaultCommandTimeout = 0;

@@ -1,5 +1,3 @@
-
-using Cornerstone.Database.Providers;
 using Cornerstone.Database.Services;
 using AdventureWorks.Server.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,10 +8,7 @@ var connectionString = "Data Source=(local);Initial Catalog=AdventureWorks2022;I
 
 var builder = Host.CreateApplicationBuilder(args);
 
-builder.Services.AddTransient<IDatabaseFactory, DatabaseFactory>();
-builder.Services.AddTransient<IDatabaseProvider, Cornerstone.Database.Providers.Mssql.DatabaseProvider>();
-builder.Services.AddTransient<IConnectionCreatedNotification, Cornerstone.Database.Providers.Mssql.DefaultAzureCredentialConnectionCreatedNotification>();
-builder.Services.AddTransient<IScriptService, ScriptService>();
+builder.Services.RegisterExports();
 
 using var host = builder.Build();
 

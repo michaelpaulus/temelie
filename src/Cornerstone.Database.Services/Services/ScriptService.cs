@@ -2,9 +2,10 @@ using System.Text;
 using Cornerstone.Database.Extensions;
 using Cornerstone.Database.Models;
 using Cornerstone.Database.Providers;
+using Cornerstone.DependencyInjection;
 
 namespace Cornerstone.Database.Services;
-
+[ExportTransient(typeof(IScriptService))]
 public class ScriptService : IScriptService
 {
     private readonly IDatabaseFactory _databaseFactory;

@@ -21,6 +21,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdventureWorks.Server.Confi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdventureWorks.Database", "src\AdventureWorks.Database\AdventureWorks.Database.csproj", "{FE145D2D-F787-46EF-BAF3-06FF823398EE}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.DependencyInjection", "src\Cornerstone.DependencyInjection\Cornerstone.DependencyInjection.csproj", "{FC3328F9-65A7-4042-8DBB-3646E781D41B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +61,10 @@ Global
 		{FE145D2D-F787-46EF-BAF3-06FF823398EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FE145D2D-F787-46EF-BAF3-06FF823398EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FE145D2D-F787-46EF-BAF3-06FF823398EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC3328F9-65A7-4042-8DBB-3646E781D41B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC3328F9-65A7-4042-8DBB-3646E781D41B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC3328F9-65A7-4042-8DBB-3646E781D41B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC3328F9-65A7-4042-8DBB-3646E781D41B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

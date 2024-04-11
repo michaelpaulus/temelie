@@ -2,11 +2,12 @@ using System.Data;
 using System.Data.Common;
 using Cornerstone.Database.Models;
 using Cornerstone.Database.Services;
+using Cornerstone.DependencyInjection;
 using MySql.Data.MySqlClient;
 using MySql.Data.Types;
 
 namespace Cornerstone.Database.Providers.MySql;
-
+[ExportProvider(typeof(IDatabaseProvider))]
 public class DatabaseProvider : IDatabaseProvider
 {
 

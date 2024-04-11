@@ -1,0 +1,56 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31912.275
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{E1751DAE-1BFD-4888-AC39-F890B65567F2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cornerstone.DependencyInjection.SourceGenerator", "src\Cornerstone.DependencyInjection.SourceGenerator\Cornerstone.DependencyInjection.SourceGenerator.csproj", "{BC0A2B0F-F4F4-42C0-AC62-6E5F218DB95F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cornerstone.DependencyInjection", "src\Cornerstone.DependencyInjection\Cornerstone.DependencyInjection.csproj", "{14A88F81-0F89-4C95-A4C5-5234C96B5B02}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdventureWorks.Database", "src\AdventureWorks.Database\AdventureWorks.Database.csproj", "{7BC3F92E-1236-4238-94BD-ED6D84073333}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.Database.Models", "src\Cornerstone.Database.Models\Cornerstone.Database.Models.csproj", "{7B868497-DCD1-4F32-9A73-8087215C3541}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.Database.Services", "src\Cornerstone.Database.Services\Cornerstone.Database.Services.csproj", "{D58C4FA9-FCAB-4364-BFB9-5CA36A6EF47C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BC0A2B0F-F4F4-42C0-AC62-6E5F218DB95F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC0A2B0F-F4F4-42C0-AC62-6E5F218DB95F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC0A2B0F-F4F4-42C0-AC62-6E5F218DB95F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC0A2B0F-F4F4-42C0-AC62-6E5F218DB95F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14A88F81-0F89-4C95-A4C5-5234C96B5B02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14A88F81-0F89-4C95-A4C5-5234C96B5B02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14A88F81-0F89-4C95-A4C5-5234C96B5B02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14A88F81-0F89-4C95-A4C5-5234C96B5B02}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7BC3F92E-1236-4238-94BD-ED6D84073333}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7BC3F92E-1236-4238-94BD-ED6D84073333}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7BC3F92E-1236-4238-94BD-ED6D84073333}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7BC3F92E-1236-4238-94BD-ED6D84073333}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B868497-DCD1-4F32-9A73-8087215C3541}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B868497-DCD1-4F32-9A73-8087215C3541}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B868497-DCD1-4F32-9A73-8087215C3541}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B868497-DCD1-4F32-9A73-8087215C3541}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D58C4FA9-FCAB-4364-BFB9-5CA36A6EF47C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D58C4FA9-FCAB-4364-BFB9-5CA36A6EF47C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D58C4FA9-FCAB-4364-BFB9-5CA36A6EF47C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D58C4FA9-FCAB-4364-BFB9-5CA36A6EF47C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{7BC3F92E-1236-4238-94BD-ED6D84073333} = {E1751DAE-1BFD-4888-AC39-F890B65567F2}
+		{7B868497-DCD1-4F32-9A73-8087215C3541} = {E1751DAE-1BFD-4888-AC39-F890B65567F2}
+		{D58C4FA9-FCAB-4364-BFB9-5CA36A6EF47C} = {E1751DAE-1BFD-4888-AC39-F890B65567F2}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {93D79511-36CC-452F-9DF6-C3D742B4CF59}
+	EndGlobalSection
+EndGlobal

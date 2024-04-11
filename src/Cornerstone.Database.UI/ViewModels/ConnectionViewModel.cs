@@ -3,10 +3,11 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using Cornerstone.Database.Configuration.Preferences;
 using Cornerstone.Database.Views;
+using Cornerstone.DependencyInjection;
 using PropertyChanged;
 
 namespace Cornerstone.Database.ViewModels;
-
+[ExportTransient(typeof(ConnectionViewModel))]
 public class ConnectionViewModel : ViewModel
 {
 

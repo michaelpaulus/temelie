@@ -2,10 +2,12 @@ using System.Data;
 using System.Data.Common;
 using Cornerstone.Database.Models;
 using Cornerstone.Database.Services;
+using Cornerstone.DependencyInjection;
 using Microsoft.Data.SqlClient;
 
 namespace Cornerstone.Database.Providers.Mssql;
 
+[ExportProvider(typeof(IDatabaseProvider))]
 public class DatabaseProvider : IDatabaseProvider
 {
 

@@ -5,9 +5,10 @@ using System.Linq;
 using Cornerstone.Database.Configuration.Preferences;
 using Cornerstone.Database.Models;
 using Cornerstone.Database.Providers;
+using Cornerstone.DependencyInjection;
 
 namespace Cornerstone.Database.ViewModels;
-
+[ExportTransient(typeof(DatabaseConnectionViewModel))]
 public class DatabaseConnectionViewModel : ViewModel
 {
 
