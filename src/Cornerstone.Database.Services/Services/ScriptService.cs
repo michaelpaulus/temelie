@@ -449,6 +449,8 @@ public class ScriptService : IScriptService
 
         }
 
+        progress?.Report(new ScriptProgress() { ProgressPercentage = 100, ProgressStatus = "Complete" });
+
     }
 
     private string MakeValidFileName(string name)
@@ -530,6 +532,8 @@ public class ScriptService : IScriptService
 
             intFileCount += 1;
         }
+
+        progress?.Report(new ScriptProgress() { ProgressPercentage = 100, ProgressStatus = "Complete" });
 
     }
 

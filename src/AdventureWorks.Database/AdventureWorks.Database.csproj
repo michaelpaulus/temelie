@@ -9,7 +9,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AdventureWorks.Server.Configuration\AdventureWorks.Server.Configuration.csproj" />
-    <ProjectReference Include="..\Cornerstone.Database.Models\Cornerstone.Database.Models.csproj" />
     <ProjectReference Include="..\Cornerstone.Database.Providers.Mssql\Cornerstone.Database.Providers.Mssql.csproj" />
     <ProjectReference Include="..\Cornerstone.Database.Services\Cornerstone.Database.Services.csproj" />
     <ProjectReference Include="..\Cornerstone.DependencyInjection.SourceGenerator\Cornerstone.DependencyInjection.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
