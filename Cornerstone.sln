@@ -39,6 +39,16 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdventureWorks.Server.Repos
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdventureWorks.Server.Repository.EntityFrameworkCore", "src\AdventureWorks.Server.Repository.EntityFrameworkCore\AdventureWorks.Server.Repository.EntityFrameworkCore.csproj", "{553CA04A-3D10-4C6D-A7B8-89D694A770EA}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.Database.Models.SourceGenerator", "src\Cornerstone.Database.Models.SourceGenerator\Cornerstone.Database.Models.SourceGenerator.csproj", "{8C79C391-5EAF-4110-AA9B-285376055758}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFiles", "SolutionFiles", "{33024E9A-DD63-497F-8003-0C9974B860C4}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+		Directory.Build.props = Directory.Build.props
+		global.json = global.json
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -113,6 +123,10 @@ Global
 		{553CA04A-3D10-4C6D-A7B8-89D694A770EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{553CA04A-3D10-4C6D-A7B8-89D694A770EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{553CA04A-3D10-4C6D-A7B8-89D694A770EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C79C391-5EAF-4110-AA9B-285376055758}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C79C391-5EAF-4110-AA9B-285376055758}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C79C391-5EAF-4110-AA9B-285376055758}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C79C391-5EAF-4110-AA9B-285376055758}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

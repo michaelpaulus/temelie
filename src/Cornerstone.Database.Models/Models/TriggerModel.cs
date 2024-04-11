@@ -1,18 +1,11 @@
-using Cornerstone.Database.Extensions;
+namespace Cornerstone.Database.Models;
 
-namespace Cornerstone.Database
+public class TriggerModel
 {
-    namespace Models
-    {
-        public class TriggerModel
-        {
 
-            public string TriggerName { get; set; }
-            public string SchemaName { get; set; }
-            public string Definition { get; set; }
-            public string TableName { get; set; }
-
-        }
-    }
+    public string TriggerName { get; set; }
+    public string SchemaName { get; set; }
+    public string Definition { get; set; }
+    public string TableName { get; set; }
 
 }

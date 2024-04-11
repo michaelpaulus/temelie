@@ -16,11 +16,11 @@ public class DependencyInjectionIncrementalGenerator : IIncrementalGenerator
             return visitor.Symbols;
         });
 
-        context.RegisterImplementationSourceOutput(compliationProvider, (context, value) =>
+        context.RegisterSourceOutput(compliationProvider, (context, symbols) =>
         {
-            if (value.Any())
+            if (symbols.Any())
             {
-                var contents = Generate(value);
+                var contents = Generate(symbols);
                 context.AddSource(nameof(DependencyInjectionIncrementalGenerator), contents);
             }
         });
@@ -74,7 +74,6 @@ public class DependencyInjectionIncrementalGenerator : IIncrementalGenerator
             }
 
         }
-
 
         var sb = new StringBuilder();
 
