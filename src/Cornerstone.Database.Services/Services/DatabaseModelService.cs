@@ -44,9 +44,6 @@ public class DatabaseModelService : IDatabaseModelService
         var provider = _databaseFactory.GetDatabaseProvider(connection);
 
         var databaseName = provider.GetDatabaseName(connection.ConnectionString);
-        var quoteCharacterEnd = provider.QuoteCharacterEnd;
-        var quoteCharacterStart = provider.QuoteCharacterStart;
-
         var tableColumns = GetTableColumns(connection);
 
         var tables = GetTables(options, connection, tableColumns);
@@ -67,10 +64,16 @@ public class DatabaseModelService : IDatabaseModelService
         var triggers = GetTriggers(options, connection, tableNames, viewNames);
         var secPol = GetSecurityPolicies(connection);
 
-        return new DatabaseModel(databaseName, quoteCharacterStart, quoteCharacterEnd,
-            tables, views,
-            indexes, triggers, fks, conts,
-            defs, secPol);
+        return new DatabaseModel(databaseName,
+            provider.Name,
+            tables,
+            views,
+            indexes,
+            triggers,
+            fks,
+            conts,
+            defs,
+            secPol);
     }
 
     private IEnumerable<ColumnModel> GetViewColumns(DbConnection connection)

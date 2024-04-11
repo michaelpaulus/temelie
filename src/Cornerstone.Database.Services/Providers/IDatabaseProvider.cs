@@ -1,5 +1,6 @@
 using System.Data;
 using System.Data.Common;
+using Cornerstone.Database.Models;
 using Cornerstone.Database.Services;
 
 namespace Cornerstone.Database.Providers;
@@ -27,6 +28,16 @@ public interface IDatabaseProvider
     DataTable GetIndexeBucketCounts(DbConnection connection);
     DataTable GetIndexes(DbConnection connection);
     DataTable GetSecurityPolicies(DbConnection connection);
+
+    IDatabaseObjectScript GetScript(CheckConstraintModel model);
+    IDatabaseObjectScript GetScript(DefinitionModel model);
+    IDatabaseObjectScript GetScript(ForeignKeyModel model);
+    IDatabaseObjectScript GetScript(IndexModel model);
+    IDatabaseObjectScript GetScript(SecurityPolicyModel model);
+    IDatabaseObjectScript GetScript(TableModel model);
+    IDatabaseObjectScript GetScript(TriggerModel model);
+
+    string GetJsonScript(TableModel model);
 
     void SetReadTimeout(System.Data.Common.DbCommand sourceCommand);
     string TransformConnectionString(string connectionString);

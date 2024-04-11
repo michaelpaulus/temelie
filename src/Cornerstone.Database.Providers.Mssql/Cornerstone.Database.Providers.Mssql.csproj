@@ -5,6 +5,9 @@
     <RootNamespace>Cornerstone.Database</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\Cornerstone.Database.Models\Extensions\StringExtensions.cs" Link="Extensions\StringExtensions.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Cornerstone.Database.Services\Cornerstone.Database.Services.csproj" />
   </ItemGroup>
   <ItemGroup>

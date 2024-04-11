@@ -484,4 +484,44 @@ public class DatabaseProvider : IDatabaseProvider
     {
         return new MySqlConnection();
     }
+
+    public IDatabaseObjectScript GetScript(CheckConstraintModel model)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IDatabaseObjectScript GetScript(DefinitionModel model)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IDatabaseObjectScript GetScript(ForeignKeyModel model)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IDatabaseObjectScript GetScript(IndexModel model)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IDatabaseObjectScript GetScript(SecurityPolicyModel model)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IDatabaseObjectScript GetScript(TableModel model)
+    {
+        throw new NotImplementedException();
+    }
+
+    public string GetJsonScript(TableModel model)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IDatabaseObjectScript GetScript(TriggerModel model)
+    {
+        throw new NotImplementedException();
+    }
 }

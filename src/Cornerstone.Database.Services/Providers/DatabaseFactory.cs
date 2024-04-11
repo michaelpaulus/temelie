@@ -29,6 +29,11 @@ public class DatabaseFactory : IDatabaseFactory
         return DatabaseProviders.FirstOrDefault(i => i.Name.EqualsIgnoreCase(connectionString.DatabaseProviderName));
     }
 
+    public IDatabaseProvider GetDatabaseProvider(string name)
+    {
+        return DatabaseProviders.FirstOrDefault(i => i.Name.EqualsIgnoreCase(name));
+    }
+
     public void NotifyConnections(IDbConnection connection)
     {
         foreach (var notification in ConnectionCreatedNotifications)
