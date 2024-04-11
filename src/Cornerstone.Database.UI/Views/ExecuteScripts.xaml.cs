@@ -1,19 +1,14 @@
 using System;
-using System.Windows;
-using Cornerstone.Database.Providers;
 using Cornerstone.Database.UI;
+using Cornerstone.Database.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Cornerstone.Database;
 
 public partial class ExecuteScripts
 {
-    private readonly IDatabaseFactory _databaseFactory;
-
     public ExecuteScripts()
     {
-        _databaseFactory = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetService<IDatabaseFactory>();
-
         this.InitializeComponent();
         SubscribeToEvents();
         this.DataContext = this.ViewModel;
@@ -29,7 +24,7 @@ public partial class ExecuteScripts
         {
             if (this._viewModel == null)
             {
-                this._viewModel = new ViewModels.ExecuteScriptsViewModel(_databaseFactory);
+                this._viewModel = ServiceProviderApplication.ServiceProvider.GetService<ExecuteScriptsViewModel>();
             }
             return this._viewModel;
         }

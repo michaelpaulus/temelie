@@ -12,10 +12,13 @@ public class CreateScriptsViewModel : ViewModel
 {
 
     private readonly IDatabaseFactory _databaseFactory;
+    private readonly IScriptService _scriptService;
 
-    public CreateScriptsViewModel(IDatabaseFactory databaseFactory)
+    public CreateScriptsViewModel(IDatabaseFactory databaseFactory,
+        IScriptService scriptService)
     {
         _databaseFactory = databaseFactory;
+        _scriptService = scriptService;
         this.CreateScriptsCommand = new Command(this.CreateScripts);
         this.ScriptPath = Configuration.Preferences.UserSettingsContext.Current.CreateScriptsPath;
     }
@@ -77,8 +80,7 @@ public class CreateScriptsViewModel : ViewModel
     private void CreateScriptsInternal(IProgress<ScriptProgress> progress)
     {
         System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(this.ScriptPath);
-        var script = new ScriptService(_databaseFactory);
-        script.CreateScripts(this.DatabaseConnectionString, di, progress, this.ObjectFilter);
+        _scriptService.CreateScripts(this.DatabaseConnectionString, di, progress, this.ObjectFilter);
     }
     private void ReportProgress(ScriptProgress progress)
     {

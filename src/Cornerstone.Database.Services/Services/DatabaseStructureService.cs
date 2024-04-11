@@ -1,124 +1,21 @@
 using System.Data;
 using System.Data.Common;
 using System.Text.Json;
-using System.Transactions;
 using Cornerstone.Database.Extensions;
 using Cornerstone.Database.Models;
 using Cornerstone.Database.Providers;
 
 namespace Cornerstone.Database.Services;
 
-public class DatabaseService
+public class DatabaseStructureService : IDatabaseStructureService
 {
 
-    public const int DefaultCommandTimeout = 0;
-
     private readonly IDatabaseFactory _databaseFactory;
-    private readonly IDatabaseProvider _databaseProvider;
 
-    public DatabaseService(IDatabaseFactory databaseFactory, IDatabaseProvider databaseProvider)
+    public DatabaseStructureService(IDatabaseFactory databaseFactory)
     {
         _databaseFactory = databaseFactory;
-        _databaseProvider = databaseProvider;
     }
-
-    #region Create Database Methods
-
-    public DbCommand CreateDbCommand(DbConnection dbConnection)
-    {
-        DbCommand command = dbConnection.CreateCommand();
-        command.Connection = dbConnection;
-
-        command.CommandTimeout = DefaultCommandTimeout;
-
-        return command;
-    }
-
-    public DbConnection CreateDbConnection(string connectionString)
-    {
-        DbConnection connection = _databaseProvider.CreateConnection();
-        connection.ConnectionString = connectionString;
-        connection.ConnectionString = _databaseProvider.TransformConnectionString(connection.ConnectionString);
-        _databaseFactory.NotifyConnections(connection);
-
-        if (connection.State != ConnectionState.Open)
-        {
-            connection.Open();
-        }
-
-        return connection;
-    }
-
-    #endregion
-
-    #region Execute Database Methods
-
-    public System.Data.DataSet Execute(DbConnection connection, string sqlCommand)
-    {
-        var ds = new System.Data.DataSet();
-
-        using (var command = CreateDbCommand(connection))
-        {
-            command.CommandText = sqlCommand;
-            using (DbDataReader reader = command.ExecuteReader())
-            {
-                ds.Load(reader, LoadOption.OverwriteChanges, "Table");
-            }
-        }
-
-        return ds;
-    }
-
-    public void ExecuteFile(DbConnection connection, string sqlCommand)
-    {
-        if (!(string.IsNullOrEmpty(sqlCommand)))
-        {
-            System.Text.RegularExpressions.Regex regEx = new System.Text.RegularExpressions.Regex("^[\\s]*GO[^a-zA-Z0-9]", System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Multiline);
-            foreach (string commandText in regEx.Split(sqlCommand))
-            {
-                if (!(string.IsNullOrEmpty(commandText.Trim())))
-                {
-                    if (commandText.ToUpper().Contains("ALTER DATABASE") && System.Transactions.Transaction.Current is not null)
-                    {
-                        using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Suppress))
-                        {
-                            ExecuteNonQuery(connection, commandText);
-                            scope.Complete();
-                        }
-                    }
-                    else
-                    {
-                        ExecuteNonQuery(connection, commandText);
-                    }
-                }
-            }
-        }
-    }
-
-    public void ExecuteFile(string connectionString, string sqlCommand)
-    {
-        if (!(string.IsNullOrEmpty(sqlCommand)))
-        {
-            using (DbConnection connection = CreateDbConnection(connectionString))
-            {
-                ExecuteFile(connection, sqlCommand);
-            }
-        }
-    }
-
-    public void ExecuteNonQuery(DbConnection connection, string sqlCommand)
-    {
-        if (!(string.IsNullOrEmpty(sqlCommand)))
-        {
-            using (DbCommand command = CreateDbCommand(connection))
-            {
-                command.CommandText = sqlCommand;
-                command.ExecuteNonQuery();
-            }
-        }
-    }
-
-    #endregion
 
     #region Helper Methods
 
@@ -249,13 +146,13 @@ public class DatabaseService
 
     #region Database Structure
 
-    private IList<Models.ColumnModel> GetColumns(DataTable dataTable)
+    private IList<Models.ColumnModel> GetColumns(IDatabaseProvider databaseProvider, DataTable dataTable)
     {
         IList<Models.ColumnModel> list = new List<Models.ColumnModel>();
         foreach (System.Data.DataRow row in dataTable.Rows)
         {
             Models.ColumnModel column = new Models.ColumnModel();
-            InitializeColumn(column, row);
+            InitializeColumn(databaseProvider, column, row);
             list.Add(column);
         }
         //the database sometimes skips column numbers, we don't really care about that here,
@@ -275,12 +172,13 @@ public class DatabaseService
 
     public IList<Models.ColumnModel> GetTableColumns(DbConnection connection)
     {
+        var provider = _databaseFactory.GetDatabaseProvider(connection);
 
         IList<Models.ColumnModel> list = new List<Models.ColumnModel>();
-        var dataTable = _databaseProvider.GetTableColumns(connection);
+        var dataTable = provider.GetTableColumns(connection);
         if (dataTable != null)
         {
-            list = GetColumns(dataTable);
+            list = GetColumns(provider, dataTable);
         }
 
         return list;
@@ -289,18 +187,19 @@ public class DatabaseService
     public IList<Models.ColumnModel> GetViewColumns(DbConnection connection)
     {
         IList<Models.ColumnModel> list = new List<Models.ColumnModel>();
+        var provider = _databaseFactory.GetDatabaseProvider(connection);
 
-        var dataTable = _databaseProvider.GetViewColumns(connection);
+        var dataTable = provider.GetViewColumns(connection);
 
         if (dataTable != null)
         {
-            list = GetColumns(dataTable);
+            list = GetColumns(provider, dataTable);
         }
 
         return list;
     }
 
-    private void InitializeColumn(Models.ColumnModel column, DataRow row)
+    private void InitializeColumn(IDatabaseProvider databaseProvider, Models.ColumnModel column, DataRow row)
     {
 
         column.TableName = GetStringValue(row, "table_name");
@@ -327,7 +226,7 @@ public class DatabaseService
             }
         }
 
-        var targetColumnType = _databaseProvider.GetColumnType(new Models.ColumnTypeModel() { ColumnType = column.ColumnType, Precision = column.Precision, Scale = column.Scale });
+        var targetColumnType = databaseProvider.GetColumnType(new Models.ColumnTypeModel() { ColumnType = column.ColumnType, Precision = column.Precision, Scale = column.Scale });
         if (targetColumnType != null)
         {
             column.ColumnType = targetColumnType.ColumnType;
@@ -340,8 +239,9 @@ public class DatabaseService
     public IEnumerable<Models.DefinitionModel> GetDefinitions(DbConnection connection)
     {
         List<Models.DefinitionModel> list = new List<Models.DefinitionModel>();
+        var provider = _databaseFactory.GetDatabaseProvider(connection);
 
-        var dtDefinitions = _databaseProvider.GetDefinitions(connection);
+        var dtDefinitions = provider.GetDefinitions(connection);
 
         if (dtDefinitions != null)
         {
@@ -366,10 +266,10 @@ public class DatabaseService
     public IEnumerable<Models.SecurityPolicyModel> GetSecurityPolicies(DbConnection connection)
     {
         var list = new List<Models.SecurityPolicyModel>();
+        var provider = _databaseFactory.GetDatabaseProvider(connection);
+        var dtDefinitions = provider.GetSecurityPolicies(connection);
 
-        var dtDefinitions = _databaseProvider.GetSecurityPolicies(connection);
-
-        var dtDependencies = _databaseProvider.GetDefinitionDependencies(connection);
+        var dtDependencies = provider.GetDefinitionDependencies(connection);
 
         if (dtDefinitions != null)
         {
@@ -393,8 +293,9 @@ public class DatabaseService
     public IEnumerable<Models.ForeignKeyModel> GetForeignKeys(DbConnection connection, IEnumerable<string> tables)
     {
         IList<Models.ForeignKeyModel> list = new List<Models.ForeignKeyModel>();
+        var provider = _databaseFactory.GetDatabaseProvider(connection);
 
-        DataTable dataTable = _databaseProvider.GetForeignKeys(connection);
+        DataTable dataTable = provider.GetForeignKeys(connection);
 
         if (dataTable != null)
         {
@@ -450,8 +351,9 @@ public class DatabaseService
     public IEnumerable<Models.CheckConstraintModel> GetCheckConstraints(DbConnection connection, IEnumerable<string> tables)
     {
         var list = new List<Models.CheckConstraintModel>();
+        var provider = _databaseFactory.GetDatabaseProvider(connection);
 
-        var dataTable = _databaseProvider.GetCheckConstraints(connection);
+        var dataTable = provider.GetCheckConstraints(connection);
 
         if (dataTable != null)
         {
@@ -490,15 +392,15 @@ public class DatabaseService
     {
         IList<Models.IndexModel> list = new List<Models.IndexModel>();
         System.Data.DataTable dtIndexes = null;
-
-        dtIndexes = _databaseProvider.GetIndexes(connection);
+        var provider = _databaseFactory.GetDatabaseProvider(connection);
+        dtIndexes = provider.GetIndexes(connection);
 
         if (dtIndexes != null)
         {
 
             var indexBucketCounts = new List<IndexBucket>();
 
-            var dtIndexBucketCounts = _databaseProvider.GetIndexeBucketCounts(connection);
+            var dtIndexBucketCounts = provider.GetIndexeBucketCounts(connection);
             if (dtIndexBucketCounts != null)
             {
                 indexBucketCounts = (from i in dtIndexBucketCounts.Rows.OfType<System.Data.DataRow>()
@@ -650,10 +552,9 @@ public class DatabaseService
     public IEnumerable<Models.TableModel> GetTables(DbConnection connection, IEnumerable<Models.ColumnModel> columns, bool withBackup = false)
     {
         System.Data.DataTable dataTable = null;
+        var provider = _databaseFactory.GetDatabaseProvider(connection);
 
-        var databaseType = _databaseFactory.GetDatabaseProvider(connection);
-
-        dataTable = _databaseProvider.GetTables(connection);
+        dataTable = provider.GetTables(connection);
 
         IList<Models.TableModel> list = new List<Models.TableModel>();
 
@@ -694,8 +595,8 @@ public class DatabaseService
     public IEnumerable<Models.TableModel> GetViews(DbConnection connection, IEnumerable<Models.ColumnModel> columns)
     {
         IList<Models.TableModel> list = new List<Models.TableModel>();
-
-        System.Data.DataTable dataTable = _databaseProvider.GetViews(connection);
+        var provider = _databaseFactory.GetDatabaseProvider(connection);
+        System.Data.DataTable dataTable = provider.GetViews(connection);
         if (dataTable != null)
         {
             list = GetTables(dataTable, columns).ToList();
@@ -711,8 +612,8 @@ public class DatabaseService
     public IEnumerable<Models.TriggerModel> GetTriggers(DbConnection connection, IEnumerable<string> tables, IEnumerable<string> views, string objectFilter)
     {
         IList<Models.TriggerModel> list = new List<Models.TriggerModel>();
-
-        var dataTable = _databaseProvider.GetTriggers(connection);
+        var provider = _databaseFactory.GetDatabaseProvider(connection);
+        var dataTable = provider.GetTriggers(connection);
 
         if (dataTable != null)
         {

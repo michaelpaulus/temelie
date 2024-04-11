@@ -1,11 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows;
 using System.Windows.Controls;
 using Cornerstone.Database.Models;
-using Cornerstone.Database.Providers;
-using Cornerstone.Database.UI;
-using Microsoft.Extensions.DependencyInjection;
+using Cornerstone.Database.Services;
 
 namespace Cornerstone.Database.Controls;
 
@@ -14,11 +11,9 @@ namespace Cornerstone.Database.Controls;
 /// </summary>
 public partial class DatabaseConnection : UserControl
 {
-    private readonly IDatabaseFactory _databaseFactory;
 
     public DatabaseConnection()
     {
-        _databaseFactory = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetService<IDatabaseFactory>();
         InitializeComponent();
         this.DataContext = new ViewModels.ConnectionViewModel();
     }
@@ -51,19 +46,16 @@ public partial class DatabaseConnection : UserControl
         }
     }
 
-    public static IList<Cornerstone.Database.Models.TableModel> GetTables(IDatabaseFactory databaseFactory, ConnectionStringModel connectionString)
+    public static IList<Cornerstone.Database.Models.TableModel> GetTables(IDatabaseExecutionService databaseExecutionService, IDatabaseStructureService databaseStructureService, ConnectionStringModel connectionString)
     {
         IList<Cornerstone.Database.Models.TableModel> tables = new List<Cornerstone.Database.Models.TableModel>();
 
-        var databaseType = databaseFactory.GetDatabaseProvider(connectionString);
-        var database = new Services.DatabaseService(databaseFactory, databaseType);
-
         try
         {
-            using (var conn = database.CreateDbConnection(connectionString.ConnectionString))
+            using (var conn = databaseExecutionService.CreateDbConnection(connectionString))
             {
-                var columns = database.GetTableColumns(conn);
-                tables = database.GetTables(conn, columns).ToList();
+                var columns = databaseStructureService.GetTableColumns(conn);
+                tables = databaseStructureService.GetTables(conn, columns).ToList();
             }
         }
         catch
@@ -74,19 +66,16 @@ public partial class DatabaseConnection : UserControl
         return tables;
     }
 
-    public static IList<Cornerstone.Database.Models.TableModel> GetViews(IDatabaseFactory databaseFactory, ConnectionStringModel connectionString)
+    public static IList<Cornerstone.Database.Models.TableModel> GetViews(IDatabaseExecutionService databaseExecutionService, IDatabaseStructureService databaseStructureService, ConnectionStringModel connectionString)
     {
         IList<Cornerstone.Database.Models.TableModel> tables = new List<Cornerstone.Database.Models.TableModel>();
 
-        var databaseType = databaseFactory.GetDatabaseProvider(connectionString);
-        var database = new Services.DatabaseService(databaseFactory, databaseType);
-
         try
         {
-            using (var conn = database.CreateDbConnection(connectionString.ConnectionString))
+            using (var conn = databaseExecutionService.CreateDbConnection(connectionString))
             {
-                var columns = database.GetTableColumns(conn);
-                tables = database.GetTables(conn, columns).ToList();
+                var columns = databaseStructureService.GetTableColumns(conn);
+                tables = databaseStructureService.GetTables(conn, columns).ToList();
             }
         }
         catch

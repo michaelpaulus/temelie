@@ -11,13 +11,13 @@ public class DatabaseProvider : IDatabaseProvider
 {
 
     private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
-    private readonly Services.DatabaseService _database;
+    private readonly IDatabaseExecutionService _database;
 
     public DatabaseProvider(IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications)
     {
         _connectionCreatedNotifications = connectionCreatedNotifications;
         var factory = new DatabaseFactory([this], _connectionCreatedNotifications);
-        _database = new Services.DatabaseService(factory, this);
+        _database = new DatabaseExecutionService(factory);
     }
 
     public static string Name = nameof(MySqlConnection);
@@ -243,7 +243,7 @@ public class DatabaseProvider : IDatabaseProvider
     public string TransformConnectionString(string connectionString)
     {
         var csb = new MySqlConnectionStringBuilder(connectionString);
-        csb.DefaultCommandTimeout = Cornerstone.Database.Services.DatabaseService.DefaultCommandTimeout;
+        csb.DefaultCommandTimeout = Cornerstone.Database.Services.DatabaseExecutionService.DefaultCommandTimeout;
         return csb.ConnectionString;
     }
 
@@ -384,7 +384,7 @@ public class DatabaseProvider : IDatabaseProvider
         foreach (var row in table.Rows.OfType<DataRow>())
         {
 
-            string columnDefault = Services.DatabaseService.GetStringValue(row, "COLUMN_DEFAULT");
+            string columnDefault = Services.DatabaseStructureService.GetStringValue(row, "COLUMN_DEFAULT");
 
             if (!string.IsNullOrEmpty(columnDefault))
             {

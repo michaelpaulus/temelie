@@ -43,8 +43,8 @@ public class Mapping
                         TargetColumnName = targetColumn.ColumnName,
                         IsTargetColumnIdentity = targetColumn.IsIdentity,
                         ColumnMapping = strColumnMapping,
-                        WrapInIsNull = DatabaseService.GetSystemType(targetColumn.DbType) == typeof(string) &&
-                            DatabaseService.GetSystemType(column.DbType) == typeof(string) &&
+                        WrapInIsNull = DatabaseStructureService.GetSystemType(targetColumn.DbType) == typeof(string) &&
+                            DatabaseStructureService.GetSystemType(column.DbType) == typeof(string) &&
                             !targetColumn.IsNullable &&
                             column.IsNullable
                     });

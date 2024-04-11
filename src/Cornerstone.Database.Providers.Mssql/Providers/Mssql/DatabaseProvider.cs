@@ -10,13 +10,13 @@ public class DatabaseProvider : IDatabaseProvider
 {
 
     private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
-    private readonly Services.DatabaseService _databaseService;
+    private readonly IDatabaseExecutionService _databaseService;
 
     public DatabaseProvider(IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications)
     {
         _connectionCreatedNotifications = connectionCreatedNotifications;
         var factory = new DatabaseFactory([this], _connectionCreatedNotifications);
-        _databaseService = new Services.DatabaseService(factory, this);
+        _databaseService = new Services.DatabaseExecutionService(factory);
     }
 
     public static string Name => nameof(SqlConnection);

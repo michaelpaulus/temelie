@@ -13,10 +13,13 @@ public class ExecuteScriptsViewModel : ViewModel
 {
 
     private readonly IDatabaseFactory _databaseFactory;
+    private readonly IScriptService _scriptService;
 
-    public ExecuteScriptsViewModel(IDatabaseFactory databaseFactory)
+    public ExecuteScriptsViewModel(IDatabaseFactory databaseFactory,
+        IScriptService scriptService)
     {
         _databaseFactory = databaseFactory;
+        _scriptService = scriptService;
         this.ExecuteScriptsCommand = new Command(this.ExecuteScripts);
         this.ScriptPath = Configuration.Preferences.UserSettingsContext.Current.CreateScriptsPath;
     }
@@ -103,8 +106,7 @@ public class ExecuteScriptsViewModel : ViewModel
 
     private void ExecuteScriptsInternal(IProgress<ScriptProgress> progress)
     {
-        var script = new ScriptService(_databaseFactory);
-        script.ExecuteScripts(this.DatabaseConnectionString, this.Files, this.ContinueOnError, progress);
+        _scriptService.ExecuteScripts(this.DatabaseConnectionString, this.Files, this.ContinueOnError, progress);
     }
 
     private void ReportProgress(ScriptProgress progress)

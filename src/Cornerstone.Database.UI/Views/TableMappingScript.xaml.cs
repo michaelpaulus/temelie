@@ -1,7 +1,6 @@
 using System;
-using System.Windows;
-using Cornerstone.Database.Providers;
 using Cornerstone.Database.UI;
+using Cornerstone.Database.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Cornerstone.Database;
@@ -9,12 +8,8 @@ namespace Cornerstone.Database;
 public partial class TableMappingScript
 {
 
-    private readonly IDatabaseFactory _databaseFactory;
-
     public TableMappingScript()
     {
-        _databaseFactory = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetService<IDatabaseFactory>();
-
         // This call is required by the Windows Form Designer.
         InitializeComponent();
 
@@ -36,7 +31,7 @@ public partial class TableMappingScript
         {
             if (this._viewModel == null)
             {
-                this._viewModel = new ViewModels.TableMappingViewModel(_databaseFactory);
+                this._viewModel = ServiceProviderApplication.ServiceProvider.GetService<TableMappingViewModel>();
             }
             return this._viewModel;
         }

@@ -1,20 +1,14 @@
 using System;
-using System.Windows;
-using Cornerstone.Database.Providers;
 using Cornerstone.Database.UI;
+using Cornerstone.Database.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Cornerstone.Database;
 
 public partial class Convert
 {
-
-    private readonly IDatabaseFactory _databaseFactory;
-
     public Convert()
     {
-        _databaseFactory = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetService<IDatabaseFactory>();
-
         // This call is required by the Windows Form Designer.
         InitializeComponent();
 
@@ -36,7 +30,7 @@ public partial class Convert
         {
             if (this._viewModel == null)
             {
-                this._viewModel = new ViewModels.ConvertViewModel(_databaseFactory);
+                this._viewModel = ServiceProviderApplication.ServiceProvider.GetService<ConvertViewModel>();
             }
             return this._viewModel;
         }

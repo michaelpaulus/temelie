@@ -13,10 +13,19 @@ public class ConvertViewModel : ViewModel
 {
 
     private readonly IDatabaseFactory _databaseFactory;
+    private readonly IDatabaseExecutionService _databaseExecutionService;
+    private readonly IDatabaseStructureService _databaseStructureService;
+    private readonly ITableConverterService _tableConverterService;
 
-    public ConvertViewModel(IDatabaseFactory databaseFactory)
+    public ConvertViewModel(IDatabaseFactory databaseFactory,
+        IDatabaseExecutionService databaseExecutionService,
+        IDatabaseStructureService databaseStructureService,
+        ITableConverterService tableConverterService)
     {
         _databaseFactory = databaseFactory;
+        _databaseExecutionService = databaseExecutionService;
+        _databaseStructureService = databaseStructureService;
+        _tableConverterService = tableConverterService;
         this.ThreadCount = 5;
         this.UseBulkCopy = true;
         this.BatchSize = 10000;
@@ -70,12 +79,11 @@ public class ConvertViewModel : ViewModel
         TableConverterSettings settings = new TableConverterSettings();
 
         var targetDatabaseType = _databaseFactory.GetDatabaseProvider(TargetDatabaseConnectionString);
-        var targetDatabase = new Services.DatabaseService(_databaseFactory, targetDatabaseType);
 
-        using (var conn = targetDatabase.CreateDbConnection(TargetDatabaseConnectionString.ConnectionString))
+        using (var conn = _databaseExecutionService.CreateDbConnection(TargetDatabaseConnectionString))
         {
-            var targetColumns = targetDatabase.GetTableColumns(conn);
-            var targetTables = targetDatabase.GetTables(conn, targetColumns);
+            var targetColumns = _databaseStructureService.GetTableColumns(conn);
+            var targetTables = _databaseStructureService.GetTables(conn, targetColumns);
             settings.TargetTables = targetTables.ToList();
         }
 
@@ -108,8 +116,7 @@ public class ConvertViewModel : ViewModel
 #pragma warning disable CA2008 // Do not create tasks without passing a TaskScheduler
         _ = Task.Factory.StartNew(() =>
         {
-            var converter = new TableConverterService(_databaseFactory);
-            converter.ConvertTables(settings,
+            _tableConverterService.ConvertTables(settings,
                 progress,
                 this.ThreadCount);
 
@@ -129,7 +136,7 @@ public class ConvertViewModel : ViewModel
     {
         try
         {
-            var tables = Controls.DatabaseConnection.GetTables(_databaseFactory, this.SourceDatabaseConnectionString);
+            var tables = Controls.DatabaseConnection.GetTables(_databaseExecutionService, _databaseStructureService, this.SourceDatabaseConnectionString);
             this.Tables.Clear();
             foreach (var table in tables)
             {

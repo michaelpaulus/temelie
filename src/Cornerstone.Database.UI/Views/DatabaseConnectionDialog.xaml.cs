@@ -13,7 +13,7 @@ public partial class DatabaseConnectionDialog : Window
     public DatabaseConnectionDialog()
     {
         InitializeComponent();
-        var providers = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetServices<IDatabaseProvider>();
+        var providers = ServiceProviderApplication.ServiceProvider.GetServices<IDatabaseProvider>();
         this.DataContext = new ViewModels.DatabaseConnectionViewModel(providers);
     }
 

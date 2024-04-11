@@ -6,14 +6,17 @@ using Cornerstone.Database.Providers;
 
 namespace Cornerstone.Database.Services;
 
-public class TableConverterService
+public class TableConverterService : ITableConverterService
 {
 
     private readonly IDatabaseFactory _databaseFactory;
+    private readonly IDatabaseExecutionService _databaseExecutionService;
 
-    public TableConverterService(IDatabaseFactory databaseFactory)
+    public TableConverterService(IDatabaseFactory databaseFactory,
+        IDatabaseExecutionService databaseExecutionService)
     {
         _databaseFactory = databaseFactory;
+        _databaseExecutionService = databaseExecutionService;
     }
 
     public void ConvertTables(TableConverterSettings settings,
@@ -111,8 +114,7 @@ public class TableConverterService
     {
 
         var targetDatabaseProvider = _databaseFactory.GetDatabaseProvider(targetConnectionString);
-        var targetDatabase = new DatabaseService(_databaseFactory, targetDatabaseProvider);
-        using (System.Data.Common.DbConnection targetConnection = targetDatabase.CreateDbConnection(targetConnectionString.ConnectionString))
+        using (System.Data.Common.DbConnection targetConnection = _databaseExecutionService.CreateDbConnection(targetConnectionString))
         {
             targetDatabaseProvider.ConvertBulk(this, progress, sourceTable, sourceReader, sourceRowCount, targetTable, targetConnection, trimStrings, batchSize, useTransaction, validateTargetTable);
         }
@@ -121,8 +123,6 @@ public class TableConverterService
     private DbCommand CreateSourceCommand(Models.TableModel sourceTable, Models.TableModel targetTable, System.Data.Common.DbConnection sourceConnection)
     {
         var sourceDatabaseProvider = _databaseFactory.GetDatabaseProvider(sourceConnection);
-
-        var sourceDatabase = new DatabaseService(_databaseFactory, sourceDatabaseProvider);
 
         StringBuilder sbColumns = new System.Text.StringBuilder();
 
@@ -137,7 +137,7 @@ public class TableConverterService
             sbColumns.AppendFormat("[{0}]", sourceColumn.ColumnName);
         }
 
-        using (var command = sourceDatabase.CreateDbCommand(sourceConnection))
+        using (var command = _databaseExecutionService.CreateDbCommand(sourceConnection))
         {
             this.SetReadTimeout(sourceDatabaseProvider, command);
             command.CommandText = this.FormatCommandText(sourceDatabaseProvider, $"SELECT {sbColumns.ToString()} FROM [{sourceTable.SchemaName}].[{sourceTable.TableName}]");
@@ -158,12 +158,8 @@ public class TableConverterService
         progress?.Report(new TableProgress() { ProgressPercentage = 0, Table = sourceTable });
 
         var sourceDatabaseProvider = _databaseFactory.GetDatabaseProvider(sourceConnectionString);
-        var targetDatabaseProvider = _databaseFactory.GetDatabaseProvider(targetConnectionString);
 
-        var sourceDatabase = new DatabaseService(_databaseFactory, sourceDatabaseProvider);
-        var targetDatabase = new DatabaseService(_databaseFactory, targetDatabaseProvider);
-
-        using (var targetConnection = targetDatabase.CreateDbConnection(targetConnectionString.ConnectionString))
+        using (var targetConnection = _databaseExecutionService.CreateDbConnection(targetConnectionString))
         {
             var targetRowCount = GetRowCount(targetTable, targetConnection);
             if (targetRowCount != 0)
@@ -177,7 +173,7 @@ public class TableConverterService
 
         if (progress != null)
         {
-            using (System.Data.Common.DbConnection sourceConnection = sourceDatabase.CreateDbConnection(sourceConnectionString.ConnectionString))
+            using (System.Data.Common.DbConnection sourceConnection = _databaseExecutionService.CreateDbConnection(sourceConnectionString))
             {
                 intSourceRowCount = GetRowCount(sourceTable, sourceConnection);
             }
@@ -185,7 +181,7 @@ public class TableConverterService
 
         if (!intSourceRowCount.HasValue || intSourceRowCount.Value > 0)
         {
-            using (System.Data.Common.DbConnection sourceConnection = sourceDatabase.CreateDbConnection(sourceConnectionString.ConnectionString))
+            using (System.Data.Common.DbConnection sourceConnection = _databaseExecutionService.CreateDbConnection(sourceConnectionString))
             {
                 using (var command = CreateSourceCommand(sourceTable, targetTable, sourceConnection))
                 {
@@ -214,12 +210,9 @@ public class TableConverterService
         var sourceDatabaseProvider = _databaseFactory.GetDatabaseProvider(sourceConnectionString);
         var targetDatabaseProvider = _databaseFactory.GetDatabaseProvider(targetConnectionString);
 
-        var sourceDatabase = new DatabaseService(_databaseFactory, sourceDatabaseProvider);
-        var targetDatabase = new DatabaseService(_databaseFactory, targetDatabaseProvider);
-
         int intProgress = 0;
 
-        using (var targetConnection = targetDatabase.CreateDbConnection(targetConnectionString.ConnectionString))
+        using (var targetConnection = _databaseExecutionService.CreateDbConnection(targetConnectionString))
         {
             var targetRowCount = GetRowCount(targetTable, targetConnection);
             if (targetRowCount != 0)
@@ -234,12 +227,12 @@ public class TableConverterService
         var sourceMatchedColumns = this.GetMatchedColumns(sourceTable.Columns, targetTable.Columns);
         var targetMatchedColumns = this.GetMatchedColumns(targetTable.Columns, sourceTable.Columns);
 
-        using (System.Data.Common.DbConnection sourceConnection = sourceDatabase.CreateDbConnection(sourceConnectionString.ConnectionString))
+        using (System.Data.Common.DbConnection sourceConnection = _databaseExecutionService.CreateDbConnection(sourceConnectionString))
         {
 
             connectionCreatedCallback?.Invoke(sourceConnection);
 
-            using (System.Data.Common.DbCommand sourceCommand = sourceDatabase.CreateDbCommand(sourceConnection))
+            using (System.Data.Common.DbCommand sourceCommand = _databaseExecutionService.CreateDbCommand(sourceConnection))
             {
                 this.SetReadTimeout(sourceDatabaseProvider, sourceCommand);
 
@@ -273,9 +266,9 @@ public class TableConverterService
 
                         var intFieldCount = converterReader.FieldCount;
 
-                        using (System.Data.Common.DbConnection targetConnection = targetDatabase.CreateDbConnection(targetConnectionString.ConnectionString))
+                        using (System.Data.Common.DbConnection targetConnection = _databaseExecutionService.CreateDbConnection(targetConnectionString))
                         {
-                            using (var targetCommand = targetDatabase.CreateDbCommand(targetConnection))
+                            using (var targetCommand = _databaseExecutionService.CreateDbCommand(targetConnection))
                             {
 
                                 System.Text.StringBuilder sbColumns = new System.Text.StringBuilder();
@@ -425,9 +418,7 @@ public class TableConverterService
 
         var databaseProvider = _databaseFactory.GetDatabaseProvider(connection);
 
-        var database = new DatabaseService(_databaseFactory, databaseProvider);
-
-        using (var command = database.CreateDbCommand(connection))
+        using (var command = _databaseExecutionService.CreateDbCommand(connection))
         {
             try
             {

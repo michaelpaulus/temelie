@@ -8,10 +8,16 @@ namespace Cornerstone.Database.Services;
 public class ScriptService : IScriptService
 {
     private readonly IDatabaseFactory _databaseFactory;
+    private readonly IDatabaseExecutionService _databaseExecutionService;
+    private readonly IDatabaseModelService _databaseModelService;
 
-    public ScriptService(IDatabaseFactory databaseFactory)
+    public ScriptService(IDatabaseFactory databaseFactory,
+        IDatabaseExecutionService databaseExecutionService,
+        IDatabaseModelService databaseModelService)
     {
         _databaseFactory = databaseFactory;
+        _databaseExecutionService = databaseExecutionService;
+        _databaseModelService = databaseModelService;
     }
 
     private FileInfo WriteIfDifferent(string path, string contents)
@@ -246,7 +252,7 @@ public class ScriptService : IScriptService
 
     public void CreateScripts(ConnectionStringModel connectionString, System.IO.DirectoryInfo directory, IProgress<ScriptProgress> progress, string objectFilter = "")
     {
-        Models.DatabaseModel database = new DatabaseModelService(_databaseFactory).CreateModel(connectionString, new Models.DatabaseModelOptions { ObjectFilter = objectFilter, ExcludeDoubleUnderscoreObjects = true });
+        Models.DatabaseModel database = _databaseModelService.CreateModel(connectionString, new Models.DatabaseModelOptions { ObjectFilter = objectFilter, ExcludeDoubleUnderscoreObjects = true });
 
         var preferredList = new List<string>()
                 {
@@ -489,9 +495,7 @@ public class ScriptService : IScriptService
             {
                 try
                 {
-                    var databaseProvider = _databaseFactory.GetDatabaseProvider(connectionString);
-                    var database = new DatabaseService(_databaseFactory, databaseProvider);
-                    database.ExecuteFile(connectionString.ConnectionString, strFile);
+                    _databaseExecutionService.ExecuteFile(connectionString, strFile);
                 }
                 catch (Exception ex)
                 {
