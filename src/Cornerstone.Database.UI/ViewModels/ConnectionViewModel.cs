@@ -19,16 +19,16 @@ public class ConnectionViewModel : ViewModel
 
     public Command EditCommand { get; set; }
 
-    public Models.DatabaseConnection SelectedConnection { get; set; }
+    public Models.ConnectionStringModel SelectedConnection { get; set; }
 
-    private ObservableCollection<Models.DatabaseConnection> _connnections;
-    public ObservableCollection<Models.DatabaseConnection> Connections
+    private ObservableCollection<Models.ConnectionStringModel> _connnections;
+    public ObservableCollection<Models.ConnectionStringModel> Connections
     {
         get
         {
             if (_connnections == null)
             {
-                _connnections = new ObservableCollection<Models.DatabaseConnection>();
+                _connnections = new ObservableCollection<Models.ConnectionStringModel>();
             }
             return _connnections;
         }
@@ -39,7 +39,7 @@ public class ConnectionViewModel : ViewModel
     public void LoadConnections()
     {
         this.Connections.Clear();
-        foreach (var item in ConnectionSettingsContext.Current.Connections.OrderBy(i => i.Name))
+        foreach (var item in UserSettingsContext.Current.Connections.OrderBy(i => i.Name))
         {
             this.Connections.Add(item);
         }

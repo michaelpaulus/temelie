@@ -14,11 +14,11 @@ public class DatabaseModelService
         _databaseFactory = databaseFactory;
     }
 
-    public DatabaseModel CreateModel(System.Configuration.ConnectionStringSettings connectionString, DatabaseModelOptions options = null)
+    public DatabaseModel CreateModel(ConnectionStringModel connectionString, DatabaseModelOptions options = null)
     {
         var provider = _databaseFactory.GetDatabaseProvider(connectionString);
         var service = new DatabaseService(_databaseFactory, provider);
-        using (var conn = service.CreateDbConnection(connectionString))
+        using (var conn = service.CreateDbConnection(connectionString.ConnectionString))
         {
             return CreateModel(conn, options);
         }

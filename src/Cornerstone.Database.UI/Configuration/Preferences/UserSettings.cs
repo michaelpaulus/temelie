@@ -29,16 +29,20 @@ public class UserSettings : PropertyChangedObject
         }
     }
 
-    private IList<Models.DatabaseConnection> _connections;
-    public IList<Models.DatabaseConnection> Connections
+    private IList<Models.ConnectionStringModel> _connections;
+    public IList<Models.ConnectionStringModel> Connections
     {
         get
         {
             if (_connections == null)
             {
-                _connections = new List<Models.DatabaseConnection>();
+                _connections = new List<Models.ConnectionStringModel>();
             }
             return _connections;
+        }
+        set
+        {
+            _connections = value;
         }
     }
 

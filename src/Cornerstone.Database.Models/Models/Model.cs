@@ -1,11 +1,7 @@
-namespace Cornerstone.Database
-{
-    namespace Models
-    {
-        public class Model : PropertyChangedObject
-        {
+namespace Cornerstone.Database.Models;
 
-        }
-    }
+public class Model : PropertyChangedObject
+{
 
 }
+

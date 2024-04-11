@@ -34,20 +34,13 @@ public class DatabaseService
         return command;
     }
 
-    public DbConnection CreateDbConnection(System.Configuration.ConnectionStringSettings connectionString)
+    public DbConnection CreateDbConnection(string connectionString)
     {
-        return CreateDbConnection(_databaseProvider.CreateProvider(), connectionString);
-    }
-
-    public DbConnection CreateDbConnection(DbProviderFactory dbProviderFactory, System.Configuration.ConnectionStringSettings connectionString)
-    {
-        DbConnection connection = dbProviderFactory.CreateConnection();
-
+        DbConnection connection = _databaseProvider.CreateConnection();
+        connection.ConnectionString = connectionString;
         connection.ConnectionString = _databaseProvider.TransformConnectionString(connection.ConnectionString);
-
-        connection.ConnectionString = connectionString.ConnectionString;
-
         _databaseFactory.NotifyConnections(connection);
+
         if (connection.State != ConnectionState.Open)
         {
             connection.Open();
@@ -102,12 +95,11 @@ public class DatabaseService
         }
     }
 
-    public void ExecuteFile(System.Configuration.ConnectionStringSettings connectionString, string sqlCommand)
+    public void ExecuteFile(string connectionString, string sqlCommand)
     {
         if (!(string.IsNullOrEmpty(sqlCommand)))
         {
-            var factory = _databaseProvider.CreateProvider();
-            using (DbConnection connection = CreateDbConnection(factory, connectionString))
+            using (DbConnection connection = CreateDbConnection(connectionString))
             {
                 ExecuteFile(connection, sqlCommand);
             }

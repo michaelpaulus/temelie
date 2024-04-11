@@ -1,4 +1,3 @@
-using System.Configuration;
 using System.Data;
 using System.Data.Common;
 using Cornerstone.Database.Services;
@@ -7,13 +6,12 @@ namespace Cornerstone.Database.Providers;
 
 public interface IDatabaseProvider
 {
+
+    string Name { get; }
+
     string QuoteCharacterStart { get; }
     string QuoteCharacterEnd { get; }
-
-    void SetReadTimeout(System.Data.Common.DbCommand sourceCommand);
-    string TransformConnectionString(string connectionString);
-
-    void UpdateParameter(DbParameter parameter, Models.ColumnModel column);
+    string DefaultConnectionString { get; }
 
     DataTable GetTables(DbConnection connection);
     DataTable GetViews(DbConnection connection);
@@ -28,12 +26,17 @@ public interface IDatabaseProvider
     DataTable GetViewColumns(DbConnection connection);
     DataTable GetIndexeBucketCounts(DbConnection connection);
     DataTable GetIndexes(DbConnection connection);
+    DataTable GetSecurityPolicies(DbConnection connection);
+
+    void SetReadTimeout(System.Data.Common.DbCommand sourceCommand);
+    string TransformConnectionString(string connectionString);
+
+    void UpdateParameter(DbParameter parameter, Models.ColumnModel column);
 
     Models.ColumnTypeModel GetColumnType(Models.ColumnTypeModel sourceColumnType);
-    DbProviderFactory CreateProvider();
+    DbConnection CreateConnection();
 
     bool TryHandleColumnValueLoadException(Exception ex, Models.ColumnModel column, out object value);
-    DataTable GetSecurityPolicies(DbConnection connection);
 
     void ConvertBulk(
        TableConverterService service,
@@ -50,6 +53,5 @@ public interface IDatabaseProvider
 
     string GetDatabaseName(string connectionString);
     bool SupportsConnection(DbConnection connection);
-    bool SupportsConnectionString(ConnectionStringSettings connectionStringSettings);
 
 }

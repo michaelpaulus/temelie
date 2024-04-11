@@ -1,4 +1,3 @@
-using System.Configuration;
 using System.Data;
 using System.Data.Common;
 using Cornerstone.Database.Models;
@@ -20,8 +19,14 @@ public class DatabaseProvider : IDatabaseProvider
         _databaseService = new Services.DatabaseService(factory, this);
     }
 
+    public static string Name => nameof(SqlConnection);
+
     public string QuoteCharacterStart => "[";
     public string QuoteCharacterEnd => "]";
+
+    string IDatabaseProvider.Name => Name;
+
+    public string DefaultConnectionString => "Data Source=(local);Initial Catalog=Database;Integrated Security=True;User Id=;Password=;Encrypt=False;";
 
     public DbProviderFactory CreateProvider()
     {
@@ -974,9 +979,8 @@ ORDER BY
         return connection is SqlConnection;
     }
 
-    public bool SupportsConnectionString(ConnectionStringSettings connectionStringSettings)
+    public DbConnection CreateConnection()
     {
-        return string.IsNullOrEmpty(connectionStringSettings.ProviderName) ||
-            connectionStringSettings.ProviderName == "System.Data.SqlClient";
+        return new SqlConnection();
     }
 }

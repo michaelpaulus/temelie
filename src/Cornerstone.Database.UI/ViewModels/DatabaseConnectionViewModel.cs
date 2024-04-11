@@ -1,14 +1,22 @@
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using Cornerstone.Database.Configuration.Preferences;
+using Cornerstone.Database.Models;
+using Cornerstone.Database.Providers;
 
 namespace Cornerstone.Database.ViewModels;
 
 public class DatabaseConnectionViewModel : ViewModel
 {
 
-    public DatabaseConnectionViewModel()
+    public DatabaseConnectionViewModel(IEnumerable<IDatabaseProvider> databaseProviders)
     {
+        _databaseProviders = databaseProviders;
+
+        Connections.ListChanged += Connections_ListChanged;
+
         this.AddCommand = new Command(this.Add);
 
         this.DeleteCommand = new Command(this.Delete);
@@ -16,36 +24,37 @@ public class DatabaseConnectionViewModel : ViewModel
         this.SaveCommand = new Command(this.Save);
 
         this.LoadConnections();
-
     }
 
     public Command AddCommand { get; set; }
     public Command DeleteCommand { get; set; }
     public Command SaveCommand { get; set; }
 
-    public Models.DatabaseConnection SelectedConnection { get; set; }
+    public Models.ConnectionStringModel SelectedConnection { get; set; }
 
-    private ObservableCollection<Models.DatabaseConnection> _connnections;
-    public ObservableCollection<Models.DatabaseConnection> Connections
+    private BindingList<Models.ConnectionStringModel> _connnections;
+    public BindingList<Models.ConnectionStringModel> Connections
     {
         get
         {
             if (_connnections == null)
             {
-                _connnections = new ObservableCollection<Models.DatabaseConnection>();
+                _connnections = new BindingList<Models.ConnectionStringModel>();
             }
             return _connnections;
         }
     }
 
-    private ObservableCollection<Models.DatabaseConnectionType> _databaseConnectionTypes;
-    public ObservableCollection<Models.DatabaseConnectionType> ConnectionTypes
+    private ObservableCollection<Models.DatabaseProviderModel> _databaseConnectionTypes;
+    private readonly IEnumerable<IDatabaseProvider> _databaseProviders;
+
+    public ObservableCollection<Models.DatabaseProviderModel> ConnectionTypes
     {
         get
         {
             if (_databaseConnectionTypes == null)
             {
-                _databaseConnectionTypes = new ObservableCollection<Models.DatabaseConnectionType>();
+                _databaseConnectionTypes = new ObservableCollection<Models.DatabaseProviderModel>();
             }
             return _databaseConnectionTypes;
         }
@@ -53,7 +62,7 @@ public class DatabaseConnectionViewModel : ViewModel
 
     private void Add()
     {
-        var connection = new Models.DatabaseConnection() { Name = "Connection" };
+        var connection = new Models.ConnectionStringModel() { Name = "Connection" };
         this.Connections.Add(connection);
         this.SelectedConnection = connection;
     }
@@ -69,12 +78,13 @@ public class DatabaseConnectionViewModel : ViewModel
 
     private void Save()
     {
-        ConnectionSettingsContext.Current.Connections.Clear();
+
+        UserSettingsContext.Current.Connections.Clear();
         foreach (var item in this.Connections.OrderBy(i => i.Name))
         {
-            ConnectionSettingsContext.Current.Connections.Add(item);
+            UserSettingsContext.Current.Connections.Add(item);
         }
-        ConnectionSettingsContext.Save();
+        UserSettingsContext.Save();
     }
 
     private void LoadConnections()
@@ -83,18 +93,36 @@ public class DatabaseConnectionViewModel : ViewModel
         this.Connections.Clear();
         this.ConnectionTypes.Clear();
 
-        foreach (var item in Models.DatabaseConnectionType.GetDatabaseConnectionTypes())
+        foreach (var item in _databaseProviders)
         {
-            this.ConnectionTypes.Add(item);
+            this.ConnectionTypes.Add(new Models.DatabaseProviderModel() { Name = item.Name, DefaultConnectionString = item.DefaultConnectionString });
         }
 
-        foreach (var item in ConnectionSettingsContext.Current.Connections.OrderBy(i => i.Name))
+        foreach (var item in UserSettingsContext.Current.Connections.OrderBy(i => i.Name))
         {
             this.Connections.Add(item);
         }
 
         this.SelectedConnection = this.Connections.FirstOrDefault();
 
+    }
+
+    private void Connections_ListChanged(object sender, ListChangedEventArgs e)
+    {
+        switch (e.ListChangedType)
+        {
+            case ListChangedType.ItemChanged:
+                if (e.PropertyDescriptor.Name == nameof(ConnectionStringModel.DatabaseProviderName))
+                {
+                    var connectionString = Connections[e.NewIndex];
+                    var provider = _databaseProviders.FirstOrDefault(i => i.Name == connectionString.DatabaseProviderName);
+                    if (provider != null)
+                    {
+                        connectionString.ConnectionString = provider.DefaultConnectionString;
+                    }
+                }
+                break;
+        }
     }
 
     protected override void OnPropertyChanged(string propertyName)

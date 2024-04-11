@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Cornerstone.Database.Models;
 using Cornerstone.Database.Providers;
 using Cornerstone.Database.Services;
 
@@ -46,8 +47,8 @@ public class ConvertViewModel : ViewModel
         }
     }
 
-    public System.Configuration.ConnectionStringSettings SourceDatabaseConnectionString { get; set; }
-    public System.Configuration.ConnectionStringSettings TargetDatabaseConnectionString { get; set; }
+    public ConnectionStringModel SourceDatabaseConnectionString { get; set; }
+    public ConnectionStringModel TargetDatabaseConnectionString { get; set; }
 
     public string ErrorMessage { get; set; }
     public int ThreadCount { get; set; }
@@ -71,7 +72,7 @@ public class ConvertViewModel : ViewModel
         var targetDatabaseType = _databaseFactory.GetDatabaseProvider(TargetDatabaseConnectionString);
         var targetDatabase = new Services.DatabaseService(_databaseFactory, targetDatabaseType);
 
-        using (var conn = targetDatabase.CreateDbConnection(TargetDatabaseConnectionString))
+        using (var conn = targetDatabase.CreateDbConnection(TargetDatabaseConnectionString.ConnectionString))
         {
             var targetColumns = targetDatabase.GetTableColumns(conn);
             var targetTables = targetDatabase.GetTables(conn, targetColumns);

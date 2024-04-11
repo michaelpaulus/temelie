@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Linq;
+using Cornerstone.Database.Models;
 using Cornerstone.Database.Providers;
 
 namespace Cornerstone.Database
@@ -52,7 +53,7 @@ namespace Cornerstone.Database
 
             public Cornerstone.Database.Models.ColumnMappingModel SelectedColumnMapping { get; set; }
 
-            public System.Configuration.ConnectionStringSettings SourceDatabaseConnectionString { get; set; }
+            public ConnectionStringModel SourceDatabaseConnectionString { get; set; }
 
             public Cornerstone.Database.Models.TableModel SourceTable { get; set; }
             public Cornerstone.Database.Models.ColumnModel SourceColumn { get; set; }
@@ -87,7 +88,7 @@ namespace Cornerstone.Database
 
             public Cornerstone.Database.Models.ColumnModel TargetColumn { get; set; }
 
-            public System.Configuration.ConnectionStringSettings TargetDatabaseConnectionString { get; set; }
+            public ConnectionStringModel TargetDatabaseConnectionString { get; set; }
 
             private ObservableCollection<Cornerstone.Database.Models.TableModel> _targetTables;
             public ObservableCollection<Cornerstone.Database.Models.TableModel> TargetTables
@@ -272,7 +273,7 @@ namespace Cornerstone.Database
                 var targetDatbaseType = _databaseFactory.GetDatabaseProvider(TargetDatabaseConnectionString);
                 var database = new Services.DatabaseService(_databaseFactory, targetDatbaseType);
 
-                using (var conn = database.CreateDbConnection(TargetDatabaseConnectionString))
+                using (var conn = database.CreateDbConnection(TargetDatabaseConnectionString.ConnectionString))
                 {
                     var columns = database.GetTableColumns(conn);
                     var viewColumns = database.GetViewColumns(conn);
@@ -298,7 +299,7 @@ namespace Cornerstone.Database
                 var datbaseType = _databaseFactory.GetDatabaseProvider(SourceDatabaseConnectionString);
                 var database = new Services.DatabaseService(_databaseFactory, datbaseType);
 
-                using (var conn = database.CreateDbConnection(SourceDatabaseConnectionString))
+                using (var conn = database.CreateDbConnection(SourceDatabaseConnectionString.ConnectionString))
                 {
                     var columns = database.GetTableColumns(conn);
                     var viewColumns = database.GetViewColumns(conn);

@@ -1,4 +1,7 @@
 using System.Windows;
+using Cornerstone.Database.Providers;
+using Cornerstone.Database.UI;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Cornerstone.Database.Views;
 
@@ -10,7 +13,8 @@ public partial class DatabaseConnectionDialog : Window
     public DatabaseConnectionDialog()
     {
         InitializeComponent();
-        this.DataContext = new ViewModels.DatabaseConnectionViewModel();
+        var providers = ((IServiceProviderApplication)Application.Current).ServiceProvider.GetServices<IDatabaseProvider>();
+        this.DataContext = new ViewModels.DatabaseConnectionViewModel(providers);
     }
 
     private void Button_Click(object sender, RoutedEventArgs e)

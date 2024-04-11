@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using Cornerstone.Database.Models;
 using Cornerstone.Database.Providers;
 using Cornerstone.Database.UI;
 using Microsoft.Extensions.DependencyInjection;
@@ -42,28 +43,15 @@ public partial class DatabaseConnection : UserControl
         }
     }
 
-    public System.Configuration.ConnectionStringSettings ConnectionString
+    public ConnectionStringModel ConnectionString
     {
         get
         {
-            System.Configuration.ConnectionStringSettings selectedConnectionString = null;
-
-            var selectedConnection = this.ViewModel.SelectedConnection;
-
-            if (selectedConnection != null)
-            {
-                selectedConnectionString = new System.Configuration.ConnectionStringSettings();
-
-                selectedConnectionString.Name = selectedConnection.Name;
-                selectedConnectionString.ProviderName = (from i in Models.DatabaseConnectionType.GetDatabaseConnectionTypes() where i.ConnectionType == selectedConnection.ConnectionType select i.ProviderName).FirstOrDefault();
-                selectedConnectionString.ConnectionString = selectedConnection.ConnectionString;
-            }
-
-            return selectedConnectionString;
+            return this.ViewModel.SelectedConnection;
         }
     }
 
-    public static IList<Cornerstone.Database.Models.TableModel> GetTables(IDatabaseFactory databaseFactory, System.Configuration.ConnectionStringSettings connectionString)
+    public static IList<Cornerstone.Database.Models.TableModel> GetTables(IDatabaseFactory databaseFactory, ConnectionStringModel connectionString)
     {
         IList<Cornerstone.Database.Models.TableModel> tables = new List<Cornerstone.Database.Models.TableModel>();
 
@@ -72,7 +60,7 @@ public partial class DatabaseConnection : UserControl
 
         try
         {
-            using (var conn = database.CreateDbConnection(connectionString))
+            using (var conn = database.CreateDbConnection(connectionString.ConnectionString))
             {
                 var columns = database.GetTableColumns(conn);
                 tables = database.GetTables(conn, columns).ToList();
@@ -86,7 +74,7 @@ public partial class DatabaseConnection : UserControl
         return tables;
     }
 
-    public static IList<Cornerstone.Database.Models.TableModel> GetViews(IDatabaseFactory databaseFactory, System.Configuration.ConnectionStringSettings connectionString)
+    public static IList<Cornerstone.Database.Models.TableModel> GetViews(IDatabaseFactory databaseFactory, ConnectionStringModel connectionString)
     {
         IList<Cornerstone.Database.Models.TableModel> tables = new List<Cornerstone.Database.Models.TableModel>();
 
@@ -95,7 +83,7 @@ public partial class DatabaseConnection : UserControl
 
         try
         {
-            using (var conn = database.CreateDbConnection(connectionString))
+            using (var conn = database.CreateDbConnection(connectionString.ConnectionString))
             {
                 var columns = database.GetTableColumns(conn);
                 tables = database.GetTables(conn, columns).ToList();

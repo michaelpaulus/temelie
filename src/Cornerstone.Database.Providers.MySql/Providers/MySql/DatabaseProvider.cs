@@ -1,4 +1,3 @@
-using System.Configuration;
 using System.Data;
 using System.Data.Common;
 using Cornerstone.Database.Models;
@@ -21,8 +20,15 @@ public class DatabaseProvider : IDatabaseProvider
         _database = new Services.DatabaseService(factory, this);
     }
 
+    public static string Name = nameof(MySqlConnection);
+
     public string QuoteCharacterStart => "`";
     public string QuoteCharacterEnd => "`";
+
+    string IDatabaseProvider.Name => Name;
+
+    public string DefaultConnectionString => "Data Source=localhost;Database=database;User Id=;Password=";
+
     public System.Data.Common.DbProviderFactory CreateProvider()
     {
         return new global::MySql.Data.MySqlClient.MySqlClientFactory();
@@ -473,8 +479,8 @@ public class DatabaseProvider : IDatabaseProvider
         return connection is MySqlConnection;
     }
 
-    public bool SupportsConnectionString(ConnectionStringSettings connectionStringSettings)
+    public DbConnection CreateConnection()
     {
-        return connectionStringSettings.ProviderName == "MySql.Data.MySqlClient";
+        return new MySqlConnection();
     }
 }

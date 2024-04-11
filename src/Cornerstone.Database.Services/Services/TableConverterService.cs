@@ -1,7 +1,7 @@
-using System.Configuration;
 using System.Data;
 using System.Data.Common;
 using System.Text;
+using Cornerstone.Database.Models;
 using Cornerstone.Database.Providers;
 
 namespace Cornerstone.Database.Services;
@@ -103,7 +103,7 @@ public class TableConverterService
       IDataReader sourceReader,
       int sourceRowCount,
       Models.TableModel targetTable,
-      ConnectionStringSettings targetConnectionString,
+      ConnectionStringModel targetConnectionString,
       bool trimStrings,
       int batchSize,
       bool useTransaction = true,
@@ -112,7 +112,7 @@ public class TableConverterService
 
         var targetDatabaseProvider = _databaseFactory.GetDatabaseProvider(targetConnectionString);
         var targetDatabase = new DatabaseService(_databaseFactory, targetDatabaseProvider);
-        using (System.Data.Common.DbConnection targetConnection = targetDatabase.CreateDbConnection(targetConnectionString))
+        using (System.Data.Common.DbConnection targetConnection = targetDatabase.CreateDbConnection(targetConnectionString.ConnectionString))
         {
             targetDatabaseProvider.ConvertBulk(this, progress, sourceTable, sourceReader, sourceRowCount, targetTable, targetConnection, trimStrings, batchSize, useTransaction, validateTargetTable);
         }
@@ -148,9 +148,9 @@ public class TableConverterService
 
     public void ConvertBulk(IProgress<TableProgress> progress,
         Models.TableModel sourceTable,
-        System.Configuration.ConnectionStringSettings sourceConnectionString,
+        ConnectionStringModel sourceConnectionString,
         Models.TableModel targetTable,
-        System.Configuration.ConnectionStringSettings targetConnectionString,
+        ConnectionStringModel targetConnectionString,
         bool trimStrings,
         int batchSize,
         bool useTransaction = true)
@@ -163,7 +163,7 @@ public class TableConverterService
         var sourceDatabase = new DatabaseService(_databaseFactory, sourceDatabaseProvider);
         var targetDatabase = new DatabaseService(_databaseFactory, targetDatabaseProvider);
 
-        using (var targetConnection = targetDatabase.CreateDbConnection(targetConnectionString))
+        using (var targetConnection = targetDatabase.CreateDbConnection(targetConnectionString.ConnectionString))
         {
             var targetRowCount = GetRowCount(targetTable, targetConnection);
             if (targetRowCount != 0)
@@ -177,7 +177,7 @@ public class TableConverterService
 
         if (progress != null)
         {
-            using (System.Data.Common.DbConnection sourceConnection = sourceDatabase.CreateDbConnection(sourceConnectionString))
+            using (System.Data.Common.DbConnection sourceConnection = sourceDatabase.CreateDbConnection(sourceConnectionString.ConnectionString))
             {
                 intSourceRowCount = GetRowCount(sourceTable, sourceConnection);
             }
@@ -185,7 +185,7 @@ public class TableConverterService
 
         if (!intSourceRowCount.HasValue || intSourceRowCount.Value > 0)
         {
-            using (System.Data.Common.DbConnection sourceConnection = sourceDatabase.CreateDbConnection(sourceConnectionString))
+            using (System.Data.Common.DbConnection sourceConnection = sourceDatabase.CreateDbConnection(sourceConnectionString.ConnectionString))
             {
                 using (var command = CreateSourceCommand(sourceTable, targetTable, sourceConnection))
                 {
@@ -203,9 +203,9 @@ public class TableConverterService
 
     public void Convert(IProgress<TableProgress> progress,
         Models.TableModel sourceTable,
-        System.Configuration.ConnectionStringSettings sourceConnectionString,
+        ConnectionStringModel sourceConnectionString,
         Models.TableModel targetTable,
-        System.Configuration.ConnectionStringSettings targetConnectionString,
+        ConnectionStringModel targetConnectionString,
         bool trimStrings,
         Action<IDbConnection> connectionCreatedCallback = null)
     {
@@ -219,7 +219,7 @@ public class TableConverterService
 
         int intProgress = 0;
 
-        using (var targetConnection = targetDatabase.CreateDbConnection(targetConnectionString))
+        using (var targetConnection = targetDatabase.CreateDbConnection(targetConnectionString.ConnectionString))
         {
             var targetRowCount = GetRowCount(targetTable, targetConnection);
             if (targetRowCount != 0)
@@ -234,7 +234,7 @@ public class TableConverterService
         var sourceMatchedColumns = this.GetMatchedColumns(sourceTable.Columns, targetTable.Columns);
         var targetMatchedColumns = this.GetMatchedColumns(targetTable.Columns, sourceTable.Columns);
 
-        using (System.Data.Common.DbConnection sourceConnection = sourceDatabase.CreateDbConnection(sourceConnectionString))
+        using (System.Data.Common.DbConnection sourceConnection = sourceDatabase.CreateDbConnection(sourceConnectionString.ConnectionString))
         {
 
             connectionCreatedCallback?.Invoke(sourceConnection);
@@ -273,7 +273,7 @@ public class TableConverterService
 
                         var intFieldCount = converterReader.FieldCount;
 
-                        using (System.Data.Common.DbConnection targetConnection = targetDatabase.CreateDbConnection(targetConnectionString))
+                        using (System.Data.Common.DbConnection targetConnection = targetDatabase.CreateDbConnection(targetConnectionString.ConnectionString))
                         {
                             using (var targetCommand = targetDatabase.CreateDbCommand(targetConnection))
                             {
@@ -298,7 +298,7 @@ public class TableConverterService
                                         sbParamaters.Append(", ");
                                     }
 
-                                    System.Data.Common.DbParameter paramater = targetDatabaseProvider.CreateProvider().CreateParameter();
+                                    System.Data.Common.DbParameter paramater = targetCommand.CreateParameter();
                                     paramater.ParameterName = string.Concat("@", this.GetParameterNameFromColumn(targetColumn.ColumnName));
 
                                     paramater.DbType = targetColumn.DbType;

@@ -1,3 +1,5 @@
+using Cornerstone.Database.Models;
+
 namespace Cornerstone.Database.Services;
 
 public class TableConverterSettings
@@ -7,8 +9,8 @@ public class TableConverterSettings
     {
     }
 
-    public System.Configuration.ConnectionStringSettings SourceConnectionString { get; set; }
-    public System.Configuration.ConnectionStringSettings TargetConnectionString { get; set; }
+    public ConnectionStringModel SourceConnectionString { get; set; }
+    public ConnectionStringModel TargetConnectionString { get; set; }
 
     public IList<Cornerstone.Database.Models.TableModel> SourceTables { get; set; }
     public IList<Cornerstone.Database.Models.TableModel> TargetTables { get; set; }

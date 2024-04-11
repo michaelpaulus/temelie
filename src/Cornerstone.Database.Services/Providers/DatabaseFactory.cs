@@ -1,6 +1,7 @@
 using System.Data;
 using System.Data.Common;
 using Cornerstone.Database.Extensions;
+using Cornerstone.Database.Models;
 using Cornerstone.Database.Services;
 
 namespace Cornerstone.Database.Providers;
@@ -21,9 +22,9 @@ public class DatabaseFactory : IDatabaseFactory
         return DatabaseProviders.FirstOrDefault(i => i.SupportsConnection(connection));
     }
 
-    public IDatabaseProvider GetDatabaseProvider(System.Configuration.ConnectionStringSettings connectionString)
+    public IDatabaseProvider GetDatabaseProvider(ConnectionStringModel connectionString)
     {
-        return DatabaseProviders.FirstOrDefault(i => i.SupportsConnectionString(connectionString));
+        return DatabaseProviders.FirstOrDefault(i => i.Name.EqualsIgnoreCase(connectionString.DatabaseProviderName));
     }
 
     public void NotifyConnections(IDbConnection connection)

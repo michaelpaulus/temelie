@@ -23,7 +23,8 @@ public class UserSettingsContext
         {
             try
             {
-                settings = JsonSerializer.Deserialize<UserSettings>(System.IO.File.ReadAllText(strFileName), new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+                var json = System.IO.File.ReadAllText(strFileName);
+                settings = JsonSerializer.Deserialize<UserSettings>(json, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
             }
             catch
             {

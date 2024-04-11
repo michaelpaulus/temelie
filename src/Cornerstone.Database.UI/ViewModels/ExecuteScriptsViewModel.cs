@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Cornerstone.Database.Models;
 using Cornerstone.Database.Providers;
 using Cornerstone.Database.Services;
 
@@ -25,7 +26,7 @@ public class ExecuteScriptsViewModel : ViewModel
     public string ScriptPath { get; set; }
     public string CustomScriptPath { get; set; }
 
-    public System.Configuration.ConnectionStringSettings DatabaseConnectionString { get; set; }
+    public ConnectionStringModel DatabaseConnectionString { get; set; }
 
     private ObservableCollection<System.IO.FileInfo> _files;
     public ObservableCollection<System.IO.FileInfo> Files

@@ -1,5 +1,6 @@
 using System.Text;
 using Cornerstone.Database.Extensions;
+using Cornerstone.Database.Models;
 using Cornerstone.Database.Providers;
 
 namespace Cornerstone.Database.Services;
@@ -243,7 +244,7 @@ public class ScriptService : IScriptService
         return files;
     }
 
-    public void CreateScripts(System.Configuration.ConnectionStringSettings connectionString, System.IO.DirectoryInfo directory, IProgress<ScriptProgress> progress, string objectFilter = "")
+    public void CreateScripts(ConnectionStringModel connectionString, System.IO.DirectoryInfo directory, IProgress<ScriptProgress> progress, string objectFilter = "")
     {
         Models.DatabaseModel database = new DatabaseModelService(_databaseFactory).CreateModel(connectionString, new Models.DatabaseModelOptions { ObjectFilter = objectFilter, ExcludeDoubleUnderscoreObjects = true });
 
@@ -451,7 +452,7 @@ public class ScriptService : IScriptService
         return System.Text.RegularExpressions.Regex.Replace(name, invalidRegStr, "_");
     }
 
-    public void ExecuteScripts(System.Configuration.ConnectionStringSettings connectionString, IEnumerable<System.IO.FileInfo> fileList, bool continueOnError, IProgress<ScriptProgress> progress)
+    public void ExecuteScripts(ConnectionStringModel connectionString, IEnumerable<System.IO.FileInfo> fileList, bool continueOnError, IProgress<ScriptProgress> progress)
     {
         int intFileCount = 1;
 
@@ -490,7 +491,7 @@ public class ScriptService : IScriptService
                 {
                     var databaseProvider = _databaseFactory.GetDatabaseProvider(connectionString);
                     var database = new DatabaseService(_databaseFactory, databaseProvider);
-                    database.ExecuteFile(connectionString, strFile);
+                    database.ExecuteFile(connectionString.ConnectionString, strFile);
                 }
                 catch (Exception ex)
                 {
