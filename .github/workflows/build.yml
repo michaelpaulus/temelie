@@ -16,13 +16,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Setup .NET
+    - name: setup .net
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
-    - name: Restore dependencies
+    - name: restore dependencies
       run: dotnet restore
-    - name: Build
+    - name: build
       run: dotnet build --no-restore
-    - name: Test
+    - name: test
       run: dotnet test --no-build --verbosity normal
