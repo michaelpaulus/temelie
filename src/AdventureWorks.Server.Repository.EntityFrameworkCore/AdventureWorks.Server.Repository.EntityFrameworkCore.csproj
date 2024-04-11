@@ -5,8 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Cornerstone.Example.Entities\Cornerstone.Example.Entities.csproj" />
-    <ProjectReference Include="..\Cornerstone.Example.Repository\Cornerstone.Example.Repository.csproj" />
+    <ProjectReference Include="..\AdventureWorks.Server.Repository\AdventureWorks.Server.Repository.csproj" />
     <ProjectReference Include="..\Cornerstone.Repository.EntityFrameworkCore\Cornerstone.Repository.EntityFrameworkCore.csproj" />
   </ItemGroup>
 

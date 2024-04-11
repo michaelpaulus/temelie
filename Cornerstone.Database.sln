@@ -15,11 +15,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.Database.Provid
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.Database.Models", "src\Cornerstone.Database.Models\Cornerstone.Database.Models.csproj", "{B4464F30-1D0D-4727-AF6B-141354F03003}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.Example.Configuration", "src\Cornerstone.Example.Configuration\Cornerstone.Example.Configuration.csproj", "{E63C799A-4A27-43CD-A510-936291303FDA}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.Example.Database", "src\Cornerstone.Example.Database\Cornerstone.Example.Database.csproj", "{10F8D09F-3E4C-4321-9A8A-2D0877A67DB5}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{E1751DAE-1BFD-4888-AC39-F890B65567F2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdventureWorks.Server.Configuration", "src\AdventureWorks.Server.Configuration\AdventureWorks.Server.Configuration.csproj", "{AA1A1F1C-C232-48BF-AF13-F0E38B2F4476}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdventureWorks.Database", "src\AdventureWorks.Database\AdventureWorks.Database.csproj", "{FE145D2D-F787-46EF-BAF3-06FF823398EE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,21 +51,21 @@ Global
 		{B4464F30-1D0D-4727-AF6B-141354F03003}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B4464F30-1D0D-4727-AF6B-141354F03003}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B4464F30-1D0D-4727-AF6B-141354F03003}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E63C799A-4A27-43CD-A510-936291303FDA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E63C799A-4A27-43CD-A510-936291303FDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E63C799A-4A27-43CD-A510-936291303FDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E63C799A-4A27-43CD-A510-936291303FDA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{10F8D09F-3E4C-4321-9A8A-2D0877A67DB5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{10F8D09F-3E4C-4321-9A8A-2D0877A67DB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{10F8D09F-3E4C-4321-9A8A-2D0877A67DB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{10F8D09F-3E4C-4321-9A8A-2D0877A67DB5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA1A1F1C-C232-48BF-AF13-F0E38B2F4476}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA1A1F1C-C232-48BF-AF13-F0E38B2F4476}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA1A1F1C-C232-48BF-AF13-F0E38B2F4476}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA1A1F1C-C232-48BF-AF13-F0E38B2F4476}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE145D2D-F787-46EF-BAF3-06FF823398EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE145D2D-F787-46EF-BAF3-06FF823398EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE145D2D-F787-46EF-BAF3-06FF823398EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE145D2D-F787-46EF-BAF3-06FF823398EE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{E63C799A-4A27-43CD-A510-936291303FDA} = {E1751DAE-1BFD-4888-AC39-F890B65567F2}
-		{10F8D09F-3E4C-4321-9A8A-2D0877A67DB5} = {E1751DAE-1BFD-4888-AC39-F890B65567F2}
+		{AA1A1F1C-C232-48BF-AF13-F0E38B2F4476} = {E1751DAE-1BFD-4888-AC39-F890B65567F2}
+		{FE145D2D-F787-46EF-BAF3-06FF823398EE} = {E1751DAE-1BFD-4888-AC39-F890B65567F2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {93D79511-36CC-452F-9DF6-C3D742B4CF59}

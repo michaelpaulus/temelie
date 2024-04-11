@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace Cornerstone.Example.Configuration;
+namespace AdventureWorks.Server.Configuration;
 
 public sealed class DirectoryConfig
 {

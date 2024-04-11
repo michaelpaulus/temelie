@@ -1,7 +1,7 @@
 
 using Cornerstone.Database.Providers;
 using Cornerstone.Database.Services;
-using Cornerstone.Example.Configuration;
+using AdventureWorks.Server.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 

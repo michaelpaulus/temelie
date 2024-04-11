@@ -33,10 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Cornerstone.Example.Repository.EntityFrameworkCore\Cornerstone.Example.Repository.EntityFrameworkCore.csproj" />
-    <ProjectReference Include="..\Cornerstone.Example.Entities\Cornerstone.Example.Entities.csproj" />
-    <ProjectReference Include="..\Cornerstone.Example.Repository\Cornerstone.Example.Repository.csproj" />
-    <ProjectReference Include="..\Cornerstone.Repository.EntityFrameworkCore\Cornerstone.Repository.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\AdventureWorks.Server.Repository.EntityFrameworkCore\AdventureWorks.Server.Repository.EntityFrameworkCore.csproj" />
   </ItemGroup>
 
   <ItemGroup>
