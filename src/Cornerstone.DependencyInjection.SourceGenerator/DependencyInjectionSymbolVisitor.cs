@@ -22,9 +22,13 @@ public class DependencyInjectionSymbolVisitor : SymbolVisitor
 
     public override void VisitNamedType(INamedTypeSymbol symbol)
     {
-        var attribute = symbol.GetAttributes().FirstOrDefault(ad => ad.AttributeClass.Name == "ExportProviderAttribute" ||
+        var attribute = symbol.GetAttributes().FirstOrDefault(ad =>
+        ad.AttributeClass.Name == "ExportHostedServiceAttribute" ||
+        ad.AttributeClass.Name == "ExportStartupConfigurationAttribute" ||
+        ad.AttributeClass.Name == "ExportProviderAttribute" ||
         ad.AttributeClass.Name == "ExportSingletonAttribute" ||
-        ad.AttributeClass.Name == "ExportTransientAttribute");
+        ad.AttributeClass.Name == "ExportTransientAttribute"
+        );
         if (attribute != null)
         {
             _symbols.Add(symbol);

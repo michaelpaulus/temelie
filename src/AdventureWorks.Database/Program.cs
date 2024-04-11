@@ -8,9 +8,15 @@ var connectionString = "Data Source=(local);Initial Catalog=AdventureWorks2022;I
 
 var builder = Host.CreateApplicationBuilder(args);
 
+builder.Configuration.ConfigureStartup();
+
 builder.Services.RegisterExports();
 
+builder.Services.ConfigureStartup();
+
 using var host = builder.Build();
+
+host.Services.ConfigureStartup();
 
 var scriptService = host.Services.GetRequiredService<IScriptService>();
 

@@ -29,17 +29,8 @@ public class DependencyInjectionIncrementalGenerator : IIncrementalGenerator
     public static string Generate(IEnumerable<INamedTypeSymbol> symbols)
     {
         var exports = new List<Export>();
-
-        var sb = new StringBuilder();
-
-        sb.Append(@"namespace Microsoft.Extensions.DependencyInjection;
-
-internal static class Cornerstone_DependencyInjection_IncrementalGenerator
-{
-
-    internal static void RegisterExports(this IServiceCollection services)
-    {
-");
+        var startupConfigurations = new List<string>();
+        var hostedServices = new List<string>();
 
         foreach (var symbol in symbols)
         {
@@ -47,7 +38,7 @@ internal static class Cornerstone_DependencyInjection_IncrementalGenerator
             ad.AttributeClass.Name == "ExportSingletonAttribute" ||
             ad.AttributeClass.Name == "ExportTransientAttribute");
 
-            if (attribute != null)
+            if (attribute is not null)
             {
                 var forType = attribute.ConstructorArguments[0].Value as INamedTypeSymbol;
 
@@ -59,7 +50,7 @@ internal static class Cornerstone_DependencyInjection_IncrementalGenerator
                     Type = symbol.FullName(),
                     ForType = forType.FullName()
                 };
-                     
+
                 if (attribute.NamedArguments.Any(i => i.Key == "Priority"))
                 {
                     export.Priority = Convert.ToInt32(attribute.NamedArguments.First(i => i.Key == "Priority").Value.Value);
@@ -67,44 +58,137 @@ internal static class Cornerstone_DependencyInjection_IncrementalGenerator
 
                 exports.Add(export);
             }
+
+            attribute = symbol.GetAttributes().FirstOrDefault(ad => ad.AttributeClass.Name == "ExportHostedServiceAttribute");
+
+            if (attribute is not null)
+            {
+                hostedServices.Add(symbol.FullName());
+            }
+
+            attribute = symbol.GetAttributes().FirstOrDefault(ad => ad.AttributeClass.Name == "ExportStartupConfigurationAttribute");
+
+            if (attribute is not null)
+            {
+                startupConfigurations.Add(symbol.FullName());
+            }
+
         }
 
-        foreach (var export in exports.OrderBy(i => i.ForType).GroupBy(i => new { i.ForType, i.IsProvider }))
-        {
-            var list = new List<Export>();
 
-            if (export.Count() > 1)
+        var sb = new StringBuilder();
+
+        sb.Append(@"namespace Microsoft.Extensions.DependencyInjection;
+
+internal static class Cornerstone_DependencyInjection_IncrementalGenerator
+{
+");
+
+        regsiterExports();
+
+        startupConfiguration1();
+        startupConfiguration2();
+        startupConfiguration3();
+
+        sb.Append(@"
+}");
+
+        void regsiterExports()
+        {
+            sb.Append(@"
+    internal static void RegisterExports(this IServiceCollection services)
+    {
+");
+            foreach (var export in exports.OrderBy(i => i.ForType).GroupBy(i => new { i.ForType, i.IsProvider }))
             {
-                if (export.Key.IsProvider)
+                var list = new List<Export>();
+
+                if (export.Count() > 1)
                 {
-                    list.AddRange(export);
+                    if (export.Key.IsProvider)
+                    {
+                        list.AddRange(export);
+                    }
+                    else
+                    {
+                        list.Add(export.OrderBy(i => i.Priority).First());
+                    }
                 }
                 else
                 {
-                    list.Add(export.OrderBy(i => i.Priority).First());
+                    list.Add(export.First());
                 }
-            }
-            else
-            {
-                list.Add(export.First());
+
+                foreach (var item in list)
+                {
+                    if (item.IsProvider || item.IsTransient)
+                    {
+                        sb.AppendLine($"        services.AddTransient<{item.ForType}, {item.Type}>();");
+                    }
+                    if (item.IsSingleton)
+                    {
+                        sb.AppendLine($"        services.AddSingleton<{item.ForType}, {item.Type}>();");
+                    }
+                }
             }
 
-            foreach (var item in list)
+            foreach (var hostedService in hostedServices)
             {
-                if (item.IsProvider || item.IsTransient)
-                {
-                    sb.AppendLine($"        services.AddTransient<{item.ForType}, {item.Type}>();");
-                }
-                if (item.IsSingleton)
-                {
-                    sb.AppendLine($"        services.AddSingleton<{item.ForType}, {item.Type}>();");
-                }
+                sb.AppendLine($"        services.AddHostedService<{hostedService}>();");
             }
+
+            sb.Append(@"
+    }
+");
         }
 
-        sb.Append(@"
+        void startupConfiguration1()
+        {
+            sb.Append(@"
+    internal static void ConfigureStartup(this Microsoft.Extensions.Configuration.IConfigurationBuilder configuration)
+    {
+");
+            foreach (var startupConfig in startupConfigurations)
+            {
+                sb.AppendLine($"        new {startupConfig}().Configure(configuration);");
+            }
+
+            sb.Append(@"
     }
-}");
+");
+        }
+
+        void startupConfiguration2()
+        {
+            sb.Append(@"
+    internal static void ConfigureStartup(this Microsoft.Extensions.DependencyInjection.IServiceCollection services)
+    {
+");
+            foreach (var startupConfig in startupConfigurations)
+            {
+                sb.AppendLine($"        new {startupConfig}().Configure(services);");
+            }
+
+            sb.Append(@"
+    }
+");
+        }
+
+        void startupConfiguration3()
+        {
+            sb.Append(@"
+    internal static void ConfigureStartup(this System.IServiceProvider provider)
+    {
+");
+            foreach (var startupConfig in startupConfigurations)
+            {
+                sb.AppendLine($"        new {startupConfig}().Configure(provider);");
+            }
+
+            sb.Append(@"
+    }
+");
+        }
 
         return sb.ToString();
     }

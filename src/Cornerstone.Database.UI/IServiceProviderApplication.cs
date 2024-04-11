@@ -11,6 +11,6 @@ public static class ServiceProviderApplication
 public interface IServiceProviderApplication
 {
 
-    public IServiceProvider ServiceProvider { get; set; }
+    public IServiceProvider ServiceProvider { get; }
 
 }
