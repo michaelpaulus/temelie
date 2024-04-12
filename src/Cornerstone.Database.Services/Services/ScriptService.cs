@@ -39,10 +39,9 @@ public class ScriptService : IScriptService
         return new FileInfo(path);
     }
 
-    private IEnumerable<FileInfo> CreateTableScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
+    private IEnumerable<FileInfo> CreateTableScripts(IDatabaseProvider provider, Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
     {
         var files = new List<FileInfo>();
-        var provider = _databaseFactory.GetDatabaseProvider(database.ProviderName);
 
         foreach (var table in database.Tables)
         {
@@ -61,10 +60,9 @@ public class ScriptService : IScriptService
 
         return files;
     }
-    private IEnumerable<FileInfo> CreateSecurityPolicyScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
+    private IEnumerable<FileInfo> CreateSecurityPolicyScripts(IDatabaseProvider provider, Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
     {
         var files = new List<FileInfo>();
-        var provider = _databaseFactory.GetDatabaseProvider(database.ProviderName);
 
         foreach (var securityPolicy in database.SecurityPolicies)
         {
@@ -88,10 +86,9 @@ public class ScriptService : IScriptService
 
         return files;
     }
-    private IEnumerable<FileInfo> CreateIndexScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
+    private IEnumerable<FileInfo> CreateIndexScripts(IDatabaseProvider provider, Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
     {
         var files = new List<FileInfo>();
-        var provider = _databaseFactory.GetDatabaseProvider(database.ProviderName);
 
         foreach (var pk in database.PrimaryKeys)
         {
@@ -120,10 +117,9 @@ public class ScriptService : IScriptService
 
         return files;
     }
-    private IEnumerable<FileInfo> CreateCheckConstraintScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
+    private IEnumerable<FileInfo> CreateCheckConstraintScripts(IDatabaseProvider provider, Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
     {
         var files = new List<FileInfo>();
-        var provider = _databaseFactory.GetDatabaseProvider(database.ProviderName);
 
         foreach (var constraint in database.CheckConstraints)
         {
@@ -143,10 +139,9 @@ public class ScriptService : IScriptService
 
         return files;
     }
-    private IEnumerable<FileInfo> CreateViewsAndProgrammabilityScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, bool includeViews, bool includeProgrammability, string fileFilter = "")
+    private IEnumerable<FileInfo> CreateViewsAndProgrammabilityScripts(IDatabaseProvider provider, Models.DatabaseModel database, System.IO.DirectoryInfo directory, bool includeViews, bool includeProgrammability, string fileFilter = "")
     {
         var files = new List<FileInfo>();
-        var provider = _databaseFactory.GetDatabaseProvider(database.ProviderName);
 
         foreach (var definition in database.Definitions)
         {
@@ -179,10 +174,9 @@ public class ScriptService : IScriptService
         return files;
     }
 
-    private IEnumerable<FileInfo> CreateTriggerScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
+    private IEnumerable<FileInfo> CreateTriggerScripts(IDatabaseProvider provider, Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
     {
         var files = new List<FileInfo>();
-        var provider = _databaseFactory.GetDatabaseProvider(database.ProviderName);
         foreach (var trigger in database.Triggers)
         {
             var fileName = MakeValidFileName($"{trigger.SchemaName}.{trigger.TriggerName}.sql");
@@ -204,10 +198,9 @@ public class ScriptService : IScriptService
         return files;
     }
 
-    private IEnumerable<FileInfo> CreateFkScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
+    private IEnumerable<FileInfo> CreateFkScripts(IDatabaseProvider provider, Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
     {
         var files = new List<FileInfo>();
-        var provider = _databaseFactory.GetDatabaseProvider(database.ProviderName);
         foreach (var foreignKey in database.ForeignKeys)
         {
             var fileName = MakeValidFileName($"{foreignKey.SchemaName}.{foreignKey.ForeignKeyName}.sql");
@@ -241,6 +234,7 @@ public class ScriptService : IScriptService
 
     public void CreateScripts(ConnectionStringModel connectionString, System.IO.DirectoryInfo directory, IProgress<ScriptProgress> progress, string objectFilter = "")
     {
+        var provider = _databaseFactory.GetDatabaseProvider(connectionString);
         Models.DatabaseModel database = _databaseModelService.CreateModel(connectionString, new Models.DatabaseModelOptions { ObjectFilter = objectFilter, ExcludeDoubleUnderscoreObjects = true });
 
         var preferredList = new List<string>()
@@ -285,7 +279,7 @@ public class ScriptService : IScriptService
 
             if (subDirectory.Name.StartsWith("02_Tables", StringComparison.InvariantCultureIgnoreCase))
             {
-                var files = CreateTableScripts(database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
+                var files = CreateTableScripts(provider, database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
                 foreach (var file in subDirectory.GetFiles("*.sql"))
                 {
                     if (!files.ContainsKey(file.Name))
@@ -304,7 +298,7 @@ public class ScriptService : IScriptService
             else if (subDirectory.Name.StartsWith("03_Indexes", StringComparison.InvariantCultureIgnoreCase))
             {
 
-                var files = CreateIndexScripts(database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
+                var files = CreateIndexScripts(provider, database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
                 foreach (var file in subDirectory.GetFiles("*.sql"))
                 {
                     if (!files.ContainsKey(file.Name))
@@ -316,7 +310,7 @@ public class ScriptService : IScriptService
             else if (subDirectory.Name.StartsWith("04_CheckConstraints", StringComparison.InvariantCultureIgnoreCase))
             {
 
-                var files = CreateCheckConstraintScripts(database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
+                var files = CreateCheckConstraintScripts(provider, database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
                 foreach (var file in subDirectory.GetFiles("*.sql"))
                 {
                     if (!files.ContainsKey(file.Name))
@@ -327,7 +321,7 @@ public class ScriptService : IScriptService
             }
             else if (subDirectory.Name.StartsWith("05_Programmability", StringComparison.InvariantCultureIgnoreCase))
             {
-                var files = CreateViewsAndProgrammabilityScripts(database, subDirectory, false, true).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
+                var files = CreateViewsAndProgrammabilityScripts(provider, database, subDirectory, false, true).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
                 foreach (var file in subDirectory.GetFiles("*.sql"))
                 {
                     if (!files.ContainsKey(file.Name))
@@ -345,7 +339,7 @@ public class ScriptService : IScriptService
             }
             else if (subDirectory.Name.StartsWith("05_Views", StringComparison.InvariantCultureIgnoreCase))
             {
-                var files = CreateViewsAndProgrammabilityScripts(database, subDirectory, true, false).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
+                var files = CreateViewsAndProgrammabilityScripts(provider, database, subDirectory, true, false).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
                 foreach (var file in subDirectory.GetFiles("*.sql"))
                 {
                     if (!files.ContainsKey(file.Name))
@@ -363,7 +357,7 @@ public class ScriptService : IScriptService
             }
             else if (subDirectory.Name.StartsWith("06_Triggers", StringComparison.InvariantCultureIgnoreCase))
             {
-                var files = CreateTriggerScripts(database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
+                var files = CreateTriggerScripts(provider, database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
                 foreach (var file in subDirectory.GetFiles("*.sql"))
                 {
                     if (!files.ContainsKey(file.Name))
@@ -374,7 +368,7 @@ public class ScriptService : IScriptService
             }
             else if (subDirectory.Name.StartsWith("08_ForeignKeys", StringComparison.InvariantCultureIgnoreCase))
             {
-                var files = CreateFkScripts(database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
+                var files = CreateFkScripts(provider, database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
                 foreach (var file in subDirectory.GetFiles("*.sql"))
                 {
                     if (!files.ContainsKey(file.Name))
@@ -385,7 +379,7 @@ public class ScriptService : IScriptService
             }
             else if (subDirectory.Name.StartsWith("09_SecurityPolicies", StringComparison.InvariantCultureIgnoreCase))
             {
-                var files = CreateSecurityPolicyScripts(database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
+                var files = CreateSecurityPolicyScripts(provider, database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
                 foreach (var file in subDirectory.GetFiles("*.sql"))
                 {
                     if (!files.ContainsKey(file.Name))

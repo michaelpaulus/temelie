@@ -41,9 +41,6 @@ public class DatabaseModelService : IDatabaseModelService
             };
         }
 
-        var provider = _databaseFactory.GetDatabaseProvider(connection);
-
-        var databaseName = provider.GetDatabaseName(connection.ConnectionString);
         var tableColumns = GetTableColumns(connection);
 
         var tables = GetTables(options, connection, tableColumns);
@@ -64,8 +61,7 @@ public class DatabaseModelService : IDatabaseModelService
         var triggers = GetTriggers(options, connection, tableNames, viewNames);
         var secPol = GetSecurityPolicies(connection);
 
-        return new DatabaseModel(databaseName,
-            provider.Name,
+        return new DatabaseModel(
             tables,
             views,
             indexes,
