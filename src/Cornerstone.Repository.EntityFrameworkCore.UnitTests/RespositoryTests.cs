@@ -1,5 +1,5 @@
-using Cornerstone.Example.Entities;
-using Cornerstone.Example.Repository;
+using AdventureWorks.Entities;
+using AdventureWorks.Repository;
 using FluentAssertions;
 using Microsoft.Data.Sqlite;
 

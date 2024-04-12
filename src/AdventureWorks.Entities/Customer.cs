@@ -1,6 +1,6 @@
 using Cornerstone.Repository;
 
-namespace Cornerstone.Example.Entities;
+namespace AdventureWorks.Entities;
 
 public record Customer : IEntity<Customer>
 {

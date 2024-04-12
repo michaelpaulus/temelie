@@ -7,7 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <AdditionalFiles Include="..\AdventureWorks.Database\**\*.sql.json" LinkBase="Scripts" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="8.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Cornerstone.Entities.Interfaces\Cornerstone.Entities.Interfaces.csproj" />
+    <ProjectReference Include="..\Cornerstone.Database.Models.SourceGenerator\Cornerstone.Database.Models.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
 </Project>

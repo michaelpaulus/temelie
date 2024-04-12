@@ -1,7 +1,7 @@
-using Cornerstone.Example.Entities;
+using AdventureWorks.Entities;
 using Cornerstone.Repository;
 
-namespace Cornerstone.Example.Repository;
+namespace AdventureWorks.Repository;
 public class CustomerOrderSingleQuery(CustomerId customerId, OrderId orderId) : IQuerySpec<CustomerOrder>
 {
     public IQueryable<CustomerOrder> Apply(IQueryable<CustomerOrder> query)

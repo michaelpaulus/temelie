@@ -20,40 +20,31 @@ public class DatabaseModelIncrementalGenerator : IIncrementalGenerator
 
     void Generate(SourceProductionContext context, ImmutableArray<(string FileName, string Text)> files)
     {
-        var sb = new StringBuilder();
+        var databaseModel = DatabaseModel.CreateFromFiles(files);
 
-        sb.AppendLine(@$"namespace AdventureWorks.Database.Models;
-    public class DatabaseModel
-    {{
-
-        private static readonly Lazy<IEnumerable<TableModel>> _tables = new Lazy<IEnumerable<TableModel>>(() =>
-        {{
-            var tables = new List<TableModel>
-            {{
-                
-
-");
-        var isFirst = true;
-        foreach (var file in files)
+        foreach (var table in databaseModel.Tables)
         {
-            sb.Append($"JsonSerializer.Deserialize<TableModel>(@\"{file.Text.Replace("\"", "\\\"")}\")");
-            if (!isFirst)
+            var ns = "AdventureWorks.Entities";
+            var className = table.TableName;
+
+            var sb = new StringBuilder();
+            sb.AppendLine(@$"namespace {ns};
+    public record {className} : IEntity<{className}>
+    {{
+");
+            foreach (var column in table.Columns)
             {
-                sb.AppendLine(",");
+                var propertyName = column.ColumnName;
+                var propertyType = column.ColumnType;
+                sb.AppendLine($"    public {propertyType} {propertyName} {{ get; set; }};");
             }
-            isFirst = false;
-        }
 
-        sb.AppendLine(@$"
-            }};
-
-            return tables;
-        }});
-        public static IEnumerable<TableModel> Tables => _tables.Value;
+            sb.AppendLine(@$"
     }}
 ");
+            context.AddSource($"{ns}.{className}_Generated", sb.ToString());
+        }
 
-        //context.AddSource("DatabaseModel_Generated", sb.ToString());
     }
 
 }

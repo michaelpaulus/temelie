@@ -1,4 +1,4 @@
-using Cornerstone.Example.Entities;
+using AdventureWorks.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cornerstone.Repository.EntityFrameworkCore.UnitTests;

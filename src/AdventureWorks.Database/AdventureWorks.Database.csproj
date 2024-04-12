@@ -8,8 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="**\*.sql" />
-    <EmbeddedResource Include="**\*.json" />
+    <AdditionalFiles Include="**\*.json" />
   </ItemGroup>
 
 

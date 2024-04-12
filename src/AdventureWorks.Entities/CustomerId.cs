@@ -1,6 +1,6 @@
 using Cornerstone.Repository;
 
-namespace Cornerstone.Example.Entities;
+namespace AdventureWorks.Entities;
 public record struct CustomerId(int Value = 0) : IEntityId, IComparable<CustomerId>
 {
     public int CompareTo(CustomerId other)
