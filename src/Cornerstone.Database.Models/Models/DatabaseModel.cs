@@ -29,6 +29,22 @@ public class DatabaseModel(
 
     public static DatabaseModel CreateFromAssembly(Assembly assembly)
     {
+        var files = new List<(string, string)>();
+        foreach (var name in assembly.GetManifestResourceNames())
+        {
+            if (name.EndsWith(".sql.json"))
+            {
+                using var stream = assembly.GetManifestResourceStream(name);
+                using var reader = new StreamReader(stream!);
+                var json = reader.ReadToEnd();
+                files.Add((name, json));    
+            }
+        }
+        return CreateFromFiles(files);
+    }
+
+    public static DatabaseModel CreateFromFiles(IEnumerable<(string FileName, string Contents)> files)
+    {
         var tables = new List<Models.TableModel>();
         var views = new List<Models.TableModel>();
         var allIndexes = new List<Models.IndexModel>();
@@ -38,14 +54,12 @@ public class DatabaseModel(
         var definitions = new List<Models.DefinitionModel>();
         var securityPolicies = new List<Models.SecurityPolicyModel>();
 
-        foreach (var name in assembly.GetManifestResourceNames())
+        foreach (var file in files)
         {
+            var name = file.FileName;
             if (name.EndsWith(".sql.json"))
             {
-                using var stream = assembly.GetManifestResourceStream(name);
-                using var reader = new StreamReader(stream!);
-                var json = reader.ReadToEnd();
-
+                var json = file.Contents;
                 if (name.Contains("02_Tables"))
                 {
                     var model = JsonSerializer.Deserialize<TableModel>(json, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true })!;
