@@ -952,19 +952,20 @@ ORDER BY
 
             }
 
-            if (System.Transactions.Transaction.Current == null && useTransaction)
-            {
-                using (var transaction = (SqlTransaction)targetConnection.BeginTransaction())
-                {
-                    bulkCopy(transaction);
-                    transaction.Commit();
-                }
-            }
-            else
-            {
-                bulkCopy(null);
-            }
+        }
 
+
+        if (System.Transactions.Transaction.Current == null && useTransaction)
+        {
+            using (var transaction = (SqlTransaction)targetConnection.BeginTransaction())
+            {
+                bulkCopy(transaction);
+                transaction.Commit();
+            }
+        }
+        else
+        {
+            bulkCopy(null);
         }
 
         if (progress != null &&
