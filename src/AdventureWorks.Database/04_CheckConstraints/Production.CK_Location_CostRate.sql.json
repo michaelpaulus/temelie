@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_Location_CostRate",
+  "tableName": "Location",
+  "schemaName": "Production",
+  "checkConstraintDefinition": "([CostRate]>=(0.00))"
+}

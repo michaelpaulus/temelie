@@ -1,4 +1,6 @@
 using System.Text;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 using Cornerstone.Database.Extensions;
 using Cornerstone.Database.Models;
 using Cornerstone.Database.Providers;
@@ -37,37 +39,6 @@ public class ScriptService : IScriptService
         return new FileInfo(path);
     }
 
-    private IEnumerable<FileInfo> CreateDropScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
-    {
-        var files = new List<FileInfo>();
-        var provider = _databaseFactory.GetDatabaseProvider(database.ProviderName);
-
-        foreach (var trigger in database.Triggers)
-        {
-            var fileName = MakeValidFileName($"{trigger.SchemaName}.{trigger.TriggerName}.sql");
-            if (string.IsNullOrEmpty(fileFilter) ||
-               fileFilter.EqualsIgnoreCase(fileName))
-            {
-                var script = provider.GetScript(trigger);
-                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), script.DropScript));
-            }
-
-        }
-
-        foreach (var foreignKey in database.ForeignKeys)
-        {
-            var fileName = MakeValidFileName($"{foreignKey.ForeignKeyName}.sql");
-            if (string.IsNullOrEmpty(fileFilter) ||
-              fileFilter.EqualsIgnoreCase(fileName))
-            {
-                var script = provider.GetScript(foreignKey);
-                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), script.DropScript));
-            }
-        }
-
-        return files;
-    }
-
     private IEnumerable<FileInfo> CreateTableScripts(Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
     {
         var files = new List<FileInfo>();
@@ -83,12 +54,8 @@ public class ScriptService : IScriptService
                 var script = provider.GetScript(table);
 
                 files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), script.CreateScript));
+                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(table)));
 
-                fileName += ".json";
-
-                var json = provider.GetJsonScript(table);
-
-                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), json));
             }
         }
 
@@ -113,6 +80,8 @@ public class ScriptService : IScriptService
                 sbSecurityPolicyScript.AppendLine(script.CreateScript);
 
                 files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sbSecurityPolicyScript.ToString()));
+                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(securityPolicy)));
+
             }
 
         }
@@ -132,6 +101,8 @@ public class ScriptService : IScriptService
             {
                 var script = provider.GetScript(pk);
                 files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), script.CreateScript));
+                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(pk)));
+
             }
         }
 
@@ -143,6 +114,7 @@ public class ScriptService : IScriptService
             {
                 var script = provider.GetScript(index);
                 files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), script.CreateScript));
+                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(index)));
             }
         }
 
@@ -165,6 +137,7 @@ public class ScriptService : IScriptService
                 sb.Append(script.CreateScript);
 
                 files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()));
+                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(constraint)));
             }
         }
 
@@ -198,13 +171,7 @@ public class ScriptService : IScriptService
                 sb.Append(script.CreateScript);
 
                 files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()));
-
-                if (definition.View != null)
-                {
-                    fileName += ".json";
-                    var json = provider.GetJsonScript(definition.View);
-                    files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), json));
-                }
+                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(definition)));
             }
 
         }
@@ -230,6 +197,7 @@ public class ScriptService : IScriptService
                 sb.Append(script.CreateScript);
 
                 files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()));
+                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(trigger)));
             }
         }
 
@@ -251,10 +219,24 @@ public class ScriptService : IScriptService
                 sb.Append(script.DropScript);
                 sb.Append(script.CreateScript);
                 files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()));
+                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(foreignKey)));
             }
         }
 
         return files;
+    }
+
+    private string GetJson<T>(T model) where T : DatabaseObjectModel
+    {
+        var json = JsonSerializer.Serialize(model, new JsonSerializerOptions()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            WriteIndented = true,
+            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase
+        });
+        json = json.Replace("\\u0027", "'").Replace("\\u003C", "<").Replace("\\u003E", ">").Replace("\\u002B", "+");
+        return json;
     }
 
     public void CreateScripts(ConnectionStringModel connectionString, System.IO.DirectoryInfo directory, IProgress<ScriptProgress> progress, string objectFilter = "")
@@ -273,13 +255,7 @@ public class ScriptService : IScriptService
                     "09_SecurityPolicies"
                 };
 
-        var extraList = new List<string>()
-                {
-                    "01_Drops",
-                    "05_ViewsAndProgrammability",
-                };
-
-        var directoryList = preferredList.Union(extraList).Where(i => Directory.Exists(Path.Combine(directory.FullName, i))).OrderBy(i => i).ToList();
+        var directoryList = preferredList.Where(i => Directory.Exists(Path.Combine(directory.FullName, i))).OrderBy(i => i).ToList();
 
         if (!directoryList.Any())
         {
@@ -307,19 +283,7 @@ public class ScriptService : IScriptService
 
             progress?.Report(new ScriptProgress() { ProgressPercentage = intProgress, ProgressStatus = subDirectory.Name });
 
-            if (subDirectory.Name.StartsWith("01_Drops", StringComparison.InvariantCultureIgnoreCase))
-            {
-                var files = CreateDropScripts(database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
-                foreach (var file in subDirectory.GetFiles("*.sql"))
-                {
-                    if (!files.ContainsKey(file.Name))
-                    {
-                        file.Delete();
-                    }
-                }
-
-            }
-            else if (subDirectory.Name.StartsWith("02_Tables", StringComparison.InvariantCultureIgnoreCase))
+            if (subDirectory.Name.StartsWith("02_Tables", StringComparison.InvariantCultureIgnoreCase))
             {
                 var files = CreateTableScripts(database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
                 foreach (var file in subDirectory.GetFiles("*.sql"))
@@ -354,24 +318,6 @@ public class ScriptService : IScriptService
 
                 var files = CreateCheckConstraintScripts(database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
                 foreach (var file in subDirectory.GetFiles("*.sql"))
-                {
-                    if (!files.ContainsKey(file.Name))
-                    {
-                        file.Delete();
-                    }
-                }
-            }
-            else if (subDirectory.Name.StartsWith("05_ViewsAndProgrammability", StringComparison.InvariantCultureIgnoreCase))
-            {
-                var files = CreateViewsAndProgrammabilityScripts(database, subDirectory, true, true).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
-                foreach (var file in subDirectory.GetFiles("*.sql"))
-                {
-                    if (!files.ContainsKey(file.Name))
-                    {
-                        file.Delete();
-                    }
-                }
-                foreach (var file in subDirectory.GetFiles("*.sql.json"))
                 {
                     if (!files.ContainsKey(file.Name))
                     {

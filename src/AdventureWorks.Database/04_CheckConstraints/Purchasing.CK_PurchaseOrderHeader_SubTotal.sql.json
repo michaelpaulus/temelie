@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_PurchaseOrderHeader_SubTotal",
+  "tableName": "PurchaseOrderHeader",
+  "schemaName": "Purchasing",
+  "checkConstraintDefinition": "([SubTotal]>=(0.00))"
+}

@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_Product_SellEndDate",
+  "tableName": "Product",
+  "schemaName": "Production",
+  "checkConstraintDefinition": "([SellEndDate]>=[SellStartDate] OR [SellEndDate] IS NULL)"
+}

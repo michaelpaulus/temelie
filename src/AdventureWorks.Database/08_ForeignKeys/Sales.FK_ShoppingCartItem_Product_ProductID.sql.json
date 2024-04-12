@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_ShoppingCartItem_Product_ProductID",
+  "tableName": "ShoppingCartItem",
+  "schemaName": "Sales",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "Product",
+  "referencedSchemaName": "Production",
+  "detail": [
+    {
+      "column": "ProductID",
+      "referencedColumn": "ProductID"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+﻿{
+  "tableName": "PersonPhone",
+  "schemaName": "Person",
+  "indexName": "PK_PersonPhone_BusinessEntityID_PhoneNumber_PhoneNumberTypeID",
+  "indexType": "CLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": true,
+  "fillFactor": 0,
+  "isPrimaryKey": true,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "BusinessEntityID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    },
+    {
+      "columnName": "PhoneNumber",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    },
+    {
+      "columnName": "PhoneNumberTypeID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

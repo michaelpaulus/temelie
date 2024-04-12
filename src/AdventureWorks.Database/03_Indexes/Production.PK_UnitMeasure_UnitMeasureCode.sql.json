@@ -1,0 +1,21 @@
+﻿{
+  "tableName": "UnitMeasure",
+  "schemaName": "Production",
+  "indexName": "PK_UnitMeasure_UnitMeasureCode",
+  "indexType": "CLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": true,
+  "fillFactor": 0,
+  "isPrimaryKey": true,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "UnitMeasureCode",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

@@ -1,0 +1,41 @@
+﻿{
+  "tableName": "Address",
+  "schemaName": "Person",
+  "indexName": "IX_Address_AddressLine1_AddressLine2_City_StateProvinceID_PostalCode",
+  "indexType": "NONCLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": true,
+  "fillFactor": 0,
+  "isPrimaryKey": false,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "AddressLine1",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    },
+    {
+      "columnName": "AddressLine2",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    },
+    {
+      "columnName": "City",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    },
+    {
+      "columnName": "StateProvinceID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    },
+    {
+      "columnName": "PostalCode",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_ProductVendor_UnitMeasure_UnitMeasureCode",
+  "tableName": "ProductVendor",
+  "schemaName": "Purchasing",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "UnitMeasure",
+  "referencedSchemaName": "Production",
+  "detail": [
+    {
+      "column": "UnitMeasureCode",
+      "referencedColumn": "UnitMeasureCode"
+    }
+  ]
+}

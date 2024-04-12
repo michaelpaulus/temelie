@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_WorkOrderRouting_ActualCost",
+  "tableName": "WorkOrderRouting",
+  "schemaName": "Production",
+  "checkConstraintDefinition": "([ActualCost]>(0.00))"
+}

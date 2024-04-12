@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_SalesPerson_Bonus",
+  "tableName": "SalesPerson",
+  "schemaName": "Sales",
+  "checkConstraintDefinition": "([Bonus]>=(0.00))"
+}

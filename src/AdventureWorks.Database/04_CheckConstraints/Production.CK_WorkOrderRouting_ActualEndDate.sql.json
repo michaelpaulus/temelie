@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_WorkOrderRouting_ActualEndDate",
+  "tableName": "WorkOrderRouting",
+  "schemaName": "Production",
+  "checkConstraintDefinition": "([ActualEndDate]>=[ActualStartDate] OR [ActualEndDate] IS NULL OR [ActualStartDate] IS NULL)"
+}

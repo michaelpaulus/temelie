@@ -1,0 +1,31 @@
+﻿{
+  "tableName": "ProductModelProductDescriptionCulture",
+  "schemaName": "Production",
+  "indexName": "PK_ProductModelProductDescriptionCulture_ProductModelID_ProductDescriptionID_CultureID",
+  "indexType": "CLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": true,
+  "fillFactor": 0,
+  "isPrimaryKey": true,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "ProductModelID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    },
+    {
+      "columnName": "ProductDescriptionID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    },
+    {
+      "columnName": "CultureID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

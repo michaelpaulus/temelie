@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_ProductDocument_Document_DocumentNode",
+  "tableName": "ProductDocument",
+  "schemaName": "Production",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "Document",
+  "referencedSchemaName": "Production",
+  "detail": [
+    {
+      "column": "DocumentNode",
+      "referencedColumn": "DocumentNode"
+    }
+  ]
+}

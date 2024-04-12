@@ -1,0 +1,26 @@
+﻿{
+  "tableName": "SalesOrderDetail",
+  "schemaName": "Sales",
+  "indexName": "PK_SalesOrderDetail_SalesOrderID_SalesOrderDetailID",
+  "indexType": "CLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": true,
+  "fillFactor": 0,
+  "isPrimaryKey": true,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "SalesOrderID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    },
+    {
+      "columnName": "SalesOrderDetailID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

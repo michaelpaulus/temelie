@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_ProductModelProductDescriptionCulture_Culture_CultureID",
+  "tableName": "ProductModelProductDescriptionCulture",
+  "schemaName": "Production",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "Culture",
+  "referencedSchemaName": "Production",
+  "detail": [
+    {
+      "column": "CultureID",
+      "referencedColumn": "CultureID"
+    }
+  ]
+}

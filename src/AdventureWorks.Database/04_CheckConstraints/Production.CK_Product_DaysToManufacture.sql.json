@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_Product_DaysToManufacture",
+  "tableName": "Product",
+  "schemaName": "Production",
+  "checkConstraintDefinition": "([DaysToManufacture]>=(0))"
+}

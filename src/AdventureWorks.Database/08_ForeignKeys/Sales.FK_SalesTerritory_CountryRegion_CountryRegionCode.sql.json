@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_SalesTerritory_CountryRegion_CountryRegionCode",
+  "tableName": "SalesTerritory",
+  "schemaName": "Sales",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "CountryRegion",
+  "referencedSchemaName": "Person",
+  "detail": [
+    {
+      "column": "CountryRegionCode",
+      "referencedColumn": "CountryRegionCode"
+    }
+  ]
+}

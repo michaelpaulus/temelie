@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_ProductVendor_Vendor_BusinessEntityID",
+  "tableName": "ProductVendor",
+  "schemaName": "Purchasing",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "Vendor",
+  "referencedSchemaName": "Purchasing",
+  "detail": [
+    {
+      "column": "BusinessEntityID",
+      "referencedColumn": "BusinessEntityID"
+    }
+  ]
+}

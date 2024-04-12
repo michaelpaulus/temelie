@@ -1,0 +1,21 @@
+﻿{
+  "tableName": "Customer",
+  "schemaName": "Sales",
+  "indexName": "AK_Customer_AccountNumber",
+  "indexType": "NONCLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": true,
+  "fillFactor": 0,
+  "isPrimaryKey": false,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "AccountNumber",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

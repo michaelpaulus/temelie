@@ -1,6 +1,6 @@
 namespace Cornerstone.Database.Models;
 
-public class TriggerModel
+public class TriggerModel : DatabaseObjectModel
 {
 
     public string TriggerName { get; set; }

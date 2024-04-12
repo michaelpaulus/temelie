@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_ProductVendor_OnOrderQty",
+  "tableName": "ProductVendor",
+  "schemaName": "Purchasing",
+  "checkConstraintDefinition": "([OnOrderQty]>=(0))"
+}

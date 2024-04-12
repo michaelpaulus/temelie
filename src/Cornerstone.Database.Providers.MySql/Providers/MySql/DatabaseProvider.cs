@@ -515,11 +515,6 @@ public class DatabaseProvider : IDatabaseProvider
         throw new NotImplementedException();
     }
 
-    public string GetJsonScript(TableModel model)
-    {
-        throw new NotImplementedException();
-    }
-
     public IDatabaseObjectScript GetScript(TriggerModel model)
     {
         throw new NotImplementedException();

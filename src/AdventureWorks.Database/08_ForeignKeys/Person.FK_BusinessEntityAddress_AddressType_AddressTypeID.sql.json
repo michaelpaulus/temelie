@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_BusinessEntityAddress_AddressType_AddressTypeID",
+  "tableName": "BusinessEntityAddress",
+  "schemaName": "Person",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "AddressType",
+  "referencedSchemaName": "Person",
+  "detail": [
+    {
+      "column": "AddressTypeID",
+      "referencedColumn": "AddressTypeID"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_EmployeePayHistory_PayFrequency",
+  "tableName": "EmployeePayHistory",
+  "schemaName": "HumanResources",
+  "checkConstraintDefinition": "([PayFrequency]=(2) OR [PayFrequency]=(1))"
+}

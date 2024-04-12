@@ -1,0 +1,21 @@
+﻿{
+  "tableName": "EmployeeDepartmentHistory",
+  "schemaName": "HumanResources",
+  "indexName": "IX_EmployeeDepartmentHistory_ShiftID",
+  "indexType": "NONCLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": false,
+  "fillFactor": 0,
+  "isPrimaryKey": false,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "ShiftID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

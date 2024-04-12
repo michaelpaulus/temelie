@@ -1,0 +1,7 @@
+﻿{
+  "definitionName": "ufnGetProductStandardCost",
+  "schemaName": "dbo",
+  "definition": "\r\nCREATE FUNCTION [dbo].[ufnGetProductStandardCost](@ProductID [int], @OrderDate [datetime])\r\nRETURNS [money] \r\nAS \r\n-- Returns the standard cost for the product on a specific date.\r\nBEGIN\r\n    DECLARE @StandardCost money;\r\n\r\n    SELECT @StandardCost = pch.[StandardCost] \r\n    FROM [Production].[Product] p \r\n        INNER JOIN [Production].[ProductCostHistory] pch \r\n        ON p.[ProductID] = pch.[ProductID] \r\n            AND p.[ProductID] = @ProductID \r\n            AND @OrderDate BETWEEN pch.[StartDate] AND COALESCE(pch.[EndDate], CONVERT(datetime, '99991231', 112)); -- Make sure we get all the prices!\r\n\r\n    RETURN @StandardCost;\r\nEND;\r\n",
+  "xType": "FN",
+  "type": "FUNCTION"
+}

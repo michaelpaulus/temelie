@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_ProductModelIllustration_Illustration_IllustrationID",
+  "tableName": "ProductModelIllustration",
+  "schemaName": "Production",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "Illustration",
+  "referencedSchemaName": "Production",
+  "detail": [
+    {
+      "column": "IllustrationID",
+      "referencedColumn": "IllustrationID"
+    }
+  ]
+}

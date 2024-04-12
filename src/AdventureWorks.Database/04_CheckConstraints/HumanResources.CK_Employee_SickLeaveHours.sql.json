@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_Employee_SickLeaveHours",
+  "tableName": "Employee",
+  "schemaName": "HumanResources",
+  "checkConstraintDefinition": "([SickLeaveHours]>=(0) AND [SickLeaveHours]<=(120))"
+}

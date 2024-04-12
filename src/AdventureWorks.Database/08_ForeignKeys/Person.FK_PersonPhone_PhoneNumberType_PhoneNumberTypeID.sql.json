@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_PersonPhone_PhoneNumberType_PhoneNumberTypeID",
+  "tableName": "PersonPhone",
+  "schemaName": "Person",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "PhoneNumberType",
+  "referencedSchemaName": "Person",
+  "detail": [
+    {
+      "column": "PhoneNumberTypeID",
+      "referencedColumn": "PhoneNumberTypeID"
+    }
+  ]
+}

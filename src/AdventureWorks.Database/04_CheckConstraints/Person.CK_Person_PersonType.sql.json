@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_Person_PersonType",
+  "tableName": "Person",
+  "schemaName": "Person",
+  "checkConstraintDefinition": "([PersonType] IS NULL OR (upper([PersonType])='GC' OR upper([PersonType])='SP' OR upper([PersonType])='EM' OR upper([PersonType])='IN' OR upper([PersonType])='VC' OR upper([PersonType])='SC'))"
+}

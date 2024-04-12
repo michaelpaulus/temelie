@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_WorkOrderRouting_Location_LocationID",
+  "tableName": "WorkOrderRouting",
+  "schemaName": "Production",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "Location",
+  "referencedSchemaName": "Production",
+  "detail": [
+    {
+      "column": "LocationID",
+      "referencedColumn": "LocationID"
+    }
+  ]
+}

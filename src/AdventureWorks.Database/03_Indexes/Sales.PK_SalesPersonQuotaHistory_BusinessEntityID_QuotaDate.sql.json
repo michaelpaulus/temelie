@@ -1,0 +1,26 @@
+﻿{
+  "tableName": "SalesPersonQuotaHistory",
+  "schemaName": "Sales",
+  "indexName": "PK_SalesPersonQuotaHistory_BusinessEntityID_QuotaDate",
+  "indexType": "CLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": true,
+  "fillFactor": 0,
+  "isPrimaryKey": true,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "BusinessEntityID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    },
+    {
+      "columnName": "QuotaDate",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

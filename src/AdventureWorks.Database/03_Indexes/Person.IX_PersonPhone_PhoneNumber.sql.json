@@ -1,0 +1,21 @@
+﻿{
+  "tableName": "PersonPhone",
+  "schemaName": "Person",
+  "indexName": "IX_PersonPhone_PhoneNumber",
+  "indexType": "NONCLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": false,
+  "fillFactor": 0,
+  "isPrimaryKey": false,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "PhoneNumber",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

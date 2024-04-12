@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_PurchaseOrderHeader_TaxAmt",
+  "tableName": "PurchaseOrderHeader",
+  "schemaName": "Purchasing",
+  "checkConstraintDefinition": "([TaxAmt]>=(0.00))"
+}

@@ -1,0 +1,21 @@
+﻿{
+  "tableName": "CurrencyRate",
+  "schemaName": "Sales",
+  "indexName": "PK_CurrencyRate_CurrencyRateID",
+  "indexType": "CLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": true,
+  "fillFactor": 0,
+  "isPrimaryKey": true,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "CurrencyRateID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

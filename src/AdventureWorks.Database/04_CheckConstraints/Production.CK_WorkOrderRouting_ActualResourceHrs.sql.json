@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_WorkOrderRouting_ActualResourceHrs",
+  "tableName": "WorkOrderRouting",
+  "schemaName": "Production",
+  "checkConstraintDefinition": "([ActualResourceHrs]>=(0.0000))"
+}

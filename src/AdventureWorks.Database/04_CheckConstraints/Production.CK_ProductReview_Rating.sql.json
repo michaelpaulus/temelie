@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_ProductReview_Rating",
+  "tableName": "ProductReview",
+  "schemaName": "Production",
+  "checkConstraintDefinition": "([Rating]>=(1) AND [Rating]<=(5))"
+}

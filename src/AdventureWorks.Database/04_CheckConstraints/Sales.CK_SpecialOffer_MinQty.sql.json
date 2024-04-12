@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_SpecialOffer_MinQty",
+  "tableName": "SpecialOffer",
+  "schemaName": "Sales",
+  "checkConstraintDefinition": "([MinQty]>=(0))"
+}

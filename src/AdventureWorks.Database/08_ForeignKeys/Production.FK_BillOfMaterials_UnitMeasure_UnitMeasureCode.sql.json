@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_BillOfMaterials_UnitMeasure_UnitMeasureCode",
+  "tableName": "BillOfMaterials",
+  "schemaName": "Production",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "UnitMeasure",
+  "referencedSchemaName": "Production",
+  "detail": [
+    {
+      "column": "UnitMeasureCode",
+      "referencedColumn": "UnitMeasureCode"
+    }
+  ]
+}

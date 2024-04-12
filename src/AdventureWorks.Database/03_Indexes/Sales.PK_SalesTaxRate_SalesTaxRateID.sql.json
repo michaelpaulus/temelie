@@ -1,0 +1,21 @@
+﻿{
+  "tableName": "SalesTaxRate",
+  "schemaName": "Sales",
+  "indexName": "PK_SalesTaxRate_SalesTaxRateID",
+  "indexType": "CLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": true,
+  "fillFactor": 0,
+  "isPrimaryKey": true,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "SalesTaxRateID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

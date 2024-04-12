@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_EmployeeDepartmentHistory_EndDate",
+  "tableName": "EmployeeDepartmentHistory",
+  "schemaName": "HumanResources",
+  "checkConstraintDefinition": "([EndDate]>=[StartDate] OR [EndDate] IS NULL)"
+}

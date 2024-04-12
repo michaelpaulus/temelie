@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_WorkOrder_OrderQty",
+  "tableName": "WorkOrder",
+  "schemaName": "Production",
+  "checkConstraintDefinition": "([OrderQty]>(0))"
+}

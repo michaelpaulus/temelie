@@ -1,0 +1,21 @@
+﻿{
+  "tableName": "Employee",
+  "schemaName": "HumanResources",
+  "indexName": "AK_Employee_NationalIDNumber",
+  "indexType": "NONCLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": true,
+  "fillFactor": 0,
+  "isPrimaryKey": false,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "NationalIDNumber",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

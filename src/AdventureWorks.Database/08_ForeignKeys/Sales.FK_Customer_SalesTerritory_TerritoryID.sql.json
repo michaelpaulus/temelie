@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_Customer_SalesTerritory_TerritoryID",
+  "tableName": "Customer",
+  "schemaName": "Sales",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "SalesTerritory",
+  "referencedSchemaName": "Sales",
+  "detail": [
+    {
+      "column": "TerritoryID",
+      "referencedColumn": "TerritoryID"
+    }
+  ]
+}

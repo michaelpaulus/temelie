@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_SalesTerritoryHistory_EndDate",
+  "tableName": "SalesTerritoryHistory",
+  "schemaName": "Sales",
+  "checkConstraintDefinition": "([EndDate]>=[StartDate] OR [EndDate] IS NULL)"
+}

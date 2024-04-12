@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_ProductInventory_Shelf",
+  "tableName": "ProductInventory",
+  "schemaName": "Production",
+  "checkConstraintDefinition": "([Shelf] like '[A-Za-z]' OR [Shelf]='N/A')"
+}

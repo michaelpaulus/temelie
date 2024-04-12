@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_ProductListPriceHistory_EndDate",
+  "tableName": "ProductListPriceHistory",
+  "schemaName": "Production",
+  "checkConstraintDefinition": "([EndDate]>=[StartDate] OR [EndDate] IS NULL)"
+}

@@ -1,0 +1,36 @@
+﻿{
+  "tableName": "EmployeeDepartmentHistory",
+  "schemaName": "HumanResources",
+  "indexName": "PK_EmployeeDepartmentHistory_BusinessEntityID_StartDate_DepartmentID",
+  "indexType": "CLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": true,
+  "fillFactor": 0,
+  "isPrimaryKey": true,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "BusinessEntityID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    },
+    {
+      "columnName": "StartDate",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    },
+    {
+      "columnName": "DepartmentID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    },
+    {
+      "columnName": "ShiftID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

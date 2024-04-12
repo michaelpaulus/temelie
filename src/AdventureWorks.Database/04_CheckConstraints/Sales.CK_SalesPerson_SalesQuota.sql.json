@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_SalesPerson_SalesQuota",
+  "tableName": "SalesPerson",
+  "schemaName": "Sales",
+  "checkConstraintDefinition": "([SalesQuota]>(0.00))"
+}

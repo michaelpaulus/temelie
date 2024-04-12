@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_Product_ProductLine",
+  "tableName": "Product",
+  "schemaName": "Production",
+  "checkConstraintDefinition": "(upper([ProductLine])='R' OR upper([ProductLine])='M' OR upper([ProductLine])='T' OR upper([ProductLine])='S' OR [ProductLine] IS NULL)"
+}

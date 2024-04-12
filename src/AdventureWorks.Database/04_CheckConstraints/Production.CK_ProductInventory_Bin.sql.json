@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_ProductInventory_Bin",
+  "tableName": "ProductInventory",
+  "schemaName": "Production",
+  "checkConstraintDefinition": "([Bin]>=(0) AND [Bin]<=(100))"
+}

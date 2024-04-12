@@ -1,0 +1,21 @@
+﻿{
+  "tableName": "AWBuildVersion",
+  "schemaName": "dbo",
+  "indexName": "PK_AWBuildVersion_SystemInformationID",
+  "indexType": "CLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": true,
+  "fillFactor": 0,
+  "isPrimaryKey": true,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "SystemInformationID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

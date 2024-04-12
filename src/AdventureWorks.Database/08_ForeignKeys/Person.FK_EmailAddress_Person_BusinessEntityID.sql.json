@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_EmailAddress_Person_BusinessEntityID",
+  "tableName": "EmailAddress",
+  "schemaName": "Person",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "Person",
+  "referencedSchemaName": "Person",
+  "detail": [
+    {
+      "column": "BusinessEntityID",
+      "referencedColumn": "BusinessEntityID"
+    }
+  ]
+}

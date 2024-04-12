@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_Person_EmailPromotion",
+  "tableName": "Person",
+  "schemaName": "Person",
+  "checkConstraintDefinition": "([EmailPromotion]>=(0) AND [EmailPromotion]<=(2))"
+}

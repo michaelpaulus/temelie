@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_SalesOrderHeader_TaxAmt",
+  "tableName": "SalesOrderHeader",
+  "schemaName": "Sales",
+  "checkConstraintDefinition": "([TaxAmt]>=(0.00))"
+}

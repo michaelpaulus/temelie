@@ -1,0 +1,21 @@
+﻿{
+  "tableName": "BusinessEntityContact",
+  "schemaName": "Person",
+  "indexName": "IX_BusinessEntityContact_PersonID",
+  "indexType": "NONCLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": false,
+  "fillFactor": 0,
+  "isPrimaryKey": false,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "PersonID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

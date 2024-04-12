@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_TransactionHistoryArchive_TransactionType",
+  "tableName": "TransactionHistoryArchive",
+  "schemaName": "Production",
+  "checkConstraintDefinition": "(upper([TransactionType])='P' OR upper([TransactionType])='S' OR upper([TransactionType])='W')"
+}

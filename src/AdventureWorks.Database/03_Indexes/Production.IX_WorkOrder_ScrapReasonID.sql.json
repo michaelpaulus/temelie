@@ -1,0 +1,21 @@
+﻿{
+  "tableName": "WorkOrder",
+  "schemaName": "Production",
+  "indexName": "IX_WorkOrder_ScrapReasonID",
+  "indexType": "NONCLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": false,
+  "fillFactor": 0,
+  "isPrimaryKey": false,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "ScrapReasonID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

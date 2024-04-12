@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_ProductVendor_AverageLeadTime",
+  "tableName": "ProductVendor",
+  "schemaName": "Purchasing",
+  "checkConstraintDefinition": "([AverageLeadTime]>=(1))"
+}

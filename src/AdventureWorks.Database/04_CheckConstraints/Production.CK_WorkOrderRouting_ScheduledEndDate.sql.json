@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_WorkOrderRouting_ScheduledEndDate",
+  "tableName": "WorkOrderRouting",
+  "schemaName": "Production",
+  "checkConstraintDefinition": "([ScheduledEndDate]>=[ScheduledStartDate])"
+}

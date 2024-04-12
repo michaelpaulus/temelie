@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_BillOfMaterials_BOMLevel",
+  "tableName": "BillOfMaterials",
+  "schemaName": "Production",
+  "checkConstraintDefinition": "([ProductAssemblyID] IS NULL AND [BOMLevel]=(0) AND [PerAssemblyQty]=(1.00) OR [ProductAssemblyID] IS NOT NULL AND [BOMLevel]>=(1))"
+}

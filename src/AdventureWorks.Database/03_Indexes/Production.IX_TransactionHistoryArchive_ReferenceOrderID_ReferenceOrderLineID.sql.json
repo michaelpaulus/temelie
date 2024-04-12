@@ -1,0 +1,26 @@
+﻿{
+  "tableName": "TransactionHistoryArchive",
+  "schemaName": "Production",
+  "indexName": "IX_TransactionHistoryArchive_ReferenceOrderID_ReferenceOrderLineID",
+  "indexType": "NONCLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": false,
+  "fillFactor": 0,
+  "isPrimaryKey": false,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "ReferenceOrderID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    },
+    {
+      "columnName": "ReferenceOrderLineID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

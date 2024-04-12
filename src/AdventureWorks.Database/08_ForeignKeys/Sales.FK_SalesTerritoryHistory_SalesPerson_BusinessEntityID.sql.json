@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_SalesTerritoryHistory_SalesPerson_BusinessEntityID",
+  "tableName": "SalesTerritoryHistory",
+  "schemaName": "Sales",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "SalesPerson",
+  "referencedSchemaName": "Sales",
+  "detail": [
+    {
+      "column": "BusinessEntityID",
+      "referencedColumn": "BusinessEntityID"
+    }
+  ]
+}

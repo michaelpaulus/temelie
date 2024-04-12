@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_ProductVendor_LastReceiptCost",
+  "tableName": "ProductVendor",
+  "schemaName": "Purchasing",
+  "checkConstraintDefinition": "([LastReceiptCost]>(0.00))"
+}

@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_Employee_HireDate",
+  "tableName": "Employee",
+  "schemaName": "HumanResources",
+  "checkConstraintDefinition": "([HireDate]>='1996-07-01' AND [HireDate]<=dateadd(day,(1),getdate()))"
+}

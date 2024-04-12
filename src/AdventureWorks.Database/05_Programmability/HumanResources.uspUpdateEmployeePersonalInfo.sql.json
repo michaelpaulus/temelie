@@ -1,0 +1,7 @@
+﻿{
+  "definitionName": "uspUpdateEmployeePersonalInfo",
+  "schemaName": "HumanResources",
+  "definition": "\r\nCREATE PROCEDURE [HumanResources].[uspUpdateEmployeePersonalInfo]\r\n    @BusinessEntityID [int], \r\n    @NationalIDNumber [nvarchar](15), \r\n    @BirthDate [datetime], \r\n    @MaritalStatus [nchar](1), \r\n    @Gender [nchar](1)\r\nWITH EXECUTE AS CALLER\r\nAS\r\nBEGIN\r\n    SET NOCOUNT ON;\r\n\r\n    BEGIN TRY\r\n        UPDATE [HumanResources].[Employee] \r\n        SET [NationalIDNumber] = @NationalIDNumber \r\n            ,[BirthDate] = @BirthDate \r\n            ,[MaritalStatus] = @MaritalStatus \r\n            ,[Gender] = @Gender \r\n        WHERE [BusinessEntityID] = @BusinessEntityID;\r\n    END TRY\r\n    BEGIN CATCH\r\n        EXECUTE [dbo].[uspLogError];\r\n    END CATCH;\r\nEND;\r\n",
+  "xType": "P",
+  "type": "PROCEDURE"
+}

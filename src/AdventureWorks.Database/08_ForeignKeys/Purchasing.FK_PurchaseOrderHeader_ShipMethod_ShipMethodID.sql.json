@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_PurchaseOrderHeader_ShipMethod_ShipMethodID",
+  "tableName": "PurchaseOrderHeader",
+  "schemaName": "Purchasing",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "ShipMethod",
+  "referencedSchemaName": "Purchasing",
+  "detail": [
+    {
+      "column": "ShipMethodID",
+      "referencedColumn": "ShipMethodID"
+    }
+  ]
+}

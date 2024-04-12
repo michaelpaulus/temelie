@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_PurchaseOrderHeader_Freight",
+  "tableName": "PurchaseOrderHeader",
+  "schemaName": "Purchasing",
+  "checkConstraintDefinition": "([Freight]>=(0.00))"
+}

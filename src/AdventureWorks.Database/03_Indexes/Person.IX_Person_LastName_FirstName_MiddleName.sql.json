@@ -1,0 +1,31 @@
+﻿{
+  "tableName": "Person",
+  "schemaName": "Person",
+  "indexName": "IX_Person_LastName_FirstName_MiddleName",
+  "indexType": "NONCLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": false,
+  "fillFactor": 0,
+  "isPrimaryKey": false,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "LastName",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    },
+    {
+      "columnName": "FirstName",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    },
+    {
+      "columnName": "MiddleName",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_Product_UnitMeasure_SizeUnitMeasureCode",
+  "tableName": "Product",
+  "schemaName": "Production",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "UnitMeasure",
+  "referencedSchemaName": "Production",
+  "detail": [
+    {
+      "column": "SizeUnitMeasureCode",
+      "referencedColumn": "UnitMeasureCode"
+    }
+  ]
+}

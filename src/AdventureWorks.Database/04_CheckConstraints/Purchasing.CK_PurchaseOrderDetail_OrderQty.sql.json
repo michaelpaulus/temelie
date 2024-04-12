@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_PurchaseOrderDetail_OrderQty",
+  "tableName": "PurchaseOrderDetail",
+  "schemaName": "Purchasing",
+  "checkConstraintDefinition": "([OrderQty]>(0))"
+}

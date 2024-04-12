@@ -1,0 +1,21 @@
+﻿{
+  "tableName": "ProductCategory",
+  "schemaName": "Production",
+  "indexName": "PK_ProductCategory_ProductCategoryID",
+  "indexType": "CLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": true,
+  "fillFactor": 0,
+  "isPrimaryKey": true,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "ProductCategoryID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

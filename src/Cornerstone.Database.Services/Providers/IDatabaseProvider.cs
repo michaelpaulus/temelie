@@ -37,8 +37,6 @@ public interface IDatabaseProvider
     IDatabaseObjectScript GetScript(TableModel model);
     IDatabaseObjectScript GetScript(TriggerModel model);
 
-    string GetJsonScript(TableModel model);
-
     void SetReadTimeout(System.Data.Common.DbCommand sourceCommand);
     string TransformConnectionString(string connectionString);
 

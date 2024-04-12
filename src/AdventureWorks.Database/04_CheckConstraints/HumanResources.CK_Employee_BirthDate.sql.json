@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_Employee_BirthDate",
+  "tableName": "Employee",
+  "schemaName": "HumanResources",
+  "checkConstraintDefinition": "([BirthDate]>='1930-01-01' AND [BirthDate]<=dateadd(year,(-18),getdate()))"
+}

@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_Product_StandardCost",
+  "tableName": "Product",
+  "schemaName": "Production",
+  "checkConstraintDefinition": "([StandardCost]>=(0.00))"
+}

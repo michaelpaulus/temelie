@@ -1,0 +1,7 @@
+﻿{
+  "definitionName": "ufnGetProductDealerPrice",
+  "schemaName": "dbo",
+  "definition": "\r\n\r\n\r\nCREATE FUNCTION [dbo].[ufnGetProductDealerPrice](@ProductID [int], @OrderDate [datetime])\r\nRETURNS [money] \r\nAS \r\n-- Returns the dealer price for the product on a specific date.\r\nBEGIN\r\n    DECLARE @DealerPrice money;\r\n    DECLARE @DealerDiscount money;\r\n\r\n    SET @DealerDiscount = 0.60  -- 60% of list price\r\n\r\n    SELECT @DealerPrice = plph.[ListPrice] * @DealerDiscount \r\n    FROM [Production].[Product] p \r\n        INNER JOIN [Production].[ProductListPriceHistory] plph \r\n        ON p.[ProductID] = plph.[ProductID] \r\n            AND p.[ProductID] = @ProductID \r\n            AND @OrderDate BETWEEN plph.[StartDate] AND COALESCE(plph.[EndDate], CONVERT(datetime, '99991231', 112)); -- Make sure we get all the prices!\r\n\r\n    RETURN @DealerPrice;\r\nEND;\r\n",
+  "xType": "FN",
+  "type": "FUNCTION"
+}

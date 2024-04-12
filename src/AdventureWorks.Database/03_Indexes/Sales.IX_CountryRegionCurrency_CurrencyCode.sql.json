@@ -1,0 +1,21 @@
+﻿{
+  "tableName": "CountryRegionCurrency",
+  "schemaName": "Sales",
+  "indexName": "IX_CountryRegionCurrency_CurrencyCode",
+  "indexType": "NONCLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": false,
+  "fillFactor": 0,
+  "isPrimaryKey": false,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "CurrencyCode",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

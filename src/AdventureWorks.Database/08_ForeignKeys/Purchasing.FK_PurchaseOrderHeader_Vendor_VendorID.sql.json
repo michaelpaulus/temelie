@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_PurchaseOrderHeader_Vendor_VendorID",
+  "tableName": "PurchaseOrderHeader",
+  "schemaName": "Purchasing",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "Vendor",
+  "referencedSchemaName": "Purchasing",
+  "detail": [
+    {
+      "column": "VendorID",
+      "referencedColumn": "BusinessEntityID"
+    }
+  ]
+}

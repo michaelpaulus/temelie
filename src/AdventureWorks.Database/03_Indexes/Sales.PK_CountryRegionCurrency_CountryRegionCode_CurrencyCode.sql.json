@@ -1,0 +1,26 @@
+﻿{
+  "tableName": "CountryRegionCurrency",
+  "schemaName": "Sales",
+  "indexName": "PK_CountryRegionCurrency_CountryRegionCode_CurrencyCode",
+  "indexType": "CLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": true,
+  "fillFactor": 0,
+  "isPrimaryKey": true,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "CountryRegionCode",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    },
+    {
+      "columnName": "CurrencyCode",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

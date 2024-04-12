@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_SalesTaxRate_TaxType",
+  "tableName": "SalesTaxRate",
+  "schemaName": "Sales",
+  "checkConstraintDefinition": "([TaxType]>=(1) AND [TaxType]<=(3))"
+}

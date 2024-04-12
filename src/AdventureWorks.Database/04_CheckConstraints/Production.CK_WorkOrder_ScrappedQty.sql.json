@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_WorkOrder_ScrappedQty",
+  "tableName": "WorkOrder",
+  "schemaName": "Production",
+  "checkConstraintDefinition": "([ScrappedQty]>=(0))"
+}

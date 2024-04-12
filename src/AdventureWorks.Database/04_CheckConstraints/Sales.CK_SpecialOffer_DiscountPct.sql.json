@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_SpecialOffer_DiscountPct",
+  "tableName": "SpecialOffer",
+  "schemaName": "Sales",
+  "checkConstraintDefinition": "([DiscountPct]>=(0.00))"
+}

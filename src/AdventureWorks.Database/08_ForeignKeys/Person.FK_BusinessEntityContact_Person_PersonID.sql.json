@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_BusinessEntityContact_Person_PersonID",
+  "tableName": "BusinessEntityContact",
+  "schemaName": "Person",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "Person",
+  "referencedSchemaName": "Person",
+  "detail": [
+    {
+      "column": "PersonID",
+      "referencedColumn": "BusinessEntityID"
+    }
+  ]
+}

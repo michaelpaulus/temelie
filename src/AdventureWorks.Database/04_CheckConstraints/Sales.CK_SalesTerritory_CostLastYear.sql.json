@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_SalesTerritory_CostLastYear",
+  "tableName": "SalesTerritory",
+  "schemaName": "Sales",
+  "checkConstraintDefinition": "([CostLastYear]>=(0.00))"
+}

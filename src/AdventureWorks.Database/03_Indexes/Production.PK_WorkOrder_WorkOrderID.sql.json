@@ -1,0 +1,21 @@
+﻿{
+  "tableName": "WorkOrder",
+  "schemaName": "Production",
+  "indexName": "PK_WorkOrder_WorkOrderID",
+  "indexType": "CLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": true,
+  "fillFactor": 0,
+  "isPrimaryKey": true,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "WorkOrderID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

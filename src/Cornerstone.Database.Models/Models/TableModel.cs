@@ -53,6 +53,7 @@ namespace Cornerstone.Database
 
             public string Options { get; set; }
 
+            [JsonIgnore]
             public IndexModel PrimaryKey { get; set; }
 
         }

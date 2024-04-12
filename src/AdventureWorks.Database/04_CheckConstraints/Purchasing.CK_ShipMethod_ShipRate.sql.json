@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_ShipMethod_ShipRate",
+  "tableName": "ShipMethod",
+  "schemaName": "Purchasing",
+  "checkConstraintDefinition": "([ShipRate]>(0.00))"
+}

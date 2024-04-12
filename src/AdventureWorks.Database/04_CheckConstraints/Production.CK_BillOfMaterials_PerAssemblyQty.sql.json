@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_BillOfMaterials_PerAssemblyQty",
+  "tableName": "BillOfMaterials",
+  "schemaName": "Production",
+  "checkConstraintDefinition": "([PerAssemblyQty]>=(1.00))"
+}

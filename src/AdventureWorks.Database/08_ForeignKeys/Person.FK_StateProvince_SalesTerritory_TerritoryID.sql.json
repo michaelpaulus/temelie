@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_StateProvince_SalesTerritory_TerritoryID",
+  "tableName": "StateProvince",
+  "schemaName": "Person",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "SalesTerritory",
+  "referencedSchemaName": "Sales",
+  "detail": [
+    {
+      "column": "TerritoryID",
+      "referencedColumn": "TerritoryID"
+    }
+  ]
+}

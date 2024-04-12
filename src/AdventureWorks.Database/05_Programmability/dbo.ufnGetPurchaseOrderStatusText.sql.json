@@ -1,0 +1,7 @@
+﻿{
+  "definitionName": "ufnGetPurchaseOrderStatusText",
+  "schemaName": "dbo",
+  "definition": "\r\nCREATE FUNCTION [dbo].[ufnGetPurchaseOrderStatusText](@Status [tinyint])\r\nRETURNS [nvarchar](15) \r\nAS \r\n-- Returns the sales order status text representation for the status value.\r\nBEGIN\r\n    DECLARE @ret [nvarchar](15);\r\n\r\n    SET @ret = \r\n        CASE @Status\r\n            WHEN 1 THEN 'Pending'\r\n            WHEN 2 THEN 'Approved'\r\n            WHEN 3 THEN 'Rejected'\r\n            WHEN 4 THEN 'Complete'\r\n            ELSE '** Invalid **'\r\n        END;\r\n    \r\n    RETURN @ret\r\nEND;\r\n",
+  "xType": "FN",
+  "type": "FUNCTION"
+}

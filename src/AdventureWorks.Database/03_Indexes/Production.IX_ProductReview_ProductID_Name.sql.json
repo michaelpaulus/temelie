@@ -1,0 +1,32 @@
+﻿{
+  "tableName": "ProductReview",
+  "schemaName": "Production",
+  "indexName": "IX_ProductReview_ProductID_Name",
+  "indexType": "NONCLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": false,
+  "fillFactor": 0,
+  "isPrimaryKey": false,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "ProductID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    },
+    {
+      "columnName": "ReviewerName",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": [
+    {
+      "columnName": "Comments",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ]
+}

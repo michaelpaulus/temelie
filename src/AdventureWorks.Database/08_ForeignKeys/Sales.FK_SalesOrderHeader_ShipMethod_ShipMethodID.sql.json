@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_SalesOrderHeader_ShipMethod_ShipMethodID",
+  "tableName": "SalesOrderHeader",
+  "schemaName": "Sales",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "ShipMethod",
+  "referencedSchemaName": "Purchasing",
+  "detail": [
+    {
+      "column": "ShipMethodID",
+      "referencedColumn": "ShipMethodID"
+    }
+  ]
+}

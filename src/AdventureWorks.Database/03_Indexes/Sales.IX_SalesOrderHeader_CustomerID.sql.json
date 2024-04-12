@@ -1,0 +1,21 @@
+﻿{
+  "tableName": "SalesOrderHeader",
+  "schemaName": "Sales",
+  "indexName": "IX_SalesOrderHeader_CustomerID",
+  "indexType": "NONCLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": false,
+  "fillFactor": 0,
+  "isPrimaryKey": false,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "CustomerID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

@@ -1,8 +1,6 @@
 using System.Data;
 using System.Data.Common;
 using System.Text;
-using System.Text.Json.Serialization;
-using System.Text.Json;
 using Cornerstone.Database.Models;
 using Cornerstone.Database.Services;
 using Cornerstone.DependencyInjection;
@@ -1729,21 +1727,6 @@ GO");
         }
 
         return new DatabaseObjectScript(generateCreateScript, generateDropScript);
-    }
-
-    public string GetJsonScript(TableModel model)
-    {
-        var sb = new StringBuilder();
-        var json = JsonSerializer.Serialize(model, new JsonSerializerOptions()
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-            WriteIndented = true,
-            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase
-        });
-        json = json.Replace("\\u0027", "'").Replace("\\u003C", "<").Replace("\\u003E", ">").Replace("\\u002B", "+");
-        sb.Append(json);
-        return sb.ToString();
     }
 
     private void AddExtendedProperties(TableModel table, StringBuilder sb)

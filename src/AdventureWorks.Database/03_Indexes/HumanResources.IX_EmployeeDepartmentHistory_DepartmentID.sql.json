@@ -1,0 +1,21 @@
+﻿{
+  "tableName": "EmployeeDepartmentHistory",
+  "schemaName": "HumanResources",
+  "indexName": "IX_EmployeeDepartmentHistory_DepartmentID",
+  "indexType": "NONCLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": false,
+  "fillFactor": 0,
+  "isPrimaryKey": false,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "DepartmentID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

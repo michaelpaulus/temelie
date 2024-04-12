@@ -1,0 +1,21 @@
+﻿{
+  "tableName": "DatabaseLog",
+  "schemaName": "dbo",
+  "indexName": "PK_DatabaseLog_DatabaseLogID",
+  "indexType": "NONCLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": true,
+  "fillFactor": 0,
+  "isPrimaryKey": true,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "DatabaseLogID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

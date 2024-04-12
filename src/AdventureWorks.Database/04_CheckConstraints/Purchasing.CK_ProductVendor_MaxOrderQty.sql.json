@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_ProductVendor_MaxOrderQty",
+  "tableName": "ProductVendor",
+  "schemaName": "Purchasing",
+  "checkConstraintDefinition": "([MaxOrderQty]>=(1))"
+}

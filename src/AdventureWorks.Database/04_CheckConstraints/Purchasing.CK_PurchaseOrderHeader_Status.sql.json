@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_PurchaseOrderHeader_Status",
+  "tableName": "PurchaseOrderHeader",
+  "schemaName": "Purchasing",
+  "checkConstraintDefinition": "([Status]>=(1) AND [Status]<=(4))"
+}

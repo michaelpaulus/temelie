@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_BillOfMaterials_Product_ProductAssemblyID",
+  "tableName": "BillOfMaterials",
+  "schemaName": "Production",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "Product",
+  "referencedSchemaName": "Production",
+  "detail": [
+    {
+      "column": "ProductAssemblyID",
+      "referencedColumn": "ProductID"
+    }
+  ]
+}

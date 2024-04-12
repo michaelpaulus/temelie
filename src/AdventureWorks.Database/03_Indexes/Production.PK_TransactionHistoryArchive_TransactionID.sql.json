@@ -1,0 +1,21 @@
+﻿{
+  "tableName": "TransactionHistoryArchive",
+  "schemaName": "Production",
+  "indexName": "PK_TransactionHistoryArchive_TransactionID",
+  "indexType": "CLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": true,
+  "fillFactor": 0,
+  "isPrimaryKey": true,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "TransactionID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

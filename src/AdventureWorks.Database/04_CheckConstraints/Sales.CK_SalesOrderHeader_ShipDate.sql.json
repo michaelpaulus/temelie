@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_SalesOrderHeader_ShipDate",
+  "tableName": "SalesOrderHeader",
+  "schemaName": "Sales",
+  "checkConstraintDefinition": "([ShipDate]>=[OrderDate] OR [ShipDate] IS NULL)"
+}

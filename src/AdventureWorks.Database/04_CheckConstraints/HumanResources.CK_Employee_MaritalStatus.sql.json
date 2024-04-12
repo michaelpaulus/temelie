@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_Employee_MaritalStatus",
+  "tableName": "Employee",
+  "schemaName": "HumanResources",
+  "checkConstraintDefinition": "(upper([MaritalStatus])='S' OR upper([MaritalStatus])='M')"
+}

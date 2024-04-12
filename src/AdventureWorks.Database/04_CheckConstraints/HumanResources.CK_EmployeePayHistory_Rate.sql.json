@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_EmployeePayHistory_Rate",
+  "tableName": "EmployeePayHistory",
+  "schemaName": "HumanResources",
+  "checkConstraintDefinition": "([Rate]>=(6.50) AND [Rate]<=(200.00))"
+}

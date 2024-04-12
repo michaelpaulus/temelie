@@ -1,0 +1,21 @@
+﻿{
+  "tableName": "BusinessEntityAddress",
+  "schemaName": "Person",
+  "indexName": "IX_BusinessEntityAddress_AddressTypeID",
+  "indexType": "NONCLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": false,
+  "fillFactor": 0,
+  "isPrimaryKey": false,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "AddressTypeID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

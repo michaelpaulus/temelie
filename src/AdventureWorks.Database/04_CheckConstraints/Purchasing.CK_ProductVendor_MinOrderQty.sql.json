@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_ProductVendor_MinOrderQty",
+  "tableName": "ProductVendor",
+  "schemaName": "Purchasing",
+  "checkConstraintDefinition": "([MinOrderQty]>=(1))"
+}

@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_SalesPerson_SalesLastYear",
+  "tableName": "SalesPerson",
+  "schemaName": "Sales",
+  "checkConstraintDefinition": "([SalesLastYear]>=(0.00))"
+}

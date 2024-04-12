@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_PersonCreditCard_CreditCard_CreditCardID",
+  "tableName": "PersonCreditCard",
+  "schemaName": "Sales",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "CreditCard",
+  "referencedSchemaName": "Sales",
+  "detail": [
+    {
+      "column": "CreditCardID",
+      "referencedColumn": "CreditCardID"
+    }
+  ]
+}

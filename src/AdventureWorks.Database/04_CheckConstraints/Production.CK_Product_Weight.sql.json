@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_Product_Weight",
+  "tableName": "Product",
+  "schemaName": "Production",
+  "checkConstraintDefinition": "([Weight]>(0.00))"
+}

@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_PurchaseOrderDetail_UnitPrice",
+  "tableName": "PurchaseOrderDetail",
+  "schemaName": "Purchasing",
+  "checkConstraintDefinition": "([UnitPrice]>=(0.00))"
+}

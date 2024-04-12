@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_BillOfMaterials_Product_ComponentID",
+  "tableName": "BillOfMaterials",
+  "schemaName": "Production",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "Product",
+  "referencedSchemaName": "Production",
+  "detail": [
+    {
+      "column": "ComponentID",
+      "referencedColumn": "ProductID"
+    }
+  ]
+}

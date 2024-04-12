@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_CurrencyRate_Currency_ToCurrencyCode",
+  "tableName": "CurrencyRate",
+  "schemaName": "Sales",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "Currency",
+  "referencedSchemaName": "Sales",
+  "detail": [
+    {
+      "column": "ToCurrencyCode",
+      "referencedColumn": "CurrencyCode"
+    }
+  ]
+}

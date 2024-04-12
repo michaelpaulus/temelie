@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_Product_SafetyStockLevel",
+  "tableName": "Product",
+  "schemaName": "Production",
+  "checkConstraintDefinition": "([SafetyStockLevel]>(0))"
+}

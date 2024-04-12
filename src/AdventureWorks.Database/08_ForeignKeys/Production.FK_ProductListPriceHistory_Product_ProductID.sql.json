@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_ProductListPriceHistory_Product_ProductID",
+  "tableName": "ProductListPriceHistory",
+  "schemaName": "Production",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "Product",
+  "referencedSchemaName": "Production",
+  "detail": [
+    {
+      "column": "ProductID",
+      "referencedColumn": "ProductID"
+    }
+  ]
+}

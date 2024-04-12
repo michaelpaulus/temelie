@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_SalesPerson_CommissionPct",
+  "tableName": "SalesPerson",
+  "schemaName": "Sales",
+  "checkConstraintDefinition": "([CommissionPct]>=(0.00))"
+}

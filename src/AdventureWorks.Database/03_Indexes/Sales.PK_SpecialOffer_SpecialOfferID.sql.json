@@ -1,0 +1,21 @@
+﻿{
+  "tableName": "SpecialOffer",
+  "schemaName": "Sales",
+  "indexName": "PK_SpecialOffer_SpecialOfferID",
+  "indexType": "CLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": true,
+  "fillFactor": 0,
+  "isPrimaryKey": true,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "SpecialOfferID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

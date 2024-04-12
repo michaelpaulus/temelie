@@ -1,0 +1,21 @@
+﻿{
+  "tableName": "Person",
+  "schemaName": "Person",
+  "indexName": "PXML_Person_AddContact",
+  "indexType": "XML",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": false,
+  "fillFactor": 0,
+  "isPrimaryKey": false,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "AdditionalContactInfo",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

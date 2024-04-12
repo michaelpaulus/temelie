@@ -1,0 +1,26 @@
+﻿{
+  "tableName": "PurchaseOrderDetail",
+  "schemaName": "Purchasing",
+  "indexName": "PK_PurchaseOrderDetail_PurchaseOrderID_PurchaseOrderDetailID",
+  "indexType": "CLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": true,
+  "fillFactor": 0,
+  "isPrimaryKey": true,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "PurchaseOrderID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    },
+    {
+      "columnName": "PurchaseOrderDetailID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

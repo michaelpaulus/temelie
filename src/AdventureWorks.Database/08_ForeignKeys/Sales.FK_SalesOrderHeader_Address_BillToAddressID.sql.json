@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_SalesOrderHeader_Address_BillToAddressID",
+  "tableName": "SalesOrderHeader",
+  "schemaName": "Sales",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "Address",
+  "referencedSchemaName": "Person",
+  "detail": [
+    {
+      "column": "BillToAddressID",
+      "referencedColumn": "AddressID"
+    }
+  ]
+}

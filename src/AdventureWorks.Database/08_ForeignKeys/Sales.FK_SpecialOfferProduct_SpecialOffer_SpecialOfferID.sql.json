@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_SpecialOfferProduct_SpecialOffer_SpecialOfferID",
+  "tableName": "SpecialOfferProduct",
+  "schemaName": "Sales",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "SpecialOffer",
+  "referencedSchemaName": "Sales",
+  "detail": [
+    {
+      "column": "SpecialOfferID",
+      "referencedColumn": "SpecialOfferID"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_SalesOrderDetail_SalesOrderHeader_SalesOrderID",
+  "tableName": "SalesOrderDetail",
+  "schemaName": "Sales",
+  "isNotForReplication": false,
+  "deleteAction": "CASCADE",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "SalesOrderHeader",
+  "referencedSchemaName": "Sales",
+  "detail": [
+    {
+      "column": "SalesOrderID",
+      "referencedColumn": "SalesOrderID"
+    }
+  ]
+}

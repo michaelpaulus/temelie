@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_WorkOrder_ScrapReason_ScrapReasonID",
+  "tableName": "WorkOrder",
+  "schemaName": "Production",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "ScrapReason",
+  "referencedSchemaName": "Production",
+  "detail": [
+    {
+      "column": "ScrapReasonID",
+      "referencedColumn": "ScrapReasonID"
+    }
+  ]
+}

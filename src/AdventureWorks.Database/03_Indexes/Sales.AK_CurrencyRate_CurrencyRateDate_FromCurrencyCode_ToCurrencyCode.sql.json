@@ -1,0 +1,31 @@
+﻿{
+  "tableName": "CurrencyRate",
+  "schemaName": "Sales",
+  "indexName": "AK_CurrencyRate_CurrencyRateDate_FromCurrencyCode_ToCurrencyCode",
+  "indexType": "NONCLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": true,
+  "fillFactor": 0,
+  "isPrimaryKey": false,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "CurrencyRateDate",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    },
+    {
+      "columnName": "FromCurrencyCode",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    },
+    {
+      "columnName": "ToCurrencyCode",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_ProductProductPhoto_ProductPhoto_ProductPhotoID",
+  "tableName": "ProductProductPhoto",
+  "schemaName": "Production",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "ProductPhoto",
+  "referencedSchemaName": "Production",
+  "detail": [
+    {
+      "column": "ProductPhotoID",
+      "referencedColumn": "ProductPhotoID"
+    }
+  ]
+}

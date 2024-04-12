@@ -1,0 +1,6 @@
+﻿{
+  "triggerName": "iWorkOrder",
+  "schemaName": "Production",
+  "definition": "\r\nCREATE TRIGGER [Production].[iWorkOrder] ON [Production].[WorkOrder] \r\nAFTER INSERT AS \r\nBEGIN\r\n    DECLARE @Count int;\r\n\r\n    SET @Count = @@ROWCOUNT;\r\n    IF @Count = 0 \r\n        RETURN;\r\n\r\n    SET NOCOUNT ON;\r\n\r\n    BEGIN TRY\r\n        INSERT INTO [Production].[TransactionHistory](\r\n            [ProductID]\r\n            ,[ReferenceOrderID]\r\n            ,[TransactionType]\r\n            ,[TransactionDate]\r\n            ,[Quantity]\r\n            ,[ActualCost])\r\n        SELECT \r\n            inserted.[ProductID]\r\n            ,inserted.[WorkOrderID]\r\n            ,'W'\r\n            ,GETDATE()\r\n            ,inserted.[OrderQty]\r\n            ,0\r\n        FROM inserted;\r\n    END TRY\r\n    BEGIN CATCH\r\n        EXECUTE [dbo].[uspPrintError];\r\n\r\n        -- Rollback any active or uncommittable transactions before\r\n        -- inserting information in the ErrorLog\r\n        IF @@TRANCOUNT > 0\r\n        BEGIN\r\n            ROLLBACK TRANSACTION;\r\n        END\r\n\r\n        EXECUTE [dbo].[uspLogError];\r\n    END CATCH;\r\nEND;\r\n",
+  "tableName": "WorkOrder"
+}

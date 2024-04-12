@@ -1,0 +1,21 @@
+﻿{
+  "tableName": "SalesOrderHeader",
+  "schemaName": "Sales",
+  "indexName": "AK_SalesOrderHeader_rowguid",
+  "indexType": "NONCLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": true,
+  "fillFactor": 0,
+  "isPrimaryKey": false,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "rowguid",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

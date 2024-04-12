@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_Product_ReorderPoint",
+  "tableName": "Product",
+  "schemaName": "Production",
+  "checkConstraintDefinition": "([ReorderPoint]>(0))"
+}

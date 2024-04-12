@@ -8,17 +8,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\Cornerstone.Database.Models\Models\*.cs" LinkBase="Models" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.9.2" />
+    <PackageReference Include="System.Text.Json" Version="8.0.3" />
   </ItemGroup>
 
   <ItemGroup>
     <!-- Package the generator in the analyzer directory of the nuget package -->
     <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-    <None Include="$(OutputPath)\Cornerstone.Database.Models.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Cornerstone.Database.Models\Cornerstone.Database.Models.csproj"></ProjectReference>
   </ItemGroup>
 
 </Project>

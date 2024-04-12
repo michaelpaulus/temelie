@@ -1,0 +1,21 @@
+﻿{
+  "tableName": "PurchaseOrderDetail",
+  "schemaName": "Purchasing",
+  "indexName": "IX_PurchaseOrderDetail_ProductID",
+  "indexType": "NONCLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": false,
+  "fillFactor": 0,
+  "isPrimaryKey": false,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "ProductID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

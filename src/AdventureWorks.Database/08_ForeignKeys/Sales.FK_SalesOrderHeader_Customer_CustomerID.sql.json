@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_SalesOrderHeader_Customer_CustomerID",
+  "tableName": "SalesOrderHeader",
+  "schemaName": "Sales",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "Customer",
+  "referencedSchemaName": "Sales",
+  "detail": [
+    {
+      "column": "CustomerID",
+      "referencedColumn": "CustomerID"
+    }
+  ]
+}

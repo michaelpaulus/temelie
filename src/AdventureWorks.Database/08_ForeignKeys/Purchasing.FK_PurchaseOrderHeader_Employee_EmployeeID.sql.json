@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_PurchaseOrderHeader_Employee_EmployeeID",
+  "tableName": "PurchaseOrderHeader",
+  "schemaName": "Purchasing",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "Employee",
+  "referencedSchemaName": "HumanResources",
+  "detail": [
+    {
+      "column": "EmployeeID",
+      "referencedColumn": "BusinessEntityID"
+    }
+  ]
+}

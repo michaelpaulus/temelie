@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_PurchaseOrderDetail_PurchaseOrderHeader_PurchaseOrderID",
+  "tableName": "PurchaseOrderDetail",
+  "schemaName": "Purchasing",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "PurchaseOrderHeader",
+  "referencedSchemaName": "Purchasing",
+  "detail": [
+    {
+      "column": "PurchaseOrderID",
+      "referencedColumn": "PurchaseOrderID"
+    }
+  ]
+}

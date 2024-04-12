@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_Employee_VacationHours",
+  "tableName": "Employee",
+  "schemaName": "HumanResources",
+  "checkConstraintDefinition": "([VacationHours]>=(-40) AND [VacationHours]<=(240))"
+}

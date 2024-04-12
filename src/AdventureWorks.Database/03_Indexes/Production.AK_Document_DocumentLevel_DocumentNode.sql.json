@@ -1,0 +1,26 @@
+﻿{
+  "tableName": "Document",
+  "schemaName": "Production",
+  "indexName": "AK_Document_DocumentLevel_DocumentNode",
+  "indexType": "NONCLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": true,
+  "fillFactor": 0,
+  "isPrimaryKey": false,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "DocumentLevel",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    },
+    {
+      "columnName": "DocumentNode",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

@@ -1,0 +1,21 @@
+﻿{
+  "tableName": "Person",
+  "schemaName": "Person",
+  "indexName": "XMLPATH_Person_Demographics",
+  "indexType": "XML",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": false,
+  "fillFactor": 0,
+  "isPrimaryKey": false,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "Demographics",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

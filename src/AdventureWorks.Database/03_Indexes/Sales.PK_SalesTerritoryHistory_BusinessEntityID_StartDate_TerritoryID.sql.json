@@ -1,0 +1,31 @@
+﻿{
+  "tableName": "SalesTerritoryHistory",
+  "schemaName": "Sales",
+  "indexName": "PK_SalesTerritoryHistory_BusinessEntityID_StartDate_TerritoryID",
+  "indexType": "CLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": true,
+  "fillFactor": 0,
+  "isPrimaryKey": true,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "BusinessEntityID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    },
+    {
+      "columnName": "StartDate",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    },
+    {
+      "columnName": "TerritoryID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

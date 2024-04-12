@@ -1,0 +1,21 @@
+﻿{
+  "tableName": "ProductModel",
+  "schemaName": "Production",
+  "indexName": "PXML_ProductModel_Instructions",
+  "indexType": "XML",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": false,
+  "fillFactor": 0,
+  "isPrimaryKey": false,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "Instructions",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

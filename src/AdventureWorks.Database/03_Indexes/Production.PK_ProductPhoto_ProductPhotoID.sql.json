@@ -1,0 +1,21 @@
+﻿{
+  "tableName": "ProductPhoto",
+  "schemaName": "Production",
+  "indexName": "PK_ProductPhoto_ProductPhotoID",
+  "indexType": "CLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": true,
+  "fillFactor": 0,
+  "isPrimaryKey": true,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "ProductPhotoID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

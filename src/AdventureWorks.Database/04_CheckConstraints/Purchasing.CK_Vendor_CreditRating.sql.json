@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_Vendor_CreditRating",
+  "tableName": "Vendor",
+  "schemaName": "Purchasing",
+  "checkConstraintDefinition": "([CreditRating]>=(1) AND [CreditRating]<=(5))"
+}

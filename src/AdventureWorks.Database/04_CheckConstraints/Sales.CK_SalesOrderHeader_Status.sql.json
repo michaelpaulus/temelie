@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_SalesOrderHeader_Status",
+  "tableName": "SalesOrderHeader",
+  "schemaName": "Sales",
+  "checkConstraintDefinition": "([Status]>=(0) AND [Status]<=(8))"
+}

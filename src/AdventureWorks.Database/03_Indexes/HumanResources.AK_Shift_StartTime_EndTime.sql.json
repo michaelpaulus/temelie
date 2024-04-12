@@ -1,0 +1,26 @@
+﻿{
+  "tableName": "Shift",
+  "schemaName": "HumanResources",
+  "indexName": "AK_Shift_StartTime_EndTime",
+  "indexType": "NONCLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": true,
+  "fillFactor": 0,
+  "isPrimaryKey": false,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "StartTime",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    },
+    {
+      "columnName": "EndTime",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

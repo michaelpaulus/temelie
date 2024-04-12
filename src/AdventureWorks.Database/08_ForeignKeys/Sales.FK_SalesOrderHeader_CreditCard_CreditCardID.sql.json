@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_SalesOrderHeader_CreditCard_CreditCardID",
+  "tableName": "SalesOrderHeader",
+  "schemaName": "Sales",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "CreditCard",
+  "referencedSchemaName": "Sales",
+  "detail": [
+    {
+      "column": "CreditCardID",
+      "referencedColumn": "CreditCardID"
+    }
+  ]
+}

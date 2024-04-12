@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_Location_Availability",
+  "tableName": "Location",
+  "schemaName": "Production",
+  "checkConstraintDefinition": "([Availability]>=(0.00))"
+}

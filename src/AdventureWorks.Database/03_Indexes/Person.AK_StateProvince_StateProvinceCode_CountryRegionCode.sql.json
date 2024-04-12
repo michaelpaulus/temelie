@@ -1,0 +1,26 @@
+﻿{
+  "tableName": "StateProvince",
+  "schemaName": "Person",
+  "indexName": "AK_StateProvince_StateProvinceCode_CountryRegionCode",
+  "indexType": "NONCLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": true,
+  "fillFactor": 0,
+  "isPrimaryKey": false,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "StateProvinceCode",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    },
+    {
+      "columnName": "CountryRegionCode",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

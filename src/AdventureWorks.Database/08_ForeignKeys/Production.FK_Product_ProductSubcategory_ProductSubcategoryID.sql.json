@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_Product_ProductSubcategory_ProductSubcategoryID",
+  "tableName": "Product",
+  "schemaName": "Production",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "ProductSubcategory",
+  "referencedSchemaName": "Production",
+  "detail": [
+    {
+      "column": "ProductSubcategoryID",
+      "referencedColumn": "ProductSubcategoryID"
+    }
+  ]
+}

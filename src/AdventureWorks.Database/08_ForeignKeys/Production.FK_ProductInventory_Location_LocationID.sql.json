@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_ProductInventory_Location_LocationID",
+  "tableName": "ProductInventory",
+  "schemaName": "Production",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "Location",
+  "referencedSchemaName": "Production",
+  "detail": [
+    {
+      "column": "LocationID",
+      "referencedColumn": "LocationID"
+    }
+  ]
+}

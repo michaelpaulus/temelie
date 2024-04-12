@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_Product_ListPrice",
+  "tableName": "Product",
+  "schemaName": "Production",
+  "checkConstraintDefinition": "([ListPrice]>=(0.00))"
+}

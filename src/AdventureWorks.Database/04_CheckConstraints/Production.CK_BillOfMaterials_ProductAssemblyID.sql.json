@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_BillOfMaterials_ProductAssemblyID",
+  "tableName": "BillOfMaterials",
+  "schemaName": "Production",
+  "checkConstraintDefinition": "([ProductAssemblyID]<>[ComponentID])"
+}

@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_SalesTerritory_CostYTD",
+  "tableName": "SalesTerritory",
+  "schemaName": "Sales",
+  "checkConstraintDefinition": "([CostYTD]>=(0.00))"
+}

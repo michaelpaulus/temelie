@@ -1,0 +1,21 @@
+﻿{
+  "tableName": "CountryRegion",
+  "schemaName": "Person",
+  "indexName": "PK_CountryRegion_CountryRegionCode",
+  "indexType": "CLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": true,
+  "fillFactor": 0,
+  "isPrimaryKey": true,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "CountryRegionCode",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

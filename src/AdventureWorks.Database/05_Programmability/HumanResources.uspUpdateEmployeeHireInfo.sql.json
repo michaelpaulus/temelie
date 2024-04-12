@@ -1,0 +1,7 @@
+﻿{
+  "definitionName": "uspUpdateEmployeeHireInfo",
+  "schemaName": "HumanResources",
+  "definition": "\r\nCREATE PROCEDURE [HumanResources].[uspUpdateEmployeeHireInfo]\r\n    @BusinessEntityID [int], \r\n    @JobTitle [nvarchar](50), \r\n    @HireDate [datetime], \r\n    @RateChangeDate [datetime], \r\n    @Rate [money], \r\n    @PayFrequency [tinyint], \r\n    @CurrentFlag [dbo].[Flag] \r\nWITH EXECUTE AS CALLER\r\nAS\r\nBEGIN\r\n    SET NOCOUNT ON;\r\n\r\n    BEGIN TRY\r\n        BEGIN TRANSACTION;\r\n\r\n        UPDATE [HumanResources].[Employee] \r\n        SET [JobTitle] = @JobTitle \r\n            ,[HireDate] = @HireDate \r\n            ,[CurrentFlag] = @CurrentFlag \r\n        WHERE [BusinessEntityID] = @BusinessEntityID;\r\n\r\n        INSERT INTO [HumanResources].[EmployeePayHistory] \r\n            ([BusinessEntityID]\r\n            ,[RateChangeDate]\r\n            ,[Rate]\r\n            ,[PayFrequency]) \r\n        VALUES (@BusinessEntityID, @RateChangeDate, @Rate, @PayFrequency);\r\n\r\n        COMMIT TRANSACTION;\r\n    END TRY\r\n    BEGIN CATCH\r\n        -- Rollback any active or uncommittable transactions before\r\n        -- inserting information in the ErrorLog\r\n        IF @@TRANCOUNT > 0\r\n        BEGIN\r\n            ROLLBACK TRANSACTION;\r\n        END\r\n\r\n        EXECUTE [dbo].[uspLogError];\r\n    END CATCH;\r\nEND;\r\n",
+  "xType": "P",
+  "type": "PROCEDURE"
+}

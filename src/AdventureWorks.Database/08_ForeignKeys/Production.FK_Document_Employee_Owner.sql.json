@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_Document_Employee_Owner",
+  "tableName": "Document",
+  "schemaName": "Production",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "Employee",
+  "referencedSchemaName": "HumanResources",
+  "detail": [
+    {
+      "column": "Owner",
+      "referencedColumn": "BusinessEntityID"
+    }
+  ]
+}

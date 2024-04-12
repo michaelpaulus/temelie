@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_ShoppingCartItem_Quantity",
+  "tableName": "ShoppingCartItem",
+  "schemaName": "Sales",
+  "checkConstraintDefinition": "([Quantity]>=(1))"
+}

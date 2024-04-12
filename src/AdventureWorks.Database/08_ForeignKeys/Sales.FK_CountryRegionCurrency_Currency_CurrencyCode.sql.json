@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_CountryRegionCurrency_Currency_CurrencyCode",
+  "tableName": "CountryRegionCurrency",
+  "schemaName": "Sales",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "Currency",
+  "referencedSchemaName": "Sales",
+  "detail": [
+    {
+      "column": "CurrencyCode",
+      "referencedColumn": "CurrencyCode"
+    }
+  ]
+}

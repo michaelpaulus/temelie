@@ -1,0 +1,21 @@
+﻿{
+  "tableName": "ProductVendor",
+  "schemaName": "Purchasing",
+  "indexName": "IX_ProductVendor_UnitMeasureCode",
+  "indexType": "NONCLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": false,
+  "fillFactor": 0,
+  "isPrimaryKey": false,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "UnitMeasureCode",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

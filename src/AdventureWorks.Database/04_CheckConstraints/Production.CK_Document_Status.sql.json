@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_Document_Status",
+  "tableName": "Document",
+  "schemaName": "Production",
+  "checkConstraintDefinition": "([Status]>=(1) AND [Status]<=(3))"
+}

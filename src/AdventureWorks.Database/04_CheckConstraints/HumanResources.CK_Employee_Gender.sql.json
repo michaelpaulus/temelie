@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_Employee_Gender",
+  "tableName": "Employee",
+  "schemaName": "HumanResources",
+  "checkConstraintDefinition": "(upper([Gender])='F' OR upper([Gender])='M')"
+}

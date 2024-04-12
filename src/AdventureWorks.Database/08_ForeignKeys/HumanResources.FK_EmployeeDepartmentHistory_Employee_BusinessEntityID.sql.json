@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_EmployeeDepartmentHistory_Employee_BusinessEntityID",
+  "tableName": "EmployeeDepartmentHistory",
+  "schemaName": "HumanResources",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "Employee",
+  "referencedSchemaName": "HumanResources",
+  "detail": [
+    {
+      "column": "BusinessEntityID",
+      "referencedColumn": "BusinessEntityID"
+    }
+  ]
+}

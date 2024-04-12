@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_Product_ProductModel_ProductModelID",
+  "tableName": "Product",
+  "schemaName": "Production",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "ProductModel",
+  "referencedSchemaName": "Production",
+  "detail": [
+    {
+      "column": "ProductModelID",
+      "referencedColumn": "ProductModelID"
+    }
+  ]
+}

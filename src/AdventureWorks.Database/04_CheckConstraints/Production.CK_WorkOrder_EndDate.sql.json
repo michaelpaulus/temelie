@@ -1,0 +1,6 @@
+﻿{
+  "checkConstraintName": "CK_WorkOrder_EndDate",
+  "tableName": "WorkOrder",
+  "schemaName": "Production",
+  "checkConstraintDefinition": "([EndDate]>=[StartDate] OR [EndDate] IS NULL)"
+}

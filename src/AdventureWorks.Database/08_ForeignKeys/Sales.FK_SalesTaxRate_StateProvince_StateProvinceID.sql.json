@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_SalesTaxRate_StateProvince_StateProvinceID",
+  "tableName": "SalesTaxRate",
+  "schemaName": "Sales",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "StateProvince",
+  "referencedSchemaName": "Person",
+  "detail": [
+    {
+      "column": "StateProvinceID",
+      "referencedColumn": "StateProvinceID"
+    }
+  ]
+}

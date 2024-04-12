@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_Store_BusinessEntity_BusinessEntityID",
+  "tableName": "Store",
+  "schemaName": "Sales",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "BusinessEntity",
+  "referencedSchemaName": "Person",
+  "detail": [
+    {
+      "column": "BusinessEntityID",
+      "referencedColumn": "BusinessEntityID"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+﻿{
+  "foreignKeyName": "FK_Customer_Store_StoreID",
+  "tableName": "Customer",
+  "schemaName": "Sales",
+  "isNotForReplication": false,
+  "deleteAction": "NO_ACTION",
+  "updateAction": "NO_ACTION",
+  "referencedTableName": "Store",
+  "referencedSchemaName": "Sales",
+  "detail": [
+    {
+      "column": "StoreID",
+      "referencedColumn": "BusinessEntityID"
+    }
+  ]
+}
