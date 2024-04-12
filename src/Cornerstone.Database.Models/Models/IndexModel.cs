@@ -29,6 +29,10 @@ namespace Cornerstone.Database
                     }
                     return this._columns;
                 }
+                set
+                {
+                    this._columns = value;
+                }
             }
 
             private IList<IndexColumnModel> _includeColumns;

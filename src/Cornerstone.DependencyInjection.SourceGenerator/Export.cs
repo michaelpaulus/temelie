@@ -1,11 +1,4 @@
 namespace Cornerstone.DependencyInjection.SourceGenerator;
-public class Export
+public readonly record struct Export(string Type, string ForType, bool IsSingleton, bool IsTransient, bool IsProvider, bool IsStartupConfig, bool IsHosted, int Priority)
 {
-    public string Type { get; set; }
-    public string ForType { get; set; }
-    public bool IsSingleton { get; set; }
-    public bool IsTransient { get; set; }
-    public bool IsProvider { get; set; }
-    public int Priority { get; set; }
-
 }

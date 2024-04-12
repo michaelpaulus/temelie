@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -29,7 +30,7 @@ public class DatabaseConnectionViewModel : ViewModel
 
     public Command AddCommand { get; set; }
     public Command DeleteCommand { get; set; }
-    public Command SaveCommand { get; set; }
+    public Command SaveCommand { get; set; } = default;
 
     public Models.ConnectionStringModel SelectedConnection { get; set; }
 

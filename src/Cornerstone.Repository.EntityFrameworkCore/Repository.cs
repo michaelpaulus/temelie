@@ -1,3 +1,4 @@
+using Cornerstone.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cornerstone.Repository.EntityFrameworkCore;

@@ -9,8 +9,8 @@ public class DependencyInjectionSymbolVisitor : SymbolVisitor
     {
     }
 
-    private readonly IList<INamedTypeSymbol> _symbols = new List<INamedTypeSymbol>();
-    public IEnumerable<INamedTypeSymbol> Symbols => _symbols;
+    private readonly IList<Export> _symbols = new List<Export>();
+    public IEnumerable<Export> Symbols => _symbols;
 
     public override void VisitNamespace(INamespaceSymbol symbol)
     {
@@ -31,7 +31,33 @@ public class DependencyInjectionSymbolVisitor : SymbolVisitor
         );
         if (attribute != null)
         {
-            _symbols.Add(symbol);
+
+            if (attribute is not null)
+            {
+                var forType = (attribute.ConstructorArguments.FirstOrDefault().Value as INamedTypeSymbol)?.FullName();
+                var priority = int.MaxValue;
+                if (attribute.NamedArguments.Any(i => i.Key == "Priority"))
+                {
+                    priority = Convert.ToInt32(attribute.NamedArguments.First(i => i.Key == "Priority").Value.Value);
+                }
+
+                var export = new Export()
+                {
+                    IsProvider = attribute.AttributeClass.Name == "ExportProviderAttribute",
+                    IsSingleton = attribute.AttributeClass.Name == "ExportSingletonAttribute",
+                    IsTransient = attribute.AttributeClass.Name == "ExportTransientAttribute",
+                    IsHosted = attribute.AttributeClass.Name == "ExportHostedServiceAttribute",
+                    IsStartupConfig = attribute.AttributeClass.Name == "ExportStartupConfigurationAttribute",
+                    Type = symbol.FullName(),
+                    ForType = forType,
+                    Priority = priority
+                };
+
+                _symbols.Add(export);
+            }
+
+
+
         }
     }
 

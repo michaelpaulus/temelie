@@ -144,8 +144,8 @@ public class TableMappingViewModel : ViewModel
                 IsTargetColumnIdentity = this.TargetColumn.IsIdentity,
                 ColumnMapping = this.ColumnMapping,
                 WrapInIsNull = SourceColumn != null &&
-                            Services.DatabaseStructureService.GetSystemType(TargetColumn.DbType) == typeof(string) &&
-                            Services.DatabaseStructureService.GetSystemType(SourceColumn.DbType) == typeof(string) &&
+                            ColumnModel.GetSystemType(TargetColumn.DbType) == typeof(string) &&
+                            ColumnModel.GetSystemType(SourceColumn.DbType) == typeof(string) &&
                             !TargetColumn.IsNullable &&
                             SourceColumn.IsNullable
             };

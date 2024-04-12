@@ -16,7 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Cornerstone.Entities.Interfaces\Cornerstone.Entities.Interfaces.csproj" />
-    <ProjectReference Include="..\Cornerstone.Database.Models.SourceGenerator\Cornerstone.Database.Models.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\Cornerstone.Entities.SourceGenerator\Cornerstone.Entities.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
 </Project>

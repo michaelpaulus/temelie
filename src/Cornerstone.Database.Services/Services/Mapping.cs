@@ -1,4 +1,5 @@
 using Cornerstone.Database.Extensions;
+using Cornerstone.Database.Models;
 
 namespace Cornerstone.Database.Services;
 
@@ -43,8 +44,8 @@ public class Mapping
                         TargetColumnName = targetColumn.ColumnName,
                         IsTargetColumnIdentity = targetColumn.IsIdentity,
                         ColumnMapping = strColumnMapping,
-                        WrapInIsNull = DatabaseStructureService.GetSystemType(targetColumn.DbType) == typeof(string) &&
-                            DatabaseStructureService.GetSystemType(column.DbType) == typeof(string) &&
+                        WrapInIsNull = ColumnModel.GetSystemType(targetColumn.DbType) == typeof(string) &&
+                            ColumnModel.GetSystemType(column.DbType) == typeof(string) &&
                             !targetColumn.IsNullable &&
                             column.IsNullable
                     });

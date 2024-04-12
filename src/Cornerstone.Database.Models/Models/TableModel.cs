@@ -44,6 +44,10 @@ namespace Cornerstone.Database
                     }
                     return this._columns;
                 }
+                set
+                {
+                    _columns = value;
+                }
             }
 
             public Dictionary<string, string> ExtendedProperties { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);

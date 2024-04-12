@@ -1,3 +1,5 @@
+using Cornerstone.Entities;
+
 namespace Cornerstone.Repository;
 
 public interface IRepository<Entity> : IDisposable where Entity : class, IEntity<Entity>

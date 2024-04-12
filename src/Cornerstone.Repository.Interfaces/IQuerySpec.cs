@@ -1,3 +1,4 @@
+using Cornerstone.Entities;
 namespace Cornerstone.Repository;
 public interface IQuerySpec<Entity> where Entity : class, IEntity<Entity>
 {

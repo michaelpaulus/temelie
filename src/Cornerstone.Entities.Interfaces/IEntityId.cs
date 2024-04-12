@@ -1,4 +1,4 @@
-namespace Cornerstone.Repository;
+namespace Cornerstone.Entities;
 
 public interface IEntityId
 {

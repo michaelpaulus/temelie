@@ -2,10 +2,10 @@ using AdventureWorks.Entities;
 using Cornerstone.Repository;
 
 namespace AdventureWorks.Repository;
-public class CustomerByNameQuery(string name) : IQuerySpec<Customer>
+public class CustomerByAccountNumberQuery(string accountNumber) : IQuerySpec<Customer>
 {
     public IQueryable<Customer> Apply(IQueryable<Customer> query)
     {
-        return query.Where(i => i.Name == name).OrderBy(i => i.CustomerId);
+        return query.Where(i => i.AccountNumber == accountNumber).OrderBy(i => i.CustomerId);
     }
 }

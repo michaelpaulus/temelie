@@ -1,7 +1,7 @@
 using System.Text;
 using Microsoft.CodeAnalysis;
 
-namespace Cornerstone.Database.Models.SourceGenerator;
+namespace Cornerstone.Entities.SourceGenerator;
 public static class Extensions
 {
     public static string FullName(this ITypeSymbol type)

@@ -26,55 +26,8 @@ public class DependencyInjectionIncrementalGenerator : IIncrementalGenerator
         });
     }
 
-    public static string Generate(IEnumerable<INamedTypeSymbol> symbols)
+    public static string Generate(IEnumerable<Export> symbols)
     {
-        var exports = new List<Export>();
-        var startupConfigurations = new List<string>();
-        var hostedServices = new List<string>();
-
-        foreach (var symbol in symbols)
-        {
-            var attribute = symbol.GetAttributes().FirstOrDefault(ad => ad.AttributeClass.Name == "ExportProviderAttribute" ||
-            ad.AttributeClass.Name == "ExportSingletonAttribute" ||
-            ad.AttributeClass.Name == "ExportTransientAttribute");
-
-            if (attribute is not null)
-            {
-                var forType = attribute.ConstructorArguments[0].Value as INamedTypeSymbol;
-
-                var export = new Export()
-                {
-                    IsProvider = attribute.AttributeClass.Name == "ExportProviderAttribute",
-                    IsSingleton = attribute.AttributeClass.Name == "ExportSingletonAttribute",
-                    IsTransient = attribute.AttributeClass.Name == "ExportTransientAttribute",
-                    Type = symbol.FullName(),
-                    ForType = forType.FullName()
-                };
-
-                if (attribute.NamedArguments.Any(i => i.Key == "Priority"))
-                {
-                    export.Priority = Convert.ToInt32(attribute.NamedArguments.First(i => i.Key == "Priority").Value.Value);
-                }
-
-                exports.Add(export);
-            }
-
-            attribute = symbol.GetAttributes().FirstOrDefault(ad => ad.AttributeClass.Name == "ExportHostedServiceAttribute");
-
-            if (attribute is not null)
-            {
-                hostedServices.Add(symbol.FullName());
-            }
-
-            attribute = symbol.GetAttributes().FirstOrDefault(ad => ad.AttributeClass.Name == "ExportStartupConfigurationAttribute");
-
-            if (attribute is not null)
-            {
-                startupConfigurations.Add(symbol.FullName());
-            }
-
-        }
-
         var sb = new StringBuilder();
 
         sb.Append(@"namespace Microsoft.Extensions.DependencyInjection;
@@ -98,7 +51,7 @@ internal static class Cornerstone_DependencyInjection_IncrementalGenerator
     internal static void RegisterExports(this IServiceCollection services)
     {
 ");
-            foreach (var export in exports.OrderBy(i => i.ForType).GroupBy(i => new { i.ForType, i.IsProvider }))
+            foreach (var export in symbols.Where(i => i.IsSingleton || i.IsProvider || i.IsTransient).OrderBy(i => i.ForType).GroupBy(i => new { i.ForType, i.IsProvider }))
             {
                 var list = new List<Export>();
 
@@ -131,9 +84,9 @@ internal static class Cornerstone_DependencyInjection_IncrementalGenerator
                 }
             }
 
-            foreach (var hostedService in hostedServices)
+            foreach (var hostedService in symbols.Where(i => i.IsHosted))
             {
-                sb.AppendLine($"        services.AddHostedService<{hostedService}>();");
+                sb.AppendLine($"        services.AddHostedService<{hostedService.Type}>();");
             }
 
             sb.Append(@"
@@ -147,9 +100,9 @@ internal static class Cornerstone_DependencyInjection_IncrementalGenerator
     internal static void ConfigureStartup(this Microsoft.Extensions.Configuration.IConfigurationBuilder configuration)
     {
 ");
-            foreach (var startupConfig in startupConfigurations)
+            foreach (var startupConfig in symbols.Where(i => i.IsStartupConfig))
             {
-                sb.AppendLine($"        new {startupConfig}().Configure(configuration);");
+                sb.AppendLine($"        new {startupConfig.Type}().Configure(configuration);");
             }
 
             sb.Append(@"
@@ -163,9 +116,9 @@ internal static class Cornerstone_DependencyInjection_IncrementalGenerator
     internal static void ConfigureStartup(this Microsoft.Extensions.DependencyInjection.IServiceCollection services)
     {
 ");
-            foreach (var startupConfig in startupConfigurations)
+            foreach (var startupConfig in symbols.Where(i => i.IsStartupConfig))
             {
-                sb.AppendLine($"        new {startupConfig}().Configure(services);");
+                sb.AppendLine($"        new {startupConfig.Type}().Configure(services);");
             }
 
             sb.Append(@"
@@ -179,9 +132,9 @@ internal static class Cornerstone_DependencyInjection_IncrementalGenerator
     internal static void ConfigureStartup(this System.IServiceProvider provider)
     {
 ");
-            foreach (var startupConfig in startupConfigurations)
+            foreach (var startupConfig in symbols.Where(i => i.IsStartupConfig))
             {
-                sb.AppendLine($"        new {startupConfig}().Configure(provider);");
+                sb.AppendLine($"        new {startupConfig.Type}().Configure(provider);");
             }
 
             sb.Append(@"

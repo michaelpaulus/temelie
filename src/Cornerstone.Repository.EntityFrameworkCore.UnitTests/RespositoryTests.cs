@@ -27,7 +27,7 @@ public class RespositoryTests
     {
         using var repository = new Repository<Customer>(new TestDbContext(_connection));
 
-        var customer = new Customer() { CustomerId = new CustomerId(1), Name = "Test" };
+        var customer = new Customer() { CustomerId = new CustomerId(1), AccountNumber = "Test" };
 
         await repository.AddAsync(customer).ConfigureAwait(true);
 
@@ -41,11 +41,11 @@ public class RespositoryTests
     {
         using var repository = new Repository<Customer>(new TestDbContext(_connection));
 
-        var customer = new Customer() { CustomerId = new CustomerId(1), Name = "Test" };
+        var customer = new Customer() { CustomerId = new CustomerId(1), AccountNumber = "Test" };
 
         await repository.AddAsync(customer).ConfigureAwait(true);
 
-        customer.Name = "Test2";
+        customer.AccountNumber = "Test2";
 
         await repository.UpdateAsync(customer).ConfigureAwait(true);
 
@@ -53,7 +53,7 @@ public class RespositoryTests
 
         result.Should().NotBeNull();
 
-        result!.Name.Should().Be(customer.Name);
+        result!.AccountNumber.Should().Be(customer.AccountNumber);
     }
 
     [Test]
@@ -61,7 +61,7 @@ public class RespositoryTests
     {
         using var repository = new Repository<Customer>(new TestDbContext(_connection));
 
-        var customer = new Customer() { CustomerId = new CustomerId(1), Name = "Test" };
+        var customer = new Customer() { CustomerId = new CustomerId(1), AccountNumber = "Test" };
 
         await repository.AddAsync(customer).ConfigureAwait(true);
 
@@ -75,13 +75,13 @@ public class RespositoryTests
     [Test]
     public async Task AddComplexKeyAsync()
     {
-        using var repository = new Repository<CustomerOrder>(new TestDbContext(_connection));
+        using var repository = new Repository<BusinessEntityAddress>(new TestDbContext(_connection));
 
-        var customerOrder = new CustomerOrder() { CustomerId = new CustomerId(1), OrderId = new OrderId(1), Name = "Test" };
+        var address = new BusinessEntityAddress() { BusinessEntityId = new BusinessEntityId(1), AddressId = new AddressId(1), AddressTypeId = new AddressTypeId(1), ModifiedDate = DateTime.UtcNow };
 
-        await repository.AddAsync(customerOrder).ConfigureAwait(true);
+        await repository.AddAsync(address).ConfigureAwait(true);
 
-        var result = await repository.GetSingleAsync(new CustomerOrderSingleQuery(customerOrder.CustomerId, customerOrder.OrderId)).ConfigureAwait(true);
+        var result = await repository.GetSingleAsync(new BusinessEntityAddressSingleQuery(address.BusinessEntityId, address.AddressId, address.AddressTypeId)).ConfigureAwait(true);
 
         result.Should().NotBeNull();
     }
@@ -89,35 +89,35 @@ public class RespositoryTests
     [Test]
     public async Task UpdateComplexKeyAsync()
     {
-        using var repository = new Repository<CustomerOrder>(new TestDbContext(_connection));
+        using var repository = new Repository<BusinessEntityAddress>(new TestDbContext(_connection));
 
-        var customerOrder = new CustomerOrder() { CustomerId = new CustomerId(1), OrderId = new OrderId(1), Name = "Test" };
+        var address = new BusinessEntityAddress() { BusinessEntityId = new BusinessEntityId(1), AddressId = new AddressId(1), AddressTypeId = new AddressTypeId(1), ModifiedDate = DateTime.UtcNow };
 
-        await repository.AddAsync(customerOrder).ConfigureAwait(true);
+        await repository.AddAsync(address).ConfigureAwait(true);
 
-        customerOrder.Name = "Test2";
+        address.ModifiedDate = DateTime.UtcNow;
 
-        await repository.UpdateAsync(customerOrder).ConfigureAwait(true);
+        await repository.UpdateAsync(address).ConfigureAwait(true);
 
-        var result = await repository.GetSingleAsync(new CustomerOrderSingleQuery(customerOrder.CustomerId, customerOrder.OrderId)).ConfigureAwait(true);
+        var result = await repository.GetSingleAsync(new BusinessEntityAddressSingleQuery(address.BusinessEntityId, address.AddressId, address.AddressTypeId)).ConfigureAwait(true);
 
         result.Should().NotBeNull();
 
-        result!.Name.Should().Be(customerOrder.Name);
+        result!.ModifiedDate.Should().Be(address.ModifiedDate);
     }
 
     [Test]
     public async Task DeleteComplexKeyAsync()
     {
-        using var repository = new Repository<CustomerOrder>(new TestDbContext(_connection));
+        using var repository = new Repository<BusinessEntityAddress>(new TestDbContext(_connection));
 
-        var customerOrder = new CustomerOrder() { CustomerId = new CustomerId(1), OrderId = new OrderId(1), Name = "Test" };
+        var address = new BusinessEntityAddress() { BusinessEntityId = new BusinessEntityId(1), AddressId = new AddressId(1), AddressTypeId = new AddressTypeId(1), ModifiedDate = DateTime.UtcNow };
 
-        await repository.AddAsync(customerOrder).ConfigureAwait(true);
+        await repository.AddAsync(address).ConfigureAwait(true);
 
-        await repository.DeleteAsync(customerOrder).ConfigureAwait(true);
+        await repository.DeleteAsync(address).ConfigureAwait(true);
 
-        var result = await repository.GetSingleAsync(new CustomerOrderSingleQuery(customerOrder.CustomerId, customerOrder.OrderId)).ConfigureAwait(true);
+        var result = await repository.GetSingleAsync(new BusinessEntityAddressSingleQuery(address.BusinessEntityId, address.AddressId, address.AddressTypeId)).ConfigureAwait(true);
 
         result.Should().BeNull();
     }
@@ -133,13 +133,13 @@ public class RespositoryTests
 
         foreach (var i in Enumerable.Range(1, count))
         {
-            var customer = new Customer() { CustomerId = new CustomerId(i), Name = "Test" };
+            var customer = new Customer() { CustomerId = new CustomerId(i), AccountNumber = "Test" };
             list.Add(customer);
         }
 
         await repository.AddRangeAsync(list).ConfigureAwait(true);
 
-        var result = await repository.GetCountAsync(new CustomerByNameQuery("Test")).ConfigureAwait(true);
+        var result = await repository.GetCountAsync(new CustomerByAccountNumberQuery("Test")).ConfigureAwait(true);
 
         result.Should().Be(count);
     }
@@ -154,13 +154,13 @@ public class RespositoryTests
         {
             foreach (var i in Enumerable.Range(1, count))
             {
-                var customer = new Customer() { CustomerId = new CustomerId(i), Name = "Test" };
+                var customer = new Customer() { CustomerId = new CustomerId(i), AccountNumber = "Test" };
                 list.Add(customer);
             }
 
             await repository.AddRangeAsync(list).ConfigureAwait(true);
 
-            var result = await repository.GetCountAsync(new CustomerByNameQuery("Test")).ConfigureAwait(true);
+            var result = await repository.GetCountAsync(new CustomerByAccountNumberQuery("Test")).ConfigureAwait(true);
 
             result.Should().Be(count);
         }
@@ -169,12 +169,12 @@ public class RespositoryTests
         {
             foreach (var item in list)
             {
-                item.Name = "Test1";
+                item.AccountNumber = "Test1";
             }
 
             await repository.UpdateRangeAsync(list).ConfigureAwait(true);
 
-            var result = await repository.GetCountAsync(new CustomerByNameQuery("Test1")).ConfigureAwait(true);
+            var result = await repository.GetCountAsync(new CustomerByAccountNumberQuery("Test1")).ConfigureAwait(true);
 
             result.Should().Be(count);
         }
@@ -191,19 +191,19 @@ public class RespositoryTests
 
         foreach (var i in Enumerable.Range(1, count))
         {
-            var customer = new Customer() { CustomerId = new CustomerId(i), Name = "Test" };
+            var customer = new Customer() { CustomerId = new CustomerId(i), AccountNumber = "Test" };
             list.Add(customer);
         }
 
         await repository.AddRangeAsync(list).ConfigureAwait(true);
 
-        var result = await repository.GetCountAsync(new CustomerByNameQuery("Test")).ConfigureAwait(true);
+        var result = await repository.GetCountAsync(new CustomerByAccountNumberQuery("Test")).ConfigureAwait(true);
 
         result.Should().Be(count);
 
         await repository.DeleteRangeAsync(list).ConfigureAwait(true);
 
-        result = await repository.GetCountAsync(new CustomerByNameQuery("Test")).ConfigureAwait(true);
+        result = await repository.GetCountAsync(new CustomerByAccountNumberQuery("Test")).ConfigureAwait(true);
 
         result.Should().Be(0);
     }
@@ -215,11 +215,11 @@ public class RespositoryTests
         var count = 10;
         foreach (var i in Enumerable.Range(1, count))
         {
-            var customer = new Customer() { CustomerId = new CustomerId(i), Name = $"Test" };
+            var customer = new Customer() { CustomerId = new CustomerId(i), AccountNumber = $"Test" };
             await repository.AddAsync(customer).ConfigureAwait(true);
         }
 
-        var result = await repository.GetListAsync(new CustomerByNameQuery("Test")).ConfigureAwait(true);
+        var result = await repository.GetListAsync(new CustomerByAccountNumberQuery("Test")).ConfigureAwait(true);
 
         result.Should().HaveCount(count);
     }
@@ -233,11 +233,11 @@ public class RespositoryTests
 
         foreach (var i in Enumerable.Range(1, count))
         {
-            var customer = new Customer() { CustomerId = new CustomerId(i), Name = $"Test" };
+            var customer = new Customer() { CustomerId = new CustomerId(i), AccountNumber = $"Test" };
             await repository.AddAsync(customer).ConfigureAwait(true);
         }
 
-        var result = await repository.GetCountAsync(new CustomerByNameQuery("Test")).ConfigureAwait(true);
+        var result = await repository.GetCountAsync(new CustomerByAccountNumberQuery("Test")).ConfigureAwait(true);
 
         result.Should().Be(count);
     }
