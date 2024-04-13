@@ -49,6 +49,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFiles", "SolutionFi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.Entities.SourceGenerator", "src\Cornerstone.Entities.SourceGenerator\Cornerstone.Entities.SourceGenerator.csproj", "{D693D7A8-B164-4DDE-B896-8CED6B60FCE8}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.Repository.EntityFrameworkCore.SourceGenerator", "src\Cornerstone.Repository.EntityFrameworkCore.SourceGenerator\Cornerstone.Repository.EntityFrameworkCore.SourceGenerator.csproj", "{D0C47399-054F-42A9-9CED-9FE87546E5D6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -127,6 +129,10 @@ Global
 		{D693D7A8-B164-4DDE-B896-8CED6B60FCE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D693D7A8-B164-4DDE-B896-8CED6B60FCE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D693D7A8-B164-4DDE-B896-8CED6B60FCE8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0C47399-054F-42A9-9CED-9FE87546E5D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0C47399-054F-42A9-9CED-9FE87546E5D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0C47399-054F-42A9-9CED-9FE87546E5D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0C47399-054F-42A9-9CED-9FE87546E5D6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -5,8 +5,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <AdditionalFiles Include="..\AdventureWorks.Database\**\*.sql.json" LinkBase="Scripts" />
+  </ItemGroup>
+
+
+  <ItemGroup>
     <ProjectReference Include="..\AdventureWorks.Server.Repository\AdventureWorks.Server.Repository.csproj" />
     <ProjectReference Include="..\Cornerstone.Repository.EntityFrameworkCore\Cornerstone.Repository.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\Cornerstone.Repository.EntityFrameworkCore.SourceGenerator\Cornerstone.Repository.EntityFrameworkCore.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+
   </ItemGroup>
 
 </Project>
