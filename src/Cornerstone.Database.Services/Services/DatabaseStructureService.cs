@@ -171,7 +171,7 @@ public class DatabaseStructureService : IDatabaseStructureService
         var extendedProperites = GetStringValue(row, "extended_properties");
         if (!string.IsNullOrEmpty(extendedProperites))
         {
-            foreach (var item in JsonSerializer.Deserialize<List<ExtendedProperty>>(extendedProperites, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true }))
+            foreach (var item in JsonSerializer.Deserialize<IEnumerable<ExtendedProperty>>(extendedProperites, ModelsJsonSerializerOptions.Default))
             {
                 column.ExtendedProperties.Add(item.Name, item.Value);
             }
@@ -462,9 +462,7 @@ public class DatabaseStructureService : IDatabaseStructureService
             {
                 try
                 {
-                    var props = JsonSerializer.Deserialize<List<ExtendedProperty>>(extendedProperites,
-                        new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
-
+                    var props = JsonSerializer.Deserialize<IEnumerable<ExtendedProperty>>(extendedProperites, ModelsJsonSerializerOptions.Default);
                     foreach (var item in props)
                     {
                         table.ExtendedProperties.Add(item.Name, item.Value);

@@ -221,13 +221,7 @@ public class ScriptService : IScriptService
 
     private string GetJson<T>(T model) where T : DatabaseObjectModel
     {
-        var json = JsonSerializer.Serialize(model, new JsonSerializerOptions()
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-            WriteIndented = true,
-            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase
-        });
+        var json = JsonSerializer.Serialize(model, ModelsJsonSerializerOptions.Default);
         json = json.Replace("\\u0027", "'").Replace("\\u003C", "<").Replace("\\u003E", ">").Replace("\\u002B", "+");
         return json;
     }

@@ -20,78 +20,81 @@ public class EntityIncrementalGenerator : IIncrementalGenerator
 
         var result = assemblyNames.Combine(files);
 
-        context.RegisterSourceOutput(result, Generate);
+        context.RegisterImplementationSourceOutput(result, Generate);
     }
 
     void Generate(SourceProductionContext context, (string assemblyName, ImmutableArray<(string FileName, string Text)> files) result)
     {
         var assemblyName = result.assemblyName;
 
-        var databaseModel = DatabaseModel.CreateFromFiles(result.files);
-
-        var pkColumns = new List<ColumnModel>();
-
-        foreach (var table in databaseModel.Tables)
+        try
         {
-            var ns = assemblyName;
-            var className = table.TableName;
 
-            var pk = databaseModel.PrimaryKeys.FirstOrDefault(i => i.TableName == table.TableName && i.SchemaName == table.SchemaName);
+            var databaseModel = DatabaseModel.CreateFromFiles(result.files);
 
-            var sb = new StringBuilder();
-            sb.AppendLine(@$"using Cornerstone.Entities;
+            var pkColumns = new List<ColumnModel>();
+
+            foreach (var table in databaseModel.Tables)
+            {
+                var ns = assemblyName;
+                var className = table.TableName;
+
+                var pk = databaseModel.PrimaryKeys.FirstOrDefault(i => i.TableName == table.TableName && i.SchemaName == table.SchemaName);
+
+                var sb = new StringBuilder();
+                sb.AppendLine(@$"using Cornerstone.Entities;
 #nullable enable
 namespace {ns};
 public record {className} : IEntity<{className}>
 {{
 ");
-            foreach (var column in table.Columns)
-            {
-                var propertyName = NormalizeColumnName(column.ColumnName);
-                var propertyType = ColumnModel.GetSystemTypeString(ColumnModel.GetSystemType(column.DbType));
-                var dft = "";
-
-                if (pk is not null)
+                foreach (var column in table.Columns)
                 {
-                    var pkColumn = pk.Columns.FirstOrDefault(i => i.ColumnName == column.ColumnName);
-                    if (pkColumn is not null)
+                    var propertyName = NormalizeColumnName(column.ColumnName);
+                    var propertyType = ColumnModel.GetSystemTypeString(ColumnModel.GetSystemType(column.DbType));
+                    var dft = "";
+
+                    if (pk is not null)
                     {
-                        pkColumns.Add(column);
-                        propertyType = NormalizeColumnName(column.ColumnName);
+                        var pkColumn = pk.Columns.FirstOrDefault(i => i.ColumnName == column.ColumnName);
+                        if (pkColumn is not null)
+                        {
+                            pkColumns.Add(column);
+                            propertyType = NormalizeColumnName(column.ColumnName);
+                        }
                     }
+
+                    if (propertyName == className)
+                    {
+                        propertyName += "_Id";
+                    }
+
+                    if (column.IsNullable)
+                    {
+                        propertyType += "?";
+                    }
+                    else
+                    {
+                        dft = $" = {GetTypeDefault(propertyType)};";
+                    }
+
+                    sb.AppendLine($"    public {propertyType} {propertyName} {{ get; set; }}{dft}");
                 }
 
-                if (propertyName == className)
-                {
-                    propertyName += "_Id";
-                }
-
-                if (column.IsNullable)
-                {
-                    propertyType += "?";
-                }
-                else
-                {
-                    dft = $" = {GetTypeDefault(propertyType)};";
-                }
-
-                sb.AppendLine($"    public {propertyType} {propertyName} {{ get; set; }}{dft}");
-            }
-
-            sb.AppendLine(@$"
+                sb.AppendLine(@$"
 }}
 ");
-            context.AddSource($"{ns}.{className}.g", sb.ToString());
-        }
+                context.AddSource($"{ns}.{className}.g", sb.ToString());
+            }
 
-        foreach (var column in pkColumns.GroupBy(i => i.ColumnName))
-        {
-            var ns = assemblyName;
-            var className = NormalizeColumnName(column.Key);
-            var propertyType = ColumnModel.GetSystemTypeString(ColumnModel.GetSystemType(column.First().DbType));
+            foreach (var column in pkColumns.GroupBy(i => i.ColumnName))
+            {
+                var ns = assemblyName;
+                var className = NormalizeColumnName(column.Key);
+                var propertyType = ColumnModel.GetSystemTypeString(ColumnModel.GetSystemType(column.First().DbType));
 
-            var sb = new StringBuilder();
-            sb.AppendLine(@$"using Cornerstone.Entities;
+                var sb = new StringBuilder();
+                sb.AppendLine(@$"using Cornerstone.Entities;
 #nullable enable
 namespace {ns};
 public record struct {className}({propertyType} Value = {GetTypeDefault(propertyType)}) : IEntityId, IComparable<{className}>
@@ -102,8 +105,14 @@ public record struct {className}({propertyType} Value = {GetTypeDefault(property
     }}
 }}
 ");
-            context.AddSource($"{ns}.{className}.g", sb.ToString());
+                context.AddSource($"{ns}.{className}.g", sb.ToString());
+            }
         }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.ToString());
+        }
+
 
     }
 

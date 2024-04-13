@@ -13,10 +13,10 @@ public class DependencyInjectionIncrementalGenerator : IIncrementalGenerator
         {
             var visitor = new DependencyInjectionSymbolVisitor();
             visitor.Visit(compilation.GlobalNamespace);
-            return visitor.Symbols;
+            return visitor.Exports;
         });
 
-        context.RegisterSourceOutput(compliationProvider, (context, symbols) =>
+        context.RegisterImplementationSourceOutput(compliationProvider, (context, symbols) =>
         {
             if (symbols.Any())
             {

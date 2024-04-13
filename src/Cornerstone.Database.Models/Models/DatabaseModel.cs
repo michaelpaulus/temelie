@@ -4,14 +4,14 @@ using System.Text.Json;
 namespace Cornerstone.Database.Models;
 
 public class DatabaseModel(
-    IEnumerable<Models.TableModel> tables,
-    IEnumerable<Models.TableModel> views,
-    IEnumerable<Models.IndexModel> allIndexes,
-    IEnumerable<Models.TriggerModel> triggers,
-    IEnumerable<Models.ForeignKeyModel> foreignKeys,
-    IEnumerable<Models.CheckConstraintModel> checkConstraints,
-    IEnumerable<Models.DefinitionModel> definitions,
-    IEnumerable<Models.SecurityPolicyModel> securityPolicies
+    IEnumerable<TableModel> tables,
+    IEnumerable<TableModel> views,
+    IEnumerable<IndexModel> allIndexes,
+    IEnumerable<TriggerModel> triggers,
+    IEnumerable<ForeignKeyModel> foreignKeys,
+    IEnumerable<CheckConstraintModel> checkConstraints,
+    IEnumerable<DefinitionModel> definitions,
+    IEnumerable<SecurityPolicyModel> securityPolicies
     )
 {
     private readonly IEnumerable<IndexModel> _allIndexes = allIndexes;
@@ -23,9 +23,9 @@ public class DatabaseModel(
     public IEnumerable<DefinitionModel> Definitions { get; } = definitions;
     public IEnumerable<SecurityPolicyModel> SecurityPolicies { get; } = securityPolicies;
 
-    public IEnumerable<Models.IndexModel> Indexes => (from i in _allIndexes where !i.IsPrimaryKey select i).ToList();
+    public IEnumerable<IndexModel> Indexes => (from i in _allIndexes where !i.IsPrimaryKey select i).ToList();
 
-    public IEnumerable<Models.IndexModel> PrimaryKeys => (from i in _allIndexes where i.IsPrimaryKey select i).ToList();
+    public IEnumerable<IndexModel> PrimaryKeys => (from i in _allIndexes where i.IsPrimaryKey select i).ToList();
 
     public static DatabaseModel CreateFromAssembly(Assembly assembly)
     {
@@ -37,7 +37,7 @@ public class DatabaseModel(
                 using var stream = assembly.GetManifestResourceStream(name);
                 using var reader = new StreamReader(stream!);
                 var json = reader.ReadToEnd();
-                files.Add((name, json));    
+                files.Add((name, json));
             }
         }
         return CreateFromFiles(files);
@@ -45,14 +45,14 @@ public class DatabaseModel(
 
     public static DatabaseModel CreateFromFiles(IEnumerable<(string FileName, string Contents)> files)
     {
-        var tables = new List<Models.TableModel>();
-        var views = new List<Models.TableModel>();
-        var allIndexes = new List<Models.IndexModel>();
-        var triggers = new List<Models.TriggerModel>();
-        var foreignKeys = new List<Models.ForeignKeyModel>();
-        var checkConstraints = new List<Models.CheckConstraintModel>();
-        var definitions = new List<Models.DefinitionModel>();
-        var securityPolicies = new List<Models.SecurityPolicyModel>();
+        var tables = new List<TableModel>();
+        var views = new List<TableModel>();
+        var allIndexes = new List<IndexModel>();
+        var triggers = new List<TriggerModel>();
+        var foreignKeys = new List<ForeignKeyModel>();
+        var checkConstraints = new List<CheckConstraintModel>();
+        var definitions = new List<DefinitionModel>();
+        var securityPolicies = new List<SecurityPolicyModel>();
 
         foreach (var file in files)
         {
@@ -62,22 +62,22 @@ public class DatabaseModel(
                 var json = file.Contents;
                 if (name.Contains("02_Tables"))
                 {
-                    var model = JsonSerializer.Deserialize<TableModel>(json, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true })!;
+                    var model = JsonSerializer.Deserialize(json, typeof(TableModel), ModelsJsonSerializerOptions.Default)! as TableModel;
                     tables.Add(model);
                 }
                 else if (name.Contains("03_Indexes"))
                 {
-                    var model = JsonSerializer.Deserialize<IndexModel>(json, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true })!;
+                    var model = JsonSerializer.Deserialize(json, typeof(IndexModel), ModelsJsonSerializerOptions.Default)! as IndexModel;
                     allIndexes.Add(model);
                 }
                 else if (name.Contains("04_CheckConstraints"))
                 {
-                    var model = JsonSerializer.Deserialize<CheckConstraintModel>(json, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true })!;
+                    var model = JsonSerializer.Deserialize(json, typeof(CheckConstraintModel), ModelsJsonSerializerOptions.Default)! as CheckConstraintModel;
                     checkConstraints.Add(model);
                 }
                 else if (name.Contains("05_Programmability") || name.Contains("05_Views"))
                 {
-                    var model = JsonSerializer.Deserialize<DefinitionModel>(json, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true })!;
+                    var model = JsonSerializer.Deserialize(json, typeof(DefinitionModel), ModelsJsonSerializerOptions.Default)! as DefinitionModel;
                     definitions.Add(model);
                     if (model.View is not null)
                     {
@@ -86,17 +86,17 @@ public class DatabaseModel(
                 }
                 else if (name.Contains("06_Triggers"))
                 {
-                    var model = JsonSerializer.Deserialize<TriggerModel>(json, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true })!;
+                    var model = JsonSerializer.Deserialize(json, typeof(TriggerModel), ModelsJsonSerializerOptions.Default)! as TriggerModel;
                     triggers.Add(model);
                 }
                 else if (name.Contains("08_ForeignKeys"))
                 {
-                    var model = JsonSerializer.Deserialize<ForeignKeyModel>(json, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true })!;
+                    var model = JsonSerializer.Deserialize(json, typeof(ForeignKeyModel), ModelsJsonSerializerOptions.Default)! as ForeignKeyModel;
                     foreignKeys.Add(model);
                 }
                 else if (name.Contains("09_SecurityPolicies"))
                 {
-                    var model = JsonSerializer.Deserialize<SecurityPolicyModel>(json, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true })!;
+                    var model = JsonSerializer.Deserialize(json, typeof(SecurityPolicyModel), ModelsJsonSerializerOptions.Default)! as SecurityPolicyModel;
                     securityPolicies.Add(model);
                 }
             }

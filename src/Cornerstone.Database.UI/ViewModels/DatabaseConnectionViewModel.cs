@@ -30,7 +30,7 @@ public class DatabaseConnectionViewModel : ViewModel
 
     public Command AddCommand { get; set; }
     public Command DeleteCommand { get; set; }
-    public Command SaveCommand { get; set; } = default;
+    public Command SaveCommand { get; set; }
 
     public Models.ConnectionStringModel SelectedConnection { get; set; }
 

@@ -10,7 +10,7 @@ public class DependencyInjectionSymbolVisitor : SymbolVisitor
     }
 
     private readonly IList<Export> _symbols = new List<Export>();
-    public IEnumerable<Export> Symbols => _symbols;
+    public IEnumerable<Export> Exports => _symbols;
 
     public override void VisitNamespace(INamespaceSymbol symbol)
     {
@@ -22,23 +22,29 @@ public class DependencyInjectionSymbolVisitor : SymbolVisitor
 
     public override void VisitNamedType(INamedTypeSymbol symbol)
     {
-        var attribute = symbol.GetAttributes().FirstOrDefault(ad =>
-        ad.AttributeClass.Name == "ExportHostedServiceAttribute" ||
-        ad.AttributeClass.Name == "ExportStartupConfigurationAttribute" ||
-        ad.AttributeClass.Name == "ExportProviderAttribute" ||
-        ad.AttributeClass.Name == "ExportSingletonAttribute" ||
-        ad.AttributeClass.Name == "ExportTransientAttribute"
-        );
-        if (attribute != null)
+        foreach (var attribute in symbol.GetAttributes())
         {
-
-            if (attribute is not null)
+            if (attribute.AttributeClass.Name == "ExportHostedServiceAttribute" ||
+                attribute.AttributeClass.Name == "ExportStartupConfigurationAttribute" ||
+                attribute.AttributeClass.Name == "ExportProviderAttribute" ||
+                attribute.AttributeClass.Name == "ExportSingletonAttribute" ||
+                attribute.AttributeClass.Name == "ExportTransientAttribute")
             {
-                var forType = (attribute.ConstructorArguments.FirstOrDefault().Value as INamedTypeSymbol)?.FullName();
-                var priority = int.MaxValue;
-                if (attribute.NamedArguments.Any(i => i.Key == "Priority"))
+                var forType = "";
+
+                if (attribute.ConstructorArguments.Length == 1)
                 {
-                    priority = Convert.ToInt32(attribute.NamedArguments.First(i => i.Key == "Priority").Value.Value);
+                    forType = (attribute.ConstructorArguments[0].Value as INamedTypeSymbol)?.FullName();
+                }
+
+                var priority = int.MaxValue;
+
+                foreach (var arg in attribute.NamedArguments)
+                {
+                    if (arg.Key == "Priority")
+                    {
+                        priority = Convert.ToInt32(arg.Value.Value);
+                    }
                 }
 
                 var export = new Export()
@@ -55,10 +61,8 @@ public class DependencyInjectionSymbolVisitor : SymbolVisitor
 
                 _symbols.Add(export);
             }
-
-
-
         }
+
     }
 
 }

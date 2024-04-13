@@ -20,7 +20,7 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
 
         var result = assemblyNames.Combine(files);
 
-        context.RegisterSourceOutput(result, Generate);
+        context.RegisterImplementationSourceOutput(result, Generate);
     }
 
     void Generate(SourceProductionContext context, (string assemblyName, ImmutableArray<(string FileName, string Text)> files) result)
@@ -104,7 +104,6 @@ public partial class BaseDbContext : DbContext{sbImplements}
 
         context.AddSource($"{ns}.BaseDbContext.g", sb.ToString());
     }
-
     private string NormalizeColumnName(string columnName)
     {
         columnName = columnName.Replace(" ", "");

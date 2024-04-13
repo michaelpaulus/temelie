@@ -24,7 +24,13 @@ public class UserSettingsContext
             try
             {
                 var json = System.IO.File.ReadAllText(strFileName);
-                settings = JsonSerializer.Deserialize<UserSettings>(json, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+                settings = JsonSerializer.Deserialize<UserSettings>(json, new JsonSerializerOptions()
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+                    WriteIndented = true,
+                    DictionaryKeyPolicy = JsonNamingPolicy.CamelCase
+                });
             }
             catch
             {
