@@ -38,6 +38,20 @@ public class ColumnModel : Model
         }
     }
 
+    [JsonIgnore]
+    public string PropertyName
+    {
+        get
+        {
+            var name = NormalizeColumnName(ColumnName);
+            if (ExtendedProperties.ContainsKey("Name"))
+            {
+                name = ExtendedProperties["Name"];
+            }
+            return name;
+        }
+    }
+
     private int _columnID;
     public int ColumnID
     {
@@ -243,6 +257,34 @@ public class ColumnModel : Model
     #endregion
 
     #region Methods
+
+
+    private string NormalizeColumnName(string columnName)
+    {
+        columnName = columnName.Replace(" ", "");
+
+        if (columnName.Contains("ID"))
+        {
+            var index = columnName.IndexOf("ID");
+            if (index > 0)
+            {
+                var previous = columnName.Substring(index - 1, 1);
+                if (previous.Equals(previous.ToLower()))
+                {
+                    var first = columnName.Substring(0, index);
+                    var last = "";
+                    if (index > columnName.Length)
+                    {
+                        last = columnName.Substring(index + 3);
+                    }
+                    columnName = $"{first}Id{last}";
+
+                }
+            }
+        }
+
+        return columnName;
+    }
 
     public static Type GetSystemType(System.Data.DbType dbType)
     {

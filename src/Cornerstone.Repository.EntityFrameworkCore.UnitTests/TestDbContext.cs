@@ -11,7 +11,7 @@ public partial class TestDbContext : ExampleDbContext
     private readonly SqliteConnection _connection;
 
 #pragma warning disable CS8618
-    public TestDbContext(SqliteConnection connection)
+    public TestDbContext(SqliteConnection connection, IServiceProvider serviceProvider) : base(serviceProvider)
 #pragma warning restore CS8618
     {
         _connection = connection;

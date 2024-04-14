@@ -5,7 +5,7 @@ using Microsoft.Data.Sqlite;
 
 namespace Cornerstone.Repository.EntityFrameworkCore.UnitTests;
 
-public class RespositoryTests
+public class RespositoryTests : TestBase
 {
 
     private SqliteConnection _connection;
@@ -16,7 +16,7 @@ public class RespositoryTests
         //create global connection for test so each test uses the same "database"
         _connection = new SqliteConnection("Filename=:memory:");
         _connection.Open();
-        using (var context = new TestDbContext(_connection))
+        using (var context = new TestDbContext(_connection, ServiceProvider))
         {
             await context.Database.EnsureCreatedAsync().ConfigureAwait(true);
         }
@@ -25,7 +25,7 @@ public class RespositoryTests
     [Test]
     public async Task AddSingleKeyAsync()
     {
-        using var repository = new Repository<Customer>(new TestDbContext(_connection));
+        using var repository = new Repository<Customer>(new TestDbContext(_connection, ServiceProvider));
 
         var customer = new Customer() { CustomerId = new CustomerId(1), AccountNumber = "Test" };
 
@@ -39,7 +39,7 @@ public class RespositoryTests
     [Test]
     public async Task UpdateSingleKeyAsync()
     {
-        using var repository = new Repository<Customer>(new TestDbContext(_connection));
+        using var repository = new Repository<Customer>(new TestDbContext(_connection, ServiceProvider));
 
         var customer = new Customer() { CustomerId = new CustomerId(1), AccountNumber = "Test" };
 
@@ -59,7 +59,7 @@ public class RespositoryTests
     [Test]
     public async Task DeleteSingleKeyAsync()
     {
-        using var repository = new Repository<Customer>(new TestDbContext(_connection));
+        using var repository = new Repository<Customer>(new TestDbContext(_connection, ServiceProvider));
 
         var customer = new Customer() { CustomerId = new CustomerId(1), AccountNumber = "Test" };
 
@@ -75,7 +75,7 @@ public class RespositoryTests
     [Test]
     public async Task AddComplexKeyAsync()
     {
-        using var repository = new Repository<BusinessEntityAddress>(new TestDbContext(_connection));
+        using var repository = new Repository<BusinessEntityAddress>(new TestDbContext(_connection, ServiceProvider));
 
         var address = new BusinessEntityAddress() { BusinessEntityId = new BusinessEntityId(1), AddressId = new AddressId(1), AddressTypeId = new AddressTypeId(1), ModifiedDate = DateTime.UtcNow };
 
@@ -89,7 +89,7 @@ public class RespositoryTests
     [Test]
     public async Task UpdateComplexKeyAsync()
     {
-        using var repository = new Repository<BusinessEntityAddress>(new TestDbContext(_connection));
+        using var repository = new Repository<BusinessEntityAddress>(new TestDbContext(_connection, ServiceProvider));
 
         var address = new BusinessEntityAddress() { BusinessEntityId = new BusinessEntityId(1), AddressId = new AddressId(1), AddressTypeId = new AddressTypeId(1), ModifiedDate = DateTime.UtcNow };
 
@@ -109,7 +109,7 @@ public class RespositoryTests
     [Test]
     public async Task DeleteComplexKeyAsync()
     {
-        using var repository = new Repository<BusinessEntityAddress>(new TestDbContext(_connection));
+        using var repository = new Repository<BusinessEntityAddress>(new TestDbContext(_connection, ServiceProvider));
 
         var address = new BusinessEntityAddress() { BusinessEntityId = new BusinessEntityId(1), AddressId = new AddressId(1), AddressTypeId = new AddressTypeId(1), ModifiedDate = DateTime.UtcNow };
 
@@ -125,7 +125,7 @@ public class RespositoryTests
     [Test]
     public async Task AddRangeAsync()
     {
-        using var repository = new Repository<Customer>(new TestDbContext(_connection));
+        using var repository = new Repository<Customer>(new TestDbContext(_connection, ServiceProvider));
 
         var list = new List<Customer>();
 
@@ -150,7 +150,7 @@ public class RespositoryTests
         var list = new List<Customer>();
         var count = 10;
 
-        using (var repository = new Repository<Customer>(new TestDbContext(_connection)))
+        using (var repository = new Repository<Customer>(new TestDbContext(_connection, ServiceProvider)))
         {
             foreach (var i in Enumerable.Range(1, count))
             {
@@ -165,7 +165,7 @@ public class RespositoryTests
             result.Should().Be(count);
         }
 
-        using (var repository = new Repository<Customer>(new TestDbContext(_connection)))
+        using (var repository = new Repository<Customer>(new TestDbContext(_connection, ServiceProvider)))
         {
             foreach (var item in list)
             {
@@ -183,7 +183,7 @@ public class RespositoryTests
     [Test]
     public async Task DeleteRangeAsync()
     {
-        using var repository = new Repository<Customer>(new TestDbContext(_connection));
+        using var repository = new Repository<Customer>(new TestDbContext(_connection, ServiceProvider));
 
         var list = new List<Customer>();
 
@@ -211,7 +211,7 @@ public class RespositoryTests
     [Test]
     public async Task GetListAsync()
     {
-        using var repository = new Repository<Customer>(new TestDbContext(_connection));
+        using var repository = new Repository<Customer>(new TestDbContext(_connection, ServiceProvider));
         var count = 10;
         foreach (var i in Enumerable.Range(1, count))
         {
@@ -227,7 +227,7 @@ public class RespositoryTests
     [Test]
     public async Task GetCountAsync()
     {
-        using var repository = new Repository<Customer>(new TestDbContext(_connection));
+        using var repository = new Repository<Customer>(new TestDbContext(_connection, ServiceProvider));
 
         var count = 10;
 
@@ -247,7 +247,7 @@ public class RespositoryTests
     {
         if (_connection is not null)
         {
-            using (var context = new TestDbContext(_connection))
+            using (var context = new TestDbContext(_connection, ServiceProvider))
             {
                 await context.DisposeAsync().ConfigureAwait(true);
             }

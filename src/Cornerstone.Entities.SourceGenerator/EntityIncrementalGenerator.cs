@@ -50,7 +50,7 @@ public record {className} : IEntity<{className}>
 ");
                 foreach (var column in table.Columns)
                 {
-                    var propertyName = NormalizeColumnName(column.ColumnName);
+                    var propertyName = column.PropertyName;
                     var propertyType = ColumnModel.GetSystemTypeString(ColumnModel.GetSystemType(column.DbType));
                     var dft = "";
 
@@ -60,7 +60,7 @@ public record {className} : IEntity<{className}>
                         if (pkColumn is not null)
                         {
                             pkColumns.Add(column);
-                            propertyType = NormalizeColumnName(column.ColumnName);
+                            propertyType = column.PropertyName;
                         }
                     }
 
@@ -87,11 +87,11 @@ public record {className} : IEntity<{className}>
                 context.AddSource($"{ns}.{className}.g", sb.ToString());
             }
 
-            foreach (var column in pkColumns.GroupBy(i => i.ColumnName))
+            foreach (var group in pkColumns.GroupBy(i => i.PropertyName))
             {
                 var ns = assemblyName;
-                var className = NormalizeColumnName(column.Key);
-                var propertyType = ColumnModel.GetSystemTypeString(ColumnModel.GetSystemType(column.First().DbType));
+                var className = group.Key;
+                var propertyType = ColumnModel.GetSystemTypeString(ColumnModel.GetSystemType(group.First().DbType));
 
                 var sb = new StringBuilder();
                 sb.AppendLine(@$"using Cornerstone.Entities;
@@ -114,33 +114,6 @@ public record struct {className}({propertyType} Value = {GetTypeDefault(property
         }
 
 
-    }
-
-    private string NormalizeColumnName(string columnName)
-    {
-        columnName = columnName.Replace(" ", "");
-
-        if (columnName.Contains("ID"))
-        {
-            var index = columnName.IndexOf("ID");
-            if (index > 0)
-            {
-                var previous = columnName.Substring(index - 1, 1);
-                if (previous.Equals(previous.ToLower()))
-                {
-                    var first = columnName.Substring(0, index);
-                    var last = "";
-                    if (index > columnName.Length)
-                    {
-                        last = columnName.Substring(index + 3);
-                    }
-                    columnName = $"{first}Id{last}";
-
-                }
-            }
-        }
-
-        return columnName;
     }
 
     private string GetTypeDefault(string propertyType)

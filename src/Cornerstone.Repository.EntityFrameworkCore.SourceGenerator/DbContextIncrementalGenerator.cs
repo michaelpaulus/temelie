@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Text;
+using System.Xml.Linq;
 using Cornerstone.Database.Models;
 using Microsoft.CodeAnalysis;
 
@@ -39,8 +40,6 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
         {
             var className = table.TableName;
 
-            var pk = databaseModel.PrimaryKeys.FirstOrDefault(i => i.TableName == table.TableName && i.SchemaName == table.SchemaName);
-
             sbImplements.Append($", IRepositoryContext<{className}>");
 
             sbRepositoryContext.AppendLine($@"
@@ -48,37 +47,51 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
     DbContext IRepositoryContext<{className}>.DbContext => this;
     DbSet<{className}> IRepositoryContext<{className}>.DbSet => {className};
 ");
-            if (pk is not null)
+
+            var keys = new List<string>();
+            var props = new StringBuilder();
+
+            foreach (var column in table.Columns)
             {
-                var sbKey = new StringBuilder();
-
-                if (pk.Columns.Count > 0)
+                var columnProperties = new StringBuilder();
+                if (column.IsPrimaryKey)
                 {
-                    sbKey.Append($"new {{ {string.Join(", ", pk.Columns.Select(i => $"i.{NormalizeColumnName(i.ColumnName)}"))} }}");
-                }
-                else
-                {
-                    sbKey.Append($"i.{NormalizeColumnName(pk.Columns[0].ColumnName)}");
-                }
-                var props = new StringBuilder();
-
-                foreach (var key in pk.Columns)
-                {
-                    var name = NormalizeColumnName(key.ColumnName);
-                    props.Append($@"
-            builder.Property(p => p.{name})
-                .HasConversion(id => id.Value, value => new {name}(value));
-");
+                    keys.Add(column.PropertyName);
+                    columnProperties.AppendLine();
+                    columnProperties.Append($"                .HasConversion(id => id.Value, value => new {column.PropertyName}(value))");
                 }
 
-                sbModelBuilder.AppendLine($@"
+                if (column.IsIdentity)
+                {
+                    columnProperties.AppendLine();
+                    columnProperties.Append($"                .UseIdentityColumn(_serviceProvider)");
+                }
+
+                if (columnProperties.Length > 0)
+                {
+                    props.Append($@"            builder.Property(p => p.{column.PropertyName}){columnProperties};");
+                }
+            }
+
+            var sbKey = new StringBuilder();
+
+            if (keys.Count > 0)
+            {
+                sbKey.Append($"            builder.HasKey(i => new {{ {string.Join(", ", keys.Select(i => $"i.{i}"))} }});");
+            }
+            else
+            {
+                sbKey.Append($"            builder.HasKey(i => i.{keys[0]});");
+
+            }
+
+            sbModelBuilder.AppendLine($@"
         modelBuilder.Entity<{className}>(builder =>
         {{
-            builder.HasKey(i => {sbKey});
+{sbKey}
 {props}
         }});
 ");
-            }
         }
 
         var sb = new StringBuilder();
@@ -92,6 +105,14 @@ namespace {ns};
 
 public partial class BaseDbContext : DbContext{sbImplements}
 {{
+
+    private readonly IServiceProvider _serviceProvider;
+
+    public BaseDbContext(IServiceProvider serviceProvider)
+    {{
+        _serviceProvider = serviceProvider;
+    }}
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {{
         base.OnModelCreating(modelBuilder);
@@ -103,32 +124,6 @@ public partial class BaseDbContext : DbContext{sbImplements}
 ");
 
         context.AddSource($"{ns}.BaseDbContext.g", sb.ToString());
-    }
-    private string NormalizeColumnName(string columnName)
-    {
-        columnName = columnName.Replace(" ", "");
-
-        if (columnName.Contains("ID"))
-        {
-            var index = columnName.IndexOf("ID");
-            if (index > 0)
-            {
-                var previous = columnName.Substring(index - 1, 1);
-                if (previous.Equals(previous.ToLower()))
-                {
-                    var first = columnName.Substring(0, index);
-                    var last = "";
-                    if (index > columnName.Length)
-                    {
-                        last = columnName.Substring(index + 3);
-                    }
-                    columnName = $"{first}Id{last}";
-
-                }
-            }
-        }
-
-        return columnName;
     }
 
 }
