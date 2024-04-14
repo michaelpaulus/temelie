@@ -9,5 +9,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/michaelpaulus/cornerstone</RepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackPath="\" />
+  </ItemGroup>
 </Project>

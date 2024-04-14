@@ -3,14 +3,12 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RootNamespace>Cornerstone.Database</RootNamespace>
-    <PackageId>Mp$(AssemblyName)</PackageId>
-    <PackageReadmeFile>readme.md</PackageReadmeFile>
+    <PackageId>MichaelPaulus.$(AssemblyName)</PackageId>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="PropertyChanged.Fody" Version="4.1.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="System.Text.Json" Version="8.0.3" />
-    <None Include="readme.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 </Project>

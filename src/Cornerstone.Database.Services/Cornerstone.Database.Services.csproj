@@ -3,6 +3,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RootNamespace>Cornerstone.Database</RootNamespace>
+    <PackageId>MichaelPaulus.$(AssemblyName)</PackageId>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\Cornerstone.Database.Models\Extensions\StringExtensions.cs" Link="Extensions\StringExtensions.cs" />
