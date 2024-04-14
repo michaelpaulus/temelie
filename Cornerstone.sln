@@ -45,6 +45,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFiles", "SolutionFi
 		.gitignore = .gitignore
 		Directory.Build.props = Directory.Build.props
 		global.json = global.json
+		NuGet.Config = NuGet.Config
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.Entities.SourceGenerator", "src\Cornerstone.Entities.SourceGenerator\Cornerstone.Entities.SourceGenerator.csproj", "{D693D7A8-B164-4DDE-B896-8CED6B60FCE8}"

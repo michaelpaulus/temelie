@@ -6,6 +6,7 @@
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <NoWarn>1701;1702;NU5128</NoWarn>
+    <PackageId>MichaelPaulus.$(AssemblyName)</PackageId>
   </PropertyGroup>
 
   <ItemGroup>
