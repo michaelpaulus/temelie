@@ -17,7 +17,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - run: |
-          ./tools/update-version.ps1 -RepoDirecotry ${{ github.workspace }} -Version "1.0.${{ github.run_number }}.0" -Hash "${{ github.sha }}"
+          ./.tools/update-version.ps1 -RepoDirecotry "${{ github.workspace }}"" -Version "1.0.${{ github.run_number }}.0" -Hash "${{ github.sha }}"
       name: update version
       shell: pwsh  
     - name: setup .net
