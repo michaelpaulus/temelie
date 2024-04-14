@@ -30,3 +30,7 @@ jobs:
       run: dotnet build --no-restore
     - name: test
       run: dotnet test --no-build --verbosity normal
+    - run: |
+          ./.tools/push-nuget.ps1 -RepoDirectory "${{ github.workspace }}" -ApiKey " ${{ secrets.NUGET_API_KEY }}"
+      name: push nuget packages
+      shell: pwsh  
