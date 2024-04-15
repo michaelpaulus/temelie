@@ -1,8 +1,8 @@
 
-using Cornerstone.DependencyInjection;
+using Temelie.DependencyInjection;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Cornerstone.Repository.EntityFrameworkCore.UnitTests;
+namespace Temelie.Repository.EntityFrameworkCore.UnitTests;
 
 [ExportTransient(typeof(IPropertyBuilderProvider))]
 public class SqlitePropertyBuilderProvider : IPropertyBuilderProvider

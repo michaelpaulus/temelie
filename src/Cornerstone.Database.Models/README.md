@@ -1,1 +1,1 @@
-# Cornerstone.Database.Models
+# Temelie.Database.Models

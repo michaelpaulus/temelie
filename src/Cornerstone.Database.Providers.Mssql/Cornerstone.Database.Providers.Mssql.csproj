@@ -2,14 +2,14 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <RootNamespace>Cornerstone.Database</RootNamespace>
+    <RootNamespace>Temelie.Database</RootNamespace>
     <PackageId>MPSDK.$(AssemblyName)</PackageId>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\Cornerstone.Database.Models\Extensions\StringExtensions.cs" Link="Extensions\StringExtensions.cs" />
+    <Compile Include="..\Temelie.Database.Models\Extensions\StringExtensions.cs" Link="Extensions\StringExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Cornerstone.Database.Services\Cornerstone.Database.Services.csproj" />
+    <ProjectReference Include="..\Temelie.Database.Services\Temelie.Database.Services.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.0" />

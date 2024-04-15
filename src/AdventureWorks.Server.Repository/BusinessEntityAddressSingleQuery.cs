@@ -1,5 +1,5 @@
 using AdventureWorks.Entities;
-using Cornerstone.Repository;
+using Temelie.Repository;
 
 namespace AdventureWorks.Repository;
 public class BusinessEntityAddressSingleQuery(BusinessEntityId businessEntityId, AddressId addressId, AddressTypeId addressTypeId) : IQuerySpec<BusinessEntityAddress>

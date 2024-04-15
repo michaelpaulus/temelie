@@ -1,11 +1,11 @@
 using System.Data;
 using System.Data.Common;
-using Cornerstone.Database.Extensions;
-using Cornerstone.Database.Models;
-using Cornerstone.Database.Services;
-using Cornerstone.DependencyInjection;
+using Temelie.Database.Extensions;
+using Temelie.Database.Models;
+using Temelie.Database.Services;
+using Temelie.DependencyInjection;
 
-namespace Cornerstone.Database.Providers;
+namespace Temelie.Database.Providers;
 [ExportTransient(typeof(IDatabaseFactory))]
 public class DatabaseFactory : IDatabaseFactory
 {

@@ -1,7 +1,7 @@
 using System.Data;
-using Cornerstone.Database.Providers;
+using Temelie.Database.Providers;
 
-namespace Cornerstone.Database.Services;
+namespace Temelie.Database.Services;
 
 public class TableConverterReader : System.Data.IDataReader
 {

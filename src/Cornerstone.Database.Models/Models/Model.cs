@@ -1,4 +1,4 @@
-namespace Cornerstone.Database.Models;
+namespace Temelie.Database.Models;
 
 public class Model : PropertyChangedObject
 {

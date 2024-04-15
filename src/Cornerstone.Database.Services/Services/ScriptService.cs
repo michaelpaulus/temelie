@@ -1,12 +1,12 @@
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Text.Json;
-using Cornerstone.Database.Extensions;
-using Cornerstone.Database.Models;
-using Cornerstone.Database.Providers;
-using Cornerstone.DependencyInjection;
+using Temelie.Database.Extensions;
+using Temelie.Database.Models;
+using Temelie.Database.Providers;
+using Temelie.DependencyInjection;
 
-namespace Cornerstone.Database.Services;
+namespace Temelie.Database.Services;
 [ExportTransient(typeof(IScriptService))]
 public class ScriptService : IScriptService
 {

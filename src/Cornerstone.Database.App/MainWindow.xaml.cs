@@ -1,6 +1,6 @@
 using System.Windows;
 
-namespace Cornerstone.Database.App;
+namespace Temelie.Database.App;
 
 /// <summary>
 /// Interaction logic for MainWindow.xaml

@@ -1,1 +1,1 @@
-# Cornerstone.Database.Services
+# Temelie.Database.Services

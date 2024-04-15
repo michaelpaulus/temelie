@@ -1,4 +1,4 @@
-namespace Cornerstone.DependencyInjection;
+namespace Temelie.DependencyInjection;
 public class ExportStartupConfigurationAttribute
 {
     public ExportStartupConfigurationAttribute()

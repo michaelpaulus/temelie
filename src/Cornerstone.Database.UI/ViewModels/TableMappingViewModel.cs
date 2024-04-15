@@ -1,11 +1,11 @@
 using System.Collections.ObjectModel;
 using System.Linq;
-using Cornerstone.Database.Models;
-using Cornerstone.Database.Providers;
-using Cornerstone.Database.Services;
-using Cornerstone.DependencyInjection;
+using Temelie.Database.Models;
+using Temelie.Database.Providers;
+using Temelie.Database.Services;
+using Temelie.DependencyInjection;
 
-namespace Cornerstone.Database.ViewModels;
+namespace Temelie.Database.ViewModels;
 [ExportTransient(typeof(TableMappingViewModel))]
 public class TableMappingViewModel : ViewModel
 {
@@ -38,14 +38,14 @@ public class TableMappingViewModel : ViewModel
 
     public string ColumnMapping { get; set; }
 
-    private ObservableCollection<Cornerstone.Database.Models.ColumnMappingModel> _columnMappings;
-    public ObservableCollection<Cornerstone.Database.Models.ColumnMappingModel> ColumnMappings
+    private ObservableCollection<Temelie.Database.Models.ColumnMappingModel> _columnMappings;
+    public ObservableCollection<Temelie.Database.Models.ColumnMappingModel> ColumnMappings
     {
         get
         {
             if (this._columnMappings == null)
             {
-                this._columnMappings = new ObservableCollection<Cornerstone.Database.Models.ColumnMappingModel>();
+                this._columnMappings = new ObservableCollection<Temelie.Database.Models.ColumnMappingModel>();
             }
             return this._columnMappings;
         }
@@ -57,66 +57,66 @@ public class TableMappingViewModel : ViewModel
 
     public bool IncludeNotExists { get; set; }
 
-    public Cornerstone.Database.Models.ColumnMappingModel SelectedColumnMapping { get; set; }
+    public Temelie.Database.Models.ColumnMappingModel SelectedColumnMapping { get; set; }
 
     public ConnectionStringModel SourceDatabaseConnectionString { get; set; }
 
-    public Cornerstone.Database.Models.TableModel SourceTable { get; set; }
-    public Cornerstone.Database.Models.ColumnModel SourceColumn { get; set; }
+    public Temelie.Database.Models.TableModel SourceTable { get; set; }
+    public Temelie.Database.Models.ColumnModel SourceColumn { get; set; }
 
-    private ObservableCollection<Cornerstone.Database.Models.TableModel> _sourceTables;
-    public ObservableCollection<Cornerstone.Database.Models.TableModel> SourceTables
+    private ObservableCollection<Temelie.Database.Models.TableModel> _sourceTables;
+    public ObservableCollection<Temelie.Database.Models.TableModel> SourceTables
     {
         get
         {
             if (this._sourceTables == null)
             {
-                this._sourceTables = new ObservableCollection<Cornerstone.Database.Models.TableModel>();
+                this._sourceTables = new ObservableCollection<Temelie.Database.Models.TableModel>();
             }
             return this._sourceTables;
         }
     }
 
-    private ObservableCollection<Cornerstone.Database.Models.ColumnModel> _sourceColumns;
-    public ObservableCollection<Cornerstone.Database.Models.ColumnModel> SourceColumns
+    private ObservableCollection<Temelie.Database.Models.ColumnModel> _sourceColumns;
+    public ObservableCollection<Temelie.Database.Models.ColumnModel> SourceColumns
     {
         get
         {
             if (this._sourceColumns == null)
             {
-                this._sourceColumns = new ObservableCollection<Cornerstone.Database.Models.ColumnModel>();
+                this._sourceColumns = new ObservableCollection<Temelie.Database.Models.ColumnModel>();
             }
             return this._sourceColumns;
         }
     }
 
-    public Cornerstone.Database.Models.TableModel TargetTable { get; set; }
+    public Temelie.Database.Models.TableModel TargetTable { get; set; }
 
-    public Cornerstone.Database.Models.ColumnModel TargetColumn { get; set; }
+    public Temelie.Database.Models.ColumnModel TargetColumn { get; set; }
 
     public ConnectionStringModel TargetDatabaseConnectionString { get; set; }
 
-    private ObservableCollection<Cornerstone.Database.Models.TableModel> _targetTables;
-    public ObservableCollection<Cornerstone.Database.Models.TableModel> TargetTables
+    private ObservableCollection<Temelie.Database.Models.TableModel> _targetTables;
+    public ObservableCollection<Temelie.Database.Models.TableModel> TargetTables
     {
         get
         {
             if (this._targetTables == null)
             {
-                this._targetTables = new ObservableCollection<Cornerstone.Database.Models.TableModel>();
+                this._targetTables = new ObservableCollection<Temelie.Database.Models.TableModel>();
             }
             return this._targetTables;
         }
     }
 
-    private ObservableCollection<Cornerstone.Database.Models.ColumnModel> _targetColumns;
-    public ObservableCollection<Cornerstone.Database.Models.ColumnModel> TargetColumns
+    private ObservableCollection<Temelie.Database.Models.ColumnModel> _targetColumns;
+    public ObservableCollection<Temelie.Database.Models.ColumnModel> TargetColumns
     {
         get
         {
             if (this._targetColumns == null)
             {
-                this._targetColumns = new ObservableCollection<Cornerstone.Database.Models.ColumnModel>();
+                this._targetColumns = new ObservableCollection<Temelie.Database.Models.ColumnModel>();
             }
             return this._targetColumns;
         }
@@ -137,7 +137,7 @@ public class TableMappingViewModel : ViewModel
                 strSourceColumnName = this.SourceColumn.ColumnName;
             }
 
-            var mapping = new Cornerstone.Database.Models.ColumnMappingModel
+            var mapping = new Temelie.Database.Models.ColumnMappingModel
             {
                 SourceColumnName = strSourceColumnName,
                 TargetColumnName = this.TargetColumn.ColumnName,
@@ -169,7 +169,7 @@ public class TableMappingViewModel : ViewModel
                 where !i.IsComputed
                 select i).ToList();
 
-            var mappings = Cornerstone.Database.Services.Mapping.AutoMatch(sourceTableColumns, targetTableColumns);
+            var mappings = Temelie.Database.Services.Mapping.AutoMatch(sourceTableColumns, targetTableColumns);
 
             foreach (var mapping in mappings)
             {
@@ -178,7 +178,7 @@ public class TableMappingViewModel : ViewModel
         }
     }
 
-    public void AddMapping(Cornerstone.Database.Models.ColumnMappingModel mapping)
+    public void AddMapping(Temelie.Database.Models.ColumnMappingModel mapping)
     {
         this.ColumnMappings.Add(mapping);
         if (!(string.IsNullOrEmpty(mapping.SourceColumnName)))
@@ -237,9 +237,9 @@ public class TableMappingViewModel : ViewModel
         }
     }
 
-    public Cornerstone.Database.Models.TableMapping CreateTableMapping()
+    public Temelie.Database.Models.TableMapping CreateTableMapping()
     {
-        Cornerstone.Database.Models.TableMapping tableMapping = new Cornerstone.Database.Models.TableMapping { SourceTableName = this.SourceTable.TableName, TargetTableName = this.TargetTable.TableName };
+        Temelie.Database.Models.TableMapping tableMapping = new Temelie.Database.Models.TableMapping { SourceTableName = this.SourceTable.TableName, TargetTableName = this.TargetTable.TableName };
         tableMapping.ColumnMappings.AddRange(this.ColumnMappings);
 
         if (this.IncludeSourceDatabase)
@@ -265,13 +265,13 @@ public class TableMappingViewModel : ViewModel
     public string CreateSql()
     {
         var tableMapping = this.CreateTableMapping();
-        return Cornerstone.Database.Services.Mapping.CreateScript(tableMapping);
+        return Temelie.Database.Services.Mapping.CreateScript(tableMapping);
     }
 
     public string CreateXml()
     {
         var tableMapping = this.CreateTableMapping();
-        return Cornerstone.Database.Services.Mapping.CreateXml(tableMapping);
+        return Temelie.Database.Services.Mapping.CreateXml(tableMapping);
     }
 
     public void UpdateTargetTables()

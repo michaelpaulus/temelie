@@ -1,6 +1,6 @@
-using Cornerstone.Database.Models;
+using Temelie.Database.Models;
 
-namespace Cornerstone.Database.Services;
+namespace Temelie.Database.Services;
 
 public class TableConverterSettings
 {
@@ -12,8 +12,8 @@ public class TableConverterSettings
     public ConnectionStringModel SourceConnectionString { get; set; }
     public ConnectionStringModel TargetConnectionString { get; set; }
 
-    public IList<Cornerstone.Database.Models.TableModel> SourceTables { get; set; }
-    public IList<Cornerstone.Database.Models.TableModel> TargetTables { get; set; }
+    public IList<Temelie.Database.Models.TableModel> SourceTables { get; set; }
+    public IList<Temelie.Database.Models.TableModel> TargetTables { get; set; }
 
     public bool UseBulkCopy { get; set; }
 

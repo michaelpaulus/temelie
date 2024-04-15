@@ -1,9 +1,9 @@
 using System.Collections.Immutable;
 using System.Text;
-using Cornerstone.Database.Models;
+using Temelie.Database.Models;
 using Microsoft.CodeAnalysis;
 
-namespace Cornerstone.Entities.SourceGenerator;
+namespace Temelie.Entities.SourceGenerator;
 
 [Generator]
 public class EntityIncrementalGenerator : IIncrementalGenerator
@@ -42,7 +42,7 @@ public class EntityIncrementalGenerator : IIncrementalGenerator
                 var pk = databaseModel.PrimaryKeys.FirstOrDefault(i => i.TableName == table.TableName && i.SchemaName == table.SchemaName);
 
                 var sb = new StringBuilder();
-                sb.AppendLine(@$"using Cornerstone.Entities;
+                sb.AppendLine(@$"using Temelie.Entities;
 #nullable enable
 namespace {ns};
 public record {className} : IEntity<{className}>
@@ -94,7 +94,7 @@ public record {className} : IEntity<{className}>
                 var propertyType = ColumnModel.GetSystemTypeString(ColumnModel.GetSystemType(group.First().DbType));
 
                 var sb = new StringBuilder();
-                sb.AppendLine(@$"using Cornerstone.Entities;
+                sb.AppendLine(@$"using Temelie.Entities;
 #nullable enable
 namespace {ns};
 public record struct {className}({propertyType} Value = {GetTypeDefault(propertyType)}) : IEntityId, IComparable<{className}>

@@ -1,12 +1,12 @@
 using System.Data;
 using System.Data.Common;
-using Cornerstone.Database.Models;
-using Cornerstone.Database.Services;
-using Cornerstone.DependencyInjection;
+using Temelie.Database.Models;
+using Temelie.Database.Services;
+using Temelie.DependencyInjection;
 using MySql.Data.MySqlClient;
 using MySql.Data.Types;
 
-namespace Cornerstone.Database.Providers.MySql;
+namespace Temelie.Database.Providers.MySql;
 [ExportProvider(typeof(IDatabaseProvider))]
 public class DatabaseProvider : IDatabaseProvider
 {
@@ -244,7 +244,7 @@ public class DatabaseProvider : IDatabaseProvider
     public string TransformConnectionString(string connectionString)
     {
         var csb = new MySqlConnectionStringBuilder(connectionString);
-        csb.DefaultCommandTimeout = Cornerstone.Database.Services.DatabaseExecutionService.DefaultCommandTimeout;
+        csb.DefaultCommandTimeout = Temelie.Database.Services.DatabaseExecutionService.DefaultCommandTimeout;
         return csb.ConnectionString;
     }
 

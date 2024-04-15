@@ -1,4 +1,4 @@
-namespace Cornerstone.Entities;
+namespace Temelie.Entities;
 
 public interface IEntityId
 {

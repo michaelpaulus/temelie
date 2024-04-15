@@ -1,10 +1,10 @@
 using System.Collections.Immutable;
 using System.Text;
 using System.Xml.Linq;
-using Cornerstone.Database.Models;
+using Temelie.Database.Models;
 using Microsoft.CodeAnalysis;
 
-namespace Cornerstone.Entities.SourceGenerator;
+namespace Temelie.Entities.SourceGenerator;
 
 [Generator]
 public class DbContextIncrementalGenerator : IIncrementalGenerator
@@ -98,7 +98,7 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
 
         sb.AppendLine($@"
 using AdventureWorks.Entities;
-using Cornerstone.Repository.EntityFrameworkCore;
+using Temelie.Repository.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace {ns};

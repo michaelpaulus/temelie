@@ -1,9 +1,9 @@
 using System.Windows;
-using Cornerstone.Database.Providers;
-using Cornerstone.Database.UI;
+using Temelie.Database.Providers;
+using Temelie.Database.UI;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Cornerstone.Database.Views;
+namespace Temelie.Database.Views;
 
 /// <summary>
 /// Interaction logic for DatabaseConnectionDialog.xaml

@@ -1,5 +1,5 @@
 using AdventureWorks.Entities;
-using Cornerstone.Repository;
+using Temelie.Repository;
 
 namespace AdventureWorks.Repository;
 public class CustomerByAccountNumberQuery(string accountNumber) : IQuerySpec<Customer>

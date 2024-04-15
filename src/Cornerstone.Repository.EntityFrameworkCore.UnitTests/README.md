@@ -1,1 +1,1 @@
-# Cornerstone.Repository.EntityFrameworkCore.UnitTests
+# Temelie.Repository.EntityFrameworkCore.UnitTests

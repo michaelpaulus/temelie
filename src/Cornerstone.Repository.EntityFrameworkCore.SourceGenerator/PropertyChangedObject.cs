@@ -1,6 +1,6 @@
 using System.ComponentModel;
 
-namespace Cornerstone.Database;
+namespace Temelie.Database;
 
 public class PropertyChangedObject : INotifyPropertyChanged
 {

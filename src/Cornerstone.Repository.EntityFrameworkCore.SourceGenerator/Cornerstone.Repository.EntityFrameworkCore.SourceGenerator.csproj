@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\Cornerstone.Database.Models\Models\*.cs" LinkBase="Models" />
+    <Compile Include="..\Temelie.Database.Models\Models\*.cs" LinkBase="Models" />
   </ItemGroup>
 
   <ItemGroup>

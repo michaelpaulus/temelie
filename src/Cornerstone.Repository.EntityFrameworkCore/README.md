@@ -1,1 +1,1 @@
-# Cornerstone.Repository.EntityFrameworkCore
+# Temelie.Repository.EntityFrameworkCore

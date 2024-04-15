@@ -1,6 +1,6 @@
 using System.Windows;
 
-namespace Cornerstone.Database
+namespace Temelie.Database
 {
     namespace Controls
     {

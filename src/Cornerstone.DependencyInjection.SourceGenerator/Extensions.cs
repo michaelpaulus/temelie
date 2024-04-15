@@ -1,7 +1,7 @@
 using System.Text;
 using Microsoft.CodeAnalysis;
 
-namespace Cornerstone.DependencyInjection.SourceGenerator;
+namespace Temelie.DependencyInjection.SourceGenerator;
 public static class Extensions
 {
     public static string FullName(this ITypeSymbol type)

@@ -1,6 +1,6 @@
-using Cornerstone.Database.Models;
+using Temelie.Database.Models;
 
-namespace Cornerstone.Database.Providers.Mssql;
+namespace Temelie.Database.Providers.Mssql;
 internal class DatabaseObjectScript : IDatabaseObjectScript
 {
     public DatabaseObjectScript(Func<string> create, Func<string> drop)

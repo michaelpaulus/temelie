@@ -1,7 +1,7 @@
-using Cornerstone.Database.Extensions;
-using Cornerstone.Database.Models;
+using Temelie.Database.Extensions;
+using Temelie.Database.Models;
 
-namespace Cornerstone.Database.Services;
+namespace Temelie.Database.Services;
 
 public class Mapping
 {

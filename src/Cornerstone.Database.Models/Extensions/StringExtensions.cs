@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Cornerstone.Database.Extensions;
+namespace Temelie.Database.Extensions;
 
 internal static class StringExtensions
 {

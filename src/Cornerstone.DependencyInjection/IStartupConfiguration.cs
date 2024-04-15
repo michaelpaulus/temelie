@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Cornerstone.DependencyInjection;
+namespace Temelie.DependencyInjection;
 public interface IStartupConfiguration
 {
     IConfigurationBuilder Configure(IConfigurationBuilder builder);

@@ -1,6 +1,6 @@
 using System;
 
-namespace Cornerstone.Database.ViewModels;
+namespace Temelie.Database.ViewModels;
 
 public class Command : System.Windows.Input.ICommand
 {

@@ -1,1 +1,1 @@
-# Cornerstone.Entities.SourceGenerator
+# Temelie.Entities.SourceGenerator

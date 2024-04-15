@@ -1,7 +1,7 @@
 using System;
 using System.Windows;
 
-namespace Cornerstone.Database.UI;
+namespace Temelie.Database.UI;
 
 public static class ServiceProviderApplication
 {

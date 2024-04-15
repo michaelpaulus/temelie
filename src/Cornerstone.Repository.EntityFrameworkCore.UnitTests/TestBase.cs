@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Cornerstone.Repository.EntityFrameworkCore.UnitTests;
+namespace Temelie.Repository.EntityFrameworkCore.UnitTests;
 
 public class TestBase
 {

@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Cornerstone.Database.Models;
+namespace Temelie.Database.Models;
 public class ModelsJsonSerializerOptions
 {
     public static JsonSerializerOptions Default => new JsonSerializerOptions()

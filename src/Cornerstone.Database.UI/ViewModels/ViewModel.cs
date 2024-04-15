@@ -1,6 +1,6 @@
 using PropertyChanged;
 
-namespace Cornerstone.Database
+namespace Temelie.Database
 {
 
     namespace ViewModels

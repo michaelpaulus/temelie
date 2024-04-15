@@ -8,7 +8,7 @@
     <FileVersion>1.0.0.0</FileVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryUrl>https://github.com/michaelpaulus/cornerstone</RepositoryUrl>
+    <RepositoryUrl>https://github.com/michaelpaulus/temelie</RepositoryUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>

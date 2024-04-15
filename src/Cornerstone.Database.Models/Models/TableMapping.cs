@@ -1,4 +1,4 @@
-namespace Cornerstone.Database
+namespace Temelie.Database
 {
     namespace Models
     {

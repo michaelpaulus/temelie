@@ -1,11 +1,11 @@
-using Cornerstone.Database.Providers;
+using Temelie.Database.Providers;
 using System.Data.Common;
 using System.Data;
 using System.Transactions;
-using Cornerstone.Database.Models;
-using Cornerstone.DependencyInjection;
+using Temelie.Database.Models;
+using Temelie.DependencyInjection;
 
-namespace Cornerstone.Database.Services;
+namespace Temelie.Database.Services;
 
 [ExportTransient(typeof(IDatabaseExecutionService))]
 public class DatabaseExecutionService : IDatabaseExecutionService

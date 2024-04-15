@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Controls;
-using Cornerstone.Database.Models;
-using Cornerstone.Database.Services;
+using Temelie.Database.Models;
+using Temelie.Database.Services;
 
-namespace Cornerstone.Database.Controls;
+namespace Temelie.Database.Controls;
 
 /// <summary>
 /// Interaction logic for Connection.xaml
@@ -46,9 +46,9 @@ public partial class DatabaseConnection : UserControl
         }
     }
 
-    public static IList<Cornerstone.Database.Models.TableModel> GetTables(IDatabaseExecutionService databaseExecutionService, IDatabaseStructureService databaseStructureService, ConnectionStringModel connectionString)
+    public static IList<Temelie.Database.Models.TableModel> GetTables(IDatabaseExecutionService databaseExecutionService, IDatabaseStructureService databaseStructureService, ConnectionStringModel connectionString)
     {
-        IList<Cornerstone.Database.Models.TableModel> tables = new List<Cornerstone.Database.Models.TableModel>();
+        IList<Temelie.Database.Models.TableModel> tables = new List<Temelie.Database.Models.TableModel>();
 
         try
         {
@@ -66,9 +66,9 @@ public partial class DatabaseConnection : UserControl
         return tables;
     }
 
-    public static IList<Cornerstone.Database.Models.TableModel> GetViews(IDatabaseExecutionService databaseExecutionService, IDatabaseStructureService databaseStructureService, ConnectionStringModel connectionString)
+    public static IList<Temelie.Database.Models.TableModel> GetViews(IDatabaseExecutionService databaseExecutionService, IDatabaseStructureService databaseStructureService, ConnectionStringModel connectionString)
     {
-        IList<Cornerstone.Database.Models.TableModel> tables = new List<Cornerstone.Database.Models.TableModel>();
+        IList<Temelie.Database.Models.TableModel> tables = new List<Temelie.Database.Models.TableModel>();
 
         try
         {

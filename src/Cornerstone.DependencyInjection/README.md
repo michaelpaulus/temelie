@@ -1,1 +1,1 @@
-# Cornerstone.DependencyInjection
+# Temelie.DependencyInjection

@@ -1,1 +1,1 @@
-# Cornerstone.Database.Providers.Mssql
+# Temelie.Database.Providers.Mssql

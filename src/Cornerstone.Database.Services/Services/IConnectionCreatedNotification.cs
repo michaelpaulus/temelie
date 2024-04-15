@@ -1,6 +1,6 @@
 using System.Data;
 
-namespace Cornerstone.Database.Services;
+namespace Temelie.Database.Services;
 
 public interface IConnectionCreatedNotification
 {

@@ -1,6 +1,6 @@
-# Cornerstone
+# Temelie
 
-[![build](https://github.com/michaelpaulus/cornerstone/actions/workflows/build.yml/badge.svg)](https://github.com/michaelpaulus/cornerstone/actions/workflows/build.yml)
+[![build](https://github.com/michaelpaulus/temelie/actions/workflows/build.yml/badge.svg)](https://github.com/michaelpaulus/temelie/actions/workflows/build.yml)
 
 ## Purpose
 
@@ -10,16 +10,16 @@ The rest of the projects are a result of me switching jobs in 2024.  When I move
 
 ## Projects
 
-- [Cornerstone.Database.Models](/src/Cornerstone.Database.Models/README.md)
-- [Cornerstone.Database.Providers.Mssql](/src/Cornerstone.Database.Providers.Mssql/README.md)
-- [Cornerstone.Database.Providers.MySql](/src/Cornerstone.Database.Providers.MySql/README.md)
-- [Cornerstone.Database.Services](/src/Cornerstone.Database.Services/README.md)
-- [Cornerstone.Database.UI](/src/Cornerstone.Database.UI/README.md)
-- [Cornerstone.DependencyInjection](/src/Cornerstone.DependencyInjection/README.md)
-- [Cornerstone.DependencyInjection.SourceGenerator](/src/Cornerstone.DependencyInjection.SourceGenerator/README.md)
-- [Cornerstone.Entities](/src/Cornerstone.Entities/README.md)
-- [Cornerstone.Entities.SourceGenerator](/src/Cornerstone.Entities.SourceGenerator/README.md)
-- [Cornerstone.Repository.EntityFrameworkCore](/src/Cornerstone.Repository.EntityFrameworkCore/README.md)
-- [Cornerstone.Repository.EntityFrameworkCore.SourceGenerator](/src/Cornerstone.Repository.EntityFrameworkCore.SourceGenerator/README.md)
-- [Cornerstone.Repository](/src/Cornerstone.Repository/README.md)
+- [Temelie.Database.Models](/src/Temelie.Database.Models/README.md)
+- [Temelie.Database.Providers.Mssql](/src/Temelie.Database.Providers.Mssql/README.md)
+- [Temelie.Database.Providers.MySql](/src/Temelie.Database.Providers.MySql/README.md)
+- [Temelie.Database.Services](/src/Temelie.Database.Services/README.md)
+- [Temelie.Database.UI](/src/Temelie.Database.UI/README.md)
+- [Temelie.DependencyInjection](/src/Temelie.DependencyInjection/README.md)
+- [Temelie.DependencyInjection.SourceGenerator](/src/Temelie.DependencyInjection.SourceGenerator/README.md)
+- [Temelie.Entities](/src/Temelie.Entities/README.md)
+- [Temelie.Entities.SourceGenerator](/src/Temelie.Entities.SourceGenerator/README.md)
+- [Temelie.Repository.EntityFrameworkCore](/src/Temelie.Repository.EntityFrameworkCore/README.md)
+- [Temelie.Repository.EntityFrameworkCore.SourceGenerator](/src/Temelie.Repository.EntityFrameworkCore.SourceGenerator/README.md)
+- [Temelie.Repository](/src/Temelie.Repository/README.md)
 

@@ -1,6 +1,6 @@
-using Cornerstone.Database.Models;
+using Temelie.Database.Models;
 
-namespace Cornerstone.Database.Services;
+namespace Temelie.Database.Services;
 public interface IScriptService
 {
     void CreateScripts(ConnectionStringModel connectionString, DirectoryInfo directory, IProgress<ScriptProgress> progress, string objectFilter = "");

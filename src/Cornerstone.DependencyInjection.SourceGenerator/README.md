@@ -1,1 +1,1 @@
-# Cornerstone.DependencyInjection.SourceGenerator
+# Temelie.DependencyInjection.SourceGenerator

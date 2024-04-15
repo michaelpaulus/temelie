@@ -1,8 +1,8 @@
 ﻿using System.Data;
 using System.Data.Common;
-using Cornerstone.Database.Models;
+using Temelie.Database.Models;
 
-namespace Cornerstone.Database.Services;
+namespace Temelie.Database.Services;
 public interface ITableConverterService
 {
     void Convert(IProgress<TableProgress> progress, TableModel sourceTable, ConnectionStringModel sourceConnectionString, TableModel targetTable, ConnectionStringModel targetConnectionString, bool trimStrings, Action<IDbConnection> connectionCreatedCallback = null);

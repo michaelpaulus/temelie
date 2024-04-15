@@ -1,7 +1,7 @@
 using System.Reflection;
 using System.Text.Json;
 
-namespace Cornerstone.Database.Models;
+namespace Temelie.Database.Models;
 
 public class DatabaseModel(
     IEnumerable<TableModel> tables,

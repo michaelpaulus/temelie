@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Cornerstone.Database.Models;
-using Cornerstone.Database.Providers;
-using Cornerstone.Database.Services;
-using Cornerstone.DependencyInjection;
+using Temelie.Database.Models;
+using Temelie.Database.Providers;
+using Temelie.Database.Services;
+using Temelie.DependencyInjection;
 
-namespace Cornerstone.Database.ViewModels;
+namespace Temelie.Database.ViewModels;
 [ExportTransient(typeof(ExecuteScriptsViewModel))]
 public class ExecuteScriptsViewModel : ViewModel
 {

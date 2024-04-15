@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Cornerstone.Entities\Cornerstone.Entities.csproj" />
+    <ProjectReference Include="..\Temelie.Entities\Temelie.Entities.csproj" />
   </ItemGroup>
 
 </Project>

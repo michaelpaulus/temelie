@@ -1,8 +1,8 @@
 using System.Data;
-using Cornerstone.Database.Services;
+using Temelie.Database.Services;
 using Microsoft.Data.SqlClient;
 
-namespace Cornerstone.Database.Providers.Mssql;
+namespace Temelie.Database.Providers.Mssql;
 
 public class DefaultAzureCredentialConnectionCreatedNotification : IConnectionCreatedNotification
 {

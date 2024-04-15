@@ -1,7 +1,7 @@
 
 using System.Text.Json.Serialization;
 
-namespace Cornerstone.Database.Models;
+namespace Temelie.Database.Models;
 
 [JsonSourceGenerationOptions(GenerationMode = JsonSourceGenerationMode.Default)]
 [JsonSerializable(typeof(CheckConstraintModel))]

@@ -1,7 +1,7 @@
 using System.Data;
 using System.Text.Json.Serialization;
 
-namespace Cornerstone.Database.Models;
+namespace Temelie.Database.Models;
 
 public class ColumnModel : Model
 {

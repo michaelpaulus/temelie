@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Cornerstone.Database
+namespace Temelie.Database
 {
     namespace Models
     {

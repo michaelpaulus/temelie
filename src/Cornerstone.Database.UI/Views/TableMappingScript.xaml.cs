@@ -1,9 +1,9 @@
 using System;
-using Cornerstone.Database.UI;
-using Cornerstone.Database.ViewModels;
+using Temelie.Database.UI;
+using Temelie.Database.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Cornerstone.Database;
+namespace Temelie.Database;
 
 public partial class TableMappingScript
 {

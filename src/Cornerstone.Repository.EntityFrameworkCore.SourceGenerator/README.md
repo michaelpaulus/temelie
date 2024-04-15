@@ -1,1 +1,1 @@
-# Cornerstone.Repository.EntityFrameworkCore.SourceGenerator
+# Temelie.Repository.EntityFrameworkCore.SourceGenerator

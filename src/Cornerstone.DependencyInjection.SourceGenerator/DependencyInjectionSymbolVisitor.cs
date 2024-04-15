@@ -1,6 +1,6 @@
 using Microsoft.CodeAnalysis;
 
-namespace Cornerstone.DependencyInjection.SourceGenerator;
+namespace Temelie.DependencyInjection.SourceGenerator;
 
 public class DependencyInjectionSymbolVisitor : SymbolVisitor
 {

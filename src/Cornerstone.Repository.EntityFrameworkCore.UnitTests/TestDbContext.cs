@@ -3,7 +3,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace Cornerstone.Repository.EntityFrameworkCore.UnitTests;
+namespace Temelie.Repository.EntityFrameworkCore.UnitTests;
 
 public partial class TestDbContext : ExampleDbContext
 {

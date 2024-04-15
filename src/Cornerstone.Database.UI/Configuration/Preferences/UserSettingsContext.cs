@@ -2,7 +2,7 @@ using System;
 using System.Text;
 using System.Text.Json;
 
-namespace Cornerstone.Database.Configuration.Preferences;
+namespace Temelie.Database.Configuration.Preferences;
 
 public class UserSettingsContext
 {
@@ -11,7 +11,7 @@ public class UserSettingsContext
     static UserSettingsContext()
 #pragma warning restore CA1810 // Initialize reference type static fields inline
     {
-        UserSettingsPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Cornerstone.Database");
+        UserSettingsPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Temelie.Database");
         if (!(System.IO.Directory.Exists(UserSettingsPath)))
         {
             System.IO.Directory.CreateDirectory(UserSettingsPath);
@@ -58,7 +58,7 @@ public class UserSettingsContext
 
     private static string GetFileName()
     {
-        return System.IO.Path.Combine(UserSettingsPath, "Cornerstone.Database.json");
+        return System.IO.Path.Combine(UserSettingsPath, "Temelie.Database.json");
     }
 
     public static void Save()

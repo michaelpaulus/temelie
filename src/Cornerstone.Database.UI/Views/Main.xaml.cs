@@ -3,7 +3,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace Cornerstone.Database.UI.Views;
+namespace Temelie.Database.UI.Views;
 
 /// <summary>
 /// Interaction logic for Main.xaml
@@ -46,7 +46,7 @@ public partial class Main : UserControl
     private void MenuItem_Click(object sender, RoutedEventArgs e)
     {
         var menuItem = (MenuItem)sender;
-        var type = System.Type.GetType("Cornerstone.Database." + menuItem.CommandParameter.ToString());
+        var type = System.Type.GetType("Temelie.Database." + menuItem.CommandParameter.ToString());
         this.ShowPage(type, menuItem.Header.ToString());
     }
 

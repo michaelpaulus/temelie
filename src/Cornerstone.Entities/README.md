@@ -1,1 +1,1 @@
-# Cornerstone.Entities
+# Temelie.Entities

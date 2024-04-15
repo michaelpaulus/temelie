@@ -1,13 +1,13 @@
 {
   "solution": {
-    "path": "Cornerstone.sln",
+    "path": "Temelie.sln",
     "projects": [
       "src\\AdventureWorks.Database\\AdventureWorks.Database.csproj",
-      "src\\Cornerstone.Database.App\\Cornerstone.Database.App.csproj",
-      "src\\Cornerstone.Database.Models\\Cornerstone.Database.Models.csproj",
-      "src\\Cornerstone.Database.Providers.Mssql\\Cornerstone.Database.Providers.Mssql.csproj",
-      "src\\Cornerstone.Database.Providers.MySql\\Cornerstone.Database.Providers.MySql.csproj",
-      "src\\Cornerstone.Database.Services\\Cornerstone.Database.Services.csproj"
+      "src\\Temelie.Database.App\\Temelie.Database.App.csproj",
+      "src\\Temelie.Database.Models\\Temelie.Database.Models.csproj",
+      "src\\Temelie.Database.Providers.Mssql\\Temelie.Database.Providers.Mssql.csproj",
+      "src\\Temelie.Database.Providers.MySql\\Temelie.Database.Providers.MySql.csproj",
+      "src\\Temelie.Database.Services\\Temelie.Database.Services.csproj"
     ]
   }
 }

@@ -1,10 +1,10 @@
 using System;
 using System.Windows;
-using Cornerstone.Database.UI;
+using Temelie.Database.UI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace Cornerstone.Database.App;
+namespace Temelie.Database.App;
 
 /// <summary>
 /// Interaction logic for App.xaml

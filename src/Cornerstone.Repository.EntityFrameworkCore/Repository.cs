@@ -1,7 +1,7 @@
-using Cornerstone.Entities;
+using Temelie.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace Cornerstone.Repository.EntityFrameworkCore;
+namespace Temelie.Repository.EntityFrameworkCore;
 
 public class Repository<Entity> : IRepository<Entity> where Entity : class, IEntity<Entity>
 {

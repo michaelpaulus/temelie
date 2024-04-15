@@ -1,7 +1,7 @@
-﻿<UserControl x:Class="Cornerstone.Database.Convert"
+﻿<UserControl x:Class="Temelie.Database.Convert"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:local="clr-namespace:Cornerstone.Database.Controls"
+        xmlns:local="clr-namespace:Temelie.Database.Controls"
      >
     <Grid>
         <Grid.Resources>

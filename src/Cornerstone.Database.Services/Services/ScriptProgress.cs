@@ -1,4 +1,4 @@
-namespace Cornerstone.Database.Services;
+namespace Temelie.Database.Services;
 
 public class ScriptProgress
 {

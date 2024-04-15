@@ -3,17 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.Database.Services", "src\Cornerstone.Database.Services\Cornerstone.Database.Services.csproj", "{FF29CF7B-4683-4E44-9EB3-BD4E33F4AE7B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Temelie.Database.Services", "src\Temelie.Database.Services\Temelie.Database.Services.csproj", "{FF29CF7B-4683-4E44-9EB3-BD4E33F4AE7B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.Database.UI", "src\Cornerstone.Database.UI\Cornerstone.Database.UI.csproj", "{9722F532-C599-467A-A9E0-C1E9E0EA39E8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Temelie.Database.UI", "src\Temelie.Database.UI\Temelie.Database.UI.csproj", "{9722F532-C599-467A-A9E0-C1E9E0EA39E8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.Database.App", "src\Cornerstone.Database.App\Cornerstone.Database.App.csproj", "{C0FD2DC2-961E-4E50-9738-B6D0CAC0ADF9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Temelie.Database.App", "src\Temelie.Database.App\Temelie.Database.App.csproj", "{C0FD2DC2-961E-4E50-9738-B6D0CAC0ADF9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.Database.Providers.Mssql", "src\Cornerstone.Database.Providers.Mssql\Cornerstone.Database.Providers.Mssql.csproj", "{CD04B7A9-5ADF-445A-B4E3-A30CB2B57C4D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Temelie.Database.Providers.Mssql", "src\Temelie.Database.Providers.Mssql\Temelie.Database.Providers.Mssql.csproj", "{CD04B7A9-5ADF-445A-B4E3-A30CB2B57C4D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.Database.Providers.MySql", "src\Cornerstone.Database.Providers.MySql\Cornerstone.Database.Providers.MySql.csproj", "{4AF7019C-2AD1-48D3-A5EC-D49F730303E3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Temelie.Database.Providers.MySql", "src\Temelie.Database.Providers.MySql\Temelie.Database.Providers.MySql.csproj", "{4AF7019C-2AD1-48D3-A5EC-D49F730303E3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.Database.Models", "src\Cornerstone.Database.Models\Cornerstone.Database.Models.csproj", "{B4464F30-1D0D-4727-AF6B-141354F03003}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Temelie.Database.Models", "src\Temelie.Database.Models\Temelie.Database.Models.csproj", "{B4464F30-1D0D-4727-AF6B-141354F03003}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{E1751DAE-1BFD-4888-AC39-F890B65567F2}"
 EndProject
@@ -21,17 +21,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdventureWorks.Server.Confi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdventureWorks.Database", "src\AdventureWorks.Database\AdventureWorks.Database.csproj", "{FE145D2D-F787-46EF-BAF3-06FF823398EE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.DependencyInjection", "src\Cornerstone.DependencyInjection\Cornerstone.DependencyInjection.csproj", "{FC3328F9-65A7-4042-8DBB-3646E781D41B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Temelie.DependencyInjection", "src\Temelie.DependencyInjection\Temelie.DependencyInjection.csproj", "{FC3328F9-65A7-4042-8DBB-3646E781D41B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.Entities", "src\Cornerstone.Entities\Cornerstone.Entities.csproj", "{A9FC7A45-D529-4383-BADE-A10470E49452}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Temelie.Entities", "src\Temelie.Entities\Temelie.Entities.csproj", "{A9FC7A45-D529-4383-BADE-A10470E49452}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.Repository.EntityFrameworkCore", "src\Cornerstone.Repository.EntityFrameworkCore\Cornerstone.Repository.EntityFrameworkCore.csproj", "{56FBBE1B-F386-4823-BEFF-33B3F05ACFB7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Temelie.Repository.EntityFrameworkCore", "src\Temelie.Repository.EntityFrameworkCore\Temelie.Repository.EntityFrameworkCore.csproj", "{56FBBE1B-F386-4823-BEFF-33B3F05ACFB7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.Repository.EntityFrameworkCore.UnitTests", "src\Cornerstone.Repository.EntityFrameworkCore.UnitTests\Cornerstone.Repository.EntityFrameworkCore.UnitTests.csproj", "{66A3261B-7AE7-4972-AF43-C5A8975C1FF4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Temelie.Repository.EntityFrameworkCore.UnitTests", "src\Temelie.Repository.EntityFrameworkCore.UnitTests\Temelie.Repository.EntityFrameworkCore.UnitTests.csproj", "{66A3261B-7AE7-4972-AF43-C5A8975C1FF4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.Repository", "src\Cornerstone.Repository\Cornerstone.Repository.csproj", "{4AFF4137-8E7F-4585-AECD-C18867E5A82D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Temelie.Repository", "src\Temelie.Repository\Temelie.Repository.csproj", "{4AFF4137-8E7F-4585-AECD-C18867E5A82D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.DependencyInjection.SourceGenerator", "src\Cornerstone.DependencyInjection.SourceGenerator\Cornerstone.DependencyInjection.SourceGenerator.csproj", "{E673EA03-E416-4B34-9C12-349CFE5853DF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Temelie.DependencyInjection.SourceGenerator", "src\Temelie.DependencyInjection.SourceGenerator\Temelie.DependencyInjection.SourceGenerator.csproj", "{E673EA03-E416-4B34-9C12-349CFE5853DF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdventureWorks.Entities", "src\AdventureWorks.Entities\AdventureWorks.Entities.csproj", "{83B9AD41-712C-498C-B35E-BF3F712E440B}"
 EndProject
@@ -49,9 +49,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFiles", "SolutionFi
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.Entities.SourceGenerator", "src\Cornerstone.Entities.SourceGenerator\Cornerstone.Entities.SourceGenerator.csproj", "{D693D7A8-B164-4DDE-B896-8CED6B60FCE8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Temelie.Entities.SourceGenerator", "src\Temelie.Entities.SourceGenerator\Temelie.Entities.SourceGenerator.csproj", "{D693D7A8-B164-4DDE-B896-8CED6B60FCE8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cornerstone.Repository.EntityFrameworkCore.SourceGenerator", "src\Cornerstone.Repository.EntityFrameworkCore.SourceGenerator\Cornerstone.Repository.EntityFrameworkCore.SourceGenerator.csproj", "{D0C47399-054F-42A9-9CED-9FE87546E5D6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Temelie.Repository.EntityFrameworkCore.SourceGenerator", "src\Temelie.Repository.EntityFrameworkCore.SourceGenerator\Temelie.Repository.EntityFrameworkCore.SourceGenerator.csproj", "{D0C47399-054F-42A9-9CED-9FE87546E5D6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

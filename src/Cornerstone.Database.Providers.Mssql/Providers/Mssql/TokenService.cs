@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 using Azure.Core;
 using Azure.Identity;
 
-namespace Cornerstone.Database.Providers.Mssql;
+namespace Temelie.Database.Providers.Mssql;
 
 internal class TokenService
 {

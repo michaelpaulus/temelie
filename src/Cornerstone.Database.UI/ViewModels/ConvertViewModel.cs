@@ -3,12 +3,12 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using Cornerstone.Database.Models;
-using Cornerstone.Database.Providers;
-using Cornerstone.Database.Services;
-using Cornerstone.DependencyInjection;
+using Temelie.Database.Models;
+using Temelie.Database.Providers;
+using Temelie.Database.Services;
+using Temelie.DependencyInjection;
 
-namespace Cornerstone.Database.ViewModels;
+namespace Temelie.Database.ViewModels;
 [ExportTransient(typeof(ConvertViewModel))]
 public class ConvertViewModel : ViewModel
 {
@@ -44,14 +44,14 @@ public class ConvertViewModel : ViewModel
 
     #region Properties
 
-    private ObservableCollection<Cornerstone.Database.Models.TableModel> _tables;
-    public ObservableCollection<Cornerstone.Database.Models.TableModel> Tables
+    private ObservableCollection<Temelie.Database.Models.TableModel> _tables;
+    public ObservableCollection<Temelie.Database.Models.TableModel> Tables
     {
         get
         {
             if (this._tables == null)
             {
-                this._tables = new ObservableCollection<Cornerstone.Database.Models.TableModel>();
+                this._tables = new ObservableCollection<Temelie.Database.Models.TableModel>();
             }
             return this._tables;
         }

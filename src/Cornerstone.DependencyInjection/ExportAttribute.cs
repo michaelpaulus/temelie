@@ -1,4 +1,4 @@
-namespace Cornerstone.DependencyInjection;
+namespace Temelie.DependencyInjection;
 public abstract class ExportAttribute(Type forType) : Attribute
 {
     public Type ForType { get; } = forType;

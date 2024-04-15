@@ -3,7 +3,7 @@ using AdventureWorks.Repository;
 using FluentAssertions;
 using Microsoft.Data.Sqlite;
 
-namespace Cornerstone.Repository.EntityFrameworkCore.UnitTests;
+namespace Temelie.Repository.EntityFrameworkCore.UnitTests;
 
 public class RespositoryTests : TestBase
 {

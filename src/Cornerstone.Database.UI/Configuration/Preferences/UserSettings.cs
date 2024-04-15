@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Cornerstone.Database.Configuration.Preferences;
+namespace Temelie.Database.Configuration.Preferences;
 
 public class UserSettings : PropertyChangedObject
 {

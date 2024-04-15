@@ -1,7 +1,7 @@
 using System.Text;
 using Microsoft.CodeAnalysis;
 
-namespace Cornerstone.DependencyInjection.SourceGenerator;
+namespace Temelie.DependencyInjection.SourceGenerator;
 
 [Generator]
 public class DependencyInjectionIncrementalGenerator : IIncrementalGenerator
@@ -32,7 +32,7 @@ public class DependencyInjectionIncrementalGenerator : IIncrementalGenerator
 
         sb.Append(@"namespace Microsoft.Extensions.DependencyInjection;
 
-internal static class Cornerstone_DependencyInjection_IncrementalGenerator
+internal static class Temelie_DependencyInjection_IncrementalGenerator
 {
 ");
 

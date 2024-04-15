@@ -1,13 +1,13 @@
 using System.Data;
 using System.Data.Common;
 using System.Text;
-using Cornerstone.Database.Models;
-using Cornerstone.Database.Services;
-using Cornerstone.DependencyInjection;
+using Temelie.Database.Models;
+using Temelie.Database.Services;
+using Temelie.DependencyInjection;
 using Microsoft.Data.SqlClient;
-using Cornerstone.Database.Extensions;
+using Temelie.Database.Extensions;
 
-namespace Cornerstone.Database.Providers.Mssql;
+namespace Temelie.Database.Providers.Mssql;
 
 [ExportProvider(typeof(IDatabaseProvider))]
 public class DatabaseProvider : IDatabaseProvider

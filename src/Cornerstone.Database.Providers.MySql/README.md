@@ -1,1 +1,1 @@
-# Cornerstone.Database.Providers.MySql
+# Temelie.Database.Providers.MySql

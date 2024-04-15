@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using Cornerstone.Database.Configuration.Preferences;
-using Cornerstone.Database.Models;
-using Cornerstone.Database.Providers;
-using Cornerstone.DependencyInjection;
+using Temelie.Database.Configuration.Preferences;
+using Temelie.Database.Models;
+using Temelie.Database.Providers;
+using Temelie.DependencyInjection;
 
-namespace Cornerstone.Database.ViewModels;
+namespace Temelie.Database.ViewModels;
 [ExportTransient(typeof(DatabaseConnectionViewModel))]
 public class DatabaseConnectionViewModel : ViewModel
 {

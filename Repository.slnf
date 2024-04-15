@@ -1,15 +1,15 @@
 {
   "solution": {
-    "path": "Cornerstone.sln",
+    "path": "Temelie.sln",
     "projects": [
       "src\\AdventureWorks.Entities\\AdventureWorks.Entities.csproj",
       "src\\AdventureWorks.Server.Configuration\\AdventureWorks.Server.Configuration.csproj",
       "src\\AdventureWorks.Server.Repository.EntityFrameworkCore\\AdventureWorks.Server.Repository.EntityFrameworkCore.csproj",
       "src\\AdventureWorks.Server.Repository\\AdventureWorks.Server.Repository.csproj",
-      "src\\Cornerstone.Entities\\Cornerstone.Entities.csproj",
-      "src\\Cornerstone.Repository.EntityFrameworkCore.UnitTests\\Cornerstone.Repository.EntityFrameworkCore.UnitTests.csproj",
-      "src\\Cornerstone.Repository.EntityFrameworkCore\\Cornerstone.Repository.EntityFrameworkCore.csproj",
-      "src\\Cornerstone.Repository\\Cornerstone.Repository.csproj"
+      "src\\Temelie.Entities\\Temelie.Entities.csproj",
+      "src\\Temelie.Repository.EntityFrameworkCore.UnitTests\\Temelie.Repository.EntityFrameworkCore.UnitTests.csproj",
+      "src\\Temelie.Repository.EntityFrameworkCore\\Temelie.Repository.EntityFrameworkCore.csproj",
+      "src\\Temelie.Repository\\Temelie.Repository.csproj"
     ]
   }
 }

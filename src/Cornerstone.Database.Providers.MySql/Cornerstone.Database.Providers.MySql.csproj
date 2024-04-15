@@ -2,7 +2,7 @@
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <RootNamespace>Cornerstone.Database</RootNamespace>
+    <RootNamespace>Temelie.Database</RootNamespace>
     <PackageId>MPSDK.$(AssemblyName)</PackageId>
   </PropertyGroup>
 	<ItemGroup>
@@ -11,6 +11,6 @@
 		</PackageReference>
 	</ItemGroup>
 	<ItemGroup>
-	  <ProjectReference Include="..\Cornerstone.Database.Services\Cornerstone.Database.Services.csproj" />
+	  <ProjectReference Include="..\Temelie.Database.Services\Temelie.Database.Services.csproj" />
 	</ItemGroup>
 </Project>

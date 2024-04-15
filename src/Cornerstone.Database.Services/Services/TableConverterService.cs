@@ -1,11 +1,11 @@
 using System.Data;
 using System.Data.Common;
 using System.Text;
-using Cornerstone.Database.Models;
-using Cornerstone.Database.Providers;
-using Cornerstone.DependencyInjection;
+using Temelie.Database.Models;
+using Temelie.Database.Providers;
+using Temelie.DependencyInjection;
 
-namespace Cornerstone.Database.Services;
+namespace Temelie.Database.Services;
 [ExportTransient(typeof(ITableConverterService))]
 public class TableConverterService : ITableConverterService
 {
@@ -275,7 +275,7 @@ public class TableConverterService : ITableConverterService
                                 System.Text.StringBuilder sbColumns = new System.Text.StringBuilder();
                                 System.Text.StringBuilder sbParamaters = new System.Text.StringBuilder();
 
-                                foreach (Cornerstone.Database.Models.ColumnModel targetColumn in targetMatchedColumns)
+                                foreach (Temelie.Database.Models.ColumnModel targetColumn in targetMatchedColumns)
                                 {
                                     if (targetColumn.IsIdentity)
                                     {
@@ -379,10 +379,10 @@ public class TableConverterService : ITableConverterService
     {
         var list = new List<Models.ColumnModel>();
 
-        foreach (Cornerstone.Database.Models.ColumnModel sourceColumn in sourceColumns)
+        foreach (Temelie.Database.Models.ColumnModel sourceColumn in sourceColumns)
         {
             string strColumnName = sourceColumn.ColumnName;
-            Cornerstone.Database.Models.ColumnModel targetColumn = (
+            Temelie.Database.Models.ColumnModel targetColumn = (
                 from c in targetColumns
                 where c.ColumnName.Equals(strColumnName, StringComparison.InvariantCultureIgnoreCase)
                 select c).FirstOrDefault();
@@ -453,13 +453,13 @@ public class TableConverterService : ITableConverterService
         return columnName.Replace("-", "").Replace(" ", "");
     }
 
-    private string GetRowErrorMessage(System.Data.Common.DbCommand command, IList<Cornerstone.Database.Models.ColumnModel> columns, int columnIndex, System.Exception ex)
+    private string GetRowErrorMessage(System.Data.Common.DbCommand command, IList<Temelie.Database.Models.ColumnModel> columns, int columnIndex, System.Exception ex)
     {
         System.Text.StringBuilder sbRow = new System.Text.StringBuilder();
 
         for (int intErrorIndex = 0; intErrorIndex < columnIndex; intErrorIndex++)
         {
-            Cornerstone.Database.Models.ColumnModel targetColumn = columns[intErrorIndex];
+            Temelie.Database.Models.ColumnModel targetColumn = columns[intErrorIndex];
             if (targetColumn != null)
             {
                 if (!targetColumn.IsNullable)

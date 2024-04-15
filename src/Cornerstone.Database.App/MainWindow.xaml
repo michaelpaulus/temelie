@@ -1,10 +1,10 @@
-<Window x:Class="Cornerstone.Database.App.MainWindow"
+<Window x:Class="Temelie.Database.App.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Cornerstone.Database.App"
-        xmlns:views="clr-namespace:Cornerstone.Database.UI.Views;assembly=Cornerstone.Database.UI"
+        xmlns:local="clr-namespace:Temelie.Database.App"
+        xmlns:views="clr-namespace:Temelie.Database.UI.Views;assembly=Temelie.Database.UI"
         mc:Ignorable="d"
         Height="450" Width="800" WindowStartupLocation="CenterScreen" Style="{DynamicResource BorderlessWindowStyle}" >
     <views:Main>

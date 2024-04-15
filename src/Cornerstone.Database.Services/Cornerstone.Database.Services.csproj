@@ -2,17 +2,17 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <RootNamespace>Cornerstone.Database</RootNamespace>
+    <RootNamespace>Temelie.Database</RootNamespace>
     <PackageId>MPSDK.$(AssemblyName)</PackageId>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\Cornerstone.Database.Models\Extensions\StringExtensions.cs" Link="Extensions\StringExtensions.cs" />
+    <Compile Include="..\Temelie.Database.Models\Extensions\StringExtensions.cs" Link="Extensions\StringExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Text.Json" Version="8.0.3" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Cornerstone.Database.Models\Cornerstone.Database.Models.csproj" />
-    <ProjectReference Include="..\Cornerstone.DependencyInjection\Cornerstone.DependencyInjection.csproj" />
+    <ProjectReference Include="..\Temelie.Database.Models\Temelie.Database.Models.csproj" />
+    <ProjectReference Include="..\Temelie.DependencyInjection\Temelie.DependencyInjection.csproj" />
   </ItemGroup>
 </Project>

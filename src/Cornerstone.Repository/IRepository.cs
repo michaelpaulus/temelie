@@ -1,6 +1,6 @@
-using Cornerstone.Entities;
+using Temelie.Entities;
 
-namespace Cornerstone.Repository;
+namespace Temelie.Repository;
 
 public interface IRepository<Entity> : IDisposable where Entity : class, IEntity<Entity>
 {

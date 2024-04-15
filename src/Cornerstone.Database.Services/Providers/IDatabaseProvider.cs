@@ -1,9 +1,9 @@
 using System.Data;
 using System.Data.Common;
-using Cornerstone.Database.Models;
-using Cornerstone.Database.Services;
+using Temelie.Database.Models;
+using Temelie.Database.Services;
 
-namespace Cornerstone.Database.Providers;
+namespace Temelie.Database.Providers;
 
 public interface IDatabaseProvider
 {
