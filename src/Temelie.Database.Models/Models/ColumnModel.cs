@@ -43,28 +43,27 @@ public class ColumnModel : Model
     {
         get
         {
-            var name = NormalizeColumnName(ColumnName);
-            if (ExtendedProperties.ContainsKey("Name"))
+            if (ExtendedProperties.TryGetValue("Name", out var name))
             {
-                name = ExtendedProperties["Name"];
+                return name;
             }
-            return name;
+            return NormalizePropertyName(ColumnName);
         }
     }
 
-    private int _columnID;
-    public int ColumnID
+    private int _columnId;
+    public int ColumnId
     {
         get
         {
-            return _columnID;
+            return _columnId;
         }
         set
         {
-            if (!(int.Equals(this._columnID, value)))
+            if (!(int.Equals(this._columnId, value)))
             {
-                _columnID = value;
-                this.OnPropertyChanged("ColumnID");
+                _columnId = value;
+                this.OnPropertyChanged("ColumnId");
             }
         }
     }
@@ -259,9 +258,17 @@ public class ColumnModel : Model
     #region Methods
 
 
-    private string NormalizeColumnName(string columnName)
+    private string NormalizePropertyName(string columnName)
     {
-        columnName = columnName.Replace(" ", "");
+        columnName = columnName.Replace(" ", "").Replace(".", "");
+
+        foreach (var item in Enumerable.Range(0, 9))
+        {
+            if (columnName.StartsWith(item.ToString()))
+            {
+                columnName = "n" + columnName;
+            }
+        }
 
         if (columnName.Contains("ID"))
         {
@@ -282,7 +289,6 @@ public class ColumnModel : Model
                 }
             }
         }
-
         return columnName;
     }
 

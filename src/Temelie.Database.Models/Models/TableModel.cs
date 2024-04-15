@@ -17,6 +17,19 @@ public class TableModel : DatabaseObjectModel
     public string SchemaName { get; set; }
 
     [JsonIgnore]
+    public string ClassName
+    {
+        get
+        {
+            if (ExtendedProperties.TryGetValue("Name", out var name) )
+            {
+                return name;
+            }
+            return TableName;
+        }
+    }
+
+    [JsonIgnore]
     public int ProgressPercentage { get; set; }
 
     [JsonIgnore]

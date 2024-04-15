@@ -1,6 +1,5 @@
 using System.Collections.Immutable;
 using System.Text;
-using System.Xml.Linq;
 using Temelie.Database.Models;
 using Microsoft.CodeAnalysis;
 
@@ -36,9 +35,9 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
         var sbRepositoryContext = new StringBuilder();
         var sbImplements = new StringBuilder();
 
-        foreach (var table in databaseModel.Tables)
+        void addTable(TableModel table)
         {
-            var className = table.TableName;
+            var className = table.ClassName;
 
             sbImplements.Append($", IRepositoryContext<{className}>");
 
@@ -67,31 +66,61 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
                     columnProperties.Append($"                .UseIdentityColumn(_serviceProvider)");
                 }
 
+                if (column.ColumnName != column.PropertyName)
+                {
+                    columnProperties.AppendLine();
+                    columnProperties.Append($"                .HasColumnName(\"{column.ColumnName}\");");
+                }
+
                 if (columnProperties.Length > 0)
                 {
-                    props.Append($@"            builder.Property(p => p.{column.PropertyName}){columnProperties};");
+                    props.Append($@"
+            builder.Property(p => p.{column.PropertyName}){columnProperties};");
                 }
             }
 
-            var sbKey = new StringBuilder();
+            var config = new StringBuilder();
 
-            if (keys.Count > 0)
+            if (keys.Count > 1)
             {
-                sbKey.Append($"            builder.HasKey(i => new {{ {string.Join(", ", keys.Select(i => $"i.{i}"))} }});");
+                config.AppendLine($"            builder.HasKey(i => new {{ {string.Join(", ", keys.Select(i => $"i.{i}"))} }});");
+            }
+            else if (keys.Count == 1)
+            {
+                config.AppendLine($"            builder.HasKey(i => i.{keys[0]});");
+
             }
             else
             {
-                sbKey.Append($"            builder.HasKey(i => i.{keys[0]});");
+                config.AppendLine($"            builder.HasNoKey();");
+            }
 
+            if (table.IsView)
+            {
+                config.AppendLine($"            builder.ToView(\"{table.TableName}\");");
+            }
+            else
+            {
+                config.AppendLine($"            builder.ToTable(\"{table.TableName}\");");
             }
 
             sbModelBuilder.AppendLine($@"
         modelBuilder.Entity<{className}>(builder =>
         {{
-{sbKey}
+{config}
 {props}
         }});
 ");
+        }
+
+        foreach (var table in databaseModel.Tables)
+        {
+            addTable(table);
+        }
+
+        foreach (var table in databaseModel.Views)
+        {
+            addTable(table);
         }
 
         var sb = new StringBuilder();

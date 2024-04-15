@@ -111,9 +111,9 @@ public class DatabaseStructureService : IDatabaseStructureService
         foreach (var tableGroup in list.GroupBy(i => new { i.SchemaName, i.TableName }))
         {
             var index = 1;
-            foreach (var column in tableGroup.OrderBy(i => i.ColumnID).ToList())
+            foreach (var column in tableGroup.OrderBy(i => i.ColumnId).ToList())
             {
-                column.ColumnID = index;
+                column.ColumnId = index;
                 index += 1;
             }
         }
@@ -165,7 +165,7 @@ public class DatabaseStructureService : IDatabaseStructureService
         column.IsHidden = GetBoolValue(row, "is_hidden");
         column.GeneratedAlwaysType = GetInt32Value(row, "generated_always_type");
         column.ComputedDefinition = GetStringValue(row, "computed_definition");
-        column.ColumnID = GetInt32Value(row, "column_id");
+        column.ColumnId = GetInt32Value(row, "column_id");
         column.IsPrimaryKey = GetBoolValue(row, "is_primary_key");
         column.ColumnDefault = GetStringValue(row, "column_default");
         var extendedProperites = GetStringValue(row, "extended_properties");

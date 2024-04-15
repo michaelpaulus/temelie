@@ -34,10 +34,10 @@ public class EntityIncrementalGenerator : IIncrementalGenerator
 
             var pkColumns = new List<ColumnModel>();
 
-            foreach (var table in databaseModel.Tables)
+            void addTable(TableModel table)
             {
                 var ns = assemblyName;
-                var className = table.TableName;
+                var className = table.ClassName;
 
                 var pk = databaseModel.PrimaryKeys.FirstOrDefault(i => i.TableName == table.TableName && i.SchemaName == table.SchemaName);
 
@@ -85,6 +85,16 @@ public record {className} : IEntity<{className}>
 }}
 ");
                 context.AddSource($"{ns}.{className}.g", sb.ToString());
+            }
+
+            foreach (var table in databaseModel.Tables)
+            {
+                addTable(table);
+            }
+
+            foreach (var table in databaseModel.Views)
+            {
+                addTable(table);
             }
 
             foreach (var group in pkColumns.GroupBy(i => i.PropertyName))

@@ -1629,7 +1629,7 @@ GO");
 
             foreach (Models.ColumnModel column in (
                 from i in model.Columns
-                orderby i.ColumnID
+                orderby i.ColumnId
                 select i))
             {
                 if (intColumnCount != 0)
