@@ -3,7 +3,6 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RootNamespace>Temelie.Database</RootNamespace>
-    <PackageId>MPSDK.$(AssemblyName)</PackageId>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="PropertyChanged.Fody" Version="4.1.0">

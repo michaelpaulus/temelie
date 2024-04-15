@@ -1,16 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<TargetFramework>netstandard2.0</TargetFramework>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RootNamespace>Temelie.Database</RootNamespace>
-    <PackageId>MPSDK.$(AssemblyName)</PackageId>
   </PropertyGroup>
-	<ItemGroup>
-		<PackageReference Include="MySql.Data">
-			<Version>8.3.0</Version>
-		</PackageReference>
-	</ItemGroup>
-	<ItemGroup>
-	  <ProjectReference Include="..\Temelie.Database.Services\Temelie.Database.Services.csproj" />
-	</ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MySql.Data">
+      <Version>8.3.0</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Temelie.Database.Services\Temelie.Database.Services.csproj" />
+  </ItemGroup>
 </Project>

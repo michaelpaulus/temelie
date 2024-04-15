@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageId>MPSDK.$(AssemblyName)</PackageId>
   </PropertyGroup>
 
 </Project>

@@ -3,7 +3,6 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RootNamespace>Temelie.Database</RootNamespace>
-    <PackageId>MPSDK.$(AssemblyName)</PackageId>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\Temelie.Database.Models\Extensions\StringExtensions.cs" Link="Extensions\StringExtensions.cs" />
