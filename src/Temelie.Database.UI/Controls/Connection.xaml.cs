@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Controls;
 using Temelie.Database.Models;
+using Temelie.Database.Providers;
 using Temelie.Database.Services;
 
 namespace Temelie.Database.Controls;
@@ -46,7 +47,7 @@ public partial class DatabaseConnection : UserControl
         }
     }
 
-    public static IList<Temelie.Database.Models.TableModel> GetTables(IDatabaseExecutionService databaseExecutionService, IDatabaseStructureService databaseStructureService, ConnectionStringModel connectionString)
+    public static IList<Temelie.Database.Models.TableModel> GetTables(IDatabaseExecutionService databaseExecutionService, IDatabaseFactory databaseFactory, ConnectionStringModel connectionString)
     {
         IList<Temelie.Database.Models.TableModel> tables = new List<Temelie.Database.Models.TableModel>();
 
@@ -54,8 +55,9 @@ public partial class DatabaseConnection : UserControl
         {
             using (var conn = databaseExecutionService.CreateDbConnection(connectionString))
             {
-                var columns = databaseStructureService.GetTableColumns(conn);
-                tables = databaseStructureService.GetTables(conn, columns).ToList();
+                var provider = databaseFactory.GetDatabaseProvider(conn);
+                var columns = provider.GetTableColumns(conn);
+                tables = provider.GetTables(conn, columns).ToList();
             }
         }
         catch
@@ -66,7 +68,7 @@ public partial class DatabaseConnection : UserControl
         return tables;
     }
 
-    public static IList<Temelie.Database.Models.TableModel> GetViews(IDatabaseExecutionService databaseExecutionService, IDatabaseStructureService databaseStructureService, ConnectionStringModel connectionString)
+    public static IList<Temelie.Database.Models.TableModel> GetViews(IDatabaseExecutionService databaseExecutionService, IDatabaseFactory databaseFactory, ConnectionStringModel connectionString)
     {
         IList<Temelie.Database.Models.TableModel> tables = new List<Temelie.Database.Models.TableModel>();
 
@@ -74,8 +76,9 @@ public partial class DatabaseConnection : UserControl
         {
             using (var conn = databaseExecutionService.CreateDbConnection(connectionString))
             {
-                var columns = databaseStructureService.GetTableColumns(conn);
-                tables = databaseStructureService.GetTables(conn, columns).ToList();
+                var provider = databaseFactory.GetDatabaseProvider(conn);
+                var columns = provider.GetTableColumns(conn);
+                tables = provider.GetTables(conn, columns).ToList();
             }
         }
         catch

@@ -14,20 +14,17 @@ public interface IDatabaseProvider
     string QuoteCharacterEnd { get; }
     string DefaultConnectionString { get; }
 
-    DataTable GetTables(DbConnection connection);
-    DataTable GetViews(DbConnection connection);
+    IEnumerable<TableModel> GetTables(DbConnection connection, IEnumerable<ColumnModel> columns);
+    IEnumerable<TableModel> GetViews(DbConnection connection, IEnumerable<ColumnModel> columns);
 
-    DataTable GetTriggers(DbConnection connection);
-    DataTable GetForeignKeys(DbConnection connection);
-    DataTable GetCheckConstraints(DbConnection connection);
-    DataTable GetDefinitions(DbConnection connection);
-    DataTable GetDefinitionDependencies(DbConnection connection);
-
-    DataTable GetTableColumns(DbConnection connection);
-    DataTable GetViewColumns(DbConnection connection);
-    DataTable GetIndexeBucketCounts(DbConnection connection);
-    DataTable GetIndexes(DbConnection connection);
-    DataTable GetSecurityPolicies(DbConnection connection);
+    IEnumerable<TriggerModel> GetTriggers(DbConnection connection);
+    IEnumerable<ForeignKeyModel> GetForeignKeys(DbConnection connection);
+    IEnumerable<CheckConstraintModel> GetCheckConstraints(DbConnection connection);
+    IEnumerable<DefinitionModel> GetDefinitions(DbConnection connection);
+    IEnumerable<ColumnModel> GetTableColumns(DbConnection connection);
+    IEnumerable<ColumnModel> GetViewColumns(DbConnection connection);
+    IEnumerable<IndexModel> GetIndexes(DbConnection connection);
+    IEnumerable<SecurityPolicyModel> GetSecurityPolicies(DbConnection connection);
 
     IDatabaseObjectScript GetScript(CheckConstraintModel model);
     IDatabaseObjectScript GetScript(DefinitionModel model);

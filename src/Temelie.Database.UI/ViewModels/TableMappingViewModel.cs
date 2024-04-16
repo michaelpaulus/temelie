@@ -11,15 +11,12 @@ public class TableMappingViewModel : ViewModel
 {
 
     private readonly IDatabaseFactory _databaseFactory;
-    private readonly IDatabaseStructureService _databaseStructureService;
     private readonly IDatabaseExecutionService _databaseExecutionService;
 
     public TableMappingViewModel(IDatabaseFactory databaseFactory,
-        IDatabaseStructureService databaseStructureService,
         IDatabaseExecutionService databaseExecutionService)
     {
         _databaseFactory = databaseFactory;
-        _databaseStructureService = databaseStructureService;
         _databaseExecutionService = databaseExecutionService;
         this.AddMappingCommand = new Command(this.AddMapping);
         this.RemoveMappingCommand = new Command(this.RemoveMapping);
@@ -278,10 +275,11 @@ public class TableMappingViewModel : ViewModel
     {
         using (var conn = _databaseExecutionService.CreateDbConnection(TargetDatabaseConnectionString))
         {
-            var columns = _databaseStructureService.GetTableColumns(conn);
-            var viewColumns = _databaseStructureService.GetViewColumns(conn);
-            var tables = _databaseStructureService.GetTables(conn, columns, true);
-            var views = _databaseStructureService.GetViews(conn, viewColumns);
+            var provider = _databaseFactory.GetDatabaseProvider(conn);
+            var columns = provider.GetTableColumns(conn);
+            var viewColumns = provider.GetViewColumns(conn);
+            var tables = provider.GetTables(conn, columns);
+            var views = provider.GetViews(conn, viewColumns);
             this.TargetTables.Clear();
             foreach (var item in tables)
             {
@@ -301,10 +299,12 @@ public class TableMappingViewModel : ViewModel
     {
         using (var conn = _databaseExecutionService.CreateDbConnection(SourceDatabaseConnectionString))
         {
-            var columns = _databaseStructureService.GetTableColumns(conn);
-            var viewColumns = _databaseStructureService.GetViewColumns(conn);
-            var tables = _databaseStructureService.GetTables(conn, columns, true);
-            var views = _databaseStructureService.GetViews(conn, viewColumns);
+            var provider = _databaseFactory.GetDatabaseProvider(conn);
+
+            var columns = provider.GetTableColumns(conn);
+            var viewColumns = provider.GetViewColumns(conn);
+            var tables = provider.GetTables(conn, columns);
+            var views = provider.GetViews(conn, viewColumns);
             this.SourceTables.Clear();
             foreach (var item in tables)
             {

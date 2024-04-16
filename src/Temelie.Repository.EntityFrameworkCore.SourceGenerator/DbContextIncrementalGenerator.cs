@@ -135,12 +135,12 @@ using Temelie.Repository.EntityFrameworkCore;
 
 namespace {ns};
 
-{sbExports}public abstract partial class BaseDbContext : DbContext{sbImplements}
+{sbExports}public abstract partial class DbContextBase : DbContext{sbImplements}
 {{
 
     private readonly IServiceProvider _serviceProvider;
 
-    public BaseDbContext(IServiceProvider serviceProvider, DbContextOptions options) : base(options)
+    public DbContextBase(IServiceProvider serviceProvider, DbContextOptions options) : base(options)
     {{
         _serviceProvider = serviceProvider;
     }}
@@ -155,7 +155,7 @@ namespace {ns};
 }}
 ");
 
-        context.AddSource($"{ns}.BaseDbContext.g", sb.ToString());
+        context.AddSource($"{ns}.DbContextBase.g", sb.ToString());
     }
 
 }

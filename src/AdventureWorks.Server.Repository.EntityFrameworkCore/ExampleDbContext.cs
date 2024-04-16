@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AdventureWorks.Server.Repository.EntityFrameworkCore;
 
-public class ExampleDbContext : BaseDbContext
+public class ExampleDbContext : DbContextBase
 {
 
     public ExampleDbContext(IServiceProvider serviceProvider, DbContextOptions<ExampleDbContext> dbContextOptions) : base(serviceProvider, dbContextOptions)

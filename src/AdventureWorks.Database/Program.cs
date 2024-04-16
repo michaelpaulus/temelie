@@ -21,6 +21,6 @@ host.Services.ConfigureStartup();
 var scriptService = host.Services.GetRequiredService<IScriptService>();
 
 scriptService.CreateScripts(
-    new ConnectionStringModel() { Name= "AdventureWorks", DatabaseProviderName = Temelie.Database.Providers.Mssql.DatabaseProvider.Name, ConnectionString = connectionString },
+    new ConnectionStringModel() { Name= "AdventureWorks", DatabaseProviderName = Temelie.Database.Providers.Mssql.DatabaseProvider.ProviderName, ConnectionString = connectionString },
     new DirectoryInfo(Path.Combine(DirectoryConfig.RepoDirectory, "src", "AdventureWorks.Database")),
     new Progress<ScriptProgress>(Console.WriteLine));

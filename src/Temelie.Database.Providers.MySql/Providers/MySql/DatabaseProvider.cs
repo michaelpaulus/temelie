@@ -8,7 +8,7 @@ using MySql.Data.Types;
 
 namespace Temelie.Database.Providers.MySql;
 [ExportProvider(typeof(IDatabaseProvider))]
-public class DatabaseProvider : IDatabaseProvider
+public class DatabaseProvider : DatabaseProviderBase
 {
 
     private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
@@ -21,21 +21,21 @@ public class DatabaseProvider : IDatabaseProvider
         _database = new DatabaseExecutionService(factory);
     }
 
-    public static string Name = nameof(MySqlConnection);
+    public static string ProviderName = nameof(MySqlConnection);
 
-    public string QuoteCharacterStart => "`";
-    public string QuoteCharacterEnd => "`";
+    public override string QuoteCharacterStart => "`";
+    public override string QuoteCharacterEnd => "`";
 
-    string IDatabaseProvider.Name => Name;
+    public override string Name => ProviderName;
 
-    public string DefaultConnectionString => "Data Source=localhost;Database=database;User Id=;Password=";
+    public override string DefaultConnectionString => "Data Source=localhost;Database=database;User Id=;Password=";
 
     public System.Data.Common.DbProviderFactory CreateProvider()
     {
         return new global::MySql.Data.MySqlClient.MySqlClientFactory();
     }
 
-    public bool TryHandleColumnValueLoadException(Exception ex, Models.ColumnModel column, out object value)
+    public override bool TryHandleColumnValueLoadException(Exception ex, Models.ColumnModel column, out object value)
     {
         var mysqlException = ex as MySqlConversionException;
 
@@ -56,7 +56,7 @@ public class DatabaseProvider : IDatabaseProvider
         return false;
     }
 
-    public Models.ColumnTypeModel GetColumnType(Models.ColumnTypeModel sourceColumnType)
+    public override Models.ColumnTypeModel GetColumnType(Models.ColumnTypeModel sourceColumnType)
     {
 
         var targetColumnType = new Models.ColumnTypeModel();
@@ -144,17 +144,17 @@ public class DatabaseProvider : IDatabaseProvider
 
     }
 
-    public DataTable GetDefinitionDependencies(DbConnection connection)
+    protected override DataTable GetDefinitionDependenciesDataTable(DbConnection connection)
     {
         return null;
     }
 
-    public DataTable GetDefinitions(DbConnection connection)
+    protected override DataTable GetDefinitionsDataTable(DbConnection connection)
     {
         return null;
     }
 
-    public DataTable GetForeignKeys(DbConnection connection)
+    protected override DataTable GetForeignKeysDataTable(DbConnection connection)
     {
         var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connection.ConnectionString);
         var sql = $"SELECT KCU.table_name, KCU.constraint_name AS foreign_key_name, KCU.column_name, KCU.referenced_table_name, KCU.referenced_column_name, 0 AS is_not_for_replication, CASE WHEN RC.delete_rule = 'RESTRICT' THEN 'NO ACTION' ELSE RC.delete_rule END delete_action, CASE WHEN RC.update_rule = 'RESTRICT' THEN 'NO ACTION' ELSE RC.update_rule END update_action FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE KCU JOIN INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS RC ON KCU.CONSTRAINT_CATALOG = RC.CONSTRAINT_CATALOG AND KCU.CONSTRAINT_SCHEMA = RC.CONSTRAINT_SCHEMA AND KCU.CONSTRAINT_NAME = RC.CONSTRAINT_NAME WHERE RC.constraint_schema = '{csb.Database}' ORDER BY KCU.table_name, KCU.CONSTRAINT_NAME, KCU.ORDINAL_POSITION";
@@ -163,12 +163,12 @@ public class DatabaseProvider : IDatabaseProvider
         return dataTable;
     }
 
-    public DataTable GetCheckConstraints(DbConnection connection)
+    protected override DataTable GetCheckConstraintsDataTable(DbConnection connection)
     {
         return null;
     }
 
-    public DataTable GetIndexes(DbConnection connection)
+    protected override DataTable GetIndexesDataTable(DbConnection connection)
     {
         var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connection.ConnectionString);
         var sql = $"SELECT statistics.table_name, statistics.index_name, statistics.column_name, statistics.seq_in_index AS key_ordinal, CASE WHEN statistics.non_unique = 0 THEN 1 ELSE 0 END AS is_unique FROM information_schema.statistics WHERE table_schema = '{csb.Database}'";
@@ -203,7 +203,7 @@ public class DatabaseProvider : IDatabaseProvider
         return dataTable;
     }
 
-    public DataTable GetTableColumns(DbConnection connection)
+    protected override DataTable GetTableColumnsDataTable(DbConnection connection)
     {
         var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connection.ConnectionString);
         var sql = $"SELECT *, table_schema schema_name FROM INFORMATION_SCHEMA.COLUMNS WHERE table_schema = '{csb.Database}'";
@@ -217,7 +217,7 @@ public class DatabaseProvider : IDatabaseProvider
         return dataTable;
     }
 
-    public DataTable GetTables(DbConnection connection)
+    protected override DataTable GetTablesDataTable(DbConnection connection)
     {
         var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connection.ConnectionString);
         var sql = $"SELECT table_name, table_schema schema_name FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = '{csb.Database}'";
@@ -226,29 +226,29 @@ public class DatabaseProvider : IDatabaseProvider
         return dataTable;
     }
 
-    public DataTable GetTriggers(DbConnection connection)
+    protected override DataTable GetTriggersDataTable(DbConnection connection)
     {
         return null;
     }
 
-    public DataTable GetViewColumns(DbConnection connection)
+    protected override DataTable GetViewColumnsDataTable(DbConnection connection)
     {
         return null;
     }
 
-    public DataTable GetViews(DbConnection connection)
+    protected override DataTable GetViewsDataTable(DbConnection connection)
     {
         return null;
     }
 
-    public string TransformConnectionString(string connectionString)
+    public override string TransformConnectionString(string connectionString)
     {
         var csb = new MySqlConnectionStringBuilder(connectionString);
         csb.DefaultCommandTimeout = Temelie.Database.Services.DatabaseExecutionService.DefaultCommandTimeout;
         return csb.ConnectionString;
     }
 
-    public void UpdateParameter(DbParameter parameter, ColumnModel column)
+    public override void UpdateParameter(DbParameter parameter, ColumnModel column)
     {
         switch (parameter.DbType)
         {
@@ -385,7 +385,7 @@ public class DatabaseProvider : IDatabaseProvider
         foreach (var row in table.Rows.OfType<DataRow>())
         {
 
-            string columnDefault = Services.DatabaseStructureService.GetStringValue(row, "COLUMN_DEFAULT");
+            string columnDefault = GetStringValue(row, "COLUMN_DEFAULT");
 
             if (!string.IsNullOrEmpty(columnDefault))
             {
@@ -445,7 +445,7 @@ public class DatabaseProvider : IDatabaseProvider
 
     }
 
-    public void SetReadTimeout(DbCommand sourceCommand)
+    public override void SetReadTimeout(DbCommand sourceCommand)
     {
         var command = sourceCommand as MySqlCommand;
         if (command != null)
@@ -455,67 +455,62 @@ public class DatabaseProvider : IDatabaseProvider
         }
     }
 
-    public DataTable GetIndexeBucketCounts(DbConnection connection)
+    protected override DataTable GetIndexeBucketCountsDataTable(DbConnection connection)
     {
         return null;
     }
 
-    public DataTable GetSecurityPolicies(DbConnection connection)
+    protected override DataTable GetSecurityPoliciesDataTable(DbConnection connection)
     {
         return null;
     }
 
-    public void ConvertBulk(TableConverterService service, IProgress<TableProgress> progress, TableModel sourceTable, IDataReader sourceReader, int sourceRowCount, TableModel targetTable, DbConnection targetConnection, bool trimStrings, int batchSize, bool useTransaction = true, bool validateTargetTable = true)
-    {
-        throw new NotImplementedException();
-    }
-
-    public string GetDatabaseName(string connectionString)
+    public override string GetDatabaseName(string connectionString)
     {
         return new MySqlConnectionStringBuilder(connectionString).Database;
     }
 
-    public bool SupportsConnection(DbConnection connection)
+    public override bool SupportsConnection(DbConnection connection)
     {
         return connection is MySqlConnection;
     }
 
-    public DbConnection CreateConnection()
+    public override DbConnection CreateConnection()
     {
         return new MySqlConnection();
     }
 
-    public IDatabaseObjectScript GetScript(CheckConstraintModel model)
+    public override IDatabaseObjectScript GetScript(CheckConstraintModel model)
     {
         throw new NotImplementedException();
     }
 
-    public IDatabaseObjectScript GetScript(DefinitionModel model)
+    public override IDatabaseObjectScript GetScript(DefinitionModel model)
     {
         throw new NotImplementedException();
     }
 
-    public IDatabaseObjectScript GetScript(ForeignKeyModel model)
+    public override IDatabaseObjectScript GetScript(ForeignKeyModel model)
     {
         throw new NotImplementedException();
     }
 
-    public IDatabaseObjectScript GetScript(IndexModel model)
+    public override IDatabaseObjectScript GetScript(IndexModel model)
     {
         throw new NotImplementedException();
     }
 
-    public IDatabaseObjectScript GetScript(SecurityPolicyModel model)
+    public override IDatabaseObjectScript GetScript(SecurityPolicyModel model)
     {
         throw new NotImplementedException();
     }
 
-    public IDatabaseObjectScript GetScript(TableModel model)
+    public override IDatabaseObjectScript GetScript(TableModel model)
     {
         throw new NotImplementedException();
     }
 
-    public IDatabaseObjectScript GetScript(TriggerModel model)
+    public override IDatabaseObjectScript GetScript(TriggerModel model)
     {
         throw new NotImplementedException();
     }

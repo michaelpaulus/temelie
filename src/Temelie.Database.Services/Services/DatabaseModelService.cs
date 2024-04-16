@@ -11,15 +11,12 @@ public class DatabaseModelService : IDatabaseModelService
 {
     private readonly IDatabaseFactory _databaseFactory;
     private readonly IDatabaseExecutionService _databaseExecutionService;
-    private readonly IDatabaseStructureService _databaseStructureService;
 
     public DatabaseModelService(IDatabaseFactory databaseFactory,
-        IDatabaseExecutionService databaseExecutionService,
-        IDatabaseStructureService databaseStructureService)
+        IDatabaseExecutionService databaseExecutionService)
     {
         _databaseFactory = databaseFactory;
         _databaseExecutionService = databaseExecutionService;
-        _databaseStructureService = databaseStructureService;
     }
 
     public DatabaseModel CreateModel(ConnectionStringModel connectionString, DatabaseModelOptions options = null)
@@ -43,22 +40,22 @@ public class DatabaseModelService : IDatabaseModelService
 
         var tableColumns = GetTableColumns(connection);
 
-        var tables = GetTables(options, connection, tableColumns);
+        var tables = GetTables(connection, options, tableColumns);
 
         var viewColumns = GetViewColumns(connection);
 
-        var views = GetViews(options, connection, viewColumns);
+        var views = GetViews(connection, options, viewColumns);
 
-        var defs = GetDefinitions(options, connection, views);
+        var defs = GetDefinitions(connection, options, views);
 
         var tableNames = tables.Select(i => i.TableName).ToList();
         var viewNames = views.Select(i => i.TableName).ToList();
 
-        var fks = GetForeignKeys(connection, tableNames);
+        var fks = GetForeignKeys(connection).Where(i => tableNames.Contains(i.TableName) && tableNames.Contains(i.ReferencedTableName)).ToList();
 
-        var conts = GetCheckConstraints(connection, tableNames);
-        var indexes = GetIndexes(connection, tableNames);
-        var triggers = GetTriggers(options, connection, tableNames, viewNames);
+        var conts = GetCheckConstraints(connection).Where(i => tableNames.Contains(i.TableName) ).ToList();
+        var indexes = GetIndexes(connection).Where(i => tableNames.Contains(i.TableName)).ToList();
+        var triggers = GetTriggers(connection, options).Where(i => tableNames.Contains(i.TableName)).ToList();
         var secPol = GetSecurityPolicies(connection);
 
         return new DatabaseModel(
@@ -74,13 +71,15 @@ public class DatabaseModelService : IDatabaseModelService
 
     private IEnumerable<ColumnModel> GetViewColumns(DbConnection connection)
     {
-        return _databaseStructureService.GetViewColumns(connection);
+        var provider = _databaseFactory.GetDatabaseProvider(connection);
+        return provider.GetViewColumns(connection);
     }
 
-    private IEnumerable<TableModel> GetViews(DatabaseModelOptions options, DbConnection connection, IEnumerable<ColumnModel> columns)
+    private IEnumerable<TableModel> GetViews(DbConnection connection, DatabaseModelOptions options, IEnumerable<ColumnModel> columns)
     {
+        var provider = _databaseFactory.GetDatabaseProvider(connection);
 
-        var views = _databaseStructureService.GetViews(connection, columns).OrderBy(i => i.TableName).ToList();
+        var views = provider.GetViews(connection, columns).OrderBy(i => i.TableName).ToList();
 
         if (!(string.IsNullOrEmpty(options.ObjectFilter)))
         {
@@ -98,10 +97,11 @@ public class DatabaseModelService : IDatabaseModelService
         return views.ToList();
     }
 
-    private IEnumerable<DefinitionModel> GetDefinitions(DatabaseModelOptions options, DbConnection connection, IEnumerable<TableModel> views)
+    private IEnumerable<DefinitionModel> GetDefinitions(DbConnection connection, DatabaseModelOptions options, IEnumerable<TableModel> views)
     {
+        var provider = _databaseFactory.GetDatabaseProvider(connection);
 
-        var definitions = _databaseStructureService.GetDefinitions(connection);
+        var definitions = provider.GetDefinitions(connection);
 
         foreach (var def in definitions.Where(i => i.Type == "VIEW"))
         {
@@ -126,24 +126,31 @@ public class DatabaseModelService : IDatabaseModelService
         return filteredList.ToList();
     }
 
-    private IEnumerable<Models.ForeignKeyModel> GetForeignKeys(DbConnection connection, IEnumerable<string> tableNames)
+    private IEnumerable<Models.ForeignKeyModel> GetForeignKeys(DbConnection connection)
     {
-        return (from i in _databaseStructureService.GetForeignKeys(connection, tableNames) orderby i.TableName, i.ForeignKeyName select i).ToList();
+        var provider = _databaseFactory.GetDatabaseProvider(connection);
+
+        return (from i in provider.GetForeignKeys(connection) orderby i.TableName, i.ForeignKeyName select i).ToList();
     }
 
-    private IEnumerable<Models.CheckConstraintModel> GetCheckConstraints(DbConnection connection, IEnumerable<string> tableNames)
+    private IEnumerable<Models.CheckConstraintModel> GetCheckConstraints(DbConnection connection)
     {
-        return (from i in _databaseStructureService.GetCheckConstraints(connection, tableNames) orderby i.TableName, i.CheckConstraintName select i).ToList();
+        var provider = _databaseFactory.GetDatabaseProvider(connection);
+
+        return (from i in provider.GetCheckConstraints(connection) orderby i.TableName, i.CheckConstraintName select i).ToList();
     }
 
-    private IEnumerable<Models.IndexModel> GetIndexes(DbConnection connection, IEnumerable<string> tableNames)
+    private IEnumerable<Models.IndexModel> GetIndexes(DbConnection connection)
     {
-        return (from i in _databaseStructureService.GetIndexes(connection, tableNames, null) orderby i.TableName, i.IndexName select i).ToList();
+        var provider = _databaseFactory.GetDatabaseProvider(connection);
+        return (from i in provider.GetIndexes(connection) orderby i.TableName, i.IndexName select i).ToList();
     }
 
-    private IEnumerable<Models.TableModel> GetTables(DatabaseModelOptions options, DbConnection connection, IEnumerable<ColumnModel> columns)
+    private IEnumerable<Models.TableModel> GetTables(DbConnection connection, DatabaseModelOptions options, IEnumerable<ColumnModel> columns)
     {
-        var tables = _databaseStructureService.GetTables(connection, columns).OrderBy(i => i.TableName).ToList();
+        var provider = _databaseFactory.GetDatabaseProvider(connection);
+
+        var tables = provider.GetTables(connection, columns).OrderBy(i => i.TableName).ToList();
 
         if (!(string.IsNullOrEmpty(options.ObjectFilter)))
         {
@@ -162,12 +169,16 @@ public class DatabaseModelService : IDatabaseModelService
 
     private IEnumerable<ColumnModel> GetTableColumns(DbConnection connection)
     {
-        return _databaseStructureService.GetTableColumns(connection);
+        var provider = _databaseFactory.GetDatabaseProvider(connection);
+
+        return provider.GetTableColumns(connection);
     }
 
-    private IEnumerable<TriggerModel> GetTriggers(DatabaseModelOptions options, DbConnection connection, IEnumerable<string> tableNames, IEnumerable<string> viewNames)
+    private IEnumerable<TriggerModel> GetTriggers(DbConnection connection, DatabaseModelOptions options)
     {
-        var triggers = _databaseStructureService.GetTriggers(connection, tableNames, viewNames, options.ObjectFilter).OrderBy(i => i.TriggerName).ToList();
+        var provider = _databaseFactory.GetDatabaseProvider(connection);
+
+        var triggers = provider.GetTriggers(connection).OrderBy(i => i.TriggerName).ToList();
 
         if (!(string.IsNullOrEmpty(options.ObjectFilter)))
         {
@@ -187,6 +198,7 @@ public class DatabaseModelService : IDatabaseModelService
 
     private IEnumerable<SecurityPolicyModel> GetSecurityPolicies(DbConnection connection)
     {
-        return _databaseStructureService.GetSecurityPolicies(connection).OrderBy(i => i.PolicyName).ToList();
+        var provider = _databaseFactory.GetDatabaseProvider(connection);
+        return provider.GetSecurityPolicies(connection).OrderBy(i => i.PolicyName).ToList();
     }
 }

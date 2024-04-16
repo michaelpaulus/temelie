@@ -10,7 +10,7 @@ using Temelie.Database.Extensions;
 namespace Temelie.Database.Providers.Mssql;
 
 [ExportProvider(typeof(IDatabaseProvider))]
-public class DatabaseProvider : IDatabaseProvider
+public class DatabaseProvider : DatabaseProviderBase
 {
 
     private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
@@ -23,21 +23,21 @@ public class DatabaseProvider : IDatabaseProvider
         _databaseService = new Services.DatabaseExecutionService(factory);
     }
 
-    public static string Name => nameof(SqlConnection);
+    public static string ProviderName => nameof(SqlConnection);
 
-    public string QuoteCharacterStart => "[";
-    public string QuoteCharacterEnd => "]";
+    public override string QuoteCharacterStart => "[";
+    public override string QuoteCharacterEnd => "]";
 
-    string IDatabaseProvider.Name => Name;
+    public override string Name => ProviderName;
 
-    public string DefaultConnectionString => "Data Source=(local);Initial Catalog=Database;Integrated Security=True;User Id=;Password=;Encrypt=False;";
+    public override string DefaultConnectionString => "Data Source=(local);Initial Catalog=Database;Integrated Security=True;User Id=;Password=;Encrypt=False;";
 
     public DbProviderFactory CreateProvider()
     {
         return SqlClientFactory.Instance;
     }
 
-    public ColumnTypeModel GetColumnType(ColumnTypeModel sourceColumnType)
+    public override ColumnTypeModel GetColumnType(ColumnTypeModel sourceColumnType)
     {
 
         var targetColumnType = new Models.ColumnTypeModel();
@@ -75,7 +75,7 @@ public class DatabaseProvider : IDatabaseProvider
 
     }
 
-    public DataTable GetDefinitionDependencies(DbConnection connection)
+    protected override DataTable GetDefinitionDependenciesDataTable(DbConnection connection)
     {
         string sql = @"
                         SELECT 
@@ -100,7 +100,7 @@ public class DatabaseProvider : IDatabaseProvider
         return dataTable;
     }
 
-    public DataTable GetDefinitions(DbConnection connection)
+    protected override DataTable GetDefinitionsDataTable(DbConnection connection)
     {
         string sql = @"
                         SELECT 
@@ -128,7 +128,7 @@ public class DatabaseProvider : IDatabaseProvider
         DataTable dataTable = ds.Tables[0];
         return dataTable;
     }
-    public DataTable GetSecurityPolicies(DbConnection connection)
+    protected override DataTable GetSecurityPoliciesDataTable(DbConnection connection)
     {
         string sql = @"
        SELECT policySchema.name PolicySchema,
@@ -151,7 +151,7 @@ FROM sys.security_policies
         return dataTable;
     }
 
-    public DataTable GetForeignKeys(DbConnection connection)
+    protected override DataTable GetForeignKeysDataTable(DbConnection connection)
     {
         string sql = @"
 SELECT 
@@ -196,7 +196,7 @@ ORDER BY
         return dataTable;
     }
 
-    public DataTable GetCheckConstraints(DbConnection connection)
+    protected override DataTable GetCheckConstraintsDataTable(DbConnection connection)
     {
         string sql = @"
 SELECT 
@@ -220,7 +220,7 @@ ORDER BY
         return dataTable;
     }
 
-    public DataTable GetIndexeBucketCounts(DbConnection connection)
+    protected override DataTable GetIndexeBucketCountsDataTable(DbConnection connection)
     {
         try
         {
@@ -250,7 +250,7 @@ FROM
         return null;
     }
 
-    public DataTable GetIndexes(DbConnection connection)
+    protected override DataTable GetIndexesDataTable(DbConnection connection)
     {
         var dtIndexes = _databaseService.Execute(connection, @"
 SELECT
@@ -312,7 +312,7 @@ ORDER BY
         return dtIndexes;
     }
 
-    public DataTable GetTableColumns(DbConnection connection)
+    protected override DataTable GetTableColumnsDataTable(DbConnection connection)
     {
         string sql2014 = @"
                         SELECT
@@ -464,7 +464,7 @@ ORDER BY
         return dataTable;
     }
 
-    public DataTable GetTables(DbConnection connection)
+    protected override DataTable GetTablesDataTable(DbConnection connection)
     {
         string sql2014 = @"
 SELECT 
@@ -597,7 +597,7 @@ ORDER BY
         return dataTable;
     }
 
-    public DataTable GetTriggers(DbConnection connection)
+    protected override DataTable GetTriggersDataTable(DbConnection connection)
     {
         string sql = @"
                     SELECT
@@ -650,7 +650,7 @@ ORDER BY
         return dataTable;
     }
 
-    public DataTable GetViewColumns(DbConnection connection)
+    protected override DataTable GetViewColumnsDataTable(DbConnection connection)
     {
         string sql2014 = @"
 SELECT
@@ -801,7 +801,7 @@ ORDER BY
         return dataTable;
     }
 
-    public DataTable GetViews(DbConnection connection)
+    protected override DataTable GetViewsDataTable(DbConnection connection)
     {
 
         string sql2014 = @"
@@ -854,24 +854,19 @@ ORDER BY
         return dataTable;
     }
 
-    public void SetReadTimeout(DbCommand sourceCommand)
-    {
-
-    }
-
-    public string TransformConnectionString(string connectionString)
+    public override string TransformConnectionString(string connectionString)
     {
         var csb = new SqlConnectionStringBuilder(connectionString);
         return csb.ConnectionString;
     }
 
-    public bool TryHandleColumnValueLoadException(Exception ex, ColumnModel column, out object value)
+    public override bool TryHandleColumnValueLoadException(Exception ex, ColumnModel column, out object value)
     {
         value = null;
         return false;
     }
 
-    public void UpdateParameter(DbParameter parameter, ColumnModel column)
+    public override void UpdateParameter(DbParameter parameter, ColumnModel column)
     {
         switch (parameter.DbType)
         {
@@ -888,7 +883,7 @@ ORDER BY
         }
     }
 
-    public void ConvertBulk(TableConverterService service, IProgress<TableProgress> progress, TableModel sourceTable, IDataReader sourceReader, int sourceRowCount, TableModel targetTable, DbConnection targetConnection, bool trimStrings, int batchSize, bool useTransaction = true, bool validateTargetTable = true)
+    public override void ConvertBulk(TableConverterService service, IProgress<TableProgress> progress, TableModel sourceTable, IDataReader sourceReader, int sourceRowCount, TableModel targetTable, DbConnection targetConnection, bool trimStrings, int batchSize, bool useTransaction = true, bool validateTargetTable = true)
     {
         progress?.Report(new TableProgress() { ProgressPercentage = 0, Table = sourceTable });
 
@@ -973,23 +968,23 @@ ORDER BY
         }
     }
 
-    public string GetDatabaseName(string connectionString)
+    public override string GetDatabaseName(string connectionString)
     {
         var sqlCommandBuilder = new SqlConnectionStringBuilder(connectionString);
         return sqlCommandBuilder.InitialCatalog;
     }
 
-    public bool SupportsConnection(DbConnection connection)
+    public override bool SupportsConnection(DbConnection connection)
     {
         return connection is SqlConnection;
     }
 
-    public DbConnection CreateConnection()
+    public override DbConnection CreateConnection()
     {
         return new SqlConnection();
     }
 
-    public IDatabaseObjectScript GetScript(CheckConstraintModel model)
+    public override IDatabaseObjectScript GetScript(CheckConstraintModel model)
     {
         string generateDropScript()
         {
@@ -1066,7 +1061,7 @@ GO");
         return new DatabaseObjectScript(generateCreateScript, generateDropScript);
     }
 
-    public IDatabaseObjectScript GetScript(DefinitionModel model)
+    public override IDatabaseObjectScript GetScript(DefinitionModel model)
     {
 
         string generateDropScript()
@@ -1105,7 +1100,7 @@ GO");
 
     }
 
-    public IDatabaseObjectScript GetScript(ForeignKeyModel model)
+    public override IDatabaseObjectScript GetScript(ForeignKeyModel model)
     {
 
         string generateDropScript()
@@ -1261,7 +1256,7 @@ GO");
 
     }
 
-    public IDatabaseObjectScript GetScript(IndexModel model)
+    public override IDatabaseObjectScript GetScript(IndexModel model)
     {
 
         string generateDropScript()
@@ -1472,7 +1467,7 @@ GO");
         return new DatabaseObjectScript(generateCreateScript, generateDropScript);
     }
 
-    public IDatabaseObjectScript GetScript(SecurityPolicyModel model)
+    public override IDatabaseObjectScript GetScript(SecurityPolicyModel model)
     {
 
         string generateCreateScript()
@@ -1557,7 +1552,7 @@ GO");
         return new DatabaseObjectScript(generateCreateScript, generateDropScript);
     }
 
-    public IDatabaseObjectScript GetScript(TableModel model)
+    public override IDatabaseObjectScript GetScript(TableModel model)
     {
 
         string generateDropScript()
@@ -1706,7 +1701,7 @@ GO");
         return new DatabaseObjectScript(generateCreateScript, generateDropScript);
     }
 
-    public IDatabaseObjectScript GetScript(TriggerModel model)
+    public override IDatabaseObjectScript GetScript(TriggerModel model)
     {
 
         string generateDropScript()
