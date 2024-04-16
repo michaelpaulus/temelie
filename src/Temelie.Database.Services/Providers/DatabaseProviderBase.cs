@@ -269,14 +269,11 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
 
                 list.Add(foreignKey);
 
-                foreach (var detailRow in tableGroup.Items)
+                foreignKey.Detail = tableGroup.Items.Select(i => new ForeignKeyDetailModel
                 {
-                    foreignKey.Detail.Add(new ForeignKeyDetailModel
-                    {
-                        Column = detailRow["column_name"].ToString(),
-                        ReferencedColumn = detailRow["referenced_column_name"].ToString()
-                    });
-                }
+                    Column = i["column_name"].ToString(),
+                    ReferencedColumn = i["referenced_column_name"].ToString()
+                }).ToList();
 
             }
         }

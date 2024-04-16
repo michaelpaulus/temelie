@@ -231,7 +231,7 @@ public class ScriptService : IScriptService
         var provider = _databaseFactory.GetDatabaseProvider(connectionString);
         Models.DatabaseModel database = _databaseModelService.CreateModel(connectionString, new Models.DatabaseModelOptions { ObjectFilter = objectFilter, ExcludeDoubleUnderscoreObjects = true });
 
-        var preferredList = new List<string>()
+        var directoryList = new List<string>()
                 {
                     "02_Tables",
                     "03_Indexes",
@@ -243,24 +243,60 @@ public class ScriptService : IScriptService
                     "09_SecurityPolicies"
                 };
 
-        var directoryList = preferredList.Where(i => Directory.Exists(Path.Combine(directory.FullName, i))).OrderBy(i => i).ToList();
-
-        if (!directoryList.Any())
+        foreach (var di in directoryList)
         {
-            foreach (var di in preferredList)
+            if (!Directory.Exists(Path.Combine(directory.FullName, di)))
             {
-                if (!Directory.Exists(Path.Combine(directory.FullName, di)))
-                {
-                    Directory.CreateDirectory(Path.Combine(directory.FullName, di));
-                }
+                Directory.CreateDirectory(Path.Combine(directory.FullName, di));
             }
-            directoryList = preferredList.OrderBy(i => i).ToList();
+            if (!Directory.Exists(Path.Combine(directory.FullName, "01_Drop", di)))
+            {
+                Directory.CreateDirectory(Path.Combine(directory.FullName, "01_Drop", di));
+            }
         }
 
         int intIndex = 1;
         int intTotalCount = directoryList.Count();
 
         int intProgress = 0;
+
+        void syncFiles<T>(DirectoryInfo subDirectory, Dictionary<string, FileInfo> files, Func<T, IDatabaseObjectScript> getScript) where T : Model
+        {
+            foreach (var file in subDirectory.GetFiles("*.sql"))
+            {
+                if (files.ContainsKey(file.Name))
+                {
+                    var dropFileName = Path.Combine(directory.FullName, "01_Drop", subDirectory.Name, file.Name);
+                    if (File.Exists(dropFileName))
+                    {
+                        File.Delete(dropFileName);
+                    }
+                }
+                else
+                {
+                    file.Delete();
+                }
+            }
+            foreach (var file in subDirectory.GetFiles("*.sql.json"))
+            {
+                var dropFileName = Path.Combine(directory.FullName, "01_Drop", subDirectory.Name, file.Name);
+                if (files.ContainsKey(file.Name))
+                {
+                    if (File.Exists(dropFileName))
+                    {
+                        File.Delete(dropFileName);
+                    }
+                }
+                else
+                {
+                    var model = JsonSerializer.Deserialize<T>(File.ReadAllText(file.FullName), ModelsJsonSerializerOptions.Default);
+                    var script = getScript(model);
+                    WriteIfDifferent(dropFileName.Replace(".json", ""), script.DropScript);
+                    WriteIfDifferent(dropFileName, File.ReadAllText(file.FullName));
+                    file.Delete();
+                }
+            }
+        }
 
         foreach (var subDirectoryName in directoryList)
         {
@@ -274,113 +310,42 @@ public class ScriptService : IScriptService
             if (subDirectory.Name.StartsWith("02_Tables", StringComparison.InvariantCultureIgnoreCase))
             {
                 var files = CreateTableScripts(provider, database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
-                foreach (var file in subDirectory.GetFiles("*.sql"))
-                {
-                    if (!files.ContainsKey(file.Name))
-                    {
-                        file.Delete();
-                    }
-                }
-                foreach (var file in subDirectory.GetFiles("*.sql.json"))
-                {
-                    if (!files.ContainsKey(file.Name))
-                    {
-                        file.Delete();
-                    }
-                }
+                syncFiles<TableModel>(subDirectory, files, provider.GetScript);
             }
             else if (subDirectory.Name.StartsWith("03_Indexes", StringComparison.InvariantCultureIgnoreCase))
             {
-
                 var files = CreateIndexScripts(provider, database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
-                foreach (var file in subDirectory.GetFiles("*.sql"))
-                {
-                    if (!files.ContainsKey(file.Name))
-                    {
-                        file.Delete();
-                    }
-                }
+                syncFiles<IndexModel>(subDirectory, files, provider.GetScript);
             }
             else if (subDirectory.Name.StartsWith("04_CheckConstraints", StringComparison.InvariantCultureIgnoreCase))
             {
-
                 var files = CreateCheckConstraintScripts(provider, database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
-                foreach (var file in subDirectory.GetFiles("*.sql"))
-                {
-                    if (!files.ContainsKey(file.Name))
-                    {
-                        file.Delete();
-                    }
-                }
+                syncFiles<CheckConstraintModel>(subDirectory, files, provider.GetScript);
             }
             else if (subDirectory.Name.StartsWith("05_Programmability", StringComparison.InvariantCultureIgnoreCase))
             {
                 var files = CreateViewsAndProgrammabilityScripts(provider, database, subDirectory, false, true).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
-                foreach (var file in subDirectory.GetFiles("*.sql"))
-                {
-                    if (!files.ContainsKey(file.Name))
-                    {
-                        file.Delete();
-                    }
-                }
-                foreach (var file in subDirectory.GetFiles("*.sql.json"))
-                {
-                    if (!files.ContainsKey(file.Name))
-                    {
-                        file.Delete();
-                    }
-                }
+                syncFiles<DefinitionModel>(subDirectory, files, provider.GetScript);
             }
             else if (subDirectory.Name.StartsWith("05_Views", StringComparison.InvariantCultureIgnoreCase))
             {
                 var files = CreateViewsAndProgrammabilityScripts(provider, database, subDirectory, true, false).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
-                foreach (var file in subDirectory.GetFiles("*.sql"))
-                {
-                    if (!files.ContainsKey(file.Name))
-                    {
-                        file.Delete();
-                    }
-                }
-                foreach (var file in subDirectory.GetFiles("*.sql.json"))
-                {
-                    if (!files.ContainsKey(file.Name))
-                    {
-                        file.Delete();
-                    }
-                }
+                syncFiles<TableModel>(subDirectory, files, provider.GetScript);
             }
             else if (subDirectory.Name.StartsWith("06_Triggers", StringComparison.InvariantCultureIgnoreCase))
             {
                 var files = CreateTriggerScripts(provider, database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
-                foreach (var file in subDirectory.GetFiles("*.sql"))
-                {
-                    if (!files.ContainsKey(file.Name))
-                    {
-                        file.Delete();
-                    }
-                }
+                syncFiles<TriggerModel>(subDirectory, files, provider.GetScript);
             }
             else if (subDirectory.Name.StartsWith("08_ForeignKeys", StringComparison.InvariantCultureIgnoreCase))
             {
                 var files = CreateFkScripts(provider, database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
-                foreach (var file in subDirectory.GetFiles("*.sql"))
-                {
-                    if (!files.ContainsKey(file.Name))
-                    {
-                        file.Delete();
-                    }
-                }
+                syncFiles<ForeignKeyModel>(subDirectory, files, provider.GetScript);
             }
             else if (subDirectory.Name.StartsWith("09_SecurityPolicies", StringComparison.InvariantCultureIgnoreCase))
             {
                 var files = CreateSecurityPolicyScripts(provider, database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
-                foreach (var file in subDirectory.GetFiles("*.sql"))
-                {
-                    if (!files.ContainsKey(file.Name))
-                    {
-                        file.Delete();
-                    }
-                }
+                syncFiles<SecurityPolicyModel>(subDirectory, files, provider.GetScript);
             }
 
             intProgress = Convert.ToInt32((intIndex / (double)intTotalCount) * 100);

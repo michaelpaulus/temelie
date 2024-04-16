@@ -94,7 +94,7 @@ public class DatabaseModel(
                 var json = file.Contents;
                 if (name.Contains("02_Tables"))
                 {
-                    var model = JsonSerializer.Deserialize(json, typeof(TableModel), ModelsJsonSerializerOptions.Default)! as TableModel;
+                    var model = JsonSerializer.Deserialize<TableModel>(json, ModelsJsonSerializerOptions.Default);
                     tables.Add(model);
                 }
                 else if (name.Contains("03_Indexes"))
