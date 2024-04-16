@@ -55,11 +55,31 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
             foreach (var column in table.Columns)
             {
                 var columnProperties = new StringBuilder();
+
+                var fkSouceColumn = databaseModel.GetForeignKeySourceColumn(table.TableName, column.ColumnName);
+
+                if (fkSouceColumn is not null)
+                {
+                    columnProperties.AppendLine();
+                    if (column.IsNullable)
+                    {
+                        columnProperties.Append($"                .HasConversion(id => id.HasValue ? id.Value.Value : default, value => new {fkSouceColumn.PropertyName}(value))");
+                    }
+                    else
+                    {
+                        columnProperties.Append($"                .HasConversion(id => id.Value, value => new {fkSouceColumn.PropertyName}(value))");
+                    }
+                   
+                }
+                else if (column.IsPrimaryKey)
+                {
+                    columnProperties.AppendLine();
+                    columnProperties.Append($"                .HasConversion(id => id.Value, value => new {column.PropertyName}(value))");
+                }
+
                 if (column.IsPrimaryKey)
                 {
                     keys.Add(column.PropertyName);
-                    columnProperties.AppendLine();
-                    columnProperties.Append($"                .HasConversion(id => id.Value, value => new {column.PropertyName}(value))");
                 }
 
                 if (column.IsIdentity)
@@ -71,7 +91,7 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
                 if (column.ColumnName != column.PropertyName)
                 {
                     columnProperties.AppendLine();
-                    columnProperties.Append($"                .HasColumnName(\"{column.ColumnName}\");");
+                    columnProperties.Append($"                .HasColumnName(\"{column.ColumnName}\")");
                 }
 
                 if (columnProperties.Length > 0)

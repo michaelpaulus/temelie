@@ -27,6 +27,38 @@ public class DatabaseModel(
 
     public IEnumerable<IndexModel> PrimaryKeys => (from i in _allIndexes where i.IsPrimaryKey select i).ToList();
 
+    public ColumnModel GetForeignKeySourceColumn(string sourceTableName, string sourceColumnName)
+    {
+        foreach (var fk in ForeignKeys)
+        {
+            if (fk.TableName == sourceTableName)
+            {
+                foreach (var detail in fk.Detail)
+                {
+                    if (detail.Column == sourceColumnName)
+                    {
+                        var referencedTable = Tables.FirstOrDefault(i => i.TableName == fk.ReferencedTableName);
+                        if (referencedTable is not null)
+                        {
+                            var referencedColumn = referencedTable.Columns.FirstOrDefault(i => i.ColumnName == detail.ReferencedColumn);
+                            if (referencedColumn is not null)
+                            {
+                                var fkColumn = GetForeignKeySourceColumn(referencedTable.TableName, referencedColumn.ColumnName);
+                                if (fkColumn is not null)
+                                {
+                                    return fkColumn;
+                                }
+                                return referencedColumn;
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     public static DatabaseModel CreateFromAssembly(Assembly assembly)
     {
         var files = new List<(string, string)>();

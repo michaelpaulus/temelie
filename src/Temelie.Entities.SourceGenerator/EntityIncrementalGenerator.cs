@@ -39,8 +39,6 @@ public class EntityIncrementalGenerator : IIncrementalGenerator
                 var ns = assemblyName;
                 var className = table.ClassName;
 
-                var pk = databaseModel.PrimaryKeys.FirstOrDefault(i => i.TableName == table.TableName && i.SchemaName == table.SchemaName);
-
                 var sb = new StringBuilder();
                 sb.AppendLine(@$"using Temelie.Entities;
 #nullable enable
@@ -54,14 +52,15 @@ public record {className} : IEntity<{className}>
                     var propertyType = ColumnModel.GetSystemTypeString(ColumnModel.GetSystemType(column.DbType));
                     var dft = "";
 
-                    if (pk is not null)
+                    var fkSouceColumn = databaseModel.GetForeignKeySourceColumn(table.TableName, column.ColumnName);
+                    if (fkSouceColumn is not null)
                     {
-                        var pkColumn = pk.Columns.FirstOrDefault(i => i.ColumnName == column.ColumnName);
-                        if (pkColumn is not null)
-                        {
-                            pkColumns.Add(column);
-                            propertyType = column.PropertyName;
-                        }
+                        propertyType = fkSouceColumn.PropertyName;
+                    }
+                    else if (column.IsPrimaryKey)
+                    {
+                        propertyType = column.PropertyName;
+                        pkColumns.Add(column);
                     }
 
                     if (propertyName == className)

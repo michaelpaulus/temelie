@@ -14,8 +14,8 @@ namespace Temelie.Database
             public string ReferencedTableName { get; set; }
             public string ReferencedSchemaName { get; set; }
 
-            private IList<ForeignKeyDetailModel> _detail;
-            public IList<ForeignKeyDetailModel> Detail
+            private IEnumerable<ForeignKeyDetailModel> _detail;
+            public IEnumerable<ForeignKeyDetailModel> Detail
             {
                 get
                 {
@@ -24,6 +24,10 @@ namespace Temelie.Database
                         this._detail = new List<ForeignKeyDetailModel>();
                     }
                     return this._detail;
+                }
+                set
+                {
+                    _detail = value;
                 }
             }
 
