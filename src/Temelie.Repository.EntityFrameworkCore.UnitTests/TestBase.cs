@@ -1,6 +1,6 @@
-using AdventureWorks.Server.Repository.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Temelie.DependencyInjection;
 
 namespace Temelie.Repository.EntityFrameworkCore.UnitTests;
 
@@ -15,21 +15,21 @@ public class TestBase
 
     public Task Setup()
     {
+        using var context = new StartupConfigurationContext();
+
         IServiceCollection services = new ServiceCollection();
 
         var configuration = new ConfigurationBuilder();
 
-        configuration.ConfigureStartup();
+        context.Configure(configuration);
 
         services.AddSingleton<IConfiguration>(configuration.Build());
 
-        services.RegisterExports();
-
-        services.ConfigureStartup();
+        context.Configure(services);
 
         ServiceProvider = services.BuildServiceProvider();
 
-        ServiceProvider.ConfigureStartup();
+        context.Configure(ServiceProvider);
 
         return Task.CompletedTask;
     }

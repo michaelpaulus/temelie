@@ -3,20 +3,21 @@ using AdventureWorks.Server.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Temelie.Database.Models;
+using Temelie.DependencyInjection;
 
 var connectionString = "Data Source=(local);Initial Catalog=AdventureWorks2022;Integrated Security=True;Encrypt=False;Application Name=Temelie.Database";
 
+using var context = new StartupConfigurationContext();
+
 var builder = Host.CreateApplicationBuilder(args);
 
-builder.Configuration.ConfigureStartup();
+context.Configure(builder.Configuration);
 
-builder.Services.RegisterExports();
-
-builder.Services.ConfigureStartup();
+context.Configure(builder.Services);
 
 using var host = builder.Build();
 
-host.Services.ConfigureStartup();
+context.Configure(host.Services);
 
 var scriptService = host.Services.GetRequiredService<IScriptService>();
 

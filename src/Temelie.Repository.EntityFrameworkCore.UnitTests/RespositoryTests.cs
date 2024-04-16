@@ -1,5 +1,6 @@
 using AdventureWorks.Entities;
 using AdventureWorks.Repository;
+using AdventureWorks.Server.Repository;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -127,7 +128,7 @@ public class RespositoryTests : TestBase
 
         await repository.AddRangeAsync(list).ConfigureAwait(true);
 
-        var result = await repository.GetCountAsync(new CustomerByAccountNumberQuery("Test")).ConfigureAwait(true);
+        var result = await repository.GetCountAsync(new GenericQuery<Customer>(q => q.Where(i => i.AccountNumber == "Test").OrderBy(i => i.CustomerId))).ConfigureAwait(true);
 
         result.Should().Be(count);
     }

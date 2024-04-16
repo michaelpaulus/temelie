@@ -1,8 +1,8 @@
 using System;
 using System.Windows;
 using Temelie.Database.UI;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Temelie.DependencyInjection;
 
 namespace Temelie.Database.App;
 
@@ -17,17 +17,16 @@ public partial class App : Application, IServiceProviderApplication
 
     protected override void OnStartup(StartupEventArgs e)
     {
+        using var context = new StartupConfigurationContext();
         var builder = Host.CreateApplicationBuilder(e.Args);
 
-        builder.Configuration.ConfigureStartup();
+        context.Configure(builder.Configuration);
 
-        builder.Services.RegisterExports();
-
-        builder.Services.ConfigureStartup();
+        context.Configure(builder.Services);
 
         _host = builder.Build();
 
-        _host.Services.ConfigureStartup();
+        context.Configure(_host.Services);
 
         base.OnStartup(e);
     }

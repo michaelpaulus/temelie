@@ -10,6 +10,7 @@ namespace Temelie.Repository.EntityFrameworkCore.UnitTests;
 [ExportStartupConfiguration]
 public class TestStartupConfiguration : IStartupConfiguration
 {
+    private bool _log;
 
     public IConfigurationBuilder Configure(IConfigurationBuilder builder)
     {
@@ -33,6 +34,10 @@ public class TestStartupConfiguration : IStartupConfiguration
 
         services.AddLogging(options =>
         {
+            options.AddFilter((filter, filter1, level) =>
+            {
+                return _log && level == LogLevel.Information;
+            });
             options.AddConsole();
         });
 
@@ -45,6 +50,7 @@ public class TestStartupConfiguration : IStartupConfiguration
         {
             context.Database.EnsureCreated();
         }
+        _log = true;
         return provider;
     }
 }

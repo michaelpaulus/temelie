@@ -28,29 +28,9 @@ public class DependencyInjectionIncrementalGenerator : IIncrementalGenerator
 
     public static string Generate(IEnumerable<Export> symbols)
     {
-        var sb = new StringBuilder();
-
-        sb.Append(@"namespace Microsoft.Extensions.DependencyInjection;
-
-internal static class Temelie_DependencyInjection_IncrementalGenerator
-{
-");
-
-        regsiterExports();
-
-        startupConfiguration1();
-        startupConfiguration2();
-        startupConfiguration3();
-
-        sb.Append(@"
-}");
-
-        void regsiterExports()
+        string regsiterExports()
         {
-            sb.Append(@"
-    internal static void RegisterExports(this IServiceCollection services)
-    {
-");
+            var sb = new StringBuilder();
             foreach (var export in symbols.Where(i => (i.IsSingleton || i.IsProvider || i.IsTransient) && !string.IsNullOrEmpty(i.ForType) && !string.IsNullOrEmpty(i.Type)).OrderBy(i => i.ForType).GroupBy(i => new { i.ForType, i.IsProvider }))
             {
                 var list = new List<Export>();
@@ -88,59 +68,61 @@ internal static class Temelie_DependencyInjection_IncrementalGenerator
             {
                 sb.AppendLine($"        services.AddHostedService<{hostedService.Type}>();");
             }
-
-            sb.Append(@"
-    }
-");
+            return sb.ToString();
         }
 
-        void startupConfiguration1()
-        {
-            sb.Append(@"
-    internal static void ConfigureStartup(this Microsoft.Extensions.Configuration.IConfigurationBuilder configuration)
-    {
-");
-            foreach (var startupConfig in symbols.Where(i => i.IsStartupConfig))
-            {
-                sb.AppendLine($"        new {startupConfig.Type}().Configure(configuration);");
-            }
+        var sb = new StringBuilder();
+        sb.Append(@$"using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.Generic;
+using Temelie.DependencyInjection;
 
-            sb.Append(@"
-    }
-");
-        }
+namespace Temelie.DependencyInjection;
 
-        void startupConfiguration2()
-        {
-            sb.Append(@"
-    internal static void ConfigureStartup(this Microsoft.Extensions.DependencyInjection.IServiceCollection services)
-    {
-");
-            foreach (var startupConfig in symbols.Where(i => i.IsStartupConfig))
-            {
-                sb.AppendLine($"        new {startupConfig.Type}().Configure(services);");
-            }
+internal class StartupConfigurationContext : IDisposable, IStartupConfiguration
+{{
+    private readonly IEnumerable<IStartupConfiguration> _configurations;
 
-            sb.Append(@"
-    }
-");
-        }
+    public StartupConfigurationContext()
+    {{
+        _configurations = new List<IStartupConfiguration>() {{ {string.Join(", ", symbols.Where(i => i.IsStartupConfig).Select(i => $"new {i.Type}()"))} }};
+    }}
 
-        void startupConfiguration3()
-        {
-            sb.Append(@"
-    internal static void ConfigureStartup(this System.IServiceProvider provider)
-    {
-");
-            foreach (var startupConfig in symbols.Where(i => i.IsStartupConfig))
-            {
-                sb.AppendLine($"        new {startupConfig.Type}().Configure(provider);");
-            }
+    public IConfigurationBuilder Configure(IConfigurationBuilder builder)
+    {{
+        foreach (var config in _configurations)
+        {{
+            config.Configure(builder);
+        }}
+        return builder;
+    }}
 
-            sb.Append(@"
-    }
+    public IServiceCollection Configure(IServiceCollection services)
+    {{
+        foreach (var config in _configurations)
+        {{
+            config.Configure(services);
+        }}
+{regsiterExports()}
+        return services;
+    }}
+
+    public IServiceProvider Configure(IServiceProvider provider)
+    {{
+        foreach (var config in _configurations)
+        {{
+            config.Configure(provider);
+        }}
+        return provider;
+    }}
+
+    public void Dispose()
+    {{
+
+    }}
+}}
 ");
-        }
 
         return sb.ToString();
     }
