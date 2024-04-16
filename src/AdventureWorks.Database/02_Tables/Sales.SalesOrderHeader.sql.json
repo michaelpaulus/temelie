@@ -11,7 +11,7 @@
     {
       "schemaName": "Sales",
       "columnName": "SalesOrderID",
-      "columnID": 1,
+      "columnId": 1,
       "isPrimaryKey": true,
       "precision": 10,
       "scale": 0,
@@ -30,7 +30,7 @@
     {
       "schemaName": "Sales",
       "columnName": "RevisionNumber",
-      "columnID": 2,
+      "columnId": 2,
       "isPrimaryKey": false,
       "precision": 3,
       "scale": 0,
@@ -50,7 +50,7 @@
     {
       "schemaName": "Sales",
       "columnName": "OrderDate",
-      "columnID": 3,
+      "columnId": 3,
       "isPrimaryKey": false,
       "precision": 23,
       "scale": 3,
@@ -70,7 +70,7 @@
     {
       "schemaName": "Sales",
       "columnName": "DueDate",
-      "columnID": 4,
+      "columnId": 4,
       "isPrimaryKey": false,
       "precision": 23,
       "scale": 3,
@@ -89,7 +89,7 @@
     {
       "schemaName": "Sales",
       "columnName": "ShipDate",
-      "columnID": 5,
+      "columnId": 5,
       "isPrimaryKey": false,
       "precision": 23,
       "scale": 3,
@@ -108,7 +108,7 @@
     {
       "schemaName": "Sales",
       "columnName": "Status",
-      "columnID": 6,
+      "columnId": 6,
       "isPrimaryKey": false,
       "precision": 3,
       "scale": 0,
@@ -128,7 +128,7 @@
     {
       "schemaName": "Sales",
       "columnName": "OnlineOrderFlag",
-      "columnID": 7,
+      "columnId": 7,
       "isPrimaryKey": false,
       "precision": 1,
       "scale": 0,
@@ -148,7 +148,7 @@
     {
       "schemaName": "Sales",
       "columnName": "SalesOrderNumber",
-      "columnID": 8,
+      "columnId": 8,
       "isPrimaryKey": false,
       "precision": 25,
       "scale": 0,
@@ -168,7 +168,7 @@
     {
       "schemaName": "Sales",
       "columnName": "PurchaseOrderNumber",
-      "columnID": 9,
+      "columnId": 9,
       "isPrimaryKey": false,
       "precision": 50,
       "scale": 0,
@@ -187,7 +187,7 @@
     {
       "schemaName": "Sales",
       "columnName": "AccountNumber",
-      "columnID": 10,
+      "columnId": 10,
       "isPrimaryKey": false,
       "precision": 30,
       "scale": 0,
@@ -206,7 +206,7 @@
     {
       "schemaName": "Sales",
       "columnName": "CustomerID",
-      "columnID": 11,
+      "columnId": 11,
       "isPrimaryKey": false,
       "precision": 10,
       "scale": 0,
@@ -225,7 +225,7 @@
     {
       "schemaName": "Sales",
       "columnName": "SalesPersonID",
-      "columnID": 12,
+      "columnId": 12,
       "isPrimaryKey": false,
       "precision": 10,
       "scale": 0,
@@ -244,7 +244,7 @@
     {
       "schemaName": "Sales",
       "columnName": "TerritoryID",
-      "columnID": 13,
+      "columnId": 13,
       "isPrimaryKey": false,
       "precision": 10,
       "scale": 0,
@@ -263,7 +263,7 @@
     {
       "schemaName": "Sales",
       "columnName": "BillToAddressID",
-      "columnID": 14,
+      "columnId": 14,
       "isPrimaryKey": false,
       "precision": 10,
       "scale": 0,
@@ -282,7 +282,7 @@
     {
       "schemaName": "Sales",
       "columnName": "ShipToAddressID",
-      "columnID": 15,
+      "columnId": 15,
       "isPrimaryKey": false,
       "precision": 10,
       "scale": 0,
@@ -301,7 +301,7 @@
     {
       "schemaName": "Sales",
       "columnName": "ShipMethodID",
-      "columnID": 16,
+      "columnId": 16,
       "isPrimaryKey": false,
       "precision": 10,
       "scale": 0,
@@ -320,7 +320,7 @@
     {
       "schemaName": "Sales",
       "columnName": "CreditCardID",
-      "columnID": 17,
+      "columnId": 17,
       "isPrimaryKey": false,
       "precision": 10,
       "scale": 0,
@@ -339,7 +339,7 @@
     {
       "schemaName": "Sales",
       "columnName": "CreditCardApprovalCode",
-      "columnID": 18,
+      "columnId": 18,
       "isPrimaryKey": false,
       "precision": 15,
       "scale": 0,
@@ -358,7 +358,7 @@
     {
       "schemaName": "Sales",
       "columnName": "CurrencyRateID",
-      "columnID": 19,
+      "columnId": 19,
       "isPrimaryKey": false,
       "precision": 10,
       "scale": 0,
@@ -377,7 +377,7 @@
     {
       "schemaName": "Sales",
       "columnName": "SubTotal",
-      "columnID": 20,
+      "columnId": 20,
       "isPrimaryKey": false,
       "precision": 19,
       "scale": 4,
@@ -397,7 +397,7 @@
     {
       "schemaName": "Sales",
       "columnName": "TaxAmt",
-      "columnID": 21,
+      "columnId": 21,
       "isPrimaryKey": false,
       "precision": 19,
       "scale": 4,
@@ -417,7 +417,7 @@
     {
       "schemaName": "Sales",
       "columnName": "Freight",
-      "columnID": 22,
+      "columnId": 22,
       "isPrimaryKey": false,
       "precision": 19,
       "scale": 4,
@@ -437,7 +437,7 @@
     {
       "schemaName": "Sales",
       "columnName": "TotalDue",
-      "columnID": 23,
+      "columnId": 23,
       "isPrimaryKey": false,
       "precision": 19,
       "scale": 4,
@@ -457,7 +457,7 @@
     {
       "schemaName": "Sales",
       "columnName": "Comment",
-      "columnID": 24,
+      "columnId": 24,
       "isPrimaryKey": false,
       "precision": 128,
       "scale": 0,
@@ -476,7 +476,7 @@
     {
       "schemaName": "Sales",
       "columnName": "rowguid",
-      "columnID": 25,
+      "columnId": 25,
       "isPrimaryKey": false,
       "precision": 16,
       "scale": 0,
@@ -496,7 +496,7 @@
     {
       "schemaName": "Sales",
       "columnName": "ModifiedDate",
-      "columnID": 26,
+      "columnId": 26,
       "isPrimaryKey": false,
       "precision": 23,
       "scale": 3,

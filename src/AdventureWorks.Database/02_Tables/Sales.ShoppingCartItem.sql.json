@@ -11,7 +11,7 @@
     {
       "schemaName": "Sales",
       "columnName": "ShoppingCartItemID",
-      "columnID": 1,
+      "columnId": 1,
       "isPrimaryKey": true,
       "precision": 10,
       "scale": 0,
@@ -30,7 +30,7 @@
     {
       "schemaName": "Sales",
       "columnName": "ShoppingCartID",
-      "columnID": 2,
+      "columnId": 2,
       "isPrimaryKey": false,
       "precision": 50,
       "scale": 0,
@@ -49,7 +49,7 @@
     {
       "schemaName": "Sales",
       "columnName": "Quantity",
-      "columnID": 3,
+      "columnId": 3,
       "isPrimaryKey": false,
       "precision": 10,
       "scale": 0,
@@ -69,7 +69,7 @@
     {
       "schemaName": "Sales",
       "columnName": "ProductID",
-      "columnID": 4,
+      "columnId": 4,
       "isPrimaryKey": false,
       "precision": 10,
       "scale": 0,
@@ -88,7 +88,7 @@
     {
       "schemaName": "Sales",
       "columnName": "DateCreated",
-      "columnID": 5,
+      "columnId": 5,
       "isPrimaryKey": false,
       "precision": 23,
       "scale": 3,
@@ -108,7 +108,7 @@
     {
       "schemaName": "Sales",
       "columnName": "ModifiedDate",
-      "columnID": 6,
+      "columnId": 6,
       "isPrimaryKey": false,
       "precision": 23,
       "scale": 3,

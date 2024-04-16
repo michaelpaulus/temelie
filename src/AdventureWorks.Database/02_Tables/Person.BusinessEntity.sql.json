@@ -11,7 +11,7 @@
     {
       "schemaName": "Person",
       "columnName": "BusinessEntityID",
-      "columnID": 1,
+      "columnId": 1,
       "isPrimaryKey": true,
       "precision": 10,
       "scale": 0,
@@ -30,7 +30,7 @@
     {
       "schemaName": "Person",
       "columnName": "rowguid",
-      "columnID": 2,
+      "columnId": 2,
       "isPrimaryKey": false,
       "precision": 16,
       "scale": 0,
@@ -50,7 +50,7 @@
     {
       "schemaName": "Person",
       "columnName": "ModifiedDate",
-      "columnID": 3,
+      "columnId": 3,
       "isPrimaryKey": false,
       "precision": 23,
       "scale": 3,

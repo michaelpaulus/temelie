@@ -16,7 +16,7 @@
       {
         "schemaName": "Sales",
         "columnName": "SalesPersonID",
-        "columnID": 1,
+        "columnId": 1,
         "isPrimaryKey": false,
         "precision": 10,
         "scale": 0,
@@ -33,7 +33,7 @@
       {
         "schemaName": "Sales",
         "columnName": "FullName",
-        "columnID": 2,
+        "columnId": 2,
         "isPrimaryKey": false,
         "precision": 152,
         "scale": 0,
@@ -50,7 +50,7 @@
       {
         "schemaName": "Sales",
         "columnName": "JobTitle",
-        "columnID": 3,
+        "columnId": 3,
         "isPrimaryKey": false,
         "precision": 50,
         "scale": 0,
@@ -67,7 +67,7 @@
       {
         "schemaName": "Sales",
         "columnName": "SalesTerritory",
-        "columnID": 4,
+        "columnId": 4,
         "isPrimaryKey": false,
         "precision": 100,
         "scale": 0,
@@ -84,7 +84,7 @@
       {
         "schemaName": "Sales",
         "columnName": "2002",
-        "columnID": 5,
+        "columnId": 5,
         "isPrimaryKey": false,
         "precision": 19,
         "scale": 4,
@@ -101,7 +101,7 @@
       {
         "schemaName": "Sales",
         "columnName": "2003",
-        "columnID": 6,
+        "columnId": 6,
         "isPrimaryKey": false,
         "precision": 19,
         "scale": 4,
@@ -118,7 +118,7 @@
       {
         "schemaName": "Sales",
         "columnName": "2004",
-        "columnID": 7,
+        "columnId": 7,
         "isPrimaryKey": false,
         "precision": 19,
         "scale": 4,

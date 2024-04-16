@@ -11,7 +11,7 @@
     {
       "schemaName": "Person",
       "columnName": "BusinessEntityID",
-      "columnID": 1,
+      "columnId": 1,
       "isPrimaryKey": true,
       "precision": 10,
       "scale": 0,
@@ -30,7 +30,7 @@
     {
       "schemaName": "Person",
       "columnName": "PersonType",
-      "columnID": 2,
+      "columnId": 2,
       "isPrimaryKey": false,
       "precision": 2,
       "scale": 0,
@@ -49,7 +49,7 @@
     {
       "schemaName": "Person",
       "columnName": "NameStyle",
-      "columnID": 3,
+      "columnId": 3,
       "isPrimaryKey": false,
       "precision": 1,
       "scale": 0,
@@ -69,7 +69,7 @@
     {
       "schemaName": "Person",
       "columnName": "Title",
-      "columnID": 4,
+      "columnId": 4,
       "isPrimaryKey": false,
       "precision": 8,
       "scale": 0,
@@ -88,7 +88,7 @@
     {
       "schemaName": "Person",
       "columnName": "FirstName",
-      "columnID": 5,
+      "columnId": 5,
       "isPrimaryKey": false,
       "precision": 100,
       "scale": 0,
@@ -107,7 +107,7 @@
     {
       "schemaName": "Person",
       "columnName": "MiddleName",
-      "columnID": 6,
+      "columnId": 6,
       "isPrimaryKey": false,
       "precision": 100,
       "scale": 0,
@@ -126,7 +126,7 @@
     {
       "schemaName": "Person",
       "columnName": "LastName",
-      "columnID": 7,
+      "columnId": 7,
       "isPrimaryKey": false,
       "precision": 100,
       "scale": 0,
@@ -145,7 +145,7 @@
     {
       "schemaName": "Person",
       "columnName": "Suffix",
-      "columnID": 8,
+      "columnId": 8,
       "isPrimaryKey": false,
       "precision": 10,
       "scale": 0,
@@ -164,7 +164,7 @@
     {
       "schemaName": "Person",
       "columnName": "EmailPromotion",
-      "columnID": 9,
+      "columnId": 9,
       "isPrimaryKey": false,
       "precision": 10,
       "scale": 0,
@@ -184,7 +184,7 @@
     {
       "schemaName": "Person",
       "columnName": "AdditionalContactInfo",
-      "columnID": 10,
+      "columnId": 10,
       "isPrimaryKey": false,
       "precision": -1,
       "scale": 0,
@@ -203,7 +203,7 @@
     {
       "schemaName": "Person",
       "columnName": "Demographics",
-      "columnID": 11,
+      "columnId": 11,
       "isPrimaryKey": false,
       "precision": -1,
       "scale": 0,
@@ -222,7 +222,7 @@
     {
       "schemaName": "Person",
       "columnName": "rowguid",
-      "columnID": 12,
+      "columnId": 12,
       "isPrimaryKey": false,
       "precision": 16,
       "scale": 0,
@@ -242,7 +242,7 @@
     {
       "schemaName": "Person",
       "columnName": "ModifiedDate",
-      "columnID": 13,
+      "columnId": 13,
       "isPrimaryKey": false,
       "precision": 23,
       "scale": 3,

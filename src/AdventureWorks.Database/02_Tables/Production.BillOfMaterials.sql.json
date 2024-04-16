@@ -11,7 +11,7 @@
     {
       "schemaName": "Production",
       "columnName": "BillOfMaterialsID",
-      "columnID": 1,
+      "columnId": 1,
       "isPrimaryKey": true,
       "precision": 10,
       "scale": 0,
@@ -30,7 +30,7 @@
     {
       "schemaName": "Production",
       "columnName": "ProductAssemblyID",
-      "columnID": 2,
+      "columnId": 2,
       "isPrimaryKey": false,
       "precision": 10,
       "scale": 0,
@@ -49,7 +49,7 @@
     {
       "schemaName": "Production",
       "columnName": "ComponentID",
-      "columnID": 3,
+      "columnId": 3,
       "isPrimaryKey": false,
       "precision": 10,
       "scale": 0,
@@ -68,7 +68,7 @@
     {
       "schemaName": "Production",
       "columnName": "StartDate",
-      "columnID": 4,
+      "columnId": 4,
       "isPrimaryKey": false,
       "precision": 23,
       "scale": 3,
@@ -88,7 +88,7 @@
     {
       "schemaName": "Production",
       "columnName": "EndDate",
-      "columnID": 5,
+      "columnId": 5,
       "isPrimaryKey": false,
       "precision": 23,
       "scale": 3,
@@ -107,7 +107,7 @@
     {
       "schemaName": "Production",
       "columnName": "UnitMeasureCode",
-      "columnID": 6,
+      "columnId": 6,
       "isPrimaryKey": false,
       "precision": 3,
       "scale": 0,
@@ -126,7 +126,7 @@
     {
       "schemaName": "Production",
       "columnName": "BOMLevel",
-      "columnID": 7,
+      "columnId": 7,
       "isPrimaryKey": false,
       "precision": 5,
       "scale": 0,
@@ -145,7 +145,7 @@
     {
       "schemaName": "Production",
       "columnName": "PerAssemblyQty",
-      "columnID": 8,
+      "columnId": 8,
       "isPrimaryKey": false,
       "precision": 8,
       "scale": 2,
@@ -165,7 +165,7 @@
     {
       "schemaName": "Production",
       "columnName": "ModifiedDate",
-      "columnID": 9,
+      "columnId": 9,
       "isPrimaryKey": false,
       "precision": 23,
       "scale": 3,

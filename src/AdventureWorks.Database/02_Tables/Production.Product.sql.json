@@ -11,7 +11,7 @@
     {
       "schemaName": "Production",
       "columnName": "ProductID",
-      "columnID": 1,
+      "columnId": 1,
       "isPrimaryKey": true,
       "precision": 10,
       "scale": 0,
@@ -30,7 +30,7 @@
     {
       "schemaName": "Production",
       "columnName": "Name",
-      "columnID": 2,
+      "columnId": 2,
       "isPrimaryKey": false,
       "precision": 100,
       "scale": 0,
@@ -49,7 +49,7 @@
     {
       "schemaName": "Production",
       "columnName": "ProductNumber",
-      "columnID": 3,
+      "columnId": 3,
       "isPrimaryKey": false,
       "precision": 25,
       "scale": 0,
@@ -68,7 +68,7 @@
     {
       "schemaName": "Production",
       "columnName": "MakeFlag",
-      "columnID": 4,
+      "columnId": 4,
       "isPrimaryKey": false,
       "precision": 1,
       "scale": 0,
@@ -88,7 +88,7 @@
     {
       "schemaName": "Production",
       "columnName": "FinishedGoodsFlag",
-      "columnID": 5,
+      "columnId": 5,
       "isPrimaryKey": false,
       "precision": 1,
       "scale": 0,
@@ -108,7 +108,7 @@
     {
       "schemaName": "Production",
       "columnName": "Color",
-      "columnID": 6,
+      "columnId": 6,
       "isPrimaryKey": false,
       "precision": 15,
       "scale": 0,
@@ -127,7 +127,7 @@
     {
       "schemaName": "Production",
       "columnName": "SafetyStockLevel",
-      "columnID": 7,
+      "columnId": 7,
       "isPrimaryKey": false,
       "precision": 5,
       "scale": 0,
@@ -146,7 +146,7 @@
     {
       "schemaName": "Production",
       "columnName": "ReorderPoint",
-      "columnID": 8,
+      "columnId": 8,
       "isPrimaryKey": false,
       "precision": 5,
       "scale": 0,
@@ -165,7 +165,7 @@
     {
       "schemaName": "Production",
       "columnName": "StandardCost",
-      "columnID": 9,
+      "columnId": 9,
       "isPrimaryKey": false,
       "precision": 19,
       "scale": 4,
@@ -184,7 +184,7 @@
     {
       "schemaName": "Production",
       "columnName": "ListPrice",
-      "columnID": 10,
+      "columnId": 10,
       "isPrimaryKey": false,
       "precision": 19,
       "scale": 4,
@@ -203,7 +203,7 @@
     {
       "schemaName": "Production",
       "columnName": "Size",
-      "columnID": 11,
+      "columnId": 11,
       "isPrimaryKey": false,
       "precision": 5,
       "scale": 0,
@@ -222,7 +222,7 @@
     {
       "schemaName": "Production",
       "columnName": "SizeUnitMeasureCode",
-      "columnID": 12,
+      "columnId": 12,
       "isPrimaryKey": false,
       "precision": 3,
       "scale": 0,
@@ -241,7 +241,7 @@
     {
       "schemaName": "Production",
       "columnName": "WeightUnitMeasureCode",
-      "columnID": 13,
+      "columnId": 13,
       "isPrimaryKey": false,
       "precision": 3,
       "scale": 0,
@@ -260,7 +260,7 @@
     {
       "schemaName": "Production",
       "columnName": "Weight",
-      "columnID": 14,
+      "columnId": 14,
       "isPrimaryKey": false,
       "precision": 8,
       "scale": 2,
@@ -279,7 +279,7 @@
     {
       "schemaName": "Production",
       "columnName": "DaysToManufacture",
-      "columnID": 15,
+      "columnId": 15,
       "isPrimaryKey": false,
       "precision": 10,
       "scale": 0,
@@ -298,7 +298,7 @@
     {
       "schemaName": "Production",
       "columnName": "ProductLine",
-      "columnID": 16,
+      "columnId": 16,
       "isPrimaryKey": false,
       "precision": 2,
       "scale": 0,
@@ -317,7 +317,7 @@
     {
       "schemaName": "Production",
       "columnName": "Class",
-      "columnID": 17,
+      "columnId": 17,
       "isPrimaryKey": false,
       "precision": 2,
       "scale": 0,
@@ -336,7 +336,7 @@
     {
       "schemaName": "Production",
       "columnName": "Style",
-      "columnID": 18,
+      "columnId": 18,
       "isPrimaryKey": false,
       "precision": 2,
       "scale": 0,
@@ -355,7 +355,7 @@
     {
       "schemaName": "Production",
       "columnName": "ProductSubcategoryID",
-      "columnID": 19,
+      "columnId": 19,
       "isPrimaryKey": false,
       "precision": 10,
       "scale": 0,
@@ -374,7 +374,7 @@
     {
       "schemaName": "Production",
       "columnName": "ProductModelID",
-      "columnID": 20,
+      "columnId": 20,
       "isPrimaryKey": false,
       "precision": 10,
       "scale": 0,
@@ -393,7 +393,7 @@
     {
       "schemaName": "Production",
       "columnName": "SellStartDate",
-      "columnID": 21,
+      "columnId": 21,
       "isPrimaryKey": false,
       "precision": 23,
       "scale": 3,
@@ -412,7 +412,7 @@
     {
       "schemaName": "Production",
       "columnName": "SellEndDate",
-      "columnID": 22,
+      "columnId": 22,
       "isPrimaryKey": false,
       "precision": 23,
       "scale": 3,
@@ -431,7 +431,7 @@
     {
       "schemaName": "Production",
       "columnName": "DiscontinuedDate",
-      "columnID": 23,
+      "columnId": 23,
       "isPrimaryKey": false,
       "precision": 23,
       "scale": 3,
@@ -450,7 +450,7 @@
     {
       "schemaName": "Production",
       "columnName": "rowguid",
-      "columnID": 24,
+      "columnId": 24,
       "isPrimaryKey": false,
       "precision": 16,
       "scale": 0,
@@ -470,7 +470,7 @@
     {
       "schemaName": "Production",
       "columnName": "ModifiedDate",
-      "columnID": 25,
+      "columnId": 25,
       "isPrimaryKey": false,
       "precision": 23,
       "scale": 3,

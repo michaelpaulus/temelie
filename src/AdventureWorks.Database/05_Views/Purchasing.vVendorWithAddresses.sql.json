@@ -16,7 +16,7 @@
       {
         "schemaName": "Purchasing",
         "columnName": "BusinessEntityID",
-        "columnID": 1,
+        "columnId": 1,
         "isPrimaryKey": false,
         "precision": 10,
         "scale": 0,
@@ -33,7 +33,7 @@
       {
         "schemaName": "Purchasing",
         "columnName": "Name",
-        "columnID": 2,
+        "columnId": 2,
         "isPrimaryKey": false,
         "precision": 100,
         "scale": 0,
@@ -50,7 +50,7 @@
       {
         "schemaName": "Purchasing",
         "columnName": "AddressType",
-        "columnID": 3,
+        "columnId": 3,
         "isPrimaryKey": false,
         "precision": 100,
         "scale": 0,
@@ -67,7 +67,7 @@
       {
         "schemaName": "Purchasing",
         "columnName": "AddressLine1",
-        "columnID": 4,
+        "columnId": 4,
         "isPrimaryKey": false,
         "precision": 60,
         "scale": 0,
@@ -84,7 +84,7 @@
       {
         "schemaName": "Purchasing",
         "columnName": "AddressLine2",
-        "columnID": 5,
+        "columnId": 5,
         "isPrimaryKey": false,
         "precision": 60,
         "scale": 0,
@@ -101,7 +101,7 @@
       {
         "schemaName": "Purchasing",
         "columnName": "City",
-        "columnID": 6,
+        "columnId": 6,
         "isPrimaryKey": false,
         "precision": 30,
         "scale": 0,
@@ -118,7 +118,7 @@
       {
         "schemaName": "Purchasing",
         "columnName": "StateProvinceName",
-        "columnID": 7,
+        "columnId": 7,
         "isPrimaryKey": false,
         "precision": 100,
         "scale": 0,
@@ -135,7 +135,7 @@
       {
         "schemaName": "Purchasing",
         "columnName": "PostalCode",
-        "columnID": 8,
+        "columnId": 8,
         "isPrimaryKey": false,
         "precision": 15,
         "scale": 0,
@@ -152,7 +152,7 @@
       {
         "schemaName": "Purchasing",
         "columnName": "CountryRegionName",
-        "columnID": 9,
+        "columnId": 9,
         "isPrimaryKey": false,
         "precision": 100,
         "scale": 0,

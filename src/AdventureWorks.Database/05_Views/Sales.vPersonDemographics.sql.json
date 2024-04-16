@@ -16,7 +16,7 @@
       {
         "schemaName": "Sales",
         "columnName": "BusinessEntityID",
-        "columnID": 1,
+        "columnId": 1,
         "isPrimaryKey": false,
         "precision": 10,
         "scale": 0,
@@ -33,7 +33,7 @@
       {
         "schemaName": "Sales",
         "columnName": "TotalPurchaseYTD",
-        "columnID": 2,
+        "columnId": 2,
         "isPrimaryKey": false,
         "precision": 19,
         "scale": 4,
@@ -50,7 +50,7 @@
       {
         "schemaName": "Sales",
         "columnName": "DateFirstPurchase",
-        "columnID": 3,
+        "columnId": 3,
         "isPrimaryKey": false,
         "precision": 23,
         "scale": 3,
@@ -67,7 +67,7 @@
       {
         "schemaName": "Sales",
         "columnName": "BirthDate",
-        "columnID": 4,
+        "columnId": 4,
         "isPrimaryKey": false,
         "precision": 23,
         "scale": 3,
@@ -84,7 +84,7 @@
       {
         "schemaName": "Sales",
         "columnName": "MaritalStatus",
-        "columnID": 5,
+        "columnId": 5,
         "isPrimaryKey": false,
         "precision": 1,
         "scale": 0,
@@ -101,7 +101,7 @@
       {
         "schemaName": "Sales",
         "columnName": "YearlyIncome",
-        "columnID": 6,
+        "columnId": 6,
         "isPrimaryKey": false,
         "precision": 30,
         "scale": 0,
@@ -118,7 +118,7 @@
       {
         "schemaName": "Sales",
         "columnName": "Gender",
-        "columnID": 7,
+        "columnId": 7,
         "isPrimaryKey": false,
         "precision": 1,
         "scale": 0,
@@ -135,7 +135,7 @@
       {
         "schemaName": "Sales",
         "columnName": "TotalChildren",
-        "columnID": 8,
+        "columnId": 8,
         "isPrimaryKey": false,
         "precision": 10,
         "scale": 0,
@@ -152,7 +152,7 @@
       {
         "schemaName": "Sales",
         "columnName": "NumberChildrenAtHome",
-        "columnID": 9,
+        "columnId": 9,
         "isPrimaryKey": false,
         "precision": 10,
         "scale": 0,
@@ -169,7 +169,7 @@
       {
         "schemaName": "Sales",
         "columnName": "Education",
-        "columnID": 10,
+        "columnId": 10,
         "isPrimaryKey": false,
         "precision": 30,
         "scale": 0,
@@ -186,7 +186,7 @@
       {
         "schemaName": "Sales",
         "columnName": "Occupation",
-        "columnID": 11,
+        "columnId": 11,
         "isPrimaryKey": false,
         "precision": 30,
         "scale": 0,
@@ -203,7 +203,7 @@
       {
         "schemaName": "Sales",
         "columnName": "HomeOwnerFlag",
-        "columnID": 12,
+        "columnId": 12,
         "isPrimaryKey": false,
         "precision": 1,
         "scale": 0,
@@ -220,7 +220,7 @@
       {
         "schemaName": "Sales",
         "columnName": "NumberCarsOwned",
-        "columnID": 13,
+        "columnId": 13,
         "isPrimaryKey": false,
         "precision": 10,
         "scale": 0,

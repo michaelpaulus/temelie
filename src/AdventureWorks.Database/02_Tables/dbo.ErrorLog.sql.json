@@ -11,7 +11,7 @@
     {
       "schemaName": "dbo",
       "columnName": "ErrorLogID",
-      "columnID": 1,
+      "columnId": 1,
       "isPrimaryKey": true,
       "precision": 10,
       "scale": 0,
@@ -30,7 +30,7 @@
     {
       "schemaName": "dbo",
       "columnName": "ErrorTime",
-      "columnID": 2,
+      "columnId": 2,
       "isPrimaryKey": false,
       "precision": 23,
       "scale": 3,
@@ -50,7 +50,7 @@
     {
       "schemaName": "dbo",
       "columnName": "UserName",
-      "columnID": 3,
+      "columnId": 3,
       "isPrimaryKey": false,
       "precision": 256,
       "scale": 0,
@@ -69,7 +69,7 @@
     {
       "schemaName": "dbo",
       "columnName": "ErrorNumber",
-      "columnID": 4,
+      "columnId": 4,
       "isPrimaryKey": false,
       "precision": 10,
       "scale": 0,
@@ -88,7 +88,7 @@
     {
       "schemaName": "dbo",
       "columnName": "ErrorSeverity",
-      "columnID": 5,
+      "columnId": 5,
       "isPrimaryKey": false,
       "precision": 10,
       "scale": 0,
@@ -107,7 +107,7 @@
     {
       "schemaName": "dbo",
       "columnName": "ErrorState",
-      "columnID": 6,
+      "columnId": 6,
       "isPrimaryKey": false,
       "precision": 10,
       "scale": 0,
@@ -126,7 +126,7 @@
     {
       "schemaName": "dbo",
       "columnName": "ErrorProcedure",
-      "columnID": 7,
+      "columnId": 7,
       "isPrimaryKey": false,
       "precision": 126,
       "scale": 0,
@@ -145,7 +145,7 @@
     {
       "schemaName": "dbo",
       "columnName": "ErrorLine",
-      "columnID": 8,
+      "columnId": 8,
       "isPrimaryKey": false,
       "precision": 10,
       "scale": 0,
@@ -164,7 +164,7 @@
     {
       "schemaName": "dbo",
       "columnName": "ErrorMessage",
-      "columnID": 9,
+      "columnId": 9,
       "isPrimaryKey": false,
       "precision": 4000,
       "scale": 0,

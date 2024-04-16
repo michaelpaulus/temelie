@@ -11,7 +11,7 @@
     {
       "schemaName": "Production",
       "columnName": "DocumentNode",
-      "columnID": 1,
+      "columnId": 1,
       "isPrimaryKey": true,
       "precision": 892,
       "scale": 0,
@@ -30,7 +30,7 @@
     {
       "schemaName": "Production",
       "columnName": "DocumentLevel",
-      "columnID": 2,
+      "columnId": 2,
       "isPrimaryKey": false,
       "precision": 5,
       "scale": 0,
@@ -50,7 +50,7 @@
     {
       "schemaName": "Production",
       "columnName": "Title",
-      "columnID": 3,
+      "columnId": 3,
       "isPrimaryKey": false,
       "precision": 50,
       "scale": 0,
@@ -69,7 +69,7 @@
     {
       "schemaName": "Production",
       "columnName": "Owner",
-      "columnID": 4,
+      "columnId": 4,
       "isPrimaryKey": false,
       "precision": 10,
       "scale": 0,
@@ -88,7 +88,7 @@
     {
       "schemaName": "Production",
       "columnName": "FolderFlag",
-      "columnID": 5,
+      "columnId": 5,
       "isPrimaryKey": false,
       "precision": 1,
       "scale": 0,
@@ -108,7 +108,7 @@
     {
       "schemaName": "Production",
       "columnName": "FileName",
-      "columnID": 6,
+      "columnId": 6,
       "isPrimaryKey": false,
       "precision": 400,
       "scale": 0,
@@ -127,7 +127,7 @@
     {
       "schemaName": "Production",
       "columnName": "FileExtension",
-      "columnID": 7,
+      "columnId": 7,
       "isPrimaryKey": false,
       "precision": 8,
       "scale": 0,
@@ -146,7 +146,7 @@
     {
       "schemaName": "Production",
       "columnName": "Revision",
-      "columnID": 8,
+      "columnId": 8,
       "isPrimaryKey": false,
       "precision": 5,
       "scale": 0,
@@ -165,7 +165,7 @@
     {
       "schemaName": "Production",
       "columnName": "ChangeNumber",
-      "columnID": 9,
+      "columnId": 9,
       "isPrimaryKey": false,
       "precision": 10,
       "scale": 0,
@@ -185,7 +185,7 @@
     {
       "schemaName": "Production",
       "columnName": "Status",
-      "columnID": 10,
+      "columnId": 10,
       "isPrimaryKey": false,
       "precision": 3,
       "scale": 0,
@@ -204,7 +204,7 @@
     {
       "schemaName": "Production",
       "columnName": "DocumentSummary",
-      "columnID": 11,
+      "columnId": 11,
       "isPrimaryKey": false,
       "precision": 2147483647,
       "scale": 0,
@@ -223,7 +223,7 @@
     {
       "schemaName": "Production",
       "columnName": "Document",
-      "columnID": 12,
+      "columnId": 12,
       "isPrimaryKey": false,
       "precision": -1,
       "scale": 0,
@@ -242,7 +242,7 @@
     {
       "schemaName": "Production",
       "columnName": "rowguid",
-      "columnID": 13,
+      "columnId": 13,
       "isPrimaryKey": false,
       "precision": 16,
       "scale": 0,
@@ -262,7 +262,7 @@
     {
       "schemaName": "Production",
       "columnName": "ModifiedDate",
-      "columnID": 14,
+      "columnId": 14,
       "isPrimaryKey": false,
       "precision": 23,
       "scale": 3,

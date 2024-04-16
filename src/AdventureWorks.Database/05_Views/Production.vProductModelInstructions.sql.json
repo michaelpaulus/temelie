@@ -16,7 +16,7 @@
       {
         "schemaName": "Production",
         "columnName": "ProductModelID",
-        "columnID": 1,
+        "columnId": 1,
         "isPrimaryKey": false,
         "precision": 10,
         "scale": 0,
@@ -33,7 +33,7 @@
       {
         "schemaName": "Production",
         "columnName": "Name",
-        "columnID": 2,
+        "columnId": 2,
         "isPrimaryKey": false,
         "precision": 100,
         "scale": 0,
@@ -50,7 +50,7 @@
       {
         "schemaName": "Production",
         "columnName": "Instructions",
-        "columnID": 3,
+        "columnId": 3,
         "isPrimaryKey": false,
         "precision": 2147483647,
         "scale": 0,
@@ -67,7 +67,7 @@
       {
         "schemaName": "Production",
         "columnName": "LocationID",
-        "columnID": 4,
+        "columnId": 4,
         "isPrimaryKey": false,
         "precision": 10,
         "scale": 0,
@@ -84,7 +84,7 @@
       {
         "schemaName": "Production",
         "columnName": "SetupHours",
-        "columnID": 5,
+        "columnId": 5,
         "isPrimaryKey": false,
         "precision": 9,
         "scale": 4,
@@ -101,7 +101,7 @@
       {
         "schemaName": "Production",
         "columnName": "MachineHours",
-        "columnID": 6,
+        "columnId": 6,
         "isPrimaryKey": false,
         "precision": 9,
         "scale": 4,
@@ -118,7 +118,7 @@
       {
         "schemaName": "Production",
         "columnName": "LaborHours",
-        "columnID": 7,
+        "columnId": 7,
         "isPrimaryKey": false,
         "precision": 9,
         "scale": 4,
@@ -135,7 +135,7 @@
       {
         "schemaName": "Production",
         "columnName": "LotSize",
-        "columnID": 8,
+        "columnId": 8,
         "isPrimaryKey": false,
         "precision": 10,
         "scale": 0,
@@ -152,7 +152,7 @@
       {
         "schemaName": "Production",
         "columnName": "Step",
-        "columnID": 9,
+        "columnId": 9,
         "isPrimaryKey": false,
         "precision": 1024,
         "scale": 0,
@@ -169,7 +169,7 @@
       {
         "schemaName": "Production",
         "columnName": "rowguid",
-        "columnID": 10,
+        "columnId": 10,
         "isPrimaryKey": false,
         "precision": 16,
         "scale": 0,
@@ -186,7 +186,7 @@
       {
         "schemaName": "Production",
         "columnName": "ModifiedDate",
-        "columnID": 11,
+        "columnId": 11,
         "isPrimaryKey": false,
         "precision": 23,
         "scale": 3,

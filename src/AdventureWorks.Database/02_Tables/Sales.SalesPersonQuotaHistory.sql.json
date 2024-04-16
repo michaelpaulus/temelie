@@ -11,7 +11,7 @@
     {
       "schemaName": "Sales",
       "columnName": "BusinessEntityID",
-      "columnID": 1,
+      "columnId": 1,
       "isPrimaryKey": true,
       "precision": 10,
       "scale": 0,
@@ -30,7 +30,7 @@
     {
       "schemaName": "Sales",
       "columnName": "QuotaDate",
-      "columnID": 2,
+      "columnId": 2,
       "isPrimaryKey": true,
       "precision": 23,
       "scale": 3,
@@ -49,7 +49,7 @@
     {
       "schemaName": "Sales",
       "columnName": "SalesQuota",
-      "columnID": 3,
+      "columnId": 3,
       "isPrimaryKey": false,
       "precision": 19,
       "scale": 4,
@@ -68,7 +68,7 @@
     {
       "schemaName": "Sales",
       "columnName": "rowguid",
-      "columnID": 4,
+      "columnId": 4,
       "isPrimaryKey": false,
       "precision": 16,
       "scale": 0,
@@ -88,7 +88,7 @@
     {
       "schemaName": "Sales",
       "columnName": "ModifiedDate",
-      "columnID": 5,
+      "columnId": 5,
       "isPrimaryKey": false,
       "precision": 23,
       "scale": 3,

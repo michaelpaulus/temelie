@@ -16,7 +16,7 @@
       {
         "schemaName": "Production",
         "columnName": "ProductModelID",
-        "columnID": 1,
+        "columnId": 1,
         "isPrimaryKey": false,
         "precision": 10,
         "scale": 0,
@@ -33,7 +33,7 @@
       {
         "schemaName": "Production",
         "columnName": "Name",
-        "columnID": 2,
+        "columnId": 2,
         "isPrimaryKey": false,
         "precision": 100,
         "scale": 0,
@@ -50,7 +50,7 @@
       {
         "schemaName": "Production",
         "columnName": "Summary",
-        "columnID": 3,
+        "columnId": 3,
         "isPrimaryKey": false,
         "precision": 2147483647,
         "scale": 0,
@@ -67,7 +67,7 @@
       {
         "schemaName": "Production",
         "columnName": "Manufacturer",
-        "columnID": 4,
+        "columnId": 4,
         "isPrimaryKey": false,
         "precision": 2147483647,
         "scale": 0,
@@ -84,7 +84,7 @@
       {
         "schemaName": "Production",
         "columnName": "Copyright",
-        "columnID": 5,
+        "columnId": 5,
         "isPrimaryKey": false,
         "precision": 30,
         "scale": 0,
@@ -101,7 +101,7 @@
       {
         "schemaName": "Production",
         "columnName": "ProductURL",
-        "columnID": 6,
+        "columnId": 6,
         "isPrimaryKey": false,
         "precision": 256,
         "scale": 0,
@@ -118,7 +118,7 @@
       {
         "schemaName": "Production",
         "columnName": "WarrantyPeriod",
-        "columnID": 7,
+        "columnId": 7,
         "isPrimaryKey": false,
         "precision": 256,
         "scale": 0,
@@ -135,7 +135,7 @@
       {
         "schemaName": "Production",
         "columnName": "WarrantyDescription",
-        "columnID": 8,
+        "columnId": 8,
         "isPrimaryKey": false,
         "precision": 256,
         "scale": 0,
@@ -152,7 +152,7 @@
       {
         "schemaName": "Production",
         "columnName": "NoOfYears",
-        "columnID": 9,
+        "columnId": 9,
         "isPrimaryKey": false,
         "precision": 256,
         "scale": 0,
@@ -169,7 +169,7 @@
       {
         "schemaName": "Production",
         "columnName": "MaintenanceDescription",
-        "columnID": 10,
+        "columnId": 10,
         "isPrimaryKey": false,
         "precision": 256,
         "scale": 0,
@@ -186,7 +186,7 @@
       {
         "schemaName": "Production",
         "columnName": "Wheel",
-        "columnID": 11,
+        "columnId": 11,
         "isPrimaryKey": false,
         "precision": 256,
         "scale": 0,
@@ -203,7 +203,7 @@
       {
         "schemaName": "Production",
         "columnName": "Saddle",
-        "columnID": 12,
+        "columnId": 12,
         "isPrimaryKey": false,
         "precision": 256,
         "scale": 0,
@@ -220,7 +220,7 @@
       {
         "schemaName": "Production",
         "columnName": "Pedal",
-        "columnID": 13,
+        "columnId": 13,
         "isPrimaryKey": false,
         "precision": 256,
         "scale": 0,
@@ -237,7 +237,7 @@
       {
         "schemaName": "Production",
         "columnName": "BikeFrame",
-        "columnID": 14,
+        "columnId": 14,
         "isPrimaryKey": false,
         "precision": 2147483647,
         "scale": 0,
@@ -254,7 +254,7 @@
       {
         "schemaName": "Production",
         "columnName": "Crankset",
-        "columnID": 15,
+        "columnId": 15,
         "isPrimaryKey": false,
         "precision": 256,
         "scale": 0,
@@ -271,7 +271,7 @@
       {
         "schemaName": "Production",
         "columnName": "PictureAngle",
-        "columnID": 16,
+        "columnId": 16,
         "isPrimaryKey": false,
         "precision": 256,
         "scale": 0,
@@ -288,7 +288,7 @@
       {
         "schemaName": "Production",
         "columnName": "PictureSize",
-        "columnID": 17,
+        "columnId": 17,
         "isPrimaryKey": false,
         "precision": 256,
         "scale": 0,
@@ -305,7 +305,7 @@
       {
         "schemaName": "Production",
         "columnName": "ProductPhotoID",
-        "columnID": 18,
+        "columnId": 18,
         "isPrimaryKey": false,
         "precision": 256,
         "scale": 0,
@@ -322,7 +322,7 @@
       {
         "schemaName": "Production",
         "columnName": "Material",
-        "columnID": 19,
+        "columnId": 19,
         "isPrimaryKey": false,
         "precision": 256,
         "scale": 0,
@@ -339,7 +339,7 @@
       {
         "schemaName": "Production",
         "columnName": "Color",
-        "columnID": 20,
+        "columnId": 20,
         "isPrimaryKey": false,
         "precision": 256,
         "scale": 0,
@@ -356,7 +356,7 @@
       {
         "schemaName": "Production",
         "columnName": "ProductLine",
-        "columnID": 21,
+        "columnId": 21,
         "isPrimaryKey": false,
         "precision": 256,
         "scale": 0,
@@ -373,7 +373,7 @@
       {
         "schemaName": "Production",
         "columnName": "Style",
-        "columnID": 22,
+        "columnId": 22,
         "isPrimaryKey": false,
         "precision": 256,
         "scale": 0,
@@ -390,7 +390,7 @@
       {
         "schemaName": "Production",
         "columnName": "RiderExperience",
-        "columnID": 23,
+        "columnId": 23,
         "isPrimaryKey": false,
         "precision": 1024,
         "scale": 0,
@@ -407,7 +407,7 @@
       {
         "schemaName": "Production",
         "columnName": "rowguid",
-        "columnID": 24,
+        "columnId": 24,
         "isPrimaryKey": false,
         "precision": 16,
         "scale": 0,
@@ -424,7 +424,7 @@
       {
         "schemaName": "Production",
         "columnName": "ModifiedDate",
-        "columnID": 25,
+        "columnId": 25,
         "isPrimaryKey": false,
         "precision": 23,
         "scale": 3,

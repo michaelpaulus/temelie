@@ -16,7 +16,7 @@
       {
         "schemaName": "Sales",
         "columnName": "BusinessEntityID",
-        "columnID": 1,
+        "columnId": 1,
         "isPrimaryKey": false,
         "precision": 10,
         "scale": 0,
@@ -33,7 +33,7 @@
       {
         "schemaName": "Sales",
         "columnName": "Title",
-        "columnID": 2,
+        "columnId": 2,
         "isPrimaryKey": false,
         "precision": 8,
         "scale": 0,
@@ -50,7 +50,7 @@
       {
         "schemaName": "Sales",
         "columnName": "FirstName",
-        "columnID": 3,
+        "columnId": 3,
         "isPrimaryKey": false,
         "precision": 100,
         "scale": 0,
@@ -67,7 +67,7 @@
       {
         "schemaName": "Sales",
         "columnName": "MiddleName",
-        "columnID": 4,
+        "columnId": 4,
         "isPrimaryKey": false,
         "precision": 100,
         "scale": 0,
@@ -84,7 +84,7 @@
       {
         "schemaName": "Sales",
         "columnName": "LastName",
-        "columnID": 5,
+        "columnId": 5,
         "isPrimaryKey": false,
         "precision": 100,
         "scale": 0,
@@ -101,7 +101,7 @@
       {
         "schemaName": "Sales",
         "columnName": "Suffix",
-        "columnID": 6,
+        "columnId": 6,
         "isPrimaryKey": false,
         "precision": 10,
         "scale": 0,
@@ -118,7 +118,7 @@
       {
         "schemaName": "Sales",
         "columnName": "JobTitle",
-        "columnID": 7,
+        "columnId": 7,
         "isPrimaryKey": false,
         "precision": 50,
         "scale": 0,
@@ -135,7 +135,7 @@
       {
         "schemaName": "Sales",
         "columnName": "PhoneNumber",
-        "columnID": 8,
+        "columnId": 8,
         "isPrimaryKey": false,
         "precision": 50,
         "scale": 0,
@@ -152,7 +152,7 @@
       {
         "schemaName": "Sales",
         "columnName": "PhoneNumberType",
-        "columnID": 9,
+        "columnId": 9,
         "isPrimaryKey": false,
         "precision": 100,
         "scale": 0,
@@ -169,7 +169,7 @@
       {
         "schemaName": "Sales",
         "columnName": "EmailAddress",
-        "columnID": 10,
+        "columnId": 10,
         "isPrimaryKey": false,
         "precision": 50,
         "scale": 0,
@@ -186,7 +186,7 @@
       {
         "schemaName": "Sales",
         "columnName": "EmailPromotion",
-        "columnID": 11,
+        "columnId": 11,
         "isPrimaryKey": false,
         "precision": 10,
         "scale": 0,
@@ -203,7 +203,7 @@
       {
         "schemaName": "Sales",
         "columnName": "AddressLine1",
-        "columnID": 12,
+        "columnId": 12,
         "isPrimaryKey": false,
         "precision": 60,
         "scale": 0,
@@ -220,7 +220,7 @@
       {
         "schemaName": "Sales",
         "columnName": "AddressLine2",
-        "columnID": 13,
+        "columnId": 13,
         "isPrimaryKey": false,
         "precision": 60,
         "scale": 0,
@@ -237,7 +237,7 @@
       {
         "schemaName": "Sales",
         "columnName": "City",
-        "columnID": 14,
+        "columnId": 14,
         "isPrimaryKey": false,
         "precision": 30,
         "scale": 0,
@@ -254,7 +254,7 @@
       {
         "schemaName": "Sales",
         "columnName": "StateProvinceName",
-        "columnID": 15,
+        "columnId": 15,
         "isPrimaryKey": false,
         "precision": 100,
         "scale": 0,
@@ -271,7 +271,7 @@
       {
         "schemaName": "Sales",
         "columnName": "PostalCode",
-        "columnID": 16,
+        "columnId": 16,
         "isPrimaryKey": false,
         "precision": 15,
         "scale": 0,
@@ -288,7 +288,7 @@
       {
         "schemaName": "Sales",
         "columnName": "CountryRegionName",
-        "columnID": 17,
+        "columnId": 17,
         "isPrimaryKey": false,
         "precision": 100,
         "scale": 0,
@@ -305,7 +305,7 @@
       {
         "schemaName": "Sales",
         "columnName": "TerritoryName",
-        "columnID": 18,
+        "columnId": 18,
         "isPrimaryKey": false,
         "precision": 100,
         "scale": 0,
@@ -322,7 +322,7 @@
       {
         "schemaName": "Sales",
         "columnName": "TerritoryGroup",
-        "columnID": 19,
+        "columnId": 19,
         "isPrimaryKey": false,
         "precision": 50,
         "scale": 0,
@@ -339,7 +339,7 @@
       {
         "schemaName": "Sales",
         "columnName": "SalesQuota",
-        "columnID": 20,
+        "columnId": 20,
         "isPrimaryKey": false,
         "precision": 19,
         "scale": 4,
@@ -356,7 +356,7 @@
       {
         "schemaName": "Sales",
         "columnName": "SalesYTD",
-        "columnID": 21,
+        "columnId": 21,
         "isPrimaryKey": false,
         "precision": 19,
         "scale": 4,
@@ -373,7 +373,7 @@
       {
         "schemaName": "Sales",
         "columnName": "SalesLastYear",
-        "columnID": 22,
+        "columnId": 22,
         "isPrimaryKey": false,
         "precision": 19,
         "scale": 4,

@@ -11,7 +11,7 @@
     {
       "schemaName": "Purchasing",
       "columnName": "PurchaseOrderID",
-      "columnID": 1,
+      "columnId": 1,
       "isPrimaryKey": true,
       "precision": 10,
       "scale": 0,
@@ -30,7 +30,7 @@
     {
       "schemaName": "Purchasing",
       "columnName": "PurchaseOrderDetailID",
-      "columnID": 2,
+      "columnId": 2,
       "isPrimaryKey": true,
       "precision": 10,
       "scale": 0,
@@ -49,7 +49,7 @@
     {
       "schemaName": "Purchasing",
       "columnName": "DueDate",
-      "columnID": 3,
+      "columnId": 3,
       "isPrimaryKey": false,
       "precision": 23,
       "scale": 3,
@@ -68,7 +68,7 @@
     {
       "schemaName": "Purchasing",
       "columnName": "OrderQty",
-      "columnID": 4,
+      "columnId": 4,
       "isPrimaryKey": false,
       "precision": 5,
       "scale": 0,
@@ -87,7 +87,7 @@
     {
       "schemaName": "Purchasing",
       "columnName": "ProductID",
-      "columnID": 5,
+      "columnId": 5,
       "isPrimaryKey": false,
       "precision": 10,
       "scale": 0,
@@ -106,7 +106,7 @@
     {
       "schemaName": "Purchasing",
       "columnName": "UnitPrice",
-      "columnID": 6,
+      "columnId": 6,
       "isPrimaryKey": false,
       "precision": 19,
       "scale": 4,
@@ -125,7 +125,7 @@
     {
       "schemaName": "Purchasing",
       "columnName": "LineTotal",
-      "columnID": 7,
+      "columnId": 7,
       "isPrimaryKey": false,
       "precision": 19,
       "scale": 4,
@@ -145,7 +145,7 @@
     {
       "schemaName": "Purchasing",
       "columnName": "ReceivedQty",
-      "columnID": 8,
+      "columnId": 8,
       "isPrimaryKey": false,
       "precision": 8,
       "scale": 2,
@@ -164,7 +164,7 @@
     {
       "schemaName": "Purchasing",
       "columnName": "RejectedQty",
-      "columnID": 9,
+      "columnId": 9,
       "isPrimaryKey": false,
       "precision": 8,
       "scale": 2,
@@ -183,7 +183,7 @@
     {
       "schemaName": "Purchasing",
       "columnName": "StockedQty",
-      "columnID": 10,
+      "columnId": 10,
       "isPrimaryKey": false,
       "precision": 9,
       "scale": 2,
@@ -203,7 +203,7 @@
     {
       "schemaName": "Purchasing",
       "columnName": "ModifiedDate",
-      "columnID": 11,
+      "columnId": 11,
       "isPrimaryKey": false,
       "precision": 23,
       "scale": 3,

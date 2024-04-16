@@ -11,7 +11,7 @@
     {
       "schemaName": "Production",
       "columnName": "WorkOrderID",
-      "columnID": 1,
+      "columnId": 1,
       "isPrimaryKey": true,
       "precision": 10,
       "scale": 0,
@@ -30,7 +30,7 @@
     {
       "schemaName": "Production",
       "columnName": "ProductID",
-      "columnID": 2,
+      "columnId": 2,
       "isPrimaryKey": false,
       "precision": 10,
       "scale": 0,
@@ -49,7 +49,7 @@
     {
       "schemaName": "Production",
       "columnName": "OrderQty",
-      "columnID": 3,
+      "columnId": 3,
       "isPrimaryKey": false,
       "precision": 10,
       "scale": 0,
@@ -68,7 +68,7 @@
     {
       "schemaName": "Production",
       "columnName": "StockedQty",
-      "columnID": 4,
+      "columnId": 4,
       "isPrimaryKey": false,
       "precision": 10,
       "scale": 0,
@@ -88,7 +88,7 @@
     {
       "schemaName": "Production",
       "columnName": "ScrappedQty",
-      "columnID": 5,
+      "columnId": 5,
       "isPrimaryKey": false,
       "precision": 5,
       "scale": 0,
@@ -107,7 +107,7 @@
     {
       "schemaName": "Production",
       "columnName": "StartDate",
-      "columnID": 6,
+      "columnId": 6,
       "isPrimaryKey": false,
       "precision": 23,
       "scale": 3,
@@ -126,7 +126,7 @@
     {
       "schemaName": "Production",
       "columnName": "EndDate",
-      "columnID": 7,
+      "columnId": 7,
       "isPrimaryKey": false,
       "precision": 23,
       "scale": 3,
@@ -145,7 +145,7 @@
     {
       "schemaName": "Production",
       "columnName": "DueDate",
-      "columnID": 8,
+      "columnId": 8,
       "isPrimaryKey": false,
       "precision": 23,
       "scale": 3,
@@ -164,7 +164,7 @@
     {
       "schemaName": "Production",
       "columnName": "ScrapReasonID",
-      "columnID": 9,
+      "columnId": 9,
       "isPrimaryKey": false,
       "precision": 5,
       "scale": 0,
@@ -183,7 +183,7 @@
     {
       "schemaName": "Production",
       "columnName": "ModifiedDate",
-      "columnID": 10,
+      "columnId": 10,
       "isPrimaryKey": false,
       "precision": 23,
       "scale": 3,

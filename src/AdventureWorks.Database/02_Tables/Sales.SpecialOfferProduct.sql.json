@@ -11,7 +11,7 @@
     {
       "schemaName": "Sales",
       "columnName": "SpecialOfferID",
-      "columnID": 1,
+      "columnId": 1,
       "isPrimaryKey": true,
       "precision": 10,
       "scale": 0,
@@ -30,7 +30,7 @@
     {
       "schemaName": "Sales",
       "columnName": "ProductID",
-      "columnID": 2,
+      "columnId": 2,
       "isPrimaryKey": true,
       "precision": 10,
       "scale": 0,
@@ -49,7 +49,7 @@
     {
       "schemaName": "Sales",
       "columnName": "rowguid",
-      "columnID": 3,
+      "columnId": 3,
       "isPrimaryKey": false,
       "precision": 16,
       "scale": 0,
@@ -69,7 +69,7 @@
     {
       "schemaName": "Sales",
       "columnName": "ModifiedDate",
-      "columnID": 4,
+      "columnId": 4,
       "isPrimaryKey": false,
       "precision": 23,
       "scale": 3,

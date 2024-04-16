@@ -11,7 +11,7 @@
     {
       "schemaName": "dbo",
       "columnName": "DatabaseLogID",
-      "columnID": 1,
+      "columnId": 1,
       "isPrimaryKey": true,
       "precision": 10,
       "scale": 0,
@@ -30,7 +30,7 @@
     {
       "schemaName": "dbo",
       "columnName": "PostTime",
-      "columnID": 2,
+      "columnId": 2,
       "isPrimaryKey": false,
       "precision": 23,
       "scale": 3,
@@ -49,7 +49,7 @@
     {
       "schemaName": "dbo",
       "columnName": "DatabaseUser",
-      "columnID": 3,
+      "columnId": 3,
       "isPrimaryKey": false,
       "precision": 256,
       "scale": 0,
@@ -68,7 +68,7 @@
     {
       "schemaName": "dbo",
       "columnName": "Event",
-      "columnID": 4,
+      "columnId": 4,
       "isPrimaryKey": false,
       "precision": 256,
       "scale": 0,
@@ -87,7 +87,7 @@
     {
       "schemaName": "dbo",
       "columnName": "Schema",
-      "columnID": 5,
+      "columnId": 5,
       "isPrimaryKey": false,
       "precision": 256,
       "scale": 0,
@@ -106,7 +106,7 @@
     {
       "schemaName": "dbo",
       "columnName": "Object",
-      "columnID": 6,
+      "columnId": 6,
       "isPrimaryKey": false,
       "precision": 256,
       "scale": 0,
@@ -125,7 +125,7 @@
     {
       "schemaName": "dbo",
       "columnName": "TSQL",
-      "columnID": 7,
+      "columnId": 7,
       "isPrimaryKey": false,
       "precision": 2147483647,
       "scale": 0,
@@ -144,7 +144,7 @@
     {
       "schemaName": "dbo",
       "columnName": "XmlEvent",
-      "columnID": 8,
+      "columnId": 8,
       "isPrimaryKey": false,
       "precision": -1,
       "scale": 0,

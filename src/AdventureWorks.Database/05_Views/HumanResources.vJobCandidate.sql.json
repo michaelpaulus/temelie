@@ -16,7 +16,7 @@
       {
         "schemaName": "HumanResources",
         "columnName": "JobCandidateID",
-        "columnID": 1,
+        "columnId": 1,
         "isPrimaryKey": false,
         "precision": 10,
         "scale": 0,
@@ -33,7 +33,7 @@
       {
         "schemaName": "HumanResources",
         "columnName": "BusinessEntityID",
-        "columnID": 2,
+        "columnId": 2,
         "isPrimaryKey": false,
         "precision": 10,
         "scale": 0,
@@ -50,7 +50,7 @@
       {
         "schemaName": "HumanResources",
         "columnName": "Name.Prefix",
-        "columnID": 3,
+        "columnId": 3,
         "isPrimaryKey": false,
         "precision": 30,
         "scale": 0,
@@ -67,7 +67,7 @@
       {
         "schemaName": "HumanResources",
         "columnName": "Name.First",
-        "columnID": 4,
+        "columnId": 4,
         "isPrimaryKey": false,
         "precision": 30,
         "scale": 0,
@@ -84,7 +84,7 @@
       {
         "schemaName": "HumanResources",
         "columnName": "Name.Middle",
-        "columnID": 5,
+        "columnId": 5,
         "isPrimaryKey": false,
         "precision": 30,
         "scale": 0,
@@ -101,7 +101,7 @@
       {
         "schemaName": "HumanResources",
         "columnName": "Name.Last",
-        "columnID": 6,
+        "columnId": 6,
         "isPrimaryKey": false,
         "precision": 30,
         "scale": 0,
@@ -118,7 +118,7 @@
       {
         "schemaName": "HumanResources",
         "columnName": "Name.Suffix",
-        "columnID": 7,
+        "columnId": 7,
         "isPrimaryKey": false,
         "precision": 30,
         "scale": 0,
@@ -135,7 +135,7 @@
       {
         "schemaName": "HumanResources",
         "columnName": "Skills",
-        "columnID": 8,
+        "columnId": 8,
         "isPrimaryKey": false,
         "precision": 2147483647,
         "scale": 0,
@@ -152,7 +152,7 @@
       {
         "schemaName": "HumanResources",
         "columnName": "Addr.Type",
-        "columnID": 9,
+        "columnId": 9,
         "isPrimaryKey": false,
         "precision": 30,
         "scale": 0,
@@ -169,7 +169,7 @@
       {
         "schemaName": "HumanResources",
         "columnName": "Addr.Loc.CountryRegion",
-        "columnID": 10,
+        "columnId": 10,
         "isPrimaryKey": false,
         "precision": 100,
         "scale": 0,
@@ -186,7 +186,7 @@
       {
         "schemaName": "HumanResources",
         "columnName": "Addr.Loc.State",
-        "columnID": 11,
+        "columnId": 11,
         "isPrimaryKey": false,
         "precision": 100,
         "scale": 0,
@@ -203,7 +203,7 @@
       {
         "schemaName": "HumanResources",
         "columnName": "Addr.Loc.City",
-        "columnID": 12,
+        "columnId": 12,
         "isPrimaryKey": false,
         "precision": 100,
         "scale": 0,
@@ -220,7 +220,7 @@
       {
         "schemaName": "HumanResources",
         "columnName": "Addr.PostalCode",
-        "columnID": 13,
+        "columnId": 13,
         "isPrimaryKey": false,
         "precision": 20,
         "scale": 0,
@@ -237,7 +237,7 @@
       {
         "schemaName": "HumanResources",
         "columnName": "EMail",
-        "columnID": 14,
+        "columnId": 14,
         "isPrimaryKey": false,
         "precision": 2147483647,
         "scale": 0,
@@ -254,7 +254,7 @@
       {
         "schemaName": "HumanResources",
         "columnName": "WebSite",
-        "columnID": 15,
+        "columnId": 15,
         "isPrimaryKey": false,
         "precision": 2147483647,
         "scale": 0,
@@ -271,7 +271,7 @@
       {
         "schemaName": "HumanResources",
         "columnName": "ModifiedDate",
-        "columnID": 16,
+        "columnId": 16,
         "isPrimaryKey": false,
         "precision": 23,
         "scale": 3,
