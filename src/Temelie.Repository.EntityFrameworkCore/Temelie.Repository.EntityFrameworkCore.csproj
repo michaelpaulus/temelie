@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Temelie.DependencyInjection\Temelie.DependencyInjection.csproj" />
     <ProjectReference Include="..\Temelie.Repository\Temelie.Repository.csproj" />
   </ItemGroup>
 

@@ -1,8 +1,10 @@
 using Temelie.Entities;
 using Microsoft.EntityFrameworkCore;
+using Temelie.DependencyInjection;
 
 namespace Temelie.Repository.EntityFrameworkCore;
 
+[ExportTransient(typeof(IRepository<>), Type = typeof(Repository<>))]
 public class Repository<Entity> : IRepository<Entity> where Entity : class, IEntity<Entity>
 {
     private readonly IRepositoryContext<Entity> _context;

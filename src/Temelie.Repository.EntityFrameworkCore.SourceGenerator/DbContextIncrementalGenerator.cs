@@ -30,16 +30,18 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
         var databaseModel = DatabaseModel.CreateFromFiles(result.files);
 
         var pkColumns = new List<ColumnModel>();
-
         var sbModelBuilder = new StringBuilder();
         var sbRepositoryContext = new StringBuilder();
         var sbImplements = new StringBuilder();
+        var sbExports = new StringBuilder();
 
         void addTable(TableModel table)
         {
             var className = table.ClassName;
 
-            sbImplements.Append($", IRepositoryContext<{className}>");
+            sbImplements.Append($@",
+                                     IRepositoryContext<{className}>");
+            sbExports.AppendLine($"[ExportTransient(typeof(IRepositoryContext<{className}>))]");
 
             sbRepositoryContext.AppendLine($@"
     public DbSet<{className}> {className} {{ get; set; }}
@@ -125,19 +127,20 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
 
         var sb = new StringBuilder();
 
-        sb.AppendLine($@"
-using AdventureWorks.Entities;
-using Temelie.Repository.EntityFrameworkCore;
+        sb.AppendLine($@"using AdventureWorks.Entities;
 using Microsoft.EntityFrameworkCore;
+using Temelie.DependencyInjection;
+using Temelie.Repository;
+using Temelie.Repository.EntityFrameworkCore;
 
 namespace {ns};
 
-public partial class BaseDbContext : DbContext{sbImplements}
+{sbExports}public abstract partial class BaseDbContext : DbContext{sbImplements}
 {{
 
     private readonly IServiceProvider _serviceProvider;
 
-    public BaseDbContext(IServiceProvider serviceProvider)
+    public BaseDbContext(IServiceProvider serviceProvider, DbContextOptions options) : base(options)
     {{
         _serviceProvider = serviceProvider;
     }}

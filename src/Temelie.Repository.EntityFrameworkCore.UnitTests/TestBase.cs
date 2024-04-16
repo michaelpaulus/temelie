@@ -1,3 +1,4 @@
+using AdventureWorks.Server.Repository.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -6,7 +7,13 @@ namespace Temelie.Repository.EntityFrameworkCore.UnitTests;
 public class TestBase
 {
 
-    private readonly Lazy<IServiceProvider> _serviceProvider = new Lazy<IServiceProvider>(() =>
+#pragma warning disable NUnit1032 // An IDisposable field/property should be Disposed in a TearDown method
+    protected IServiceProvider ServiceProvider { get; private set; }
+#pragma warning restore NUnit1032 // An IDisposable field/property should be Disposed in a TearDown method
+
+    [SetUp]
+
+    public Task Setup()
     {
         IServiceCollection services = new ServiceCollection();
 
@@ -20,13 +27,20 @@ public class TestBase
 
         services.ConfigureStartup();
 
-        var provider = services.BuildServiceProvider();
+        ServiceProvider = services.BuildServiceProvider();
 
-        provider.ConfigureStartup();
+        ServiceProvider.ConfigureStartup();
 
-        return provider;
-    });
+        return Task.CompletedTask;
+    }
 
-    protected IServiceProvider ServiceProvider => _serviceProvider.Value;
-
+    [TearDown]
+    public Task TearDownAsync()
+    {
+        if (ServiceProvider is not null && ServiceProvider is IDisposable disposable)
+        {
+            disposable.Dispose();
+        }
+        return Task.CompletedTask;
+    }
 }

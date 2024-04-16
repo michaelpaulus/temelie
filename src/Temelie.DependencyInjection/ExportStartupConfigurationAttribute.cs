@@ -1,5 +1,6 @@
 namespace Temelie.DependencyInjection;
-public class ExportStartupConfigurationAttribute
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
+public class ExportStartupConfigurationAttribute : Attribute
 {
     public ExportStartupConfigurationAttribute()
     {

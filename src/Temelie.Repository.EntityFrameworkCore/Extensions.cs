@@ -11,14 +11,15 @@ public static class Extensions
 
         if (!providers.Any())
         {
-            throw new NotImplementedException($"Must register at least one {nameof(IPropertyBuilderProvider)} when using identities");
+            propertyBuilder.ValueGeneratedOnAdd();
         }
-
-        foreach (var provider in providers)
+        else
         {
-            provider.UseIdentityColumn(propertyBuilder);
+            foreach (var provider in providers)
+            {
+                provider.UseIdentityColumn(propertyBuilder);
+            }
         }
-
         return propertyBuilder;
     }
 

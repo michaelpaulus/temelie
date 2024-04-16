@@ -51,7 +51,7 @@ internal static class Temelie_DependencyInjection_IncrementalGenerator
     internal static void RegisterExports(this IServiceCollection services)
     {
 ");
-            foreach (var export in symbols.Where(i => i.IsSingleton || i.IsProvider || i.IsTransient).OrderBy(i => i.ForType).GroupBy(i => new { i.ForType, i.IsProvider }))
+            foreach (var export in symbols.Where(i => (i.IsSingleton || i.IsProvider || i.IsTransient) && !string.IsNullOrEmpty(i.ForType) && !string.IsNullOrEmpty(i.Type)).OrderBy(i => i.ForType).GroupBy(i => new { i.ForType, i.IsProvider }))
             {
                 var list = new List<Export>();
 
@@ -75,11 +75,11 @@ internal static class Temelie_DependencyInjection_IncrementalGenerator
                 {
                     if (item.IsProvider || item.IsTransient)
                     {
-                        sb.AppendLine($"        services.AddTransient<{item.ForType}, {item.Type}>();");
+                        sb.AppendLine($"        services.AddTransient(typeof({item.ForType}), typeof({item.Type}));");
                     }
                     if (item.IsSingleton)
                     {
-                        sb.AppendLine($"        services.AddSingleton<{item.ForType}, {item.Type}>();");
+                        sb.AppendLine($"        services.AddSingleton(typeof({item.ForType}), typeof({item.Type}));");
                     }
                 }
             }

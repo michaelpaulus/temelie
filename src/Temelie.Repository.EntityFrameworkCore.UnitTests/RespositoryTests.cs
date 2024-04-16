@@ -1,31 +1,19 @@
 using AdventureWorks.Entities;
 using AdventureWorks.Repository;
 using FluentAssertions;
-using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Temelie.Repository.EntityFrameworkCore.UnitTests;
 
 public class RespositoryTests : TestBase
 {
 
-    private SqliteConnection _connection;
 
-    [SetUp]
-    public async Task SetupAsync()
-    {
-        //create global connection for test so each test uses the same "database"
-        _connection = new SqliteConnection("Filename=:memory:");
-        _connection.Open();
-        using (var context = new TestDbContext(_connection, ServiceProvider))
-        {
-            await context.Database.EnsureCreatedAsync().ConfigureAwait(true);
-        }
-    }
 
     [Test]
     public async Task AddSingleKeyAsync()
     {
-        using var repository = new Repository<Customer>(new TestDbContext(_connection, ServiceProvider));
+        using var repository = ServiceProvider.GetRequiredService<IRepository<Customer>>();
 
         var customer = new Customer() { CustomerId = new CustomerId(1), AccountNumber = "Test" };
 
@@ -39,7 +27,7 @@ public class RespositoryTests : TestBase
     [Test]
     public async Task UpdateSingleKeyAsync()
     {
-        using var repository = new Repository<Customer>(new TestDbContext(_connection, ServiceProvider));
+        using var repository = ServiceProvider.GetRequiredService<IRepository<Customer>>();
 
         var customer = new Customer() { CustomerId = new CustomerId(1), AccountNumber = "Test" };
 
@@ -59,7 +47,7 @@ public class RespositoryTests : TestBase
     [Test]
     public async Task DeleteSingleKeyAsync()
     {
-        using var repository = new Repository<Customer>(new TestDbContext(_connection, ServiceProvider));
+        using var repository = ServiceProvider.GetRequiredService<IRepository<Customer>>();
 
         var customer = new Customer() { CustomerId = new CustomerId(1), AccountNumber = "Test" };
 
@@ -75,7 +63,7 @@ public class RespositoryTests : TestBase
     [Test]
     public async Task AddComplexKeyAsync()
     {
-        using var repository = new Repository<BusinessEntityAddress>(new TestDbContext(_connection, ServiceProvider));
+        using var repository = ServiceProvider.GetRequiredService<IRepository<BusinessEntityAddress>>();
 
         var address = new BusinessEntityAddress() { BusinessEntityId = new BusinessEntityId(1), AddressId = new AddressId(1), AddressTypeId = new AddressTypeId(1), ModifiedDate = DateTime.UtcNow };
 
@@ -89,7 +77,7 @@ public class RespositoryTests : TestBase
     [Test]
     public async Task UpdateComplexKeyAsync()
     {
-        using var repository = new Repository<BusinessEntityAddress>(new TestDbContext(_connection, ServiceProvider));
+        using var repository = ServiceProvider.GetRequiredService<IRepository<BusinessEntityAddress>>();
 
         var address = new BusinessEntityAddress() { BusinessEntityId = new BusinessEntityId(1), AddressId = new AddressId(1), AddressTypeId = new AddressTypeId(1), ModifiedDate = DateTime.UtcNow };
 
@@ -109,7 +97,7 @@ public class RespositoryTests : TestBase
     [Test]
     public async Task DeleteComplexKeyAsync()
     {
-        using var repository = new Repository<BusinessEntityAddress>(new TestDbContext(_connection, ServiceProvider));
+        using var repository = ServiceProvider.GetRequiredService<IRepository<BusinessEntityAddress>>();
 
         var address = new BusinessEntityAddress() { BusinessEntityId = new BusinessEntityId(1), AddressId = new AddressId(1), AddressTypeId = new AddressTypeId(1), ModifiedDate = DateTime.UtcNow };
 
@@ -125,7 +113,7 @@ public class RespositoryTests : TestBase
     [Test]
     public async Task AddRangeAsync()
     {
-        using var repository = new Repository<Customer>(new TestDbContext(_connection, ServiceProvider));
+        using var repository = ServiceProvider.GetRequiredService<IRepository<Customer>>();
 
         var list = new List<Customer>();
 
@@ -150,7 +138,7 @@ public class RespositoryTests : TestBase
         var list = new List<Customer>();
         var count = 10;
 
-        using (var repository = new Repository<Customer>(new TestDbContext(_connection, ServiceProvider)))
+        using (var repository = ServiceProvider.GetRequiredService<IRepository<Customer>>())
         {
             foreach (var i in Enumerable.Range(1, count))
             {
@@ -165,7 +153,7 @@ public class RespositoryTests : TestBase
             result.Should().Be(count);
         }
 
-        using (var repository = new Repository<Customer>(new TestDbContext(_connection, ServiceProvider)))
+        using (var repository = ServiceProvider.GetRequiredService<IRepository<Customer>>())
         {
             foreach (var item in list)
             {
@@ -183,7 +171,7 @@ public class RespositoryTests : TestBase
     [Test]
     public async Task DeleteRangeAsync()
     {
-        using var repository = new Repository<Customer>(new TestDbContext(_connection, ServiceProvider));
+        using var repository = ServiceProvider.GetRequiredService<IRepository<Customer>>();
 
         var list = new List<Customer>();
 
@@ -211,7 +199,7 @@ public class RespositoryTests : TestBase
     [Test]
     public async Task GetListAsync()
     {
-        using var repository = new Repository<Customer>(new TestDbContext(_connection, ServiceProvider));
+        using var repository = ServiceProvider.GetRequiredService<IRepository<Customer>>();
         var count = 10;
         foreach (var i in Enumerable.Range(1, count))
         {
@@ -227,7 +215,7 @@ public class RespositoryTests : TestBase
     [Test]
     public async Task GetCountAsync()
     {
-        using var repository = new Repository<Customer>(new TestDbContext(_connection, ServiceProvider));
+        using var repository = ServiceProvider.GetRequiredService<IRepository<Customer>>();
 
         var count = 10;
 
@@ -242,20 +230,5 @@ public class RespositoryTests : TestBase
         result.Should().Be(count);
     }
 
-    [TearDown]
-    public async Task TearDownAsync()
-    {
-        if (_connection is not null)
-        {
-            using (var context = new TestDbContext(_connection, ServiceProvider))
-            {
-                await context.DisposeAsync().ConfigureAwait(true);
-            }
-            _connection.Dispose();
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-            _connection = null;
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
-        }
-    }
 
 }
