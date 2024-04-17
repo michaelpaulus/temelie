@@ -23,25 +23,27 @@ public class ScriptService : IScriptService
         _databaseModelService = databaseModelService;
     }
 
-    private FileInfo WriteIfDifferent(string path, string contents)
+    private (FileInfo File, bool Changed) WriteIfDifferent(string path, string contents)
     {
         contents = contents.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", "\r\n");
         contents = contents.Replace("\t", "    ");
         var currentContents = "";
+        bool changed = false;
         if (File.Exists(path))
         {
             currentContents = File.ReadAllText(path);
         }
         if (currentContents != contents)
         {
+            changed = true;
             File.WriteAllText(path, contents, System.Text.Encoding.UTF8);
         }
-        return new FileInfo(path);
+        return (new FileInfo(path), changed);
     }
 
     private IEnumerable<FileInfo> CreateTableScripts(IDatabaseProvider provider, Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
     {
-        var files = new List<FileInfo>();
+        var files = new List<(FileInfo File, bool Changed)>();
 
         foreach (var table in database.Tables)
         {
@@ -58,7 +60,48 @@ public class ScriptService : IScriptService
             }
         }
 
-        return files;
+        foreach (var file in files.Where(i => i.Changed && i.File.Name.EndsWith(".sql")).Select(i => i.File))
+        {
+            var changeFileName = Path.Combine(directory.Parent.FullName, "04_Migrations", DateTime.UtcNow.ToString("yyyy-MM-dd"), $"01_{file.Name}");
+            if (!Directory.Exists(Path.GetDirectoryName(changeFileName)))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(changeFileName));
+            }
+            if (!File.Exists(changeFileName))
+            {
+                WriteIfDifferent(changeFileName, @"TODO: write migration
+
+-- example: add column null
+IF NOT EXISTS (SELECT 1 FROM sys.tables INNER JOIN sys.columns ON tables.object_id = columns.object_id INNER JOIN sys.schemas ON tables.schema_id = schemas.schema_id WHERE schemas.name = '{schemaName}' AND tables.name = '{tableName}' AND columns.name = '{columnName}')
+BEGIN
+	ALTER TABLE {schemaName}.{tableName} ADD {columnName} NULL
+END
+GO
+
+-- example: add column not null with default
+IF NOT EXISTS (SELECT 1 FROM sys.tables INNER JOIN sys.columns ON tables.object_id = columns.object_id INNER JOIN sys.schemas ON tables.schema_id = schemas.schema_id WHERE schemas.name = '{schemaName}' AND tables.name = '{tableName}' AND columns.name = '{columnName}')
+BEGIN
+	ALTER TABLE {schemaName}.{tableName} ADD {columnName} NOT NULL CONSTRAINT {contraintName} DEFAULT {defaultValue} WITH VALUES
+END
+GO
+
+IF EXISTS (SELECT 1 FROM sys.check_constraints INNER JOIN sys.tables ON check_constraints.parent_object_id = tables.object_id INNER JOIN sys.schemas ON tables.schema_id = schemas.schema_id WHERE check_constraints.name = '{contraintName}' AND schemas.name = '{schemaName}')
+BEGIN
+	ALTER TABLE {schemaName}.{tableName} DROP CONSTRAINT {contraintName}
+END
+GO
+
+-- example: delete column
+IF EXISTS (SELECT 1 FROM sys.tables INNER JOIN sys.columns ON tables.object_id = columns.object_id INNER JOIN sys.schemas ON tables.schema_id = schemas.schema_id WHERE schemas.name = '{schemaName}' AND tables.name = '{tableName}' AND columns.name = '{columnName}')
+BEGIN
+	ALTER TABLE {schemaName}.{tableName} DROP COLUMN {columnName}
+END
+GO
+");
+            }
+        }
+
+        return files.Select(i => i.File).ToList();
     }
     private IEnumerable<FileInfo> CreateSecurityPolicyScripts(IDatabaseProvider provider, Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
     {
@@ -77,8 +120,8 @@ public class ScriptService : IScriptService
                 sbSecurityPolicyScript.AppendLine(script.DropScript);
                 sbSecurityPolicyScript.AppendLine(script.CreateScript);
 
-                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sbSecurityPolicyScript.ToString()));
-                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(securityPolicy)));
+                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sbSecurityPolicyScript.ToString()).File);
+                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(securityPolicy)).File);
 
             }
 
@@ -97,8 +140,8 @@ public class ScriptService : IScriptService
                 fileFilter.EqualsIgnoreCase(fileName))
             {
                 var script = provider.GetScript(pk);
-                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), script.CreateScript));
-                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(pk)));
+                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), script.CreateScript).File);
+                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(pk)).File);
 
             }
         }
@@ -110,8 +153,8 @@ public class ScriptService : IScriptService
                 fileFilter.EqualsIgnoreCase(fileName))
             {
                 var script = provider.GetScript(index);
-                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), script.CreateScript));
-                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(index)));
+                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), script.CreateScript).File);
+                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(index)).File);
             }
         }
 
@@ -132,8 +175,8 @@ public class ScriptService : IScriptService
                 sb.Append(script.DropScript);
                 sb.Append(script.CreateScript);
 
-                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()));
-                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(constraint)));
+                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()).File);
+                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(constraint)).File);
             }
         }
 
@@ -165,15 +208,14 @@ public class ScriptService : IScriptService
                 sb.Append(script.DropScript);
                 sb.Append(script.CreateScript);
 
-                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()));
-                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(definition)));
+                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()).File);
+                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(definition)).File);
             }
 
         }
 
         return files;
     }
-
     private IEnumerable<FileInfo> CreateTriggerScripts(IDatabaseProvider provider, Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
     {
         var files = new List<FileInfo>();
@@ -190,14 +232,13 @@ public class ScriptService : IScriptService
                 sb.Append(script.DropScript);
                 sb.Append(script.CreateScript);
 
-                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()));
-                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(trigger)));
+                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()).File);
+                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(trigger)).File);
             }
         }
 
         return files;
     }
-
     private IEnumerable<FileInfo> CreateFkScripts(IDatabaseProvider provider, Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
     {
         var files = new List<FileInfo>();
@@ -211,8 +252,8 @@ public class ScriptService : IScriptService
                 var sb = new System.Text.StringBuilder();
                 sb.Append(script.DropScript);
                 sb.Append(script.CreateScript);
-                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()));
-                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(foreignKey)));
+                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()).File);
+                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(foreignKey)).File);
             }
         }
 
