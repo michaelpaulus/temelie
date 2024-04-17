@@ -27,27 +27,22 @@ public class DatabaseModel(
 
     public IEnumerable<IndexModel> PrimaryKeys => (from i in _allIndexes where i.IsPrimaryKey select i).ToList();
 
-    public ColumnModel GetForeignKeySourceColumn(string sourceTableName, string sourceColumnName)
+    public ColumnModel GetForeignKeySourceColumn(string sourceSchemaName, string sourceTableName, string sourceColumnName)
     {
         foreach (var fk in ForeignKeys)
         {
-            if (fk.TableName == sourceTableName)
+            if (fk.SchemaName.Equals(sourceSchemaName, StringComparison.OrdinalIgnoreCase) && fk.TableName.Equals(sourceTableName, StringComparison.OrdinalIgnoreCase))
             {
                 foreach (var detail in fk.Detail)
                 {
-                    if (detail.Column == sourceColumnName)
+                    if (detail.Column.Equals(sourceColumnName, StringComparison.OrdinalIgnoreCase))
                     {
-                        var referencedTable = Tables.FirstOrDefault(i => i.TableName == fk.ReferencedTableName);
+                        var referencedTable = Tables.FirstOrDefault(i => i.SchemaName.Equals(fk.ReferencedSchemaName, StringComparison.OrdinalIgnoreCase) && i.TableName.Equals(fk.ReferencedTableName, StringComparison.OrdinalIgnoreCase));
                         if (referencedTable is not null)
                         {
-                            var referencedColumn = referencedTable.Columns.FirstOrDefault(i => i.ColumnName == detail.ReferencedColumn);
+                            var referencedColumn = referencedTable.Columns.FirstOrDefault(i => i.ColumnName.Equals(detail.ReferencedColumn, StringComparison.OrdinalIgnoreCase));
                             if (referencedColumn is not null)
                             {
-                                var fkColumn = GetForeignKeySourceColumn(referencedTable.TableName, referencedColumn.ColumnName);
-                                if (fkColumn is not null)
-                                {
-                                    return fkColumn;
-                                }
                                 return referencedColumn;
                             }
                         }

@@ -32,7 +32,7 @@ public class EntityIncrementalGenerator : IIncrementalGenerator
 
             var databaseModel = DatabaseModel.CreateFromFiles(result.files);
 
-            var pkColumns = new List<ColumnModel>();
+            var pkColumns = new Dictionary<string, string>();
 
             void addTable(TableModel table)
             {
@@ -55,7 +55,7 @@ public record {className} : IEntity<{className}>
                     var propertyType = ColumnModel.GetSystemTypeString(ColumnModel.GetSystemType(column.DbType));
                     var dft = "";
 
-                    var fkSouceColumn = databaseModel.GetForeignKeySourceColumn(table.TableName, column.ColumnName);
+                    var fkSouceColumn = databaseModel.GetForeignKeySourceColumn(table.SchemaName, table.TableName, column.ColumnName);
                     if (fkSouceColumn is not null)
                     {
                         propertyType = fkSouceColumn.PropertyName;
@@ -64,7 +64,10 @@ public record {className} : IEntity<{className}>
                     else if (column.IsPrimaryKey)
                     {
                         propertyType = column.PropertyName;
-                        pkColumns.Add(column);
+                        if (!pkColumns.ContainsKey(propertyType))
+                        {
+                            pkColumns.Add(propertyType, ColumnModel.GetSystemTypeString(ColumnModel.GetSystemType(column.DbType)));
+                        }
                         sb.AppendLine($"    [Temelie.Entities.EntityId]");
                     }
 
@@ -115,11 +118,11 @@ public record {className} : IEntity<{className}>
                 addTable(table);
             }
 
-            foreach (var group in pkColumns.GroupBy(i => i.PropertyName))
+            foreach (var group in pkColumns)
             {
                 var ns = assemblyName;
                 var className = group.Key;
-                var propertyType = ColumnModel.GetSystemTypeString(ColumnModel.GetSystemType(group.First().DbType));
+                var propertyType = group.Value;
 
                 var sb = new StringBuilder();
                 sb.AppendLine(@$"using Temelie.Entities;

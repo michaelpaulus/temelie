@@ -21,11 +21,11 @@ public class TableModel : DatabaseObjectModel
     {
         get
         {
-            if (ExtendedProperties.TryGetValue("Name", out var name) )
+            if (ExtendedProperties.TryGetValue("name", out var name))
             {
                 return name;
             }
-            return TableName;
+            return ColumnModel.NormalizePropertyName(TableName);
         }
     }
 

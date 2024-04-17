@@ -43,7 +43,7 @@ public class ColumnModel : Model
     {
         get
         {
-            if (ExtendedProperties.TryGetValue("Name", out var name))
+            if (ExtendedProperties.TryGetValue("name", out var name))
             {
                 return name;
             }
@@ -256,11 +256,9 @@ public class ColumnModel : Model
     #endregion
 
     #region Methods
-
-
-    private string NormalizePropertyName(string columnName)
+    internal static string NormalizePropertyName(string columnName)
     {
-        columnName = columnName.Replace(" ", "").Replace(".", "");
+        columnName = columnName.Replace(" ", "").Replace(".", "").Replace("-", "_");
 
         foreach (var item in Enumerable.Range(0, 9))
         {
@@ -268,6 +266,11 @@ public class ColumnModel : Model
             {
                 columnName = "n" + columnName;
             }
+        }
+
+        if (columnName == "ID")
+        {
+            columnName = "Id";
         }
 
         if (columnName.Contains("ID"))
@@ -289,6 +292,7 @@ public class ColumnModel : Model
                 }
             }
         }
+
         return columnName;
     }
 

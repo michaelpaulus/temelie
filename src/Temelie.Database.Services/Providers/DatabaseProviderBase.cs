@@ -63,7 +63,7 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
         {
             foreach (var item in JsonSerializer.Deserialize<IEnumerable<ExtendedProperty>>(extendedProperites, ModelsJsonSerializerOptions.Default))
             {
-                column.ExtendedProperties.Add(item.Name, item.Value);
+                column.ExtendedProperties.Add(item.Name.ToLower(), item.Value);
             }
         }
 
@@ -428,7 +428,7 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
                     var props = JsonSerializer.Deserialize<IEnumerable<ExtendedProperty>>(extendedProperites, ModelsJsonSerializerOptions.Default);
                     foreach (var item in props)
                     {
-                        table.ExtendedProperties.Add(item.Name, item.Value);
+                        table.ExtendedProperties.Add(item.Name.ToLower(), item.Value);
                     }
                 }
                 catch
