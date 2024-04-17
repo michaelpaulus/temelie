@@ -11,21 +11,21 @@ public class EntityIncrementalGenerator : IIncrementalGenerator
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var assemblyNames = context.CompilationProvider.Select((c, _) => c.AssemblyName);
+        var options = context.AnalyzerConfigOptionsProvider.Select((c, _) => { c.GlobalOptions.TryGetValue("build_property.RootNamespace", out string rootNamespace); return rootNamespace; });
 
         var files = context.AdditionalTextsProvider
             .Where(a => a.Path.EndsWith(".sql.json"))
             .Select((a, c) => (a.Path, a.GetText(c)!.ToString()))
             .Collect();
 
-        var result = assemblyNames.Combine(files);
+        var result = options.Combine(files);
 
         context.RegisterImplementationSourceOutput(result, Generate);
     }
 
-    void Generate(SourceProductionContext context, (string assemblyName, ImmutableArray<(string FileName, string Text)> files) result)
+    void Generate(SourceProductionContext context, (string RootNamesapce, ImmutableArray<(string FileName, string Text)> files) result)
     {
-        var assemblyName = result.assemblyName;
+        var rootNamesapce = result.RootNamesapce;
 
         try
         {
@@ -36,7 +36,7 @@ public class EntityIncrementalGenerator : IIncrementalGenerator
 
             void addTable(TableModel table)
             {
-                var ns = assemblyName;
+                var ns = rootNamesapce;
                 var className = table.ClassName;
 
                 var sb = new StringBuilder();
@@ -120,7 +120,7 @@ public record {className} : IEntity<{className}>
 
             foreach (var group in pkColumns)
             {
-                var ns = assemblyName;
+                var ns = rootNamesapce;
                 var className = group.Key;
                 var propertyType = group.Value;
 

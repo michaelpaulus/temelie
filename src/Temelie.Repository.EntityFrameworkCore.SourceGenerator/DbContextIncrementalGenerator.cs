@@ -10,22 +10,26 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
+        var options = context.AnalyzerConfigOptionsProvider.Select((c, _) => { c.GlobalOptions.TryGetValue("build_property.RootNamespace", out string rootNamespace); return rootNamespace; });
+
         var compliationProvider = context.CompilationProvider.Select(static (compilation, token) =>
         {
             var visitor = new EntitySymbolVisitor();
             visitor.Visit(compilation.GlobalNamespace);
-            return (compilation.AssemblyName, visitor.Entities);
+            return visitor.Entities;
         });
 
-        context.RegisterImplementationSourceOutput(compliationProvider, (context, results) =>
-        {
-            Generate(context, results.AssemblyName, results.Entities);
-        });
+        context.RegisterImplementationSourceOutput(options.Combine(compliationProvider), Generate);
     }
 
-    void Generate(SourceProductionContext context, string assemblyName, IEnumerable<Entity> entities)
+    private void Generate(SourceProductionContext context, (string RootNamespace, IEnumerable<Entity> Entities) result)
     {
-        var ns = assemblyName;
+        Generate(context, result.RootNamespace, result.Entities);
+    }
+
+    void Generate(SourceProductionContext context, string rootNamespace, IEnumerable<Entity> entities)
+    {
+        var ns = rootNamespace;
 
         var sbModelBuilder = new StringBuilder();
         var sbRepositoryContext = new StringBuilder();

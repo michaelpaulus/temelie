@@ -10,20 +10,24 @@ public class SingleQueryIncrementalGenerator : IIncrementalGenerator
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
+        var options = context.AnalyzerConfigOptionsProvider.Select((c, _) => { c.GlobalOptions.TryGetValue("build_property.RootNamespace", out string rootNamespace); return rootNamespace; });
+
         var compliationProvider = context.CompilationProvider.Select(static (compilation, token) =>
         {
             var visitor = new EntitySymbolVisitor();
             visitor.Visit(compilation.GlobalNamespace);
-            return (compilation.AssemblyName, visitor.Entities);
+            return visitor.Entities;
         });
 
-        context.RegisterImplementationSourceOutput(compliationProvider, (context, results) =>
+        context.RegisterImplementationSourceOutput(options.Combine(compliationProvider), Generate);
+    }
+
+    private void Generate(SourceProductionContext context, (string RootNamespace, IEnumerable<Entity> Entities) result)
+    {
+        foreach (var item in result.Entities)
         {
-            foreach (var result in results.Entities)
-            {
-                Generate(context, results.AssemblyName, result);
-            }
-        });
+            Generate(context, result.RootNamespace, item);
+        }
     }
 
     void Generate(SourceProductionContext context, string assemblyName, Entity entity)
