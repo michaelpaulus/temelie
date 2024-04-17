@@ -93,7 +93,7 @@ internal class StartupConfigurationContext : IDisposable, IStartupConfiguration
     {{
         foreach (var config in _configurations)
         {{
-            config.Configure(builder);
+            builder = config.Configure(builder);
         }}
         return builder;
     }}
@@ -102,7 +102,7 @@ internal class StartupConfigurationContext : IDisposable, IStartupConfiguration
     {{
         foreach (var config in _configurations)
         {{
-            config.Configure(services);
+            services = config.Configure(services);
         }}
 {regsiterExports()}
         return services;
@@ -112,7 +112,7 @@ internal class StartupConfigurationContext : IDisposable, IStartupConfiguration
     {{
         foreach (var config in _configurations)
         {{
-            config.Configure(provider);
+            provider = config.Configure(provider);
         }}
         return provider;
     }}
