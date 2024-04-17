@@ -9,10 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\Temelie.Repository.SourceGenerator\Entity.cs" Link="Entity.cs" />
-    <Compile Include="..\Temelie.Repository.SourceGenerator\EntityProperty.cs" Link="EntityProperty.cs" />
-    <Compile Include="..\Temelie.Repository.SourceGenerator\EntitySymbolVisitor.cs" Link="EntitySymbolVisitor.cs" />
-    <Compile Include="..\Temelie.Repository.SourceGenerator\IsExternalInit.cs" Link="IsExternalInit.cs" />
+    <Compile Include="..\Temelie.Database.Models\Extensions\StringExtensions.cs" Link="Extensions\StringExtensions.cs" />
   </ItemGroup>
 
   <ItemGroup>

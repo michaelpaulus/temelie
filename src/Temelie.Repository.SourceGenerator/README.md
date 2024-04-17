@@ -1,0 +1,1 @@
+# Temelie.Repository.EntityFrameworkCore.SourceGenerator

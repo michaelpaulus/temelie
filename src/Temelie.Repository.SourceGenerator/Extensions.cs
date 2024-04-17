@@ -6,7 +6,7 @@ public static class Extensions
 {
     public static string FullName(this ITypeSymbol type)
     {
-        return type.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat).Replace("?", "");
+        return type.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat);
     }
 
     public static string FullNamespace(this INamespaceOrTypeSymbol type)

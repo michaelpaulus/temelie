@@ -53,6 +53,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Temelie.Entities.SourceGene
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Temelie.Repository.EntityFrameworkCore.SourceGenerator", "src\Temelie.Repository.EntityFrameworkCore.SourceGenerator\Temelie.Repository.EntityFrameworkCore.SourceGenerator.csproj", "{D0C47399-054F-42A9-9CED-9FE87546E5D6}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Temelie.Repository.SourceGenerator", "src\Temelie.Repository.SourceGenerator\Temelie.Repository.SourceGenerator.csproj", "{FDF80837-D7A0-45B0-A8A0-A124A1DEEB4F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -135,6 +137,10 @@ Global
 		{D0C47399-054F-42A9-9CED-9FE87546E5D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D0C47399-054F-42A9-9CED-9FE87546E5D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D0C47399-054F-42A9-9CED-9FE87546E5D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDF80837-D7A0-45B0-A8A0-A124A1DEEB4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDF80837-D7A0-45B0-A8A0-A124A1DEEB4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDF80837-D7A0-45B0-A8A0-A124A1DEEB4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDF80837-D7A0-45B0-A8A0-A124A1DEEB4F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

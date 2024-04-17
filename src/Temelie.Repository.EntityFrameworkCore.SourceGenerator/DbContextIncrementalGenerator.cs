@@ -1,7 +1,6 @@
-using System.Collections.Immutable;
 using System.Text;
-using Temelie.Database.Models;
 using Microsoft.CodeAnalysis;
+using Temelie.Repository.SourceGenerator;
 
 namespace Temelie.Entities.SourceGenerator;
 
@@ -11,75 +10,65 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var assemblyNames = context.CompilationProvider.Select((c, _) => c.AssemblyName);
+        var compliationProvider = context.CompilationProvider.Select(static (compilation, token) =>
+        {
+            var visitor = new EntitySymbolVisitor();
+            visitor.Visit(compilation.GlobalNamespace);
+            return (compilation.AssemblyName, visitor.Entities);
+        });
 
-        var files = context.AdditionalTextsProvider
-            .Where(a => a.Path.EndsWith(".sql.json"))
-            .Select((a, c) => (a.Path, a.GetText(c)!.ToString()))
-            .Collect();
-
-        var result = assemblyNames.Combine(files);
-
-        context.RegisterImplementationSourceOutput(result, Generate);
+        context.RegisterImplementationSourceOutput(compliationProvider, (context, results) =>
+        {
+            Generate(context, results.AssemblyName, results.Entities);
+        });
     }
 
-    void Generate(SourceProductionContext context, (string assemblyName, ImmutableArray<(string FileName, string Text)> files) result)
+    void Generate(SourceProductionContext context, string assemblyName, IEnumerable<Entity> entities)
     {
-        var assemblyName = result.assemblyName;
         var ns = assemblyName;
-        var databaseModel = DatabaseModel.CreateFromFiles(result.files);
 
-        var pkColumns = new List<ColumnModel>();
         var sbModelBuilder = new StringBuilder();
         var sbRepositoryContext = new StringBuilder();
         var sbImplements = new StringBuilder();
         var sbExports = new StringBuilder();
 
-        void addTable(TableModel table)
+        void addEntity(Entity entity)
         {
-            var className = table.ClassName;
+            var className = entity.FullType.Split('.').Last();
 
             sbImplements.Append($@",
-                                     IRepositoryContext<{className}>");
-            sbExports.AppendLine($"[ExportTransient(typeof(IRepositoryContext<{className}>))]");
+                                     IRepositoryContext<{entity.FullType}>");
+            sbExports.AppendLine($"[ExportTransient(typeof(IRepositoryContext<{entity.FullType}>))]");
 
             sbRepositoryContext.AppendLine($@"
-    public DbSet<{className}> {className} {{ get; set; }}
-    DbContext IRepositoryContext<{className}>.DbContext => this;
-    DbSet<{className}> IRepositoryContext<{className}>.DbSet => {className};
+    public DbSet<{entity.FullType}> {className} {{ get; set; }}
+    DbContext IRepositoryContext<{entity.FullType}>.DbContext => this;
+    DbSet<{entity.FullType}> IRepositoryContext<{entity.FullType}>.DbSet => {className};
 ");
 
-            var keys = new List<string>();
             var props = new StringBuilder();
+            var keys = new List<string>();
 
-            foreach (var column in table.Columns)
+            foreach (var column in entity.Properties.OrderBy(i => i.Order))
             {
                 var columnProperties = new StringBuilder();
 
-                var fkSouceColumn = databaseModel.GetForeignKeySourceColumn(table.TableName, column.ColumnName);
-
-                if (fkSouceColumn is not null)
+                if (column.IsEntityId)
                 {
                     columnProperties.AppendLine();
                     if (column.IsNullable)
                     {
-                        columnProperties.Append($"                .HasConversion(id => id.HasValue ? id.Value.Value : default, value => new {fkSouceColumn.PropertyName}(value))");
+                        columnProperties.Append($"                .HasConversion(id => id.HasValue ? id.Value.Value : default, value => new {column.FullType}(value))");
                     }
                     else
                     {
-                        columnProperties.Append($"                .HasConversion(id => id.Value, value => new {fkSouceColumn.PropertyName}(value))");
+                        columnProperties.Append($"                .HasConversion(id => id.Value, value => new {column.FullType}(value))");
                     }
-                   
-                }
-                else if (column.IsPrimaryKey)
-                {
-                    columnProperties.AppendLine();
-                    columnProperties.Append($"                .HasConversion(id => id.Value, value => new {column.PropertyName}(value))");
                 }
 
                 if (column.IsPrimaryKey)
                 {
-                    keys.Add(column.PropertyName);
+                    keys.Add(column.Name);
                 }
 
                 if (column.IsIdentity)
@@ -88,7 +77,7 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
                     columnProperties.Append($"                .UseIdentityColumn(_serviceProvider)");
                 }
 
-                if (column.ColumnName != column.PropertyName)
+                if (column.ColumnName != column.Name)
                 {
                     columnProperties.AppendLine();
                     columnProperties.Append($"                .HasColumnName(\"{column.ColumnName}\")");
@@ -97,7 +86,7 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
                 if (columnProperties.Length > 0)
                 {
                     props.Append($@"
-            builder.Property(p => p.{column.PropertyName}){columnProperties};");
+            builder.Property(p => p.{column.Name}){columnProperties};");
                 }
             }
 
@@ -117,17 +106,17 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
                 config.AppendLine($"            builder.HasNoKey();");
             }
 
-            if (table.IsView)
+            if (entity.IsView)
             {
-                config.AppendLine($"            builder.ToView(\"{table.TableName}\");");
+                config.AppendLine($"            builder.ToView(\"{entity.TableName}\");");
             }
             else
             {
-                config.AppendLine($"            builder.ToTable(\"{table.TableName}\");");
+                config.AppendLine($"            builder.ToTable(\"{entity.TableName}\");");
             }
 
             sbModelBuilder.AppendLine($@"
-        modelBuilder.Entity<{className}>(builder =>
+        modelBuilder.Entity<{entity.FullType}>(builder =>
         {{
 {config}
 {props}
@@ -135,20 +124,14 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
 ");
         }
 
-        foreach (var table in databaseModel.Tables)
+        foreach (var entity in entities)
         {
-            addTable(table);
-        }
-
-        foreach (var table in databaseModel.Views)
-        {
-            addTable(table);
+            addEntity(entity);
         }
 
         var sb = new StringBuilder();
 
-        sb.AppendLine($@"using AdventureWorks.Entities;
-using Microsoft.EntityFrameworkCore;
+        sb.AppendLine($@"using Microsoft.EntityFrameworkCore;
 using Temelie.DependencyInjection;
 using Temelie.Repository;
 using Temelie.Repository.EntityFrameworkCore;

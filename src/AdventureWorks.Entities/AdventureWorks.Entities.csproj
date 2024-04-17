@@ -7,10 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="..\AdventureWorks.Database\**\*.sql.json" LinkBase="Scripts" />
+    <AdditionalFiles Include="..\AdventureWorks.Database\02_Tables\**\*.sql.json" LinkBase="Scripts\02_Tables" />
+    <AdditionalFiles Include="..\AdventureWorks.Database\05_Views\**\*.sql.json" LinkBase="Scripts\05_Views" />
+    <AdditionalFiles Include="..\AdventureWorks.Database\08_ForeignKeys\**\*.sql.json" LinkBase="Scripts\08_ForeignKeys" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
     <PackageReference Include="System.Text.Json" Version="8.0.3" />
   </ItemGroup>
 

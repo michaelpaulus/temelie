@@ -40,9 +40,12 @@ public class EntityIncrementalGenerator : IIncrementalGenerator
                 var className = table.ClassName;
 
                 var sb = new StringBuilder();
-                sb.AppendLine(@$"using Temelie.Entities;
-#nullable enable
+                sb.AppendLine($@"#nullable enable
+using Temelie.Entities;
+
 namespace {ns};
+
+[System.ComponentModel.DataAnnotations.Schema.Table(""{table.TableName}"", Schema = ""{table.SchemaName}"")]
 public record {className} : IEntity<{className}>
 {{
 ");
@@ -56,11 +59,13 @@ public record {className} : IEntity<{className}>
                     if (fkSouceColumn is not null)
                     {
                         propertyType = fkSouceColumn.PropertyName;
+                        sb.AppendLine($"    [Temelie.Entities.EntityId]");
                     }
                     else if (column.IsPrimaryKey)
                     {
                         propertyType = column.PropertyName;
                         pkColumns.Add(column);
+                        sb.AppendLine($"    [Temelie.Entities.EntityId]");
                     }
 
                     if (propertyName == className)
@@ -71,12 +76,26 @@ public record {className} : IEntity<{className}>
                     if (column.IsNullable)
                     {
                         propertyType += "?";
+                        sb.AppendLine($"    [Temelie.Entities.Nullable]");
                     }
                     else
                     {
                         dft = $" = {GetTypeDefault(propertyType)};";
                     }
 
+                    if (column.IsPrimaryKey)
+                    {
+                        sb.AppendLine($"    [System.ComponentModel.DataAnnotations.Key]");
+                    }
+                    if (column.IsComputed)
+                    {
+                        sb.AppendLine($"    [System.ComponentModel.DataAnnotations.Schema.DatabaseGenerated(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Computed)]");
+                    }
+                    if (column.IsIdentity)
+                    {
+                        sb.AppendLine($"    [System.ComponentModel.DataAnnotations.Schema.DatabaseGenerated(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity)]");
+                    }
+                    sb.AppendLine($"    [System.ComponentModel.DataAnnotations.Schema.Column(\"{column.ColumnName}\", Order = {column.ColumnId})]");
                     sb.AppendLine($"    public {propertyType} {propertyName} {{ get; set; }}{dft}");
                 }
 

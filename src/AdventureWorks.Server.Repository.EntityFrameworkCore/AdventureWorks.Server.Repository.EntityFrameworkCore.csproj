@@ -5,11 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="..\AdventureWorks.Database\**\*.sql.json" LinkBase="Scripts" />
-  </ItemGroup>
-
-
-  <ItemGroup>
     <ProjectReference Include="..\AdventureWorks.Server.Repository\AdventureWorks.Server.Repository.csproj" />
     <ProjectReference Include="..\Temelie.DependencyInjection\Temelie.DependencyInjection.csproj" />
     <ProjectReference Include="..\Temelie.Repository.EntityFrameworkCore\Temelie.Repository.EntityFrameworkCore.csproj" />
