@@ -23,27 +23,29 @@ public class ScriptService : IScriptService
         _databaseModelService = databaseModelService;
     }
 
-    private (FileInfo File, bool Changed) WriteIfDifferent(string path, string contents)
+    private (FileInfo File, bool Changed, bool New) WriteIfDifferent(string path, string contents)
     {
         contents = contents.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", "\r\n");
         contents = contents.Replace("\t", "    ");
         var currentContents = "";
         bool changed = false;
+        bool isNew = false;
         if (File.Exists(path))
         {
             currentContents = File.ReadAllText(path);
         }
         if (currentContents != contents)
         {
-            changed = true;
+            changed = !File.Exists(path);
+            isNew = !changed;
             File.WriteAllText(path, contents, System.Text.Encoding.UTF8);
         }
-        return (new FileInfo(path), changed);
+        return (new FileInfo(path), changed, isNew);
     }
 
     private IEnumerable<FileInfo> CreateTableScripts(IDatabaseProvider provider, Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
     {
-        var files = new List<(FileInfo File, bool Changed)>();
+        var files = new List<(FileInfo File, bool Changed, bool New)>();
 
         foreach (var table in database.Tables)
         {
