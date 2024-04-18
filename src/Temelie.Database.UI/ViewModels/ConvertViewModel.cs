@@ -135,11 +135,14 @@ public class ConvertViewModel : ViewModel
     {
         try
         {
-            var tables = Controls.DatabaseConnection.GetTables(_databaseExecutionService, _databaseFactory, this.SourceDatabaseConnectionString);
             this.Tables.Clear();
-            foreach (var table in tables)
+            if (SourceDatabaseConnectionString is not null)
             {
-                this.Tables.Add(table);
+                var tables = Controls.DatabaseConnection.GetTables(_databaseExecutionService, _databaseFactory, this.SourceDatabaseConnectionString);
+                foreach (var table in tables)
+                {
+                    this.Tables.Add(table);
+                }
             }
         }
         catch

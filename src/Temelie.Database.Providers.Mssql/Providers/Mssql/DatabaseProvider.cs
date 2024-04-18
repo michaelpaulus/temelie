@@ -64,7 +64,8 @@ public class DatabaseProvider : DatabaseProviderBase
             case "VARCHAR":
             case "VARBINARY":
                 if (targetColumnType.Precision.GetValueOrDefault() > 4000 ||
-                    targetColumnType.Precision.GetValueOrDefault() == 0)
+                    targetColumnType.Precision.GetValueOrDefault() == 0 ||
+                    targetColumnType.Precision.GetValueOrDefault() == -1)
                 {
                     targetColumnType.Precision = int.MaxValue;
                 }

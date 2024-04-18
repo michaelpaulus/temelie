@@ -1,9 +1,11 @@
 using System.Data;
 using Temelie.Database.Services;
 using Microsoft.Data.SqlClient;
+using Temelie.DependencyInjection;
 
 namespace Temelie.Database.Providers.Mssql;
 
+[ExportTransient(typeof(IConnectionCreatedNotification))]
 public class DefaultAzureCredentialConnectionCreatedNotification : IConnectionCreatedNotification
 {
     public void Notify(IDbConnection connection)

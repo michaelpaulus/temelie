@@ -429,7 +429,7 @@ GO
             if (progress != null)
             {
                 int percent = Convert.ToInt32((intFileCount / count) * 100);
-                progress.Report(new ScriptProgress() { ProgressPercentage = percent, ProgressStatus = file.Name });
+                progress.Report(new ScriptProgress() { ProgressPercentage = percent, ProgressStatus = $"{file.Directory.Name}/{file.Name}"});
             }
 
             using (System.IO.Stream stream = System.IO.File.OpenRead(file.FullName))
@@ -468,7 +468,7 @@ GO
                         else if (progress != null)
                         {
                             int percent = Convert.ToInt32((intFileCount / count) * 100);
-                            progress.Report(new ScriptProgress() { ProgressPercentage = percent, ProgressStatus = file.Name, ErrorMessage = ex.Message });
+                            progress.Report(new ScriptProgress() { ProgressPercentage = percent, ProgressStatus = $"{file.Directory.Name}/{file.Name}", ErrorMessage = ex.Message });
                         }
                     }
                     else
