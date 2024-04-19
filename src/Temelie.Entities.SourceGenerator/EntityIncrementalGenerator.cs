@@ -32,9 +32,86 @@ public class EntityIncrementalGenerator : IIncrementalGenerator
 
             var databaseModel = DatabaseModel.CreateFromFiles(result.files);
 
-            var pkColumns = new Dictionary<string, string>();
+            var entityIds = new Dictionary<string, string>();
 
-            void addTable(TableModel table)
+            IEnumerable<ColumnProperty> getColumnProperties(TableModel table)
+            {
+                var list = new List<ColumnProperty>();
+
+                foreach (var column in table.Columns)
+                {
+                    var prop = new ColumnProperty();
+            
+                    prop.ColumnName = column.ColumnName;
+                    prop.ColumnId = column.ColumnId;
+                    prop.PropertyName = column.PropertyName;
+                    prop.PropertyType = ColumnModel.GetSystemTypeString(ColumnModel.GetSystemType(column.DbType));
+                    prop.Default = "";
+                    prop.IsIdentity = column.IsIdentity;
+                    prop.IsComputed = column.IsComputed;
+                    prop.IsPrimaryKey = column.IsPrimaryKey;
+                    prop.SystemTypeString = ColumnModel.GetSystemTypeString(ColumnModel.GetSystemType(column.DbType));
+
+                    list.Add(prop);
+
+                    var fkSouceColumn = databaseModel.GetForeignKeySourceColumn(table.SchemaName, table.TableName, column.ColumnName);
+                    if (fkSouceColumn is not null)
+                    {
+                        prop.IsForeignKey = true;
+                        prop.PropertyType = fkSouceColumn.PropertyName;
+                        prop.IsEntityId = true;
+                    }
+                    else if (column.IsPrimaryKey)
+                    {
+                        prop.PropertyType = column.PropertyName;
+                        prop.IsEntityId = true;
+                    }
+
+                    if (prop.PropertyName == table.ClassName)
+                    {
+                        prop.PropertyName += "_Id";
+                    }
+
+                    if (column.IsNullable)
+                    {
+                        prop.PropertyType += "?";
+                        prop.IsNullable = true;
+                    }
+                    else
+                    {
+                        prop.Default = $" = {GetTypeDefault(prop.PropertyType)};";
+                    }
+                }
+
+                return list;
+            }
+
+            void addInterface(TableModel table, IEnumerable<ColumnProperty> props)
+            {
+                var ns = rootNamesapce;
+                var className = table.ClassName;
+
+                var sb = new StringBuilder();
+                sb.AppendLine($@"#nullable enable
+using Temelie.Entities;
+
+namespace {ns};
+
+public interface I{className} : IEntity <{className}>
+{{
+");
+                foreach (var column in props)
+                {
+                    sb.AppendLine($"    {column.PropertyType} {column.PropertyName} {{ get; set; }}");
+                }
+
+                sb.AppendLine(@$"
+}}
+");
+                context.AddSource($"{ns}.I{className}.g", sb.ToString());
+            }
+
+            void addRecord(TableModel table, IEnumerable<ColumnProperty> props)
             {
                 var ns = rootNamesapce;
                 var className = table.ClassName;
@@ -46,46 +123,31 @@ using Temelie.Entities;
 namespace {ns};
 
 [System.ComponentModel.DataAnnotations.Schema.Table(""{table.TableName}"", Schema = ""{table.SchemaName}"")]
-public record {className} : IEntity<{className}>
+public record {className} : I{className}
 {{
 ");
-                foreach (var column in table.Columns)
+                foreach (var column in props)
                 {
-                    var propertyName = column.PropertyName;
-                    var propertyType = ColumnModel.GetSystemTypeString(ColumnModel.GetSystemType(column.DbType));
-                    var dft = "";
 
-                    var fkSouceColumn = databaseModel.GetForeignKeySourceColumn(table.SchemaName, table.TableName, column.ColumnName);
-                    if (fkSouceColumn is not null)
+                    if (column.IsEntityId)
                     {
-                        propertyType = fkSouceColumn.PropertyName;
                         sb.AppendLine($"    [Temelie.Entities.EntityId]");
                     }
-                    else if (column.IsPrimaryKey)
+
+                    if (column.IsEntityId &&
+                        !column.IsForeignKey)
                     {
-                        propertyType = column.PropertyName;
-                        if (!pkColumns.ContainsKey(propertyType))
+                        if (!entityIds.ContainsKey(column.PropertyType))
                         {
-                            pkColumns.Add(propertyType, ColumnModel.GetSystemTypeString(ColumnModel.GetSystemType(column.DbType)));
+                            entityIds.Add(column.PropertyType, column.SystemTypeString);
                         }
-                        sb.AppendLine($"    [Temelie.Entities.EntityId]");
                     }
-
-                    if (propertyName == className)
-                    {
-                        propertyName += "_Id";
-                    }
-
+                 
                     if (column.IsNullable)
                     {
-                        propertyType += "?";
                         sb.AppendLine($"    [Temelie.Entities.Nullable]");
                     }
-                    else
-                    {
-                        dft = $" = {GetTypeDefault(propertyType)};";
-                    }
-
+                    
                     if (column.IsPrimaryKey)
                     {
                         sb.AppendLine($"    [System.ComponentModel.DataAnnotations.Key]");
@@ -99,7 +161,7 @@ public record {className} : IEntity<{className}>
                         sb.AppendLine($"    [System.ComponentModel.DataAnnotations.Schema.DatabaseGenerated(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity)]");
                     }
                     sb.AppendLine($"    [System.ComponentModel.DataAnnotations.Schema.Column(\"{column.ColumnName}\", Order = {column.ColumnId})]");
-                    sb.AppendLine($"    public {propertyType} {propertyName} {{ get; set; }}{dft}");
+                    sb.AppendLine($"    public {column.PropertyType} {column.PropertyName} {{ get; set; }}{column.Default}");
                 }
 
                 sb.AppendLine(@$"
@@ -110,15 +172,20 @@ public record {className} : IEntity<{className}>
 
             foreach (var table in databaseModel.Tables)
             {
-                addTable(table);
+                var props = getColumnProperties(table);
+                addInterface(table, props);
+                addRecord(table, props);
+
             }
 
             foreach (var table in databaseModel.Views)
             {
-                addTable(table);
+                var props = getColumnProperties(table);
+                addInterface(table, props);
+                addRecord(table, props);
             }
 
-            foreach (var group in pkColumns)
+            foreach (var group in entityIds)
             {
                 var ns = rootNamesapce;
                 var className = group.Key;
@@ -166,6 +233,22 @@ public record struct {className}({propertyType} Value = {GetTypeDefault(property
             return "0";
         }
         return "default";
+    }
+
+    private class ColumnProperty
+    {
+        public string PropertyName { get; set; }
+        public string PropertyType { get; set; }
+        public string Default { get; set; }
+        public bool IsEntityId { get; set; }
+        public bool IsNullable { get; set; }
+        public bool IsPrimaryKey { get; set; }
+        public bool IsComputed { get; set; }
+        public bool IsIdentity { get; set; }
+        public string ColumnName { get; set; }
+        public int ColumnId { get; set; }
+        public bool IsForeignKey { get; internal set; }
+        public string SystemTypeString { get; internal set; }
     }
 
 }

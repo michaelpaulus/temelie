@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <Compile Include="..\Temelie.Database.Models\Models\*.cs" LinkBase="Models" />
+    <Compile Include="..\Temelie.Repository.SourceGenerator\IsExternalInit.cs" Link="IsExternalInit.cs" />
   </ItemGroup>
 
   <ItemGroup>
