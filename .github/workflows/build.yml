@@ -27,9 +27,9 @@ jobs:
     - name: restore dependencies
       run: dotnet restore
     - name: build
-      run: dotnet build --no-restore -c Release
+      run: dotnet build -c Release --no-restore
     - name: test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test -c Release --no-build --verbosity normal
     - run: |
           ./.tools/push-nuget.ps1 -RepoDirectory "${{ github.workspace }}" -ApiKey " ${{ secrets.NUGET_API_KEY }}"
       name: push nuget packages
