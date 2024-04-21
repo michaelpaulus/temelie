@@ -62,11 +62,11 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
                     columnProperties.AppendLine();
                     if (column.IsNullable)
                     {
-                        columnProperties.Append($"                .HasConversion(id => id.HasValue ? id.Value.Value : default, value => new {column.FullType}(value))");
+                        columnProperties.Append($"                .HasConversion(id => id.HasValue ? id.Value.Value : default, value => new {column.FullType.Replace("?", "")}(value))");
                     }
                     else
                     {
-                        columnProperties.Append($"                .HasConversion(id => id.Value, value => new {column.FullType}(value))");
+                        columnProperties.Append($"                .HasConversion(id => id.Value, value => new {column.FullType.Replace("?", "")}(value))");
                     }
                 }
 

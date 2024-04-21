@@ -8,7 +8,6 @@ public record Address1 : IEntity<Address1>
     [System.ComponentModel.DataAnnotations.Key]
     [System.ComponentModel.DataAnnotations.Schema.Column(Order = 0)]
     [System.ComponentModel.DataAnnotations.Schema.DatabaseGenerated(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity)]
-    [EntityId]
     public AddressId AddressId { get; set; } = default;
     public string AddressLine1 { get; set; } = "";
     public string? AddressLine2 { get; set; }

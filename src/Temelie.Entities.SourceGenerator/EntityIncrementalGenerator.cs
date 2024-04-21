@@ -129,10 +129,6 @@ public record {className} : I{className}
                 foreach (var column in props)
                 {
 
-                    if (column.IsEntityId)
-                    {
-                        sb.AppendLine($"    [Temelie.Entities.EntityId]");
-                    }
 
                     if (column.IsEntityId &&
                         !column.IsForeignKey)
@@ -141,11 +137,6 @@ public record {className} : I{className}
                         {
                             entityIds.Add(column.PropertyType, column.SystemTypeString);
                         }
-                    }
-                 
-                    if (column.IsNullable)
-                    {
-                        sb.AppendLine($"    [Temelie.Entities.Nullable]");
                     }
                     
                     if (column.IsPrimaryKey)

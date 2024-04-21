@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <Compile Include="..\Temelie.Database.Models\Extensions\StringExtensions.cs" Link="Extensions\StringExtensions.cs" />
+    <Compile Include="..\Temelie.Entities.SourceGenerator\Extensions.cs" Link="Extensions.cs" />
   </ItemGroup>
 
   <ItemGroup>

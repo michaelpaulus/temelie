@@ -1,5 +1,4 @@
 using Microsoft.CodeAnalysis;
-using Temelie.Entities.SourceGenerator;
 
 namespace Temelie.Repository.SourceGenerator;
 
@@ -87,11 +86,16 @@ public class EntitySymbolVisitor : SymbolVisitor
                                 isComputed = attr.ConstructorArguments[0].Value.ToString().Contains("Computed");
                             }
                         }
-                        if (attr.AttributeClass.Name == "NullableAttribute")
+                        isNullable = propSymbol.Type.IsNullable();
+
+                        var propertyType = propSymbol.Type;
+
+                        if (isNullable)
                         {
-                            isNullable = true;
+                            propertyType.TryGetNonNullable(out propertyType);
                         }
-                        if (attr.AttributeClass.Name == "EntityIdAttribute")
+
+                        if (propertyType.AllInterfaces.Any(i => i.FullName().StartsWith("Temelie.Entities.IEntityId")))
                         {
                             isEntityId = true;
                         }
