@@ -17,7 +17,7 @@ public class TestStartupConfiguration : IStartupConfiguration
         return builder;
     }
 
-    public IServiceCollection Configure(IServiceCollection services)
+    public IServiceCollection Configure(IServiceCollection services, IConfiguration configuration)
     {
         services.AddSingleton(provider =>
         {

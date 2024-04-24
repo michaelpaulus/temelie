@@ -98,11 +98,11 @@ internal class StartupConfigurationContext : IDisposable, IStartupConfiguration
         return builder;
     }}
 
-    public IServiceCollection Configure(IServiceCollection services)
+    public IServiceCollection Configure(IServiceCollection services, IConfiguration configuration)
     {{
         foreach (var config in _configurations)
         {{
-            services = config.Configure(services);
+            services = config.Configure(services, configuration);
         }}
 {regsiterExports()}
         return services;

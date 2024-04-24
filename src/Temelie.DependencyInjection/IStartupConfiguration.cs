@@ -5,6 +5,6 @@ namespace Temelie.DependencyInjection;
 public interface IStartupConfiguration
 {
     IConfigurationBuilder Configure(IConfigurationBuilder builder);
-    IServiceCollection Configure(IServiceCollection services);
+    IServiceCollection Configure(IServiceCollection services, IConfiguration configuration);
     IServiceProvider Configure(IServiceProvider provider);
 }

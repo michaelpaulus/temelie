@@ -23,9 +23,11 @@ public class TestBase
 
         context.Configure(configuration);
 
-        services.AddSingleton<IConfiguration>(configuration.Build());
+        var config = configuration.Build();
 
-        context.Configure(services);
+        services.AddSingleton<IConfiguration>(config);
+
+        context.Configure(services, config);
 
         ServiceProvider = services.BuildServiceProvider();
 

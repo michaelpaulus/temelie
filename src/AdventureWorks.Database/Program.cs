@@ -13,7 +13,7 @@ var builder = Host.CreateApplicationBuilder(args);
 
 context.Configure(builder.Configuration);
 
-context.Configure(builder.Services);
+context.Configure(builder.Services, builder.Configuration);
 
 using var host = builder.Build();
 

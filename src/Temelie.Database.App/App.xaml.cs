@@ -22,7 +22,7 @@ public partial class App : Application, IServiceProviderApplication
 
         context.Configure(builder.Configuration);
 
-        context.Configure(builder.Services);
+        context.Configure(builder.Services, builder.Configuration);
 
         _host = builder.Build();
 
