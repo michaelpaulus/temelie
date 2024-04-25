@@ -23,5 +23,14 @@ public static class Extensions
         return propertyBuilder;
     }
 
+#if NETSTANDARD
+
+    public static PropertyBuilder<TProperty> HasPrecision<TProperty>(this PropertyBuilder<TProperty> propertyBuilder, int precision, int scale)
+    {
+        return propertyBuilder;
+    }
+
+#endif
+
 
 }

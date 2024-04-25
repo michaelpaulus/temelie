@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Temelie.Repository.SourceGenerator;
 
@@ -85,6 +86,12 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
                 {
                     columnProperties.AppendLine();
                     columnProperties.Append($"                .HasColumnName(\"{column.ColumnName}\")");
+                }
+
+                if (column.Precision.HasValue && column.Scale.HasValue)
+                {
+                    columnProperties.AppendLine();
+                    columnProperties.Append($"                .HasPrecision({column.Precision.Value}, {column.Scale.Value})");
                 }
 
                 if (columnProperties.Length > 0)

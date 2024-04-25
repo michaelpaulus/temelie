@@ -56,6 +56,8 @@ public class EntitySymbolVisitor : SymbolVisitor
                     var columnName = propSymbol.Name;
                     var isEntityId = false;
                     var isNullable = false;
+                    int? precision = null;
+                    int? scale = null;
 
                     foreach (var attr in propSymbol.GetAttributes())
                     {
@@ -86,6 +88,14 @@ public class EntitySymbolVisitor : SymbolVisitor
                                 isComputed = attr.ConstructorArguments[0].Value.ToString().Contains("Computed");
                             }
                         }
+                        if (attr.AttributeClass.FullName() == "Temelie.Entities.ColumnPrecisionAttribute")
+                        {
+                            if (attr.ConstructorArguments.Length == 2)
+                            {
+                                precision = (int)attr.ConstructorArguments[0].Value;
+                                scale = (int)attr.ConstructorArguments[1].Value;
+                            }
+                        }
                         isNullable = propSymbol.Type.IsNullable();
 
                         var propertyType = propSymbol.Type;
@@ -103,7 +113,7 @@ public class EntitySymbolVisitor : SymbolVisitor
 
                     var propType = propSymbol.Type;
 
-                    props.Add(new EntityProperty(propType.FullName(), prop.Name, order, columnName, isPrimaryKey, isIdentity, isComputed, isEntityId, isNullable));
+                    props.Add(new EntityProperty(propType.FullName(), prop.Name, order, columnName, precision, scale, isPrimaryKey, isIdentity, isComputed, isEntityId, isNullable));
                 }
             }
 

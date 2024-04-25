@@ -50,6 +50,17 @@ public class EntityIncrementalGenerator : IIncrementalGenerator
                     prop.IsIdentity = column.IsIdentity;
                     prop.IsComputed = column.IsComputed;
                     prop.IsPrimaryKey = column.IsPrimaryKey;
+
+                    switch (column.ColumnType.ToUpper())
+                    {
+                        case "DECIMAL":
+                        case "NUMERIC":
+                            prop.Precision = column.Precision;
+                            prop.Scale = column.Scale;
+                            break;
+                      
+                    }
+
                     prop.SystemTypeString = ColumnModel.GetSystemTypeString(ColumnModel.GetSystemType(column.DbType));
 
                     list.Add(prop);
@@ -151,6 +162,10 @@ public record {className} : I{className}
                     {
                         sb.AppendLine($"    [System.ComponentModel.DataAnnotations.Schema.DatabaseGenerated(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity)]");
                     }
+                    if (column.Precision.HasValue && column.Scale.HasValue)
+                    {
+                        sb.AppendLine($"    [Temelie.Entities.ColumnPrecision({column.Precision.Value}, {column.Scale.Value})]");
+                    }
                     sb.AppendLine($"    [System.ComponentModel.DataAnnotations.Schema.Column(\"{column.ColumnName}\", Order = {column.ColumnId})]");
                     sb.AppendLine($"    public {column.PropertyType} {column.PropertyName} {{ get; set; }}{column.Default}");
                 }
@@ -238,6 +253,8 @@ public record struct {className}({propertyType} Value = {GetTypeDefault(property
         public bool IsIdentity { get; set; }
         public string ColumnName { get; set; }
         public int ColumnId { get; set; }
+        public int? Precision { get; set; }
+        public int? Scale { get; set; }
         public bool IsForeignKey { get; internal set; }
         public string SystemTypeString { get; internal set; }
     }

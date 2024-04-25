@@ -1,5 +1,4 @@
 using AdventureWorks.Entities;
-using AdventureWorks.Repository;
 using AdventureWorks.Server.Repository;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
