@@ -2,7 +2,7 @@ using Temelie.Entities;
 using Microsoft.EntityFrameworkCore;
 namespace Temelie.Repository.EntityFrameworkCore;
 
-public abstract class RepositoryBase<Entity> : IRepository<Entity> where Entity : class, IEntity<Entity>
+public abstract partial class RepositoryBase<Entity> : IRepository<Entity> where Entity : class, IEntity<Entity>
 {
     private readonly IRepositoryContext<Entity> _context;
 

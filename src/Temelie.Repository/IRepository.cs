@@ -2,7 +2,7 @@ using Temelie.Entities;
 
 namespace Temelie.Repository;
 
-public interface IRepository<Entity> : IDisposable where Entity : class, IEntity<Entity>
+public partial interface IRepository<Entity> : IDisposable where Entity : class, IEntity<Entity>
 {
     Task<Entity?> GetSingleAsync(IQuerySpec<Entity> spec);
     Task<IEnumerable<Entity>> GetListAsync(IQuerySpec<Entity> spec);
