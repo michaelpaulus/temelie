@@ -5,6 +5,7 @@ using Temelie.Database.Extensions;
 using Temelie.Database.Models;
 using Temelie.Database.Providers;
 using Temelie.DependencyInjection;
+using System.Security.Cryptography;
 
 namespace Temelie.Database.Services;
 [ExportTransient(typeof(IScriptService))]
@@ -430,7 +431,7 @@ GO
                     SchemaName = "dbo",
                     TableName = "Migrations"
                 };
-                table.Columns.Add(new ColumnModel() { IsPrimaryKey = true, ColumnName = "Id", ColumnType = "NVARCHAR(250)" });
+                table.Columns.Add(new ColumnModel() { IsPrimaryKey = true, ColumnName = "Id", ColumnType = "NVARCHAR(500)" });
                 table.Columns.Add(new ColumnModel() { IsPrimaryKey = true, ColumnName = "Date", ColumnType = "DATETIME" });
 
                 var pk = new IndexModel()
@@ -464,7 +465,8 @@ GO
                 ensureMigrationsTable();
                 foreach (var migration in dir.GetDirectories())
                 {
-                    var id = $"{dir.Name}/{migration.Name}";
+                    var hash = CreateMd5ForDirectory(migration.FullName);
+                    var id = $"{dir.Name}/{migration.Name}/{hash}";
                     using var conn = _databaseExecutionService.CreateDbConnection(connectionString);
                     using var cmd = _databaseExecutionService.CreateDbCommand(conn);
                     cmd.CommandText = $"SELECT COUNT(*) FROM Migrations WHERE Id = '{id}'";
@@ -590,6 +592,38 @@ GO
         var strFile = MergeScripts(scripts);
 
         System.IO.File.WriteAllText(toFile, strFile);
+    }
+
+    private static string CreateMd5ForDirectory(string path)
+    {
+        // assuming you want to include nested folders
+        var files = Directory.GetFiles(path, "*", SearchOption.AllDirectories)
+                             .OrderBy(p => p).ToList();
+
+        MD5 md5 = MD5.Create();
+
+        for (int i = 0; i < files.Count; i++)
+        {
+            string file = files[i];
+
+            // hash path
+            string relativePath = file.Substring(path.Length + 1);
+            byte[] pathBytes = Encoding.UTF8.GetBytes(relativePath.ToLower());
+            md5.TransformBlock(pathBytes, 0, pathBytes.Length, pathBytes, 0);
+
+            // hash contents
+            byte[] contentBytes = File.ReadAllBytes(file);
+            if (i == files.Count - 1)
+            {
+                md5.TransformFinalBlock(contentBytes, 0, contentBytes.Length);
+            }
+            else
+            {
+                md5.TransformBlock(contentBytes, 0, contentBytes.Length, contentBytes, 0);
+            }
+        }
+
+        return BitConverter.ToString(md5.Hash).Replace("-", "").ToLower();
     }
 
 }
