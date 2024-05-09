@@ -48,21 +48,6 @@ public partial class ExecuteScripts
         }
     }
 
-    private void CustomScriptsBrowseButton_Click(object sender, System.Windows.RoutedEventArgs e)
-    {
-        using (System.Windows.Forms.FolderBrowserDialog fd = new System.Windows.Forms.FolderBrowserDialog())
-        {
-            if (!(string.IsNullOrEmpty(this.ViewModel.CustomScriptPath)) && System.IO.Directory.Exists(this.ViewModel.CustomScriptPath))
-            {
-                fd.SelectedPath = this.ViewModel.CustomScriptPath;
-            }
-            if (fd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                this.ViewModel.CustomScriptPath = fd.SelectedPath;
-            }
-        }
-    }
-
     private void DatabaseConnection_SelectionChanged(object sender, EventArgs e)
     {
         this.ViewModel.DatabaseConnectionString = this.DatabaseConnection.ConnectionString;
@@ -83,7 +68,6 @@ public partial class ExecuteScripts
         }
 
         BrowseButton.Click += BrowseButton_Click;
-        CustomScriptsBrowseButton.Click += CustomScriptsBrowseButton_Click;
         DatabaseConnection.ViewModel.SelectionChanged += DatabaseConnection_SelectionChanged;
     }
 

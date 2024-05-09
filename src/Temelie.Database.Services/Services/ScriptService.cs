@@ -409,17 +409,84 @@ GO
         return System.Text.RegularExpressions.Regex.Replace(name, invalidRegStr, "_");
     }
 
-    public void ExecuteScripts(ConnectionStringModel connectionString, IEnumerable<System.IO.FileInfo> fileList, bool continueOnError, IProgress<ScriptProgress> progress)
+    public void ExecuteScripts(ConnectionStringModel connectionString, string path, bool continueOnError, IProgress<ScriptProgress> progress)
     {
         int intFileCount = 1;
 
-        var list = fileList.ToList();
+        var di = new DirectoryInfo(path);
+
+        var list = new List<FileInfo>();
+
+        var pendingMigrations = new List<string>();
+
+        var shouldEnsureMigrationsTable = true;
+
+        void ensureMigrationsTable()
+        {
+            if (shouldEnsureMigrationsTable)
+            {
+                var table = new TableModel()
+                {
+                    SchemaName = "dbo",
+                    TableName = "Migrations"
+                };
+                table.Columns.Add(new ColumnModel() { IsPrimaryKey = true, ColumnName = "Id", ColumnType = "NVARCHAR(250)" });
+                table.Columns.Add(new ColumnModel() { IsPrimaryKey = true, ColumnName = "Date", ColumnType = "DATETIME" });
+
+                var pk = new IndexModel()
+                {
+                    SchemaName = table.SchemaName,
+                    TableName = table.TableName,
+                    IndexName = "PK_Migrations",
+                    IndexType = "CLUSTERED",
+                    IsPrimaryKey = true
+                };
+
+                pk.Columns.Add(new IndexColumnModel() { ColumnName = "Id" });
+
+                var provider = _databaseFactory.GetDatabaseProvider(connectionString);
+
+                var sb = new StringBuilder();
+
+                sb.AppendLine(provider.GetScript(table).CreateScript);
+                sb.AppendLine(provider.GetScript(pk).CreateScript);
+
+                _databaseExecutionService.ExecuteFile(connectionString, sb.ToString());
+
+                shouldEnsureMigrationsTable = false;
+            }
+        }
+
+        foreach (var dir in di.GetDirectories())
+        {
+            if (dir.Name.EndsWith("_Migrations"))
+            {
+                ensureMigrationsTable();
+                foreach (var migration in dir.GetDirectories())
+                {
+                    var id = $"{dir.Name}/{migration.Name}";
+                    using var conn = _databaseExecutionService.CreateDbConnection(connectionString);
+                    using var cmd = _databaseExecutionService.CreateDbCommand(conn);
+                    cmd.CommandText = $"SELECT COUNT(*) FROM Migrations WHERE Id = '{id}'";
+                    var migrationCount = (int)cmd.ExecuteScalar();
+                    if (migrationCount == 0)
+                    {
+                        pendingMigrations.Add(id);
+                        list.AddRange(migration.GetFiles("*.sql", SearchOption.AllDirectories));
+                    }
+                }
+            }
+            else
+            {
+                list.AddRange(dir.GetFiles("*.sql", SearchOption.AllDirectories));
+            }
+        }
 
         double count = list.Count;
 
         var retryList = new Dictionary<FileInfo, int>();
 
-        while (list.Any())
+        while (list.Count > 0)
         {
             var file = list.First();
             list.Remove(file);
@@ -479,6 +546,14 @@ GO
             }
 
             intFileCount += 1;
+        }
+
+        if (pendingMigrations.Count > 0)
+        {
+            using var conn = _databaseExecutionService.CreateDbConnection(connectionString);
+            using var cmd = _databaseExecutionService.CreateDbCommand(conn);
+            cmd.CommandText = $"INSERT INTO Migrations (Id, Date) VALUES {string.Join(", ", pendingMigrations.Select(i => $"('{i}', '{DateTime.UtcNow:yyyy-MM-ddTHH:mm:ss}')"))}";
+            cmd.ExecuteNonQuery();
         }
 
         progress?.Report(new ScriptProgress() { ProgressPercentage = 100, ProgressStatus = "Complete" });

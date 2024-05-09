@@ -1,7 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using System.Threading.Tasks;
 using Temelie.Database.Models;
 using Temelie.Database.Providers;
@@ -28,22 +25,8 @@ public class ExecuteScriptsViewModel : ViewModel
     #region Properties
 
     public string ScriptPath { get; set; }
-    public string CustomScriptPath { get; set; }
 
     public ConnectionStringModel DatabaseConnectionString { get; set; }
-
-    private ObservableCollection<System.IO.FileInfo> _files;
-    public ObservableCollection<System.IO.FileInfo> Files
-    {
-        get
-        {
-            if (this._files == null)
-            {
-                this._files = new ObservableCollection<System.IO.FileInfo>();
-            }
-            return this._files;
-        }
-    }
 
     public int ProgressPercentage { get; set; }
     public string ProgressStatus { get; set; }
@@ -107,7 +90,7 @@ public class ExecuteScriptsViewModel : ViewModel
 
     private void ExecuteScriptsInternal(IProgress<ScriptProgress> progress)
     {
-        _scriptService.ExecuteScripts(this.DatabaseConnectionString, this.Files, this.ContinueOnError, progress);
+        _scriptService.ExecuteScripts(this.DatabaseConnectionString, ScriptPath, this.ContinueOnError, progress);
     }
 
     private void ReportProgress(ScriptProgress progress)
@@ -128,38 +111,6 @@ public class ExecuteScriptsViewModel : ViewModel
         }
     }
 
-    private void UpdateScripts()
-    {
-        this.Files.Clear();
-
-        List<System.IO.FileInfo> list = new List<System.IO.FileInfo>();
-
-        if (!(string.IsNullOrEmpty(this.ScriptPath)) && System.IO.Directory.Exists(this.ScriptPath))
-        {
-            System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(this.ScriptPath);
-            list.AddRange((
-                from i in di.GetFiles("*.sql", System.IO.SearchOption.AllDirectories)
-                select i));
-        }
-
-        if (!(string.IsNullOrEmpty(this.CustomScriptPath)) && System.IO.Directory.Exists(this.CustomScriptPath))
-        {
-            System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(this.ScriptPath);
-            list.AddRange((
-                from i in di.GetFiles("*.sql", System.IO.SearchOption.AllDirectories)
-                select i));
-        }
-
-        foreach (var file in (from i in list
-                              orderby
-                                  i.DirectoryName,
-                                  i.Name
-                              select i))
-        {
-            this.Files.Add(file);
-        }
-    }
-
     protected override void OnPropertyChanged(string propertyName)
     {
         base.OnPropertyChanged(propertyName);
@@ -169,9 +120,6 @@ public class ExecuteScriptsViewModel : ViewModel
 
                 Configuration.Preferences.UserSettingsContext.Current.CreateScriptsPath = this.ScriptPath;
                 Configuration.Preferences.UserSettingsContext.Save();
-
-                this.UpdateScripts();
-
                 break;
 
         }
