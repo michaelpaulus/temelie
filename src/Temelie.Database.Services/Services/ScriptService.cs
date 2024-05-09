@@ -63,7 +63,7 @@ public class ScriptService : IScriptService
             }
         }
 
-        foreach (var file in files.Where(i => i.Changed && i.File.Name.EndsWith(".sql")).Select(i => i.File))
+        foreach (var file in files.Where(i => i.Changed && !i.New && i.File.Name.EndsWith(".sql")).Select(i => i.File))
         {
             var changeFileName = Path.Combine(directory.Parent.FullName, "04_Migrations", DateTime.UtcNow.ToString("yyyy-MM-dd"), $"01_{file.Name}");
             if (!Directory.Exists(Path.GetDirectoryName(changeFileName)))
