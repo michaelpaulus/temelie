@@ -84,8 +84,12 @@ public class EntitySymbolVisitor : SymbolVisitor
                         {
                             if (attr.ConstructorArguments.Length == 1)
                             {
-                                isIdentity = attr.ConstructorArguments[0].Value.ToString().Contains("Identity");
-                                isComputed = attr.ConstructorArguments[0].Value.ToString().Contains("Computed");
+                                isIdentity = attr.ConstructorArguments[0].Value.ToString().Equals("1");
+                                isComputed = attr.ConstructorArguments[0].Value.ToString().Equals("2");
+                            }
+                            else
+                            {
+                                
                             }
                         }
                         if (attr.AttributeClass.FullName() == "Temelie.Entities.ColumnPrecisionAttribute")
@@ -111,9 +115,28 @@ public class EntitySymbolVisitor : SymbolVisitor
                         }
                     }
 
-                    var propType = propSymbol.Type;
+                    var columnType = propSymbol.Type;
 
-                    props.Add(new EntityProperty(propType.FullName(), prop.Name, order, columnName, precision, scale, isPrimaryKey, isIdentity, isComputed, isEntityId, isNullable));
+                    var propType = "int";
+
+                    if (columnType is INamedTypeSymbol namedTypeSymbol)
+                    {
+                        if (namedTypeSymbol.IsNullable())
+                        {
+                            namedTypeSymbol.TryGetNonNullable(out var temp);
+                            namedTypeSymbol = temp as INamedTypeSymbol;
+                        }
+
+                        foreach (var member in namedTypeSymbol.GetMembers())
+                        {
+                            if (member.Name == "Value" && member is IPropertySymbol propertySymbol)
+                            {
+                                propType = propertySymbol.Type.FullName();
+                            }
+                        }
+                    }
+
+                    props.Add(new EntityProperty(columnType.FullName(), propType, prop.Name, order, columnName, precision, scale, isPrimaryKey, isIdentity, isComputed, isEntityId, isNullable));
                 }
             }
 

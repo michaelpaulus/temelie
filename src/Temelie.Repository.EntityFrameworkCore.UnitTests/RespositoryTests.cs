@@ -8,7 +8,33 @@ namespace Temelie.Repository.EntityFrameworkCore.UnitTests;
 public class RespositoryTests : TestBase
 {
 
+    [Test]
+    public async Task AddSingleKeyIdentityIntAsync()
+    {
+        using var repository = ServiceProvider.GetRequiredService<IRepository<BusinessEntity>>();
 
+        var value = new BusinessEntity() { };
+
+        await repository.AddAsync(value).ConfigureAwait(true);
+
+        var result = await repository.GetSingleAsync(new BusinessEntitySingleQuery(value.BusinessEntityId)).ConfigureAwait(true);
+
+        result.Should().NotBeNull();
+    }
+
+    [Test]
+    public async Task AddSingleKeyIdentityGuidAsync()
+    {
+        using var repository = ServiceProvider.GetRequiredService<IRepository<Address1>>();
+
+        var value = new Address1() { Address1Id = new Address1Id(Guid.NewGuid()) };
+
+        await repository.AddAsync(value).ConfigureAwait(true);
+
+        var result = await repository.GetSingleAsync(new Address1SingleQuery(value.Address1Id)).ConfigureAwait(true);
+
+        result.Should().NotBeNull();
+    }
 
     [Test]
     public async Task AddSingleKeyAsync()
@@ -229,6 +255,5 @@ public class RespositoryTests : TestBase
 
         result.Should().Be(count);
     }
-
 
 }

@@ -90,7 +90,12 @@ public class EntityIncrementalGenerator : IIncrementalGenerator
                     }
                     else
                     {
-                        prop.Default = $" = {GetTypeDefault(prop.PropertyType)};";
+                        if (prop.PropertyType != "int" &&
+                            prop.PropertyType != "System.Guid" &&
+                            prop.PropertyType != "System.DateTime")
+                        {
+                            prop.Default = $" = {GetTypeDefault(prop.PropertyType)};";
+                        }
                     }
                 }
 

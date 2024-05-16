@@ -10,4 +10,5 @@ public class ExampleRepository<Entity> : RepositoryBase<Entity> where Entity : c
     public ExampleRepository(IRepositoryContext<Entity> context) : base(context)
     {
     }
+
 }
