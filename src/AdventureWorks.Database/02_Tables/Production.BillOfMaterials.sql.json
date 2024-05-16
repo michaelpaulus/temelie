@@ -22,9 +22,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Primary key for BillOfMaterials records."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -41,9 +39,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Parent product identification number. Foreign key to Product.ProductID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -60,9 +56,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Component identification number. Foreign key to Product.ProductID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -80,9 +74,7 @@
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date the component started being used in the assembly item."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     },
     {
@@ -99,9 +91,7 @@
       "generatedAlwaysType": 0,
       "columnType": "DATETIME",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date the component stopped being used in the assembly item."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     },
     {
@@ -118,9 +108,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Standard code identifying the unit of measure for the quantity."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NCHAR(3)"
     },
     {
@@ -137,9 +125,7 @@
       "generatedAlwaysType": 0,
       "columnType": "SMALLINT",
       "dbType": 10,
-      "extendedProperties": {
-        "mS_Description": "Indicates the depth the component is from its parent (AssemblyID)."
-      },
+      "extendedProperties": {},
       "fullColumnType": "SMALLINT"
     },
     {
@@ -157,9 +143,7 @@
       "columnType": "DECIMAL",
       "columnDefault": "((1.00))",
       "dbType": 7,
-      "extendedProperties": {
-        "mS_Description": "Quantity of the component needed to create the assembly."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DECIMAL(8, 2)"
     },
     {
@@ -177,13 +161,9 @@
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date and time the record was last updated."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     }
   ],
-  "extendedProperties": {
-    "mS_Description": "Items required to make bicycles and bicycle subassemblies. It identifies the heirarchical relationship between a parent product and its components."
-  }
+  "extendedProperties": {}
 }

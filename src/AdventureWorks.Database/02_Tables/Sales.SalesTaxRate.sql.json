@@ -22,9 +22,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Primary key for SalesTaxRate records."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -41,9 +39,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "State, province, or country/region the sales tax applies to."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -60,9 +56,7 @@
       "generatedAlwaysType": 0,
       "columnType": "TINYINT",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "1 = Tax applied to retail transactions, 2 = Tax applied to wholesale transactions, 3 = Tax applied to all sales (retail and wholesale) transactions."
-      },
+      "extendedProperties": {},
       "fullColumnType": "TINYINT"
     },
     {
@@ -80,9 +74,7 @@
       "columnType": "SMALLMONEY",
       "columnDefault": "((0.00))",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Tax rate amount."
-      },
+      "extendedProperties": {},
       "fullColumnType": "SMALLMONEY"
     },
     {
@@ -99,9 +91,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NAME",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Tax rate description."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NAME"
     },
     {
@@ -119,9 +109,7 @@
       "columnType": "UNIQUEIDENTIFIER",
       "columnDefault": "(newid())",
       "dbType": 9,
-      "extendedProperties": {
-        "mS_Description": "ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample."
-      },
+      "extendedProperties": {},
       "fullColumnType": "UNIQUEIDENTIFIER"
     },
     {
@@ -139,13 +127,9 @@
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date and time the record was last updated."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     }
   ],
-  "extendedProperties": {
-    "mS_Description": "Tax rate lookup table."
-  }
+  "extendedProperties": {}
 }

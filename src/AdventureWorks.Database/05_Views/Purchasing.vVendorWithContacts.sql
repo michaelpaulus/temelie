@@ -30,28 +30,3 @@ FROM [Purchasing].[Vendor] v
     LEFT OUTER JOIN [Person].[PhoneNumberType] pnt
     ON pnt.[PhoneNumberTypeID] = pp.[PhoneNumberTypeID];
 GO
-
-IF EXISTS
-    (
-        SELECT
-            1
-        FROM
-            fn_listextendedproperty('MS_Description', 'schema', 'Purchasing', 'view', 'vVendorWithContacts', DEFAULT, DEFAULT)
-    )
-BEGIN
-    EXEC sys.sp_dropextendedproperty @name = N'MS_Description',
-                                     @level0type = N'schema',
-                                     @level0name = 'Purchasing',
-                                     @level1type = N'view',
-                                     @level1name = 'vVendorWithContacts';
-END
-GO
-
-EXEC sys.sp_addextendedproperty @name = N'MS_Description',
-                                @value = N'Vendor (company) names  and the names of vendor employees to contact.',
-                                @level0type = N'schema',
-                                @level0name = 'Purchasing',
-                                @level1type = N'view',
-                                @level1name = 'vVendorWithContacts';
-GO
-

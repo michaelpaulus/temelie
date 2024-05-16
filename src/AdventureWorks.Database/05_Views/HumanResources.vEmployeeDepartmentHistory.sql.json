@@ -201,8 +201,6 @@
         "fullColumnType": "DATE"
       }
     ],
-    "extendedProperties": {
-      "mS_Description": "Returns employee name and current and previous departments."
-    }
+    "extendedProperties": {}
   }
 }

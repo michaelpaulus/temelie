@@ -23,28 +23,3 @@ CROSS APPLY [Instructions].nodes(N'declare default element namespace "http://sch
 CROSS APPLY [MfgInstructions].ref.nodes('declare default element namespace "http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelManuInstructions"; 
     step') Steps(ref);
 GO
-
-IF EXISTS
-    (
-        SELECT
-            1
-        FROM
-            fn_listextendedproperty('MS_Description', 'schema', 'Production', 'view', 'vProductModelInstructions', DEFAULT, DEFAULT)
-    )
-BEGIN
-    EXEC sys.sp_dropextendedproperty @name = N'MS_Description',
-                                     @level0type = N'schema',
-                                     @level0name = 'Production',
-                                     @level1type = N'view',
-                                     @level1name = 'vProductModelInstructions';
-END
-GO
-
-EXEC sys.sp_addextendedproperty @name = N'MS_Description',
-                                @value = N'Displays the content from each element in the xml column Instructions for each product in the Production.ProductModel table that has manufacturing instructions.',
-                                @level0type = N'schema',
-                                @level0name = 'Production',
-                                @level1type = N'view',
-                                @level1name = 'vProductModelInstructions';
-GO
-

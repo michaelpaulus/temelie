@@ -22,9 +22,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Product identification number. Foreign key to Product.ProductID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -41,9 +39,7 @@
       "generatedAlwaysType": 0,
       "columnType": "HIERARCHYID",
       "dbType": 13,
-      "extendedProperties": {
-        "mS_Description": "Document identification number. Foreign key to Document.DocumentNode."
-      },
+      "extendedProperties": {},
       "fullColumnType": "HIERARCHYID"
     },
     {
@@ -61,13 +57,9 @@
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date and time the record was last updated."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     }
   ],
-  "extendedProperties": {
-    "mS_Description": "Cross-reference table mapping products to related product documents."
-  }
+  "extendedProperties": {}
 }

@@ -118,14 +118,14 @@ public class EntityIncrementalGenerator : IIncrementalGenerator
 
                 foreach(var prop in props)
                 {
-                    if (prop.Equals("CreatedDate") ||
-                        prop.Equals("CreatedBy"))
+                    if (prop.PropertyName.Equals("CreatedDate") ||
+                        prop.PropertyName.Equals("CreatedBy"))
                     {
                         createdColumns.Add(prop);
                     }
 
-                    if (prop.Equals("ModifiedDate") ||
-                        prop.Equals("ModifiedBy"))
+                    if (prop.PropertyName.Equals("ModifiedDate") ||
+                        prop.PropertyName.Equals("ModifiedBy"))
                     {
                         modifiedColumns.Add(prop);
                     }

@@ -99,8 +99,6 @@
         "fullColumnType": "NVARCHAR(400)"
       }
     ],
-    "extendedProperties": {
-      "mS_Description": "Product names and descriptions. Product descriptions are provided in multiple languages."
-    }
+    "extendedProperties": {}
   }
 }

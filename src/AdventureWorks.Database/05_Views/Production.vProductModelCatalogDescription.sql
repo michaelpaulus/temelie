@@ -64,28 +64,3 @@ SELECT
 FROM [Production].[ProductModel] 
 WHERE [CatalogDescription] IS NOT NULL;
 GO
-
-IF EXISTS
-    (
-        SELECT
-            1
-        FROM
-            fn_listextendedproperty('MS_Description', 'schema', 'Production', 'view', 'vProductModelCatalogDescription', DEFAULT, DEFAULT)
-    )
-BEGIN
-    EXEC sys.sp_dropextendedproperty @name = N'MS_Description',
-                                     @level0type = N'schema',
-                                     @level0name = 'Production',
-                                     @level1type = N'view',
-                                     @level1name = 'vProductModelCatalogDescription';
-END
-GO
-
-EXEC sys.sp_addextendedproperty @name = N'MS_Description',
-                                @value = N'Displays the content from each element in the xml column CatalogDescription for each product in the Production.ProductModel table that has catalog data.',
-                                @level0type = N'schema',
-                                @level0name = 'Production',
-                                @level1type = N'view',
-                                @level1name = 'vProductModelCatalogDescription';
-GO
-

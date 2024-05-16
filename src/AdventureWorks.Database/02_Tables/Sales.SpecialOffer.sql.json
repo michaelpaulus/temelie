@@ -22,9 +22,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Primary key for SpecialOffer records."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -41,9 +39,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NVARCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Discount description."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NVARCHAR(255)"
     },
     {
@@ -61,9 +57,7 @@
       "columnType": "SMALLMONEY",
       "columnDefault": "((0.00))",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Discount precentage."
-      },
+      "extendedProperties": {},
       "fullColumnType": "SMALLMONEY"
     },
     {
@@ -80,9 +74,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NVARCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Discount type category."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NVARCHAR(50)"
     },
     {
@@ -99,9 +91,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NVARCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Group the discount applies to such as Reseller or Customer."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NVARCHAR(50)"
     },
     {
@@ -118,9 +108,7 @@
       "generatedAlwaysType": 0,
       "columnType": "DATETIME",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Discount start date."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     },
     {
@@ -137,9 +125,7 @@
       "generatedAlwaysType": 0,
       "columnType": "DATETIME",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Discount end date."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     },
     {
@@ -157,9 +143,7 @@
       "columnType": "INT",
       "columnDefault": "((0))",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Minimum discount percent allowed."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -176,9 +160,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Maximum discount percent allowed."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -196,9 +178,7 @@
       "columnType": "UNIQUEIDENTIFIER",
       "columnDefault": "(newid())",
       "dbType": 9,
-      "extendedProperties": {
-        "mS_Description": "ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample."
-      },
+      "extendedProperties": {},
       "fullColumnType": "UNIQUEIDENTIFIER"
     },
     {
@@ -216,13 +196,9 @@
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date and time the record was last updated."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     }
   ],
-  "extendedProperties": {
-    "mS_Description": "Sale discounts lookup table."
-  }
+  "extendedProperties": {}
 }

@@ -22,9 +22,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Business entity identification number. Foreign key to Person.BusinessEntityID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -41,9 +39,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Credit card identification number. Foreign key to CreditCard.CreditCardID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -61,13 +57,9 @@
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date and time the record was last updated."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     }
   ],
-  "extendedProperties": {
-    "mS_Description": "Cross-reference table mapping people to their credit card information in the CreditCard table. "
-  }
+  "extendedProperties": {}
 }

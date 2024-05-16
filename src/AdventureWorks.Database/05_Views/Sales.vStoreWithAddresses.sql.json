@@ -167,8 +167,6 @@
         "fullColumnType": "NAME"
       }
     ],
-    "extendedProperties": {
-      "mS_Description": "Stores (including store addresses) that sell Adventure Works Cycles products to consumers."
-    }
+    "extendedProperties": {}
   }
 }

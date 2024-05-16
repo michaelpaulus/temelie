@@ -22,9 +22,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Primary key for TransactionHistoryArchive records."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -41,9 +39,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Product identification number. Foreign key to Product.ProductID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -60,9 +56,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Purchase order, sales order, or work order identification number."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -80,9 +74,7 @@
       "columnType": "INT",
       "columnDefault": "((0))",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Line number associated with the purchase order, sales order, or work order."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -100,9 +92,7 @@
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date and time of the transaction."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     },
     {
@@ -119,9 +109,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "W = Work Order, S = Sales Order, P = Purchase Order"
-      },
+      "extendedProperties": {},
       "fullColumnType": "NCHAR(1)"
     },
     {
@@ -138,9 +126,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Product quantity."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -157,9 +143,7 @@
       "generatedAlwaysType": 0,
       "columnType": "MONEY",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Product cost."
-      },
+      "extendedProperties": {},
       "fullColumnType": "MONEY"
     },
     {
@@ -177,13 +161,9 @@
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date and time the record was last updated."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     }
   ],
-  "extendedProperties": {
-    "mS_Description": "Transactions for previous years."
-  }
+  "extendedProperties": {}
 }

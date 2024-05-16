@@ -320,8 +320,6 @@
         "fullColumnType": "XML"
       }
     ],
-    "extendedProperties": {
-      "mS_Description": "Individual customers (names and addresses) that purchase Adventure Works Cycles products online."
-    }
+    "extendedProperties": {}
   }
 }

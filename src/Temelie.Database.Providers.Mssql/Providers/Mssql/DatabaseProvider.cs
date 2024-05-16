@@ -426,7 +426,8 @@ SELECT
         FROM
             fn_listextendedproperty(NULL, 'schema', schemas.name, 'table', tables.name, 'column', columns.name)
         WHERE
-            name <> 'sys_data_classification_recommendation_disabled'
+            name <> 'sys_data_classification_recommendation_disabled' AND
+            name NOT LIKE 'MS_%'
         FOR JSON AUTO
     ), '[]') extended_properties
 FROM
@@ -556,6 +557,8 @@ FROM
 					value
 				FROM
 					fn_listextendedproperty(NULL, 'schema', schemas.name, 'table', tables.name, DEFAULT, DEFAULT)
+                WHERE
+		            name NOT LIKE 'MS_%'
 				FOR JSON AUTO
 			), '[]') extended_properties,
 			(
@@ -765,7 +768,8 @@ SELECT
         FROM
             fn_listextendedproperty(NULL, 'schema', schemas.name, 'view', views.name, 'column', columns.name)
         WHERE
-            name <> 'sys_data_classification_recommendation_disabled'
+            name <> 'sys_data_classification_recommendation_disabled' AND
+		    name NOT LIKE 'MS_%'
         FOR JSON AUTO
     ), '[]') extended_properties
 FROM
@@ -829,6 +833,8 @@ SELECT
         value
     FROM
         fn_listextendedproperty (NULL, 'schema', schemas.name, 'view', views.name, default, default)
+    WHERE
+        name NOT LIKE 'MS_%'
     FOR JSON AUTO
     ), '[]') extended_properties
 FROM

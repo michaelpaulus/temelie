@@ -50,28 +50,3 @@ OUTER APPLY [AdditionalContactInfo].nodes(
     /ci:AdditionalContactInfo') AS ContactInfo(ref) 
 WHERE [AdditionalContactInfo] IS NOT NULL;
 GO
-
-IF EXISTS
-    (
-        SELECT
-            1
-        FROM
-            fn_listextendedproperty('MS_Description', 'schema', 'Person', 'view', 'vAdditionalContactInfo', DEFAULT, DEFAULT)
-    )
-BEGIN
-    EXEC sys.sp_dropextendedproperty @name = N'MS_Description',
-                                     @level0type = N'schema',
-                                     @level0name = 'Person',
-                                     @level1type = N'view',
-                                     @level1name = 'vAdditionalContactInfo';
-END
-GO
-
-EXEC sys.sp_addextendedproperty @name = N'MS_Description',
-                                @value = N'Displays the contact name and content from each element in the xml column AdditionalContactInfo for that person.',
-                                @level0type = N'schema',
-                                @level0name = 'Person',
-                                @level1type = N'view',
-                                @level1name = 'vAdditionalContactInfo';
-GO
-

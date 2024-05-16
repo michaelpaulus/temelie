@@ -218,8 +218,6 @@
         "fullColumnType": "INT"
       }
     ],
-    "extendedProperties": {
-      "mS_Description": "Vendor (company) names  and the names of vendor employees to contact."
-    }
+    "extendedProperties": {}
   }
 }

@@ -22,9 +22,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Primary key. Foreign key to SalesOrderHeader.SalesOrderID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -41,9 +39,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Primary key. One incremental unique number per product sold."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -60,9 +56,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NVARCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Shipment tracking number supplied by the shipper."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NVARCHAR(25)"
     },
     {
@@ -79,9 +73,7 @@
       "generatedAlwaysType": 0,
       "columnType": "SMALLINT",
       "dbType": 10,
-      "extendedProperties": {
-        "mS_Description": "Quantity ordered per product."
-      },
+      "extendedProperties": {},
       "fullColumnType": "SMALLINT"
     },
     {
@@ -98,9 +90,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Product sold to customer. Foreign key to Product.ProductID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -117,9 +107,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Promotional code. Foreign key to SpecialOffer.SpecialOfferID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -136,9 +124,7 @@
       "generatedAlwaysType": 0,
       "columnType": "MONEY",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Selling price of a single product."
-      },
+      "extendedProperties": {},
       "fullColumnType": "MONEY"
     },
     {
@@ -156,9 +142,7 @@
       "columnType": "MONEY",
       "columnDefault": "((0.0))",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Discount amount."
-      },
+      "extendedProperties": {},
       "fullColumnType": "MONEY"
     },
     {
@@ -176,9 +160,7 @@
       "computedDefinition": "(isnull(([UnitPrice]*((1.0)-[UnitPriceDiscount]))*[OrderQty],(0.0)))",
       "columnType": "NUMERIC",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Per product subtotal. Computed as UnitPrice * (1 - UnitPriceDiscount) * OrderQty."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NUMERIC(38, 6)"
     },
     {
@@ -196,9 +178,7 @@
       "columnType": "UNIQUEIDENTIFIER",
       "columnDefault": "(newid())",
       "dbType": 9,
-      "extendedProperties": {
-        "mS_Description": "ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample."
-      },
+      "extendedProperties": {},
       "fullColumnType": "UNIQUEIDENTIFIER"
     },
     {
@@ -216,13 +196,9 @@
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date and time the record was last updated."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     }
   ],
-  "extendedProperties": {
-    "mS_Description": "Individual products associated with a specific sales order. See SalesOrderHeader."
-  }
+  "extendedProperties": {}
 }

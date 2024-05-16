@@ -22,9 +22,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "The ISO code for the Currency."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NCHAR(3)"
     },
     {
@@ -41,9 +39,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NAME",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Currency name."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NAME"
     },
     {
@@ -61,13 +57,9 @@
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date and time the record was last updated."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     }
   ],
-  "extendedProperties": {
-    "mS_Description": "Lookup table containing standard ISO currencies."
-  }
+  "extendedProperties": {}
 }

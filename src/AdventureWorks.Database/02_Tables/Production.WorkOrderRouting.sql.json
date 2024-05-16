@@ -22,9 +22,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Primary key. Foreign key to WorkOrder.WorkOrderID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -41,9 +39,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Primary key. Foreign key to Product.ProductID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -60,9 +56,7 @@
       "generatedAlwaysType": 0,
       "columnType": "SMALLINT",
       "dbType": 10,
-      "extendedProperties": {
-        "mS_Description": "Primary key. Indicates the manufacturing process sequence."
-      },
+      "extendedProperties": {},
       "fullColumnType": "SMALLINT"
     },
     {
@@ -79,9 +73,7 @@
       "generatedAlwaysType": 0,
       "columnType": "SMALLINT",
       "dbType": 10,
-      "extendedProperties": {
-        "mS_Description": "Manufacturing location where the part is processed. Foreign key to Location.LocationID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "SMALLINT"
     },
     {
@@ -98,9 +90,7 @@
       "generatedAlwaysType": 0,
       "columnType": "DATETIME",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Planned manufacturing start date."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     },
     {
@@ -117,9 +107,7 @@
       "generatedAlwaysType": 0,
       "columnType": "DATETIME",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Planned manufacturing end date."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     },
     {
@@ -136,9 +124,7 @@
       "generatedAlwaysType": 0,
       "columnType": "DATETIME",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Actual start date."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     },
     {
@@ -155,9 +141,7 @@
       "generatedAlwaysType": 0,
       "columnType": "DATETIME",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Actual end date."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     },
     {
@@ -174,9 +158,7 @@
       "generatedAlwaysType": 0,
       "columnType": "DECIMAL",
       "dbType": 7,
-      "extendedProperties": {
-        "mS_Description": "Number of manufacturing hours used."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DECIMAL(9, 4)"
     },
     {
@@ -193,9 +175,7 @@
       "generatedAlwaysType": 0,
       "columnType": "MONEY",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Estimated manufacturing cost."
-      },
+      "extendedProperties": {},
       "fullColumnType": "MONEY"
     },
     {
@@ -212,9 +192,7 @@
       "generatedAlwaysType": 0,
       "columnType": "MONEY",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Actual manufacturing cost."
-      },
+      "extendedProperties": {},
       "fullColumnType": "MONEY"
     },
     {
@@ -232,13 +210,9 @@
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date and time the record was last updated."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     }
   ],
-  "extendedProperties": {
-    "mS_Description": "Work order details."
-  }
+  "extendedProperties": {}
 }

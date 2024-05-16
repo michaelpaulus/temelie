@@ -22,9 +22,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Primary key for ErrorLog records."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -42,9 +40,7 @@
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "The date and time at which the error occurred."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     },
     {
@@ -61,9 +57,7 @@
       "generatedAlwaysType": 0,
       "columnType": "SYSNAME",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "The user who executed the batch in which the error occurred."
-      },
+      "extendedProperties": {},
       "fullColumnType": "SYSNAME"
     },
     {
@@ -80,9 +74,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "The error number of the error that occurred."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -99,9 +91,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "The severity of the error that occurred."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -118,9 +108,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "The state number of the error that occurred."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -137,9 +125,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NVARCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "The name of the stored procedure or trigger where the error occurred."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NVARCHAR(126)"
     },
     {
@@ -156,9 +142,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "The line number at which the error occurred."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -175,13 +159,9 @@
       "generatedAlwaysType": 0,
       "columnType": "NVARCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "The message text of the error that occurred."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NVARCHAR(4000)"
     }
   ],
-  "extendedProperties": {
-    "mS_Description": "Audit table tracking errors in the the AdventureWorks database that are caught by the CATCH block of a TRY...CATCH construct. Data is inserted by stored procedure dbo.uspLogError when it is executed from inside the CATCH block of a TRY...CATCH construct."
-  }
+  "extendedProperties": {}
 }

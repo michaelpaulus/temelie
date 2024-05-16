@@ -235,8 +235,6 @@
         "fullColumnType": "INT"
       }
     ],
-    "extendedProperties": {
-      "mS_Description": "Displays the content from each element in the xml column Demographics for each customer in the Person.Person table."
-    }
+    "extendedProperties": {}
   }
 }

@@ -22,9 +22,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NVARCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "ISO code for countries and regions. Foreign key to CountryRegion.CountryRegionCode."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NVARCHAR(3)"
     },
     {
@@ -41,9 +39,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "ISO standard currency code. Foreign key to Currency.CurrencyCode."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NCHAR(3)"
     },
     {
@@ -61,13 +57,9 @@
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date and time the record was last updated."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     }
   ],
-  "extendedProperties": {
-    "mS_Description": "Cross-reference table mapping ISO currency codes to a country or region."
-  }
+  "extendedProperties": {}
 }

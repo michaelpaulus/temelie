@@ -22,9 +22,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Primary key for Culture records."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NCHAR(6)"
     },
     {
@@ -41,9 +39,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NAME",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Culture description."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NAME"
     },
     {
@@ -61,13 +57,9 @@
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date and time the record was last updated."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     }
   ],
-  "extendedProperties": {
-    "mS_Description": "Lookup table containing the languages in which some AdventureWorks data is stored."
-  }
+  "extendedProperties": {}
 }

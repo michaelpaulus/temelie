@@ -22,9 +22,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Primary key for CurrencyRate records."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -41,9 +39,7 @@
       "generatedAlwaysType": 0,
       "columnType": "DATETIME",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date and time the exchange rate was obtained."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     },
     {
@@ -60,9 +56,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Exchange rate was converted from this currency code."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NCHAR(3)"
     },
     {
@@ -79,9 +73,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Exchange rate was converted to this currency code."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NCHAR(3)"
     },
     {
@@ -98,9 +90,7 @@
       "generatedAlwaysType": 0,
       "columnType": "MONEY",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Average exchange rate for the day."
-      },
+      "extendedProperties": {},
       "fullColumnType": "MONEY"
     },
     {
@@ -117,9 +107,7 @@
       "generatedAlwaysType": 0,
       "columnType": "MONEY",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Final exchange rate for the day."
-      },
+      "extendedProperties": {},
       "fullColumnType": "MONEY"
     },
     {
@@ -137,13 +125,9 @@
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date and time the record was last updated."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     }
   ],
-  "extendedProperties": {
-    "mS_Description": "Currency exchange rates."
-  }
+  "extendedProperties": {}
 }

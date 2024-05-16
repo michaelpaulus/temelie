@@ -22,9 +22,7 @@
       "generatedAlwaysType": 0,
       "columnType": "SMALLINT",
       "dbType": 10,
-      "extendedProperties": {
-        "mS_Description": "Primary key for Department records."
-      },
+      "extendedProperties": {},
       "fullColumnType": "SMALLINT"
     },
     {
@@ -41,9 +39,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NAME",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Name of the department."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NAME"
     },
     {
@@ -60,9 +56,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NAME",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Name of the group to which the department belongs."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NAME"
     },
     {
@@ -80,13 +74,9 @@
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date and time the record was last updated."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     }
   ],
-  "extendedProperties": {
-    "mS_Description": "Lookup table containing the departments within the Adventure Works Cycles company."
-  }
+  "extendedProperties": {}
 }

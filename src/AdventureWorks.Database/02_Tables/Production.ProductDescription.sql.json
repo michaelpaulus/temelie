@@ -22,9 +22,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Primary key for ProductDescription records."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -41,9 +39,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NVARCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Description of the product."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NVARCHAR(400)"
     },
     {
@@ -61,9 +57,7 @@
       "columnType": "UNIQUEIDENTIFIER",
       "columnDefault": "(newid())",
       "dbType": 9,
-      "extendedProperties": {
-        "mS_Description": "ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample."
-      },
+      "extendedProperties": {},
       "fullColumnType": "UNIQUEIDENTIFIER"
     },
     {
@@ -81,13 +75,9 @@
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date and time the record was last updated."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     }
   ],
-  "extendedProperties": {
-    "mS_Description": "Product descriptions in several languages."
-  }
+  "extendedProperties": {}
 }

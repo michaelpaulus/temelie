@@ -303,8 +303,6 @@
         "fullColumnType": "DATETIME"
       }
     ],
-    "extendedProperties": {
-      "mS_Description": "Displays the contact name and content from each element in the xml column AdditionalContactInfo for that person."
-    }
+    "extendedProperties": {}
   }
 }

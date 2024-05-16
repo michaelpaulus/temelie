@@ -286,8 +286,6 @@
         "fullColumnType": "DATETIME"
       }
     ],
-    "extendedProperties": {
-      "mS_Description": "Job candidate names and resumes."
-    }
+    "extendedProperties": {}
   }
 }

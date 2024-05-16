@@ -22,9 +22,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Primary key for JobCandidate records."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -41,9 +39,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Employee identification number if applicant was hired. Foreign key to Employee.BusinessEntityID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -60,9 +56,7 @@
       "generatedAlwaysType": 0,
       "columnType": "XML",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "R\u00E9sum\u00E9 in XML format."
-      },
+      "extendedProperties": {},
       "fullColumnType": "XML"
     },
     {
@@ -80,13 +74,9 @@
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date and time the record was last updated."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     }
   ],
-  "extendedProperties": {
-    "mS_Description": "R\u00E9sum\u00E9s submitted to Human Resources by job applicants."
-  }
+  "extendedProperties": {}
 }

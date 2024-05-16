@@ -44,28 +44,3 @@ FROM [Person].[Person] p
     ON pnt.[PhoneNumberTypeID] = pp.[PhoneNumberTypeID]
 WHERE c.StoreID IS NULL;
 GO
-
-IF EXISTS
-    (
-        SELECT
-            1
-        FROM
-            fn_listextendedproperty('MS_Description', 'schema', 'Sales', 'view', 'vIndividualCustomer', DEFAULT, DEFAULT)
-    )
-BEGIN
-    EXEC sys.sp_dropextendedproperty @name = N'MS_Description',
-                                     @level0type = N'schema',
-                                     @level0name = 'Sales',
-                                     @level1type = N'view',
-                                     @level1name = 'vIndividualCustomer';
-END
-GO
-
-EXEC sys.sp_addextendedproperty @name = N'MS_Description',
-                                @value = N'Individual customers (names and addresses) that purchase Adventure Works Cycles products online.',
-                                @level0type = N'schema',
-                                @level0name = 'Sales',
-                                @level1type = N'view',
-                                @level1name = 'vIndividualCustomer';
-GO
-

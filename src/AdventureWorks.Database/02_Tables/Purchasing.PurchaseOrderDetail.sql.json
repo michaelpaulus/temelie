@@ -22,9 +22,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Primary key. Foreign key to PurchaseOrderHeader.PurchaseOrderID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -41,9 +39,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Primary key. One line number per purchased product."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -60,9 +56,7 @@
       "generatedAlwaysType": 0,
       "columnType": "DATETIME",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date the product is expected to be received."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     },
     {
@@ -79,9 +73,7 @@
       "generatedAlwaysType": 0,
       "columnType": "SMALLINT",
       "dbType": 10,
-      "extendedProperties": {
-        "mS_Description": "Quantity ordered."
-      },
+      "extendedProperties": {},
       "fullColumnType": "SMALLINT"
     },
     {
@@ -98,9 +90,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Product identification number. Foreign key to Product.ProductID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -117,9 +107,7 @@
       "generatedAlwaysType": 0,
       "columnType": "MONEY",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Vendor's selling price of a single product."
-      },
+      "extendedProperties": {},
       "fullColumnType": "MONEY"
     },
     {
@@ -137,9 +125,7 @@
       "computedDefinition": "(isnull([OrderQty]*[UnitPrice],(0.00)))",
       "columnType": "MONEY",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Per product subtotal. Computed as OrderQty * UnitPrice."
-      },
+      "extendedProperties": {},
       "fullColumnType": "MONEY"
     },
     {
@@ -156,9 +142,7 @@
       "generatedAlwaysType": 0,
       "columnType": "DECIMAL",
       "dbType": 7,
-      "extendedProperties": {
-        "mS_Description": "Quantity actually received from the vendor."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DECIMAL(8, 2)"
     },
     {
@@ -175,9 +159,7 @@
       "generatedAlwaysType": 0,
       "columnType": "DECIMAL",
       "dbType": 7,
-      "extendedProperties": {
-        "mS_Description": "Quantity rejected during inspection."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DECIMAL(8, 2)"
     },
     {
@@ -195,9 +177,7 @@
       "computedDefinition": "(isnull([ReceivedQty]-[RejectedQty],(0.00)))",
       "columnType": "DECIMAL",
       "dbType": 7,
-      "extendedProperties": {
-        "mS_Description": "Quantity accepted into inventory. Computed as ReceivedQty - RejectedQty."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DECIMAL(9, 2)"
     },
     {
@@ -215,13 +195,9 @@
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date and time the record was last updated."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     }
   ],
-  "extendedProperties": {
-    "mS_Description": "Individual products associated with a specific purchase order. See PurchaseOrderHeader."
-  }
+  "extendedProperties": {}
 }

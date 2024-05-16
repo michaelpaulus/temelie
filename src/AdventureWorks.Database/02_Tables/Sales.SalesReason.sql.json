@@ -22,9 +22,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Primary key for SalesReason records."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -41,9 +39,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NAME",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Sales reason description."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NAME"
     },
     {
@@ -60,9 +56,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NAME",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Category the sales reason belongs to."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NAME"
     },
     {
@@ -80,13 +74,9 @@
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date and time the record was last updated."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     }
   ],
-  "extendedProperties": {
-    "mS_Description": "Lookup table of customer purchase reasons."
-  }
+  "extendedProperties": {}
 }

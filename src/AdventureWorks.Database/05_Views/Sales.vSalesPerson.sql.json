@@ -388,8 +388,6 @@
         "fullColumnType": "MONEY"
       }
     ],
-    "extendedProperties": {
-      "mS_Description": "Sales representiatives (names and addresses) and their sales-related information."
-    }
+    "extendedProperties": {}
   }
 }

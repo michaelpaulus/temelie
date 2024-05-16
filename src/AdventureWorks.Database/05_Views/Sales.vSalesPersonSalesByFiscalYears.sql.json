@@ -133,8 +133,6 @@
         "fullColumnType": "MONEY"
       }
     ],
-    "extendedProperties": {
-      "mS_Description": "Uses PIVOT to return aggregated sales information for each sales representative."
-    }
+    "extendedProperties": {}
   }
 }

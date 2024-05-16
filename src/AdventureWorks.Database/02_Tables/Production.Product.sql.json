@@ -22,9 +22,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Primary key for Product records."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -41,9 +39,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NAME",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Name of the product."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NAME"
     },
     {
@@ -60,9 +56,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NVARCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Unique product identification number."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NVARCHAR(25)"
     },
     {
@@ -80,9 +74,7 @@
       "columnType": "FLAG",
       "columnDefault": "((1))",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "0 = Product is purchased, 1 = Product is manufactured in-house."
-      },
+      "extendedProperties": {},
       "fullColumnType": "FLAG"
     },
     {
@@ -100,9 +92,7 @@
       "columnType": "FLAG",
       "columnDefault": "((1))",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "0 = Product is not a salable item. 1 = Product is salable."
-      },
+      "extendedProperties": {},
       "fullColumnType": "FLAG"
     },
     {
@@ -119,9 +109,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NVARCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Product color."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NVARCHAR(15)"
     },
     {
@@ -138,9 +126,7 @@
       "generatedAlwaysType": 0,
       "columnType": "SMALLINT",
       "dbType": 10,
-      "extendedProperties": {
-        "mS_Description": "Minimum inventory quantity. "
-      },
+      "extendedProperties": {},
       "fullColumnType": "SMALLINT"
     },
     {
@@ -157,9 +143,7 @@
       "generatedAlwaysType": 0,
       "columnType": "SMALLINT",
       "dbType": 10,
-      "extendedProperties": {
-        "mS_Description": "Inventory level that triggers a purchase order or work order. "
-      },
+      "extendedProperties": {},
       "fullColumnType": "SMALLINT"
     },
     {
@@ -176,9 +160,7 @@
       "generatedAlwaysType": 0,
       "columnType": "MONEY",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Standard cost of the product."
-      },
+      "extendedProperties": {},
       "fullColumnType": "MONEY"
     },
     {
@@ -195,9 +177,7 @@
       "generatedAlwaysType": 0,
       "columnType": "MONEY",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Selling price."
-      },
+      "extendedProperties": {},
       "fullColumnType": "MONEY"
     },
     {
@@ -214,9 +194,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NVARCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Product size."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NVARCHAR(5)"
     },
     {
@@ -233,9 +211,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Unit of measure for Size column."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NCHAR(3)"
     },
     {
@@ -252,9 +228,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Unit of measure for Weight column."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NCHAR(3)"
     },
     {
@@ -271,9 +245,7 @@
       "generatedAlwaysType": 0,
       "columnType": "DECIMAL",
       "dbType": 7,
-      "extendedProperties": {
-        "mS_Description": "Product weight."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DECIMAL(8, 2)"
     },
     {
@@ -290,9 +262,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Number of days required to manufacture the product."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -309,9 +279,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "R = Road, M = Mountain, T = Touring, S = Standard"
-      },
+      "extendedProperties": {},
       "fullColumnType": "NCHAR(2)"
     },
     {
@@ -328,9 +296,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "H = High, M = Medium, L = Low"
-      },
+      "extendedProperties": {},
       "fullColumnType": "NCHAR(2)"
     },
     {
@@ -347,9 +313,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "W = Womens, M = Mens, U = Universal"
-      },
+      "extendedProperties": {},
       "fullColumnType": "NCHAR(2)"
     },
     {
@@ -366,9 +330,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Product is a member of this product subcategory. Foreign key to ProductSubCategory.ProductSubCategoryID. "
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -385,9 +347,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Product is a member of this product model. Foreign key to ProductModel.ProductModelID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -404,9 +364,7 @@
       "generatedAlwaysType": 0,
       "columnType": "DATETIME",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date the product was available for sale."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     },
     {
@@ -423,9 +381,7 @@
       "generatedAlwaysType": 0,
       "columnType": "DATETIME",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date the product was no longer available for sale."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     },
     {
@@ -442,9 +398,7 @@
       "generatedAlwaysType": 0,
       "columnType": "DATETIME",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date the product was discontinued."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     },
     {
@@ -462,9 +416,7 @@
       "columnType": "UNIQUEIDENTIFIER",
       "columnDefault": "(newid())",
       "dbType": 9,
-      "extendedProperties": {
-        "mS_Description": "ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample."
-      },
+      "extendedProperties": {},
       "fullColumnType": "UNIQUEIDENTIFIER"
     },
     {
@@ -482,13 +434,9 @@
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date and time the record was last updated."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     }
   ],
-  "extendedProperties": {
-    "mS_Description": "Products sold or used in the manfacturing of sold products."
-  }
+  "extendedProperties": {}
 }

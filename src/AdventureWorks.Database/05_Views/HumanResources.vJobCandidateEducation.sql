@@ -34,28 +34,3 @@ FROM [HumanResources].[JobCandidate] jc
 CROSS APPLY jc.[Resume].nodes(N'declare default element namespace "http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/Resume"; 
     /Resume/Education') AS [Education](ref);
 GO
-
-IF EXISTS
-    (
-        SELECT
-            1
-        FROM
-            fn_listextendedproperty('MS_Description', 'schema', 'HumanResources', 'view', 'vJobCandidateEducation', DEFAULT, DEFAULT)
-    )
-BEGIN
-    EXEC sys.sp_dropextendedproperty @name = N'MS_Description',
-                                     @level0type = N'schema',
-                                     @level0name = 'HumanResources',
-                                     @level1type = N'view',
-                                     @level1name = 'vJobCandidateEducation';
-END
-GO
-
-EXEC sys.sp_addextendedproperty @name = N'MS_Description',
-                                @value = N'Displays the content from each education related element in the xml column Resume in the HumanResources.JobCandidate table. The content has been localized into French, Simplified Chinese and Thai. Some data may not display correctly unless supplemental language support is installed.',
-                                @level0type = N'schema',
-                                @level0name = 'HumanResources',
-                                @level1type = N'view',
-                                @level1name = 'vJobCandidateEducation';
-GO
-

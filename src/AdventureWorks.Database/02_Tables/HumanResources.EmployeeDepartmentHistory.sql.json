@@ -22,9 +22,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Employee identification number. Foreign key to Employee.BusinessEntityID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -41,9 +39,7 @@
       "generatedAlwaysType": 0,
       "columnType": "SMALLINT",
       "dbType": 10,
-      "extendedProperties": {
-        "mS_Description": "Department in which the employee worked including currently. Foreign key to Department.DepartmentID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "SMALLINT"
     },
     {
@@ -60,9 +56,7 @@
       "generatedAlwaysType": 0,
       "columnType": "TINYINT",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Identifies which 8-hour shift the employee works. Foreign key to Shift.Shift.ID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "TINYINT"
     },
     {
@@ -79,9 +73,7 @@
       "generatedAlwaysType": 0,
       "columnType": "DATE",
       "dbType": 5,
-      "extendedProperties": {
-        "mS_Description": "Date the employee started work in the department."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATE"
     },
     {
@@ -98,9 +90,7 @@
       "generatedAlwaysType": 0,
       "columnType": "DATE",
       "dbType": 5,
-      "extendedProperties": {
-        "mS_Description": "Date the employee left the department. NULL = Current department."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATE"
     },
     {
@@ -118,13 +108,9 @@
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date and time the record was last updated."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     }
   ],
-  "extendedProperties": {
-    "mS_Description": "Employee department transfers."
-  }
+  "extendedProperties": {}
 }

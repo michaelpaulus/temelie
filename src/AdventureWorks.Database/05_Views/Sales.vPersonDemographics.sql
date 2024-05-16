@@ -35,28 +35,3 @@ CROSS APPLY p.[Demographics].nodes(N'declare default element namespace "http://s
     /IndividualSurvey') AS [IndividualSurvey](ref) 
 WHERE [Demographics] IS NOT NULL;
 GO
-
-IF EXISTS
-    (
-        SELECT
-            1
-        FROM
-            fn_listextendedproperty('MS_Description', 'schema', 'Sales', 'view', 'vPersonDemographics', DEFAULT, DEFAULT)
-    )
-BEGIN
-    EXEC sys.sp_dropextendedproperty @name = N'MS_Description',
-                                     @level0type = N'schema',
-                                     @level0name = 'Sales',
-                                     @level1type = N'view',
-                                     @level1name = 'vPersonDemographics';
-END
-GO
-
-EXEC sys.sp_addextendedproperty @name = N'MS_Description',
-                                @value = N'Displays the content from each element in the xml column Demographics for each customer in the Person.Person table.',
-                                @level0type = N'schema',
-                                @level0name = 'Sales',
-                                @level1type = N'view',
-                                @level1name = 'vPersonDemographics';
-GO
-

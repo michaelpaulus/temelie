@@ -22,9 +22,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Primary key."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -42,9 +40,7 @@
       "columnType": "TINYINT",
       "columnDefault": "((0))",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Incremental number to track changes to the purchase order over time."
-      },
+      "extendedProperties": {},
       "fullColumnType": "TINYINT"
     },
     {
@@ -62,9 +58,7 @@
       "columnType": "TINYINT",
       "columnDefault": "((1))",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Order current status. 1 = Pending; 2 = Approved; 3 = Rejected; 4 = Complete"
-      },
+      "extendedProperties": {},
       "fullColumnType": "TINYINT"
     },
     {
@@ -81,9 +75,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Employee who created the purchase order. Foreign key to Employee.BusinessEntityID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -100,9 +92,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Vendor with whom the purchase order is placed. Foreign key to Vendor.BusinessEntityID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -119,9 +109,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Shipping method. Foreign key to ShipMethod.ShipMethodID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -139,9 +127,7 @@
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Purchase order creation date."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     },
     {
@@ -158,9 +144,7 @@
       "generatedAlwaysType": 0,
       "columnType": "DATETIME",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Estimated shipment date from the vendor."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     },
     {
@@ -178,9 +162,7 @@
       "columnType": "MONEY",
       "columnDefault": "((0.00))",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Purchase order subtotal. Computed as SUM(PurchaseOrderDetail.LineTotal)for the appropriate PurchaseOrderID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "MONEY"
     },
     {
@@ -198,9 +180,7 @@
       "columnType": "MONEY",
       "columnDefault": "((0.00))",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Tax amount."
-      },
+      "extendedProperties": {},
       "fullColumnType": "MONEY"
     },
     {
@@ -218,9 +198,7 @@
       "columnType": "MONEY",
       "columnDefault": "((0.00))",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Shipping cost."
-      },
+      "extendedProperties": {},
       "fullColumnType": "MONEY"
     },
     {
@@ -238,9 +216,7 @@
       "computedDefinition": "(isnull(([SubTotal]+[TaxAmt])+[Freight],(0)))",
       "columnType": "MONEY",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Total due to vendor. Computed as Subtotal + TaxAmt + Freight."
-      },
+      "extendedProperties": {},
       "fullColumnType": "MONEY"
     },
     {
@@ -258,13 +234,9 @@
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date and time the record was last updated."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     }
   ],
-  "extendedProperties": {
-    "mS_Description": "General purchase order information. See PurchaseOrderDetail."
-  }
+  "extendedProperties": {}
 }

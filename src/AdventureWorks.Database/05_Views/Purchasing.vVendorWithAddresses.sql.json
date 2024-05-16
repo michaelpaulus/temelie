@@ -167,8 +167,6 @@
         "fullColumnType": "NAME"
       }
     ],
-    "extendedProperties": {
-      "mS_Description": "Vendor (company) names and addresses ."
-    }
+    "extendedProperties": {}
   }
 }

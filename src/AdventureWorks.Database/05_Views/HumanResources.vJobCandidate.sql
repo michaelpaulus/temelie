@@ -38,28 +38,3 @@ FROM [HumanResources].[JobCandidate] jc
 CROSS APPLY jc.[Resume].nodes(N'declare default element namespace "http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/Resume"; 
     /Resume') AS Resume(ref);
 GO
-
-IF EXISTS
-    (
-        SELECT
-            1
-        FROM
-            fn_listextendedproperty('MS_Description', 'schema', 'HumanResources', 'view', 'vJobCandidate', DEFAULT, DEFAULT)
-    )
-BEGIN
-    EXEC sys.sp_dropextendedproperty @name = N'MS_Description',
-                                     @level0type = N'schema',
-                                     @level0name = 'HumanResources',
-                                     @level1type = N'view',
-                                     @level1name = 'vJobCandidate';
-END
-GO
-
-EXEC sys.sp_addextendedproperty @name = N'MS_Description',
-                                @value = N'Job candidate names and resumes.',
-                                @level0type = N'schema',
-                                @level0name = 'HumanResources',
-                                @level1type = N'view',
-                                @level1name = 'vJobCandidate';
-GO
-

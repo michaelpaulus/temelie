@@ -22,9 +22,7 @@
       "generatedAlwaysType": 0,
       "columnType": "TINYINT",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Primary key for AWBuildVersion records."
-      },
+      "extendedProperties": {},
       "fullColumnType": "TINYINT"
     },
     {
@@ -41,9 +39,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NVARCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Version number of the database in 9.yy.mm.dd.00 format."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NVARCHAR(25)"
     },
     {
@@ -60,9 +56,7 @@
       "generatedAlwaysType": 0,
       "columnType": "DATETIME",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date and time the record was last updated."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     },
     {
@@ -80,13 +74,9 @@
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date and time the record was last updated."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     }
   ],
-  "extendedProperties": {
-    "mS_Description": "Current version number of the AdventureWorks 2016 sample database. "
-  }
+  "extendedProperties": {}
 }

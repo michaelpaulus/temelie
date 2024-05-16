@@ -26,28 +26,3 @@ FROM [HumanResources].[Employee] e
     INNER JOIN [HumanResources].[Shift] s
     ON s.[ShiftID] = edh.[ShiftID];
 GO
-
-IF EXISTS
-    (
-        SELECT
-            1
-        FROM
-            fn_listextendedproperty('MS_Description', 'schema', 'HumanResources', 'view', 'vEmployeeDepartmentHistory', DEFAULT, DEFAULT)
-    )
-BEGIN
-    EXEC sys.sp_dropextendedproperty @name = N'MS_Description',
-                                     @level0type = N'schema',
-                                     @level0name = 'HumanResources',
-                                     @level1type = N'view',
-                                     @level1name = 'vEmployeeDepartmentHistory';
-END
-GO
-
-EXEC sys.sp_addextendedproperty @name = N'MS_Description',
-                                @value = N'Returns employee name and current and previous departments.',
-                                @level0type = N'schema',
-                                @level0name = 'HumanResources',
-                                @level1type = N'view',
-                                @level1name = 'vEmployeeDepartmentHistory';
-GO
-

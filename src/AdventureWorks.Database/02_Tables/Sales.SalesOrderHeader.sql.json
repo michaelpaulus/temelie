@@ -22,9 +22,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Primary key."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -42,9 +40,7 @@
       "columnType": "TINYINT",
       "columnDefault": "((0))",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Incremental number to track changes to the sales order over time."
-      },
+      "extendedProperties": {},
       "fullColumnType": "TINYINT"
     },
     {
@@ -62,9 +58,7 @@
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Dates the sales order was created."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     },
     {
@@ -81,9 +75,7 @@
       "generatedAlwaysType": 0,
       "columnType": "DATETIME",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date the order is due to the customer."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     },
     {
@@ -100,9 +92,7 @@
       "generatedAlwaysType": 0,
       "columnType": "DATETIME",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date the order was shipped to the customer."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     },
     {
@@ -120,9 +110,7 @@
       "columnType": "TINYINT",
       "columnDefault": "((1))",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Order current status. 1 = In process; 2 = Approved; 3 = Backordered; 4 = Rejected; 5 = Shipped; 6 = Cancelled"
-      },
+      "extendedProperties": {},
       "fullColumnType": "TINYINT"
     },
     {
@@ -140,9 +128,7 @@
       "columnType": "FLAG",
       "columnDefault": "((1))",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "0 = Order placed by sales person. 1 = Order placed online by customer."
-      },
+      "extendedProperties": {},
       "fullColumnType": "FLAG"
     },
     {
@@ -160,9 +146,7 @@
       "computedDefinition": "(isnull(N'SO'+CONVERT([nvarchar](23),[SalesOrderID]),N'*** ERROR ***'))",
       "columnType": "NVARCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Unique sales order identification number."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NVARCHAR(25)"
     },
     {
@@ -179,9 +163,7 @@
       "generatedAlwaysType": 0,
       "columnType": "ORDERNUMBER",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Customer purchase order number reference. "
-      },
+      "extendedProperties": {},
       "fullColumnType": "ORDERNUMBER"
     },
     {
@@ -198,9 +180,7 @@
       "generatedAlwaysType": 0,
       "columnType": "ACCOUNTNUMBER",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Financial accounting number reference."
-      },
+      "extendedProperties": {},
       "fullColumnType": "ACCOUNTNUMBER"
     },
     {
@@ -217,9 +197,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Customer identification number. Foreign key to Customer.BusinessEntityID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -236,9 +214,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Sales person who created the sales order. Foreign key to SalesPerson.BusinessEntityID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -255,9 +231,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Territory in which the sale was made. Foreign key to SalesTerritory.SalesTerritoryID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -274,9 +248,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Customer billing address. Foreign key to Address.AddressID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -293,9 +265,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Customer shipping address. Foreign key to Address.AddressID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -312,9 +282,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Shipping method. Foreign key to ShipMethod.ShipMethodID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -331,9 +299,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Credit card identification number. Foreign key to CreditCard.CreditCardID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -350,9 +316,7 @@
       "generatedAlwaysType": 0,
       "columnType": "VARCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Approval code provided by the credit card company."
-      },
+      "extendedProperties": {},
       "fullColumnType": "VARCHAR(15)"
     },
     {
@@ -369,9 +333,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Currency exchange rate used. Foreign key to CurrencyRate.CurrencyRateID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -389,9 +351,7 @@
       "columnType": "MONEY",
       "columnDefault": "((0.00))",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Sales subtotal. Computed as SUM(SalesOrderDetail.LineTotal)for the appropriate SalesOrderID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "MONEY"
     },
     {
@@ -409,9 +369,7 @@
       "columnType": "MONEY",
       "columnDefault": "((0.00))",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Tax amount."
-      },
+      "extendedProperties": {},
       "fullColumnType": "MONEY"
     },
     {
@@ -429,9 +387,7 @@
       "columnType": "MONEY",
       "columnDefault": "((0.00))",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Shipping cost."
-      },
+      "extendedProperties": {},
       "fullColumnType": "MONEY"
     },
     {
@@ -449,9 +405,7 @@
       "computedDefinition": "(isnull(([SubTotal]+[TaxAmt])+[Freight],(0)))",
       "columnType": "MONEY",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Total due from customer. Computed as Subtotal + TaxAmt + Freight."
-      },
+      "extendedProperties": {},
       "fullColumnType": "MONEY"
     },
     {
@@ -468,9 +422,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NVARCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Sales representative comments."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NVARCHAR(128)"
     },
     {
@@ -488,9 +440,7 @@
       "columnType": "UNIQUEIDENTIFIER",
       "columnDefault": "(newid())",
       "dbType": 9,
-      "extendedProperties": {
-        "mS_Description": "ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample."
-      },
+      "extendedProperties": {},
       "fullColumnType": "UNIQUEIDENTIFIER"
     },
     {
@@ -508,13 +458,9 @@
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date and time the record was last updated."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     }
   ],
-  "extendedProperties": {
-    "mS_Description": "General sales order information."
-  }
+  "extendedProperties": {}
 }

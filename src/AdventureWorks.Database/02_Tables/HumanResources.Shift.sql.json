@@ -22,9 +22,7 @@
       "generatedAlwaysType": 0,
       "columnType": "TINYINT",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Primary key for Shift records."
-      },
+      "extendedProperties": {},
       "fullColumnType": "TINYINT"
     },
     {
@@ -41,9 +39,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NAME",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Shift description."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NAME"
     },
     {
@@ -60,9 +56,7 @@
       "generatedAlwaysType": 0,
       "columnType": "TIME",
       "dbType": 17,
-      "extendedProperties": {
-        "mS_Description": "Shift start time."
-      },
+      "extendedProperties": {},
       "fullColumnType": "TIME(7)"
     },
     {
@@ -79,9 +73,7 @@
       "generatedAlwaysType": 0,
       "columnType": "TIME",
       "dbType": 17,
-      "extendedProperties": {
-        "mS_Description": "Shift end time."
-      },
+      "extendedProperties": {},
       "fullColumnType": "TIME(7)"
     },
     {
@@ -99,13 +91,9 @@
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date and time the record was last updated."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     }
   ],
-  "extendedProperties": {
-    "mS_Description": "Work shift lookup table."
-  }
+  "extendedProperties": {}
 }

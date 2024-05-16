@@ -22,9 +22,7 @@
       "generatedAlwaysType": 0,
       "columnType": "HIERARCHYID",
       "dbType": 13,
-      "extendedProperties": {
-        "mS_Description": "Primary key for Document records."
-      },
+      "extendedProperties": {},
       "fullColumnType": "HIERARCHYID"
     },
     {
@@ -42,9 +40,7 @@
       "computedDefinition": "([DocumentNode].[GetLevel]())",
       "columnType": "SMALLINT",
       "dbType": 10,
-      "extendedProperties": {
-        "mS_Description": "Depth in the document hierarchy."
-      },
+      "extendedProperties": {},
       "fullColumnType": "SMALLINT"
     },
     {
@@ -61,9 +57,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NVARCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Title of the document."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NVARCHAR(50)"
     },
     {
@@ -80,9 +74,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Employee who controls the document.  Foreign key to Employee.BusinessEntityID"
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -100,9 +92,7 @@
       "columnType": "BIT",
       "columnDefault": "((0))",
       "dbType": 3,
-      "extendedProperties": {
-        "mS_Description": "0 = This is a folder, 1 = This is a document."
-      },
+      "extendedProperties": {},
       "fullColumnType": "BIT"
     },
     {
@@ -119,9 +109,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NVARCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "File name of the document"
-      },
+      "extendedProperties": {},
       "fullColumnType": "NVARCHAR(400)"
     },
     {
@@ -138,9 +126,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NVARCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "File extension indicating the document type. For example, .doc or .txt."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NVARCHAR(8)"
     },
     {
@@ -157,9 +143,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Revision number of the document. "
-      },
+      "extendedProperties": {},
       "fullColumnType": "NCHAR(5)"
     },
     {
@@ -177,9 +161,7 @@
       "columnType": "INT",
       "columnDefault": "((0))",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Engineering change approval number."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -196,9 +178,7 @@
       "generatedAlwaysType": 0,
       "columnType": "TINYINT",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "1 = Pending approval, 2 = Approved, 3 = Obsolete"
-      },
+      "extendedProperties": {},
       "fullColumnType": "TINYINT"
     },
     {
@@ -215,9 +195,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NVARCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Document abstract."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NVARCHAR(MAX)"
     },
     {
@@ -225,7 +203,7 @@
       "columnName": "Document",
       "columnId": 12,
       "isPrimaryKey": false,
-      "precision": -1,
+      "precision": 2147483647,
       "scale": 0,
       "isNullable": true,
       "isIdentity": false,
@@ -234,9 +212,7 @@
       "generatedAlwaysType": 0,
       "columnType": "VARBINARY",
       "dbType": 1,
-      "extendedProperties": {
-        "mS_Description": "Complete document."
-      },
+      "extendedProperties": {},
       "fullColumnType": "VARBINARY(MAX)"
     },
     {
@@ -254,9 +230,7 @@
       "columnType": "UNIQUEIDENTIFIER",
       "columnDefault": "(newid())",
       "dbType": 9,
-      "extendedProperties": {
-        "mS_Description": "ROWGUIDCOL number uniquely identifying the record. Required for FileStream."
-      },
+      "extendedProperties": {},
       "fullColumnType": "UNIQUEIDENTIFIER"
     },
     {
@@ -274,13 +248,9 @@
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date and time the record was last updated."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     }
   ],
-  "extendedProperties": {
-    "mS_Description": "Product maintenance documents."
-  }
+  "extendedProperties": {}
 }

@@ -22,9 +22,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Primary key for Person records."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -41,9 +39,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Primary type of person: SC = Store Contact, IN = Individual (retail) customer, SP = Sales person, EM = Employee (non-sales), VC = Vendor contact, GC = General contact"
-      },
+      "extendedProperties": {},
       "fullColumnType": "NCHAR(2)"
     },
     {
@@ -61,9 +57,7 @@
       "columnType": "NAMESTYLE",
       "columnDefault": "((0))",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "0 = The data in FirstName and LastName are stored in western style (first name, last name) order.  1 = Eastern style (last name, first name) order."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NAMESTYLE"
     },
     {
@@ -80,9 +74,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NVARCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "A courtesy title. For example, Mr. or Ms."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NVARCHAR(8)"
     },
     {
@@ -99,9 +91,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NAME",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "First name of the person."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NAME"
     },
     {
@@ -118,9 +108,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NAME",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Middle name or middle initial of the person."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NAME"
     },
     {
@@ -137,9 +125,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NAME",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Last name of the person."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NAME"
     },
     {
@@ -156,9 +142,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NVARCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Surname suffix. For example, Sr. or Jr."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NVARCHAR(10)"
     },
     {
@@ -176,9 +160,7 @@
       "columnType": "INT",
       "columnDefault": "((0))",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "0 = Contact does not wish to receive e-mail promotions, 1 = Contact does wish to receive e-mail promotions from AdventureWorks, 2 = Contact does wish to receive e-mail promotions from AdventureWorks and selected partners. "
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -195,9 +177,7 @@
       "generatedAlwaysType": 0,
       "columnType": "XML",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Additional contact information about the person stored in xml format. "
-      },
+      "extendedProperties": {},
       "fullColumnType": "XML"
     },
     {
@@ -214,9 +194,7 @@
       "generatedAlwaysType": 0,
       "columnType": "XML",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Personal information such as hobbies, and income collected from online shoppers. Used for sales analysis."
-      },
+      "extendedProperties": {},
       "fullColumnType": "XML"
     },
     {
@@ -234,9 +212,7 @@
       "columnType": "UNIQUEIDENTIFIER",
       "columnDefault": "(newid())",
       "dbType": 9,
-      "extendedProperties": {
-        "mS_Description": "ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample."
-      },
+      "extendedProperties": {},
       "fullColumnType": "UNIQUEIDENTIFIER"
     },
     {
@@ -254,13 +230,9 @@
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date and time the record was last updated."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     }
   ],
-  "extendedProperties": {
-    "mS_Description": "Human beings involved with AdventureWorks: employees, customer contacts, and vendor contacts."
-  }
+  "extendedProperties": {}
 }

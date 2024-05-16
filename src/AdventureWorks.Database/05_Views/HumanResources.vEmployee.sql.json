@@ -320,8 +320,6 @@
         "fullColumnType": "XML"
       }
     ],
-    "extendedProperties": {
-      "mS_Description": "Employee names and addresses."
-    }
+    "extendedProperties": {}
   }
 }

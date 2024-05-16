@@ -218,8 +218,6 @@
         "fullColumnType": "INT"
       }
     ],
-    "extendedProperties": {
-      "mS_Description": "Stores (including demographics) that sell Adventure Works Cycles products to consumers."
-    }
+    "extendedProperties": {}
   }
 }

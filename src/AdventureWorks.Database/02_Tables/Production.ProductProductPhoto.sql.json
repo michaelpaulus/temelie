@@ -22,9 +22,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Product identification number. Foreign key to Product.ProductID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -41,9 +39,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Product photo identification number. Foreign key to ProductPhoto.ProductPhotoID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -61,9 +57,7 @@
       "columnType": "FLAG",
       "columnDefault": "((0))",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "0 = Photo is not the principal image. 1 = Photo is the principal image."
-      },
+      "extendedProperties": {},
       "fullColumnType": "FLAG"
     },
     {
@@ -81,13 +75,9 @@
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date and time the record was last updated."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     }
   ],
-  "extendedProperties": {
-    "mS_Description": "Cross-reference table mapping products and product photos."
-  }
+  "extendedProperties": {}
 }

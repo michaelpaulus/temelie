@@ -22,9 +22,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Business entity identification number. Foreign key to Person.BusinessEntityID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -41,9 +39,7 @@
       "generatedAlwaysType": 0,
       "columnType": "PHONE",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Telephone number identification number."
-      },
+      "extendedProperties": {},
       "fullColumnType": "PHONE"
     },
     {
@@ -60,9 +56,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Kind of phone number. Foreign key to PhoneNumberType.PhoneNumberTypeID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -80,13 +74,9 @@
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date and time the record was last updated."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     }
   ],
-  "extendedProperties": {
-    "mS_Description": "Telephone number and type of a person."
-  }
+  "extendedProperties": {}
 }

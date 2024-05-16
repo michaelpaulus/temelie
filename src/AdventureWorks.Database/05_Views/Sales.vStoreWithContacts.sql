@@ -30,28 +30,3 @@ FROM [Sales].[Store] s
     LEFT OUTER JOIN [Person].[PhoneNumberType] pnt
     ON pnt.[PhoneNumberTypeID] = pp.[PhoneNumberTypeID];
 GO
-
-IF EXISTS
-    (
-        SELECT
-            1
-        FROM
-            fn_listextendedproperty('MS_Description', 'schema', 'Sales', 'view', 'vStoreWithContacts', DEFAULT, DEFAULT)
-    )
-BEGIN
-    EXEC sys.sp_dropextendedproperty @name = N'MS_Description',
-                                     @level0type = N'schema',
-                                     @level0name = 'Sales',
-                                     @level1type = N'view',
-                                     @level1name = 'vStoreWithContacts';
-END
-GO
-
-EXEC sys.sp_addextendedproperty @name = N'MS_Description',
-                                @value = N'Stores (including store contacts) that sell Adventure Works Cycles products to consumers.',
-                                @level0type = N'schema',
-                                @level0name = 'Sales',
-                                @level1type = N'view',
-                                @level1name = 'vStoreWithContacts';
-GO
-

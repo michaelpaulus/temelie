@@ -22,9 +22,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Primary key for Address records."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -41,9 +39,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NVARCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "First street address line."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NVARCHAR(60)"
     },
     {
@@ -60,9 +56,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NVARCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Second street address line."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NVARCHAR(60)"
     },
     {
@@ -79,9 +73,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NVARCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Name of the city."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NVARCHAR(30)"
     },
     {
@@ -98,9 +90,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Unique identification number for the state or province. Foreign key to StateProvince table."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -117,9 +107,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NVARCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Postal code for the street address."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NVARCHAR(15)"
     },
     {
@@ -136,9 +124,7 @@
       "generatedAlwaysType": 0,
       "columnType": "GEOGRAPHY",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Latitude and longitude of this address."
-      },
+      "extendedProperties": {},
       "fullColumnType": "GEOGRAPHY"
     },
     {
@@ -156,9 +142,7 @@
       "columnType": "UNIQUEIDENTIFIER",
       "columnDefault": "(newid())",
       "dbType": 9,
-      "extendedProperties": {
-        "mS_Description": "ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample."
-      },
+      "extendedProperties": {},
       "fullColumnType": "UNIQUEIDENTIFIER"
     },
     {
@@ -176,13 +160,60 @@
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date and time the record was last updated."
-      },
+      "extendedProperties": {},
+      "fullColumnType": "DATETIME"
+    },
+    {
+      "schemaName": "Person",
+      "columnName": "ModifiedBy",
+      "columnId": 10,
+      "isPrimaryKey": false,
+      "precision": 250,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NVARCHAR",
+      "dbType": 16,
+      "extendedProperties": {},
+      "fullColumnType": "NVARCHAR(250)"
+    },
+    {
+      "schemaName": "Person",
+      "columnName": "CreatedBy",
+      "columnId": 11,
+      "isPrimaryKey": false,
+      "precision": 250,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NVARCHAR",
+      "dbType": 16,
+      "extendedProperties": {},
+      "fullColumnType": "NVARCHAR(250)"
+    },
+    {
+      "schemaName": "Person",
+      "columnName": "CreatedDate",
+      "columnId": 12,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "dbType": 6,
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     }
   ],
-  "extendedProperties": {
-    "mS_Description": "Street address information for customers, employees, and vendors."
-  }
+  "extendedProperties": {}
 }

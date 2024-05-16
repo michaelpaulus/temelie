@@ -36,28 +36,3 @@ PIVOT
     IN ([2002], [2003], [2004])
 ) AS pvt;
 GO
-
-IF EXISTS
-    (
-        SELECT
-            1
-        FROM
-            fn_listextendedproperty('MS_Description', 'schema', 'Sales', 'view', 'vSalesPersonSalesByFiscalYears', DEFAULT, DEFAULT)
-    )
-BEGIN
-    EXEC sys.sp_dropextendedproperty @name = N'MS_Description',
-                                     @level0type = N'schema',
-                                     @level0name = 'Sales',
-                                     @level1type = N'view',
-                                     @level1name = 'vSalesPersonSalesByFiscalYears';
-END
-GO
-
-EXEC sys.sp_addextendedproperty @name = N'MS_Description',
-                                @value = N'Uses PIVOT to return aggregated sales information for each sales representative.',
-                                @level0type = N'schema',
-                                @level0name = 'Sales',
-                                @level1type = N'view',
-                                @level1name = 'vSalesPersonSalesByFiscalYears';
-GO
-

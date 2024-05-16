@@ -22,9 +22,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Primary key."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -41,9 +39,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Foreign key to Person.BusinessEntityID"
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -60,9 +56,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "Foreign key to Store.BusinessEntityID"
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -79,9 +73,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "dbType": 11,
-      "extendedProperties": {
-        "mS_Description": "ID of the territory in which the customer is located. Foreign key to SalesTerritory.SalesTerritoryID."
-      },
+      "extendedProperties": {},
       "fullColumnType": "INT"
     },
     {
@@ -99,9 +91,7 @@
       "computedDefinition": "(isnull('AW'+[dbo].[ufnLeadingZeros]([CustomerID]),''))",
       "columnType": "VARCHAR",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Unique number identifying the customer assigned by the accounting system."
-      },
+      "extendedProperties": {},
       "fullColumnType": "VARCHAR(10)"
     },
     {
@@ -119,9 +109,7 @@
       "columnType": "UNIQUEIDENTIFIER",
       "columnDefault": "(newid())",
       "dbType": 9,
-      "extendedProperties": {
-        "mS_Description": "ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample."
-      },
+      "extendedProperties": {},
       "fullColumnType": "UNIQUEIDENTIFIER"
     },
     {
@@ -139,13 +127,9 @@
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date and time the record was last updated."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     }
   ],
-  "extendedProperties": {
-    "mS_Description": "Current customer information. Also see the Person and Store tables."
-  }
+  "extendedProperties": {}
 }

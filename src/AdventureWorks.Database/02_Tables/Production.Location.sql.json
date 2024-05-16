@@ -22,9 +22,7 @@
       "generatedAlwaysType": 0,
       "columnType": "SMALLINT",
       "dbType": 10,
-      "extendedProperties": {
-        "mS_Description": "Primary key for Location records."
-      },
+      "extendedProperties": {},
       "fullColumnType": "SMALLINT"
     },
     {
@@ -41,9 +39,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NAME",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Location description."
-      },
+      "extendedProperties": {},
       "fullColumnType": "NAME"
     },
     {
@@ -61,9 +57,7 @@
       "columnType": "SMALLMONEY",
       "columnDefault": "((0.00))",
       "dbType": 16,
-      "extendedProperties": {
-        "mS_Description": "Standard hourly cost of the manufacturing location."
-      },
+      "extendedProperties": {},
       "fullColumnType": "SMALLMONEY"
     },
     {
@@ -81,9 +75,7 @@
       "columnType": "DECIMAL",
       "columnDefault": "((0.00))",
       "dbType": 7,
-      "extendedProperties": {
-        "mS_Description": "Work capacity (in hours) of the manufacturing location."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DECIMAL(8, 2)"
     },
     {
@@ -101,13 +93,9 @@
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
       "dbType": 6,
-      "extendedProperties": {
-        "mS_Description": "Date and time the record was last updated."
-      },
+      "extendedProperties": {},
       "fullColumnType": "DATETIME"
     }
   ],
-  "extendedProperties": {
-    "mS_Description": "Product inventory and manufacturing locations."
-  }
+  "extendedProperties": {}
 }
