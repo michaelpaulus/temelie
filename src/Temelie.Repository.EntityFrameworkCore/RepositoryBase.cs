@@ -97,6 +97,36 @@ public abstract partial class RepositoryBase<Entity> : IRepository<Entity> where
         }
     }
 
+    public virtual async Task MergeAsync(IEnumerable<Entity> originalEntities, IEnumerable<Entity> newEntities, Func<Entity, IEnumerable<Entity>, Entity> keySelector)
+    {
+        var deletes = originalEntities.ToList();
+        var newList = newEntities.ToList();
+
+        var inserts = new List<Entity>();
+        var updates = new List<Entity>();
+
+        foreach (var item in newList)
+        {
+            var originalItem = keySelector(item, deletes);
+            if (originalItem is null)
+            {
+                inserts.Add(item);
+            }
+            else
+            {
+                deletes.Remove(originalItem);
+                if (originalItem.Equals(item))
+                {
+                    updates.Add(item);
+                }
+            }
+        }
+
+        await DeleteRangeAsync(deletes).ConfigureAwait(false);
+        await UpdateRangeAsync(updates).ConfigureAwait(false);
+        await AddRangeAsync(inserts).ConfigureAwait(false);
+    }
+
     protected virtual Task<IQueryable<Entity>> OnQueryAsync(IQuerySpec<Entity> spec)
     {
         var query = _context.DbSet.AsNoTracking();

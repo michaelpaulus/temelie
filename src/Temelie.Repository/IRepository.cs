@@ -14,4 +14,7 @@ public partial interface IRepository<Entity> : IDisposable where Entity : class,
     Task UpdateRangeAsync(IEnumerable<Entity> entities);
     Task DeleteAsync(Entity entity);
     Task DeleteRangeAsync(IEnumerable<Entity> entities);
+
+    Task MergeAsync(IEnumerable<Entity> originalEntities, IEnumerable<Entity> newEntities, Func<Entity, IEnumerable<Entity>, Entity> keySelector);
+
 }
