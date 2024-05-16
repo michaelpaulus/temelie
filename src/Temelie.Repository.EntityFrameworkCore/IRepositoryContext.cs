@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Temelie.Repository.EntityFrameworkCore;
 
-public interface IRepositoryContext<Entity> where Entity : class, IEntity<Entity>
+public interface IRepositoryContext<Entity> where Entity : EntityBase, IEntity<Entity>
 {
 
     DbContext DbContext { get; }

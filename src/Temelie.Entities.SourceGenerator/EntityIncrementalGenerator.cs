@@ -107,16 +107,58 @@ public class EntityIncrementalGenerator : IIncrementalGenerator
                 var ns = rootNamesapce;
                 var className = table.ClassName;
 
+                var extends = new StringBuilder();
+
+                extends.Append($"IEntity<{className}>");
+
+                var props2 = props.ToList();
+
+                var modifiedColumns = new List<ColumnProperty>();
+                var createdColumns = new List<ColumnProperty>();
+
+                foreach(var prop in props)
+                {
+                    if (prop.Equals("CreatedDate") ||
+                        prop.Equals("CreatedBy"))
+                    {
+                        createdColumns.Add(prop);
+                    }
+
+                    if (prop.Equals("ModifiedDate") ||
+                        prop.Equals("ModifiedBy"))
+                    {
+                        modifiedColumns.Add(prop);
+                    }
+                }
+
+                if (createdColumns.Count == 2)
+                {
+                    extends.Append(", ICreatedByEntity");
+                    foreach (var col in createdColumns)
+                    {
+                        props2.Remove(col);
+                    }
+                }
+
+                if (modifiedColumns.Count == 2)
+                {
+                    extends.Append(", IModifiedByEntity");
+                    foreach (var col in modifiedColumns)
+                    {
+                        props2.Remove(col);
+                    }
+                }
+
                 var sb = new StringBuilder();
                 sb.AppendLine($@"#nullable enable
 using Temelie.Entities;
 
 namespace {ns};
 
-public interface I{className} : IEntity <{className}>
+public interface I{className} : {extends}
 {{
 ");
-                foreach (var column in props)
+                foreach (var column in props2)
                 {
                     sb.AppendLine($"    {column.PropertyType} {column.PropertyName} {{ get; set; }}");
                 }
@@ -139,13 +181,11 @@ using Temelie.Entities;
 namespace {ns};
 
 [System.ComponentModel.DataAnnotations.Schema.Table(""{table.TableName}"", Schema = ""{table.SchemaName}"")]
-public record {className} : I{className}
+public record {className} : EntityBase, I{className}
 {{
 ");
                 foreach (var column in props)
                 {
-
-
                     if (column.IsEntityId &&
                         !column.IsForeignKey)
                     {
@@ -221,7 +261,6 @@ public record struct {className}({propertyType} Value = {GetTypeDefault(property
         {
             throw new Exception(ex.ToString());
         }
-
 
     }
 

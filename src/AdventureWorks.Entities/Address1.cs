@@ -3,7 +3,7 @@ using Temelie.Entities;
 namespace AdventureWorks.Entities;
 
 [System.ComponentModel.DataAnnotations.Schema.Table("Address1")]
-public record Address1 : IEntity<Address1>
+public record Address1 : EntityBase, IEntity<Address1>
 {
     [System.ComponentModel.DataAnnotations.Key]
     [System.ComponentModel.DataAnnotations.Schema.Column(Order = 0)]

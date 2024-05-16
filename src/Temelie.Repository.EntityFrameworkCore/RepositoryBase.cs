@@ -2,13 +2,15 @@ using Temelie.Entities;
 using Microsoft.EntityFrameworkCore;
 namespace Temelie.Repository.EntityFrameworkCore;
 
-public abstract partial class RepositoryBase<Entity> : IRepository<Entity> where Entity : class, IEntity<Entity>
+public abstract partial class RepositoryBase<Entity> : IRepository<Entity> where Entity : EntityBase, IEntity<Entity>
 {
     private readonly IRepositoryContext<Entity> _context;
+    private readonly IIdentityResolver _identityResolver;
 
-    public RepositoryBase(IRepositoryContext<Entity> context)
+    public RepositoryBase(IRepositoryContext<Entity> context, IIdentityResolver identityResolver)
     {
         _context = context;
+        _identityResolver = identityResolver;
     }
 
     protected IRepositoryContext<Entity> Context => _context;
@@ -97,36 +99,6 @@ public abstract partial class RepositoryBase<Entity> : IRepository<Entity> where
         }
     }
 
-    public virtual async Task MergeAsync(IEnumerable<Entity> originalEntities, IEnumerable<Entity> newEntities, Func<Entity, IEnumerable<Entity>, Entity> keySelector)
-    {
-        var deletes = originalEntities.ToList();
-        var newList = newEntities.ToList();
-
-        var inserts = new List<Entity>();
-        var updates = new List<Entity>();
-
-        foreach (var item in newList)
-        {
-            var originalItem = keySelector(item, deletes);
-            if (originalItem is null)
-            {
-                inserts.Add(item);
-            }
-            else
-            {
-                deletes.Remove(originalItem);
-                if (originalItem.Equals(item))
-                {
-                    updates.Add(item);
-                }
-            }
-        }
-
-        await DeleteRangeAsync(deletes).ConfigureAwait(false);
-        await UpdateRangeAsync(updates).ConfigureAwait(false);
-        await AddRangeAsync(inserts).ConfigureAwait(false);
-    }
-
     protected virtual Task<IQueryable<Entity>> OnQueryAsync(IQuerySpec<Entity> spec)
     {
         var query = _context.DbSet.AsNoTracking();
@@ -136,6 +108,16 @@ public abstract partial class RepositoryBase<Entity> : IRepository<Entity> where
 
     protected virtual Task OnAddingAsync(Entity entity)
     {
+        if (entity is ICreatedByEntity createdByEntity)
+        {
+            createdByEntity.CreatedDate = DateTime.UtcNow;
+            createdByEntity.CreatedBy = _identityResolver?.GetIdentity();
+        }
+        if (entity is IModifiedByEntity modifiedByEntity)
+        {
+            modifiedByEntity.ModifiedDate = DateTime.UtcNow;
+            modifiedByEntity.ModifiedBy = _identityResolver?.GetIdentity();
+        }
         return Task.CompletedTask;
     }
 
@@ -156,6 +138,11 @@ public abstract partial class RepositoryBase<Entity> : IRepository<Entity> where
 
     protected virtual Task OnUpdatingAsync(Entity entity)
     {
+        if (entity is IModifiedByEntity modifiedByEntity)
+        {
+            modifiedByEntity.ModifiedDate = DateTime.UtcNow;
+            modifiedByEntity.ModifiedBy = _identityResolver?.GetIdentity();
+        }
         return Task.CompletedTask;
     }
 

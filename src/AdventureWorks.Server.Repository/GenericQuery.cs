@@ -2,7 +2,7 @@ using Temelie.Entities;
 using Temelie.Repository;
 
 namespace AdventureWorks.Server.Repository;
-public class GenericQuery<T> : IQuerySpec<T> where T : class, IEntity<T>
+public class GenericQuery<T> : IQuerySpec<T> where T : EntityBase, IEntity<T>
 {
     private readonly Func<IQueryable<T>, IQueryable<T>> _query;
 
