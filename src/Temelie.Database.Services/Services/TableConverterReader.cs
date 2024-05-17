@@ -8,14 +8,23 @@ public class TableConverterReader : System.Data.IDataReader
 
     private readonly IDatabaseProvider _databaseProvider;
     private readonly IDataReader _parent;
+    private readonly IList<Models.ColumnModel> _sourceColumns;
+    private readonly IList<Models.ColumnModel> _targetColumns;
+    private readonly IEnumerable<ITableConverterReaderColumnValueProvider> _tableConverterReaderColumnValueProviders;
 
-    public TableConverterReader(IDatabaseProvider databaseProvider, IDataReader parent, IList<Models.ColumnModel> sourceColumns, IList<Models.ColumnModel> targetColumns, bool trimStrings)
+    public TableConverterReader(IDatabaseProvider databaseProvider,
+        IDataReader parent,
+        IEnumerable<ITableConverterReaderColumnValueProvider> tableConverterReaderColumnValueProviders,
+        IEnumerable<Models.ColumnModel> sourceColumns,
+        IEnumerable<Models.ColumnModel> targetColumns,
+        bool trimStrings)
     {
         _databaseProvider = databaseProvider;
-        this._parent = parent;
-        this._sourceColumns = sourceColumns;
-        this._targetColumns = targetColumns;
-        this.TrimStrings = trimStrings;
+        _parent = parent;
+        _sourceColumns = sourceColumns.ToList();
+        _targetColumns = targetColumns.ToList();
+        TrimStrings = trimStrings;
+        _tableConverterReaderColumnValueProviders = tableConverterReaderColumnValueProviders;
     }
 
     public IDataReader Parent
@@ -26,8 +35,7 @@ public class TableConverterReader : System.Data.IDataReader
         }
     }
 
-    private readonly IList<Models.ColumnModel> _sourceColumns;
-    public IList<Models.ColumnModel> SourceColumns
+    public IEnumerable<Models.ColumnModel> SourceColumns
     {
         get
         {
@@ -35,8 +43,7 @@ public class TableConverterReader : System.Data.IDataReader
         }
     }
 
-    private readonly IList<Models.ColumnModel> _targetColumns;
-    public IList<Models.ColumnModel> TargetColumns
+    public IEnumerable<Models.ColumnModel> TargetColumns
     {
         get
         {
@@ -128,7 +135,7 @@ public class TableConverterReader : System.Data.IDataReader
         }
         catch (Exception ex)
         {
-            var sourceColumn = this.SourceColumns[i];
+            var sourceColumn = _sourceColumns[i];
             object newValue;
             if (_databaseProvider != null &&
                 _databaseProvider.TryHandleColumnValueLoadException(ex, sourceColumn, out newValue))
@@ -142,7 +149,7 @@ public class TableConverterReader : System.Data.IDataReader
 
         }
 
-        var targetColumn = this.TargetColumns[i];
+        var targetColumn = _targetColumns[i];
 
         value = this.GetColumnValue(targetColumn, value);
 
@@ -163,144 +170,9 @@ public class TableConverterReader : System.Data.IDataReader
     {
         object returnValue = value;
 
-        var dbType = targetColumn.DbType;
-
-        if (value == DBNull.Value)
+        foreach (var provider in _tableConverterReaderColumnValueProviders)
         {
-            switch (dbType)
-            {
-                case System.Data.DbType.Boolean:
-                    if (!targetColumn.IsNullable)
-                    {
-                        if (!string.IsNullOrEmpty(targetColumn.ColumnDefault))
-                        {
-                            if (targetColumn.ColumnDefault.Contains("1"))
-                            {
-                                returnValue = true;
-                            }
-                            else
-                            {
-                                returnValue = false;
-                            }
-                        }
-                        else
-                        {
-                            returnValue = false;
-                        }
-                    }
-                    break;
-            }
-        }
-        else
-        {
-            switch (dbType)
-            {
-                case System.Data.DbType.Date:
-                case System.Data.DbType.DateTime:
-                    try
-                    {
-                        DateTime dt = System.Convert.ToDateTime(value);
-
-                        if (dt <= new DateTime(1753, 1, 1))
-                        {
-                            returnValue = new DateTime(1753, 1, 1);
-                        }
-                        else if (dt > new DateTime(9999, 12, 31))
-                        {
-                            returnValue = new DateTime(9999, 12, 31);
-                        }
-                        else
-                        {
-                            returnValue = dt;
-                        }
-                    }
-                    catch
-                    {
-                        returnValue = new DateTime(1753, 1, 1);
-                    }
-                    break;
-                case System.Data.DbType.DateTime2:
-                    try
-                    {
-                        DateTime dt = System.Convert.ToDateTime(value);
-                        returnValue = dt;
-                    }
-                    catch
-                    {
-                        returnValue = DateTime.MinValue;
-                    }
-                    break;
-                case System.Data.DbType.Time:
-                    {
-                        if ((value) is TimeSpan)
-                        {
-                            returnValue = value;
-                        }
-                        else if ((value) is DateTime)
-                        {
-                            var dt = System.Convert.ToDateTime(value);
-                            returnValue = dt.TimeOfDay;
-                        }
-                        else
-                        {
-                            returnValue = value;
-                        }
-                        break;
-                    }
-                case DbType.Boolean:
-                    if (value.GetType() == typeof(string))
-                    {
-                        if (value.ToString() == "1" ||
-                            value.ToString().Equals("yes", StringComparison.InvariantCultureIgnoreCase) ||
-                            value.ToString().Equals("y", StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            returnValue = true;
-                        }
-                        else if (value.ToString() == "0" ||
-                            value.ToString().Equals("no", StringComparison.InvariantCultureIgnoreCase) ||
-                            value.ToString().Equals("n", StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            returnValue = false;
-                        }
-                    }
-                    break;
-                case DbType.Guid:
-                    if (value.GetType() == typeof(string))
-                    {
-                        var valueAsString = System.Convert.ToString(value);
-
-                        if (string.IsNullOrEmpty(valueAsString) &&
-                            targetColumn.IsNullable)
-                        {
-                            returnValue = DBNull.Value;
-                        }
-                        else if (string.IsNullOrEmpty(valueAsString))
-                        {
-                            returnValue = Guid.Empty;
-                        }
-                        else
-                        {
-                            returnValue = new Guid(valueAsString);
-                        }
-
-                    }
-                    break;
-                case System.Data.DbType.AnsiString:
-                case System.Data.DbType.AnsiStringFixedLength:
-                case System.Data.DbType.String:
-                case System.Data.DbType.StringFixedLength:
-                    {
-                        if (this.TrimStrings)
-                        {
-                            returnValue = System.Convert.ToString(value).TrimEnd();
-                        }
-                        else
-                        {
-                            returnValue = System.Convert.ToString(value);
-                        }
-                        break;
-                    }
-            }
+            returnValue = provider.GetColumnValue(targetColumn, returnValue, TrimStrings);
         }
 
         return returnValue;

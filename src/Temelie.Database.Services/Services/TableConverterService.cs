@@ -12,12 +12,15 @@ public class TableConverterService : ITableConverterService
 
     private readonly IDatabaseFactory _databaseFactory;
     private readonly IDatabaseExecutionService _databaseExecutionService;
+    private readonly IEnumerable<ITableConverterReaderColumnValueProvider> _tableConverterReaderColumnValueProviders;
 
     public TableConverterService(IDatabaseFactory databaseFactory,
-        IDatabaseExecutionService databaseExecutionService)
+        IDatabaseExecutionService databaseExecutionService,
+        IEnumerable<ITableConverterReaderColumnValueProvider> tableConverterReaderColumnValueProviders)
     {
         _databaseFactory = databaseFactory;
         _databaseExecutionService = databaseExecutionService;
+        _tableConverterReaderColumnValueProviders = tableConverterReaderColumnValueProviders;
     }
 
     public void ConvertTables(TableConverterSettings settings,
@@ -190,7 +193,7 @@ public class TableConverterService : ITableConverterService
                     {
                         var sourceMatchedColumns = this.GetMatchedColumns(sourceTable.Columns, targetTable.Columns);
                         var targetMatchedColumns = this.GetMatchedColumns(targetTable.Columns, sourceTable.Columns);
-                        var reader2 = new TableConverterReader(sourceDatabaseProvider, reader, sourceMatchedColumns, targetMatchedColumns, trimStrings);
+                        var reader2 = new TableConverterReader(sourceDatabaseProvider, reader, _tableConverterReaderColumnValueProviders, sourceMatchedColumns, targetMatchedColumns, trimStrings);
                         ConvertBulk(progress, sourceTable, reader2, intSourceRowCount.GetValueOrDefault(), targetTable, targetConnectionString, trimStrings, batchSize, useTransaction, false);
                     }
                 }
@@ -263,7 +266,7 @@ public class TableConverterService : ITableConverterService
                     using (System.Data.Common.DbDataReader sourceReader = sourceCommand.ExecuteReader())
                     {
 
-                        var converterReader = new TableConverterReader(sourceDatabaseProvider, sourceReader, sourceMatchedColumns, targetMatchedColumns, trimStrings);
+                        var converterReader = new TableConverterReader(sourceDatabaseProvider, sourceReader, _tableConverterReaderColumnValueProviders,sourceMatchedColumns, targetMatchedColumns, trimStrings);
 
                         var intFieldCount = converterReader.FieldCount;
 
