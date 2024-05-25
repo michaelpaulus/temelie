@@ -35,12 +35,12 @@ internal static class StringExtensions
 
         var definition = sbDefinition.ToString();
 
-#pragma warning disable RS1035 // Do not use APIs banned for analyzers
-        while (definition.EndsWith(Environment.NewLine))
+        definition = definition.Replace("\r\n", "\n").Replace("\r", "\n");
+
+        while (definition.EndsWith("\n"))
         {
-            definition = definition.Substring(0, definition.Length - Environment.NewLine.Length);
+            definition = definition.Substring(0, definition.Length - 1);
         }
-#pragma warning restore RS1035 // Do not use APIs banned for analyzers
 
         return definition;
     }

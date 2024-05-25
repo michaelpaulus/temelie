@@ -1,7 +1,7 @@
 ﻿{
   "definitionName": "vEmployeeDepartmentHistory",
   "schemaName": "HumanResources",
-  "definition": "\r\nCREATE VIEW [HumanResources].[vEmployeeDepartmentHistory] \r\nAS \r\nSELECT \r\n    e.[BusinessEntityID] \r\n    ,p.[Title] \r\n    ,p.[FirstName] \r\n    ,p.[MiddleName] \r\n    ,p.[LastName] \r\n    ,p.[Suffix] \r\n    ,s.[Name] AS [Shift]\r\n    ,d.[Name] AS [Department] \r\n    ,d.[GroupName] \r\n    ,edh.[StartDate] \r\n    ,edh.[EndDate]\r\nFROM [HumanResources].[Employee] e\r\n\tINNER JOIN [Person].[Person] p\r\n\tON p.[BusinessEntityID] = e.[BusinessEntityID]\r\n    INNER JOIN [HumanResources].[EmployeeDepartmentHistory] edh \r\n    ON e.[BusinessEntityID] = edh.[BusinessEntityID] \r\n    INNER JOIN [HumanResources].[Department] d \r\n    ON edh.[DepartmentID] = d.[DepartmentID] \r\n    INNER JOIN [HumanResources].[Shift] s\r\n    ON s.[ShiftID] = edh.[ShiftID];\r\n",
+  "definition": "CREATE VIEW [HumanResources].[vEmployeeDepartmentHistory] \nAS \nSELECT \n    e.[BusinessEntityID] \n    ,p.[Title] \n    ,p.[FirstName] \n    ,p.[MiddleName] \n    ,p.[LastName] \n    ,p.[Suffix] \n    ,s.[Name] AS [Shift]\n    ,d.[Name] AS [Department] \n    ,d.[GroupName] \n    ,edh.[StartDate] \n    ,edh.[EndDate]\nFROM [HumanResources].[Employee] e\n    INNER JOIN [Person].[Person] p\n    ON p.[BusinessEntityID] = e.[BusinessEntityID]\n    INNER JOIN [HumanResources].[EmployeeDepartmentHistory] edh \n    ON e.[BusinessEntityID] = edh.[BusinessEntityID] \n    INNER JOIN [HumanResources].[Department] d \n    ON edh.[DepartmentID] = d.[DepartmentID] \n    INNER JOIN [HumanResources].[Shift] s\n    ON s.[ShiftID] = edh.[ShiftID];",
   "xType": "V",
   "type": "VIEW",
   "view": {

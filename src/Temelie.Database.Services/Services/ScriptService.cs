@@ -25,8 +25,11 @@ public class ScriptService : IScriptService
 
     private (FileInfo File, bool Changed, bool New) WriteIfDifferent(string path, string contents)
     {
-        contents = contents.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", "\r\n");
-        contents = contents.Replace("\t", "    ");
+        if (path.EndsWith(".sql"))
+        {
+            contents = contents.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", Environment.NewLine);
+            contents = contents.Replace("\t", "    ");
+        }
         var currentContents = "";
         bool changed = false;
         bool isNew = false;

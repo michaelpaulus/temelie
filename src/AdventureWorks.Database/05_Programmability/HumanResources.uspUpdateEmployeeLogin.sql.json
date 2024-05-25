@@ -1,7 +1,7 @@
 ﻿{
   "definitionName": "uspUpdateEmployeeLogin",
   "schemaName": "HumanResources",
-  "definition": "\r\nCREATE PROCEDURE [HumanResources].[uspUpdateEmployeeLogin]\r\n    @BusinessEntityID [int], \r\n    @OrganizationNode [hierarchyid],\r\n    @LoginID [nvarchar](256),\r\n    @JobTitle [nvarchar](50),\r\n    @HireDate [datetime],\r\n    @CurrentFlag [dbo].[Flag]\r\nWITH EXECUTE AS CALLER\r\nAS\r\nBEGIN\r\n    SET NOCOUNT ON;\r\n\r\n    BEGIN TRY\r\n        UPDATE [HumanResources].[Employee] \r\n        SET [OrganizationNode] = @OrganizationNode \r\n            ,[LoginID] = @LoginID \r\n            ,[JobTitle] = @JobTitle \r\n            ,[HireDate] = @HireDate \r\n            ,[CurrentFlag] = @CurrentFlag \r\n        WHERE [BusinessEntityID] = @BusinessEntityID;\r\n    END TRY\r\n    BEGIN CATCH\r\n        EXECUTE [dbo].[uspLogError];\r\n    END CATCH;\r\nEND;\r\n",
+  "definition": "CREATE PROCEDURE [HumanResources].[uspUpdateEmployeeLogin]\n    @BusinessEntityID [int], \n    @OrganizationNode [hierarchyid],\n    @LoginID [nvarchar](256),\n    @JobTitle [nvarchar](50),\n    @HireDate [datetime],\n    @CurrentFlag [dbo].[Flag]\nWITH EXECUTE AS CALLER\nAS\nBEGIN\n    SET NOCOUNT ON;\n\n    BEGIN TRY\n        UPDATE [HumanResources].[Employee] \n        SET [OrganizationNode] = @OrganizationNode \n            ,[LoginID] = @LoginID \n            ,[JobTitle] = @JobTitle \n            ,[HireDate] = @HireDate \n            ,[CurrentFlag] = @CurrentFlag \n        WHERE [BusinessEntityID] = @BusinessEntityID;\n    END TRY\n    BEGIN CATCH\n        EXECUTE [dbo].[uspLogError];\n    END CATCH;\nEND;",
   "xType": "P",
   "type": "PROCEDURE"
 }

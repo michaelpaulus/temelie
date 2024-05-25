@@ -1,7 +1,7 @@
 ﻿{
   "definitionName": "ufnGetSalesOrderStatusText",
   "schemaName": "dbo",
-  "definition": "\r\nCREATE FUNCTION [dbo].[ufnGetSalesOrderStatusText](@Status [tinyint])\r\nRETURNS [nvarchar](15) \r\nAS \r\n-- Returns the sales order status text representation for the status value.\r\nBEGIN\r\n    DECLARE @ret [nvarchar](15);\r\n\r\n    SET @ret = \r\n        CASE @Status\r\n            WHEN 1 THEN 'In process'\r\n            WHEN 2 THEN 'Approved'\r\n            WHEN 3 THEN 'Backordered'\r\n            WHEN 4 THEN 'Rejected'\r\n            WHEN 5 THEN 'Shipped'\r\n            WHEN 6 THEN 'Cancelled'\r\n            ELSE '** Invalid **'\r\n        END;\r\n    \r\n    RETURN @ret\r\nEND;\r\n",
+  "definition": "CREATE FUNCTION [dbo].[ufnGetSalesOrderStatusText](@Status [tinyint])\nRETURNS [nvarchar](15) \nAS \n-- Returns the sales order status text representation for the status value.\nBEGIN\n    DECLARE @ret [nvarchar](15);\n\n    SET @ret = \n        CASE @Status\n            WHEN 1 THEN 'In process'\n            WHEN 2 THEN 'Approved'\n            WHEN 3 THEN 'Backordered'\n            WHEN 4 THEN 'Rejected'\n            WHEN 5 THEN 'Shipped'\n            WHEN 6 THEN 'Cancelled'\n            ELSE '** Invalid **'\n        END;\n    \n    RETURN @ret\nEND;",
   "xType": "FN",
   "type": "FUNCTION"
 }

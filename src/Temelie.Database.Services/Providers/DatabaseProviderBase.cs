@@ -187,7 +187,7 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
             {
                 var model = new DefinitionModel
                 {
-                    Definition = row["definition"].ToString(),
+                    Definition = row["definition"].ToString().Replace("\t", "    ").RemoveLeadingAndTrailingLines(),
                     DefinitionName = row["name"].ToString(),
                     SchemaName = row["schema_name"].ToString(),
                     XType = row["xtype"].ToString().Trim()
@@ -529,7 +529,7 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
                     TableName = strTableName,
                     TriggerName = strTriggerName,
                     SchemaName = detailRow["schema_name"].ToString(),
-                    Definition = strDefinition
+                    Definition = strDefinition.Replace("\t", "    ").RemoveLeadingAndTrailingLines()
                 });
             }
         }

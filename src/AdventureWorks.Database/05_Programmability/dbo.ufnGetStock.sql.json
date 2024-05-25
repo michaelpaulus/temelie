@@ -1,7 +1,7 @@
 ﻿{
   "definitionName": "ufnGetStock",
   "schemaName": "dbo",
-  "definition": "\r\nCREATE FUNCTION [dbo].[ufnGetStock](@ProductID [int])\r\nRETURNS [int] \r\nAS \r\n-- Returns the stock level for the product. This function is used internally only\r\nBEGIN\r\n    DECLARE @ret int;\r\n    \r\n    SELECT @ret = SUM(p.[Quantity]) \r\n    FROM [Production].[ProductInventory] p \r\n    WHERE p.[ProductID] = @ProductID \r\n        AND p.[LocationID] = '6'; -- Only look at inventory in the misc storage\r\n    \r\n    IF (@ret IS NULL) \r\n        SET @ret = 0\r\n    \r\n    RETURN @ret\r\nEND;\r\n",
+  "definition": "CREATE FUNCTION [dbo].[ufnGetStock](@ProductID [int])\nRETURNS [int] \nAS \n-- Returns the stock level for the product. This function is used internally only\nBEGIN\n    DECLARE @ret int;\n    \n    SELECT @ret = SUM(p.[Quantity]) \n    FROM [Production].[ProductInventory] p \n    WHERE p.[ProductID] = @ProductID \n        AND p.[LocationID] = '6'; -- Only look at inventory in the misc storage\n    \n    IF (@ret IS NULL) \n        SET @ret = 0\n    \n    RETURN @ret\nEND;",
   "xType": "FN",
   "type": "FUNCTION"
 }

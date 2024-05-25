@@ -1,7 +1,7 @@
 ﻿{
   "definitionName": "vProductAndDescription",
   "schemaName": "Production",
-  "definition": "\r\nCREATE VIEW [Production].[vProductAndDescription] \r\nWITH SCHEMABINDING \r\nAS \r\n-- View (indexed or standard) to display products and product descriptions by language.\r\nSELECT \r\n    p.[ProductID] \r\n    ,p.[Name] \r\n    ,pm.[Name] AS [ProductModel] \r\n    ,pmx.[CultureID] \r\n    ,pd.[Description] \r\nFROM [Production].[Product] p \r\n    INNER JOIN [Production].[ProductModel] pm \r\n    ON p.[ProductModelID] = pm.[ProductModelID] \r\n    INNER JOIN [Production].[ProductModelProductDescriptionCulture] pmx \r\n    ON pm.[ProductModelID] = pmx.[ProductModelID] \r\n    INNER JOIN [Production].[ProductDescription] pd \r\n    ON pmx.[ProductDescriptionID] = pd.[ProductDescriptionID];\r\n",
+  "definition": "CREATE VIEW [Production].[vProductAndDescription] \nWITH SCHEMABINDING \nAS \n-- View (indexed or standard) to display products and product descriptions by language.\nSELECT \n    p.[ProductID] \n    ,p.[Name] \n    ,pm.[Name] AS [ProductModel] \n    ,pmx.[CultureID] \n    ,pd.[Description] \nFROM [Production].[Product] p \n    INNER JOIN [Production].[ProductModel] pm \n    ON p.[ProductModelID] = pm.[ProductModelID] \n    INNER JOIN [Production].[ProductModelProductDescriptionCulture] pmx \n    ON pm.[ProductModelID] = pmx.[ProductModelID] \n    INNER JOIN [Production].[ProductDescription] pd \n    ON pmx.[ProductDescriptionID] = pd.[ProductDescriptionID];",
   "xType": "V",
   "type": "VIEW",
   "view": {

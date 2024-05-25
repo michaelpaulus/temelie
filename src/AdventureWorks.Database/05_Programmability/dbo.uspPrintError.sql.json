@@ -1,7 +1,7 @@
 ﻿{
   "definitionName": "uspPrintError",
   "schemaName": "dbo",
-  "definition": "\r\n-- uspPrintError prints error information about the error that caused \r\n-- execution to jump to the CATCH block of a TRY...CATCH construct. \r\n-- Should be executed from within the scope of a CATCH block otherwise \r\n-- it will return without printing any error information.\r\nCREATE PROCEDURE [dbo].[uspPrintError] \r\nAS\r\nBEGIN\r\n    SET NOCOUNT ON;\r\n\r\n    -- Print error information. \r\n    PRINT 'Error ' + CONVERT(varchar(50), ERROR_NUMBER()) +\r\n          ', Severity ' + CONVERT(varchar(5), ERROR_SEVERITY()) +\r\n          ', State ' + CONVERT(varchar(5), ERROR_STATE()) + \r\n          ', Procedure ' + ISNULL(ERROR_PROCEDURE(), '-') + \r\n          ', Line ' + CONVERT(varchar(5), ERROR_LINE());\r\n    PRINT ERROR_MESSAGE();\r\nEND;\r\n",
+  "definition": "-- uspPrintError prints error information about the error that caused \n-- execution to jump to the CATCH block of a TRY...CATCH construct. \n-- Should be executed from within the scope of a CATCH block otherwise \n-- it will return without printing any error information.\nCREATE PROCEDURE [dbo].[uspPrintError] \nAS\nBEGIN\n    SET NOCOUNT ON;\n\n    -- Print error information. \n    PRINT 'Error ' + CONVERT(varchar(50), ERROR_NUMBER()) +\n          ', Severity ' + CONVERT(varchar(5), ERROR_SEVERITY()) +\n          ', State ' + CONVERT(varchar(5), ERROR_STATE()) + \n          ', Procedure ' + ISNULL(ERROR_PROCEDURE(), '-') + \n          ', Line ' + CONVERT(varchar(5), ERROR_LINE());\n    PRINT ERROR_MESSAGE();\nEND;",
   "xType": "P",
   "type": "PROCEDURE"
 }
