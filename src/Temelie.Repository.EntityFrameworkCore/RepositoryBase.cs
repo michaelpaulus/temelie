@@ -35,8 +35,8 @@ public abstract partial class RepositoryBase<Entity> : IRepository<Entity> where
 
     public virtual async Task AddAsync(Entity entity)
     {
-        await OnAddingAsync(entity).ConfigureAwait(false);   
-        await _context.DbSet.AddAsync(entity).ConfigureAwait(false);
+        await OnAddingAsync(entity).ConfigureAwait(false);
+        _context.DbContext.Entry(entity).State = EntityState.Added;
         await _context.DbContext.SaveChangesAsync().ConfigureAwait(false);
         await OnAddedAsync(entity).ConfigureAwait(false);
     }
@@ -46,8 +46,8 @@ public abstract partial class RepositoryBase<Entity> : IRepository<Entity> where
         foreach (var entity in entities)
         {
             await OnAddingAsync(entity).ConfigureAwait(false);
+            _context.DbContext.Entry(entity).State = EntityState.Added;
         }
-        await _context.DbSet.AddRangeAsync(entities).ConfigureAwait(false);
         await _context.DbContext.SaveChangesAsync().ConfigureAwait(false);
         foreach (var entity in entities)
         {
@@ -58,7 +58,7 @@ public abstract partial class RepositoryBase<Entity> : IRepository<Entity> where
     public virtual async Task DeleteAsync(Entity entity)
     {
         await OnDeletingAsync(entity).ConfigureAwait(false);
-        _context.DbSet.Remove(entity);
+        _context.DbContext.Entry(entity).State = EntityState.Deleted;
         await _context.DbContext.SaveChangesAsync().ConfigureAwait(false);
         await OnDeletedAsync(entity).ConfigureAwait(false);
     }
@@ -68,8 +68,8 @@ public abstract partial class RepositoryBase<Entity> : IRepository<Entity> where
         foreach (var entity in entities)
         {
             await OnDeletingAsync(entity).ConfigureAwait(false);
+            _context.DbContext.Entry(entity).State = EntityState.Deleted;
         }
-        _context.DbSet.RemoveRange(entities);
         await _context.DbContext.SaveChangesAsync().ConfigureAwait(false);
         foreach (var entity in entities)
         {
@@ -80,7 +80,7 @@ public abstract partial class RepositoryBase<Entity> : IRepository<Entity> where
     public virtual async Task UpdateAsync(Entity entity)
     {
         await OnUpdatingAsync(entity).ConfigureAwait(false);
-        _context.DbSet.Update(entity);
+        _context.DbContext.Entry(entity).State = EntityState.Modified;
         await _context.DbContext.SaveChangesAsync().ConfigureAwait(false);
         await OnUpdatedAsync(entity).ConfigureAwait(false);
     }
@@ -90,8 +90,8 @@ public abstract partial class RepositoryBase<Entity> : IRepository<Entity> where
         foreach (var entity in entities)
         {
             await OnUpdatingAsync(entity).ConfigureAwait(false);
+            _context.DbContext.Entry(entity).State = EntityState.Modified;
         }
-        _context.DbSet.UpdateRange(entities);
         await _context.DbContext.SaveChangesAsync().ConfigureAwait(false);
         foreach (var entity in entities)
         {
