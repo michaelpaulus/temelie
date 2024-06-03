@@ -30,6 +30,7 @@ public class DependencyInjectionSymbolVisitor : SymbolVisitor
                     attribute.AttributeClass.Name == "ExportStartupConfigurationAttribute" ||
                     attribute.AttributeClass.Name == "ExportProviderAttribute" ||
                     attribute.AttributeClass.Name == "ExportSingletonAttribute" ||
+                    attribute.AttributeClass.Name == "ExportScopedAttribute" ||
                     attribute.AttributeClass.Name == "ExportTransientAttribute"
                 ))
             {
@@ -63,6 +64,7 @@ public class DependencyInjectionSymbolVisitor : SymbolVisitor
                 {
                     IsProvider = attribute.AttributeClass.Name == "ExportProviderAttribute",
                     IsSingleton = attribute.AttributeClass.Name == "ExportSingletonAttribute",
+                    IsScoped = attribute.AttributeClass.Name == "ExportScopedAttribute",
                     IsTransient = attribute.AttributeClass.Name == "ExportTransientAttribute",
                     IsHosted = attribute.AttributeClass.Name == "ExportHostedServiceAttribute",
                     IsStartupConfig = attribute.AttributeClass.Name == "ExportStartupConfigurationAttribute",

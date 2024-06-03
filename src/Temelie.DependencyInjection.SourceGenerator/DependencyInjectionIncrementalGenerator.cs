@@ -31,7 +31,7 @@ public class DependencyInjectionIncrementalGenerator : IIncrementalGenerator
         string regsiterExports()
         {
             var sb = new StringBuilder();
-            foreach (var export in symbols.Where(i => (i.IsSingleton || i.IsProvider || i.IsTransient) && !string.IsNullOrEmpty(i.ForType) && !string.IsNullOrEmpty(i.Type)).OrderBy(i => i.ForType).GroupBy(i => new { i.ForType, i.IsProvider }))
+            foreach (var export in symbols.Where(i => (i.IsSingleton || i.IsProvider || i.IsTransient || i.IsScoped) && !string.IsNullOrEmpty(i.ForType) && !string.IsNullOrEmpty(i.Type)).OrderBy(i => i.ForType).GroupBy(i => new { i.ForType, i.IsProvider }))
             {
                 var list = new List<Export>();
 
@@ -56,6 +56,10 @@ public class DependencyInjectionIncrementalGenerator : IIncrementalGenerator
                     if (item.IsProvider || item.IsTransient)
                     {
                         sb.AppendLine($"        services.AddTransient(typeof({item.ForType}), typeof({item.Type}));");
+                    }
+                    if (item.IsScoped)
+                    {
+                        sb.AppendLine($"        services.AddScoped(typeof({item.ForType}), typeof({item.Type}));");
                     }
                     if (item.IsSingleton)
                     {
