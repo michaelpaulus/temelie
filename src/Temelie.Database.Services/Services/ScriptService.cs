@@ -460,12 +460,12 @@ GO
             }
         }
 
-        foreach (var dir in di.GetDirectories())
+        foreach (var dir in di.GetDirectories().OrderBy(i => i.Name))
         {
             if (dir.Name.EndsWith("_Migrations"))
             {
                 ensureMigrationsTable();
-                foreach (var migration in dir.GetDirectories())
+                foreach (var migration in dir.GetDirectories().OrderBy(i => i.Name))
                 {
                     var hash = CreateMd5ForDirectory(migration.FullName);
                     var id = $"{dir.Name}/{migration.Name}/{hash}";
@@ -476,13 +476,13 @@ GO
                     if (migrationCount == 0)
                     {
                         pendingMigrations.Add(id);
-                        list.AddRange(migration.GetFiles("*.sql", SearchOption.AllDirectories));
+                        list.AddRange(migration.GetFiles("*.sql", SearchOption.AllDirectories).OrderBy(i => i.FullName));
                     }
                 }
             }
             else
             {
-                list.AddRange(dir.GetFiles("*.sql", SearchOption.AllDirectories));
+                list.AddRange(dir.GetFiles("*.sql", SearchOption.AllDirectories).OrderBy(i => i.FullName));
             }
         }
 
