@@ -412,11 +412,9 @@ GO
         return System.Text.RegularExpressions.Regex.Replace(name, invalidRegStr, "_");
     }
 
-    public void ExecuteScripts(ConnectionStringModel connectionString, string path, bool continueOnError, IProgress<ScriptProgress> progress)
+    public void ExecuteScripts(ConnectionStringModel connectionString, DirectoryInfo directory, IProgress<ScriptProgress> progress, bool continueOnError = true)
     {
         int intFileCount = 1;
-
-        var di = new DirectoryInfo(path);
 
         var list = new List<FileInfo>();
 
@@ -460,7 +458,7 @@ GO
             }
         }
 
-        foreach (var dir in di.GetDirectories().OrderBy(i => i.Name))
+        foreach (var dir in directory.GetDirectories().OrderBy(i => i.Name))
         {
             if (dir.Name.EndsWith("_Migrations"))
             {
