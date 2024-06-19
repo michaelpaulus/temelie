@@ -465,16 +465,20 @@ GO
                 ensureMigrationsTable();
                 foreach (var migration in dir.GetDirectories().OrderBy(i => i.Name))
                 {
-                    var hash = CreateMd5ForDirectory(migration.FullName);
-                    var id = $"{dir.Name}/{migration.Name}/{hash}";
-                    using var conn = _databaseExecutionService.CreateDbConnection(connectionString);
-                    using var cmd = _databaseExecutionService.CreateDbCommand(conn);
-                    cmd.CommandText = $"SELECT COUNT(*) FROM Migrations WHERE Id = '{id}'";
-                    var migrationCount = (int)cmd.ExecuteScalar();
-                    if (migrationCount == 0)
+                    var files = migration.GetFiles("*.sql", SearchOption.AllDirectories).OrderBy(i => i.FullName);
+                    if (files.Any())
                     {
-                        pendingMigrations.Add(id);
-                        list.AddRange(migration.GetFiles("*.sql", SearchOption.AllDirectories).OrderBy(i => i.FullName));
+                        var hash = CreateMd5ForDirectory(migration.FullName);
+                        var id = $"{dir.Name}/{migration.Name}/{hash}";
+                        using var conn = _databaseExecutionService.CreateDbConnection(connectionString);
+                        using var cmd = _databaseExecutionService.CreateDbCommand(conn);
+                        cmd.CommandText = $"SELECT COUNT(*) FROM Migrations WHERE Id = '{id}'";
+                        var migrationCount = (int)cmd.ExecuteScalar();
+                        if (migrationCount == 0)
+                        {
+                            pendingMigrations.Add(id);
+                            list.AddRange(files);
+                        }
                     }
                 }
             }
