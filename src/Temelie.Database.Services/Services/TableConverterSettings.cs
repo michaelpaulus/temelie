@@ -15,8 +15,6 @@ public class TableConverterSettings
     public IList<Temelie.Database.Models.TableModel> SourceTables { get; set; }
     public IList<Temelie.Database.Models.TableModel> TargetTables { get; set; }
 
-    public bool UseBulkCopy { get; set; }
-
     public int BatchSize { get; set; }
 
     public bool TrimStrings { get; set; }

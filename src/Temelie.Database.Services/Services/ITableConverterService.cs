@@ -5,7 +5,6 @@ using Temelie.Database.Models;
 namespace Temelie.Database.Services;
 public interface ITableConverterService
 {
-    void Convert(IProgress<TableProgress> progress, TableModel sourceTable, ConnectionStringModel sourceConnectionString, TableModel targetTable, ConnectionStringModel targetConnectionString, bool trimStrings, Action<IDbConnection> connectionCreatedCallback = null);
     void ConvertBulk(IProgress<TableProgress> progress, TableModel sourceTable, ConnectionStringModel sourceConnectionString, TableModel targetTable, ConnectionStringModel targetConnectionString, bool trimStrings, int batchSize, bool useTransaction = true);
     void ConvertBulk(IProgress<TableProgress> progress, TableModel sourceTable, IDataReader sourceReader, int sourceRowCount, TableModel targetTable, ConnectionStringModel targetConnectionString, bool trimStrings, int batchSize, bool useTransaction = true, bool validateTargetTable = true);
     void ConvertTable(TableConverterSettings settings, TableModel sourceTable, IProgress<TableProgress> progress);

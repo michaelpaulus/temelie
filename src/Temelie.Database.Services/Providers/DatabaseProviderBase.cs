@@ -612,6 +612,9 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
 
     public abstract bool SupportsConnection(DbConnection connection);
 
+    public abstract int GetRowCount(DbCommand command, string schemaName, string tableName);
+    public abstract string GetSelectStatement(string schemaName, string tableName, IEnumerable<string> columns);
+
     #endregion
 
     #region Nested Types

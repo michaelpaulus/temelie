@@ -5,6 +5,7 @@ using Temelie.Database.Services;
 using Temelie.DependencyInjection;
 using MySql.Data.MySqlClient;
 using MySql.Data.Types;
+using System.Text;
 
 namespace Temelie.Database.Providers.MySql;
 [ExportProvider(typeof(IDatabaseProvider))]
@@ -159,6 +160,7 @@ public class DatabaseProvider : DatabaseProviderBase
         var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connection.ConnectionString);
         var sql = $@"
 SELECT
+    'dbo' schema_name,
     KCU.table_name,
     KCU.constraint_name AS foreign_key_name,
     KCU.column_name,
@@ -196,7 +198,7 @@ ORDER BY
 
         var sql = $@"
 SELECT
-    statistics.table_schema AS schema_name,
+    'dbo' schema_name,
     statistics.table_name,
     statistics.index_name,
     statistics.column_name,
@@ -207,7 +209,6 @@ FROM
 WHERE
     statistics.table_schema = '{csb.Database}'
 ORDER BY
-    statistics.table_schema,
     statistics.table_name,
     statistics.index_name,
     statistics.column_name
@@ -257,7 +258,7 @@ ORDER BY
         var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connection.ConnectionString);
         var sql = $@"
 SELECT
-    columns.table_schema schema_name,
+    'dbo' schema_name,
     columns.table_name,
     columns.column_name,
     columns.ordinal_position,
@@ -276,7 +277,6 @@ FROM
 WHERE
     columns.table_schema = '{csb.Database}'
 ORDER BY
-    columns.table_schema,
     columns.table_name,
     columns.ordinal_position,
     columns.column_name
@@ -296,14 +296,13 @@ ORDER BY
         var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connection.ConnectionString);
         var sql = $@"
 SELECT
-    tables.table_schema schema_name,
+    'dbo' schema_name,
     tables.table_name
 FROM
     information_schema.tables
 WHERE
     table_schema = '{csb.Database}'
 ORDER BY
-    tables.table_schema,
     tables.table_name
 ";
         System.Data.DataSet ds = _database.Execute(connection, sql);
@@ -598,5 +597,38 @@ ORDER BY
     public override IDatabaseObjectScript GetScript(TriggerModel model)
     {
         throw new NotImplementedException();
+    }
+
+    public override int GetRowCount(DbCommand command, string schemaName, string tableName)
+    {
+        command.CommandText = $"SELECT COUNT(1) FROM {tableName}";
+        var rowCount = System.Convert.ToInt32(command.ExecuteScalar());
+        return rowCount;
+    }
+
+    public override string GetSelectStatement(string schemaName, string tableName, IEnumerable<string> columns)
+    {
+        var sb = new StringBuilder();
+
+        sb.AppendLine("SELECT");
+
+        var first = true;
+    
+        foreach (var column in columns)
+        {
+            if (!first)
+            {
+                sb.AppendLine(",");
+            }
+            sb.Append($"    `{column}`");
+            first = false;
+        }
+
+        sb.AppendLine("");
+
+        sb.AppendLine("FROM");
+        sb.AppendLine($"    `{tableName}`");
+
+        return sb.ToString();
     }
 }

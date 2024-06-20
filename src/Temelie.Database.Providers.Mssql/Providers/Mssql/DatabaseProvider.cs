@@ -1929,4 +1929,44 @@ GO
 
     }
 
+    public override int GetRowCount(DbCommand command, string schemaName, string tableName)
+    {
+        try
+        {
+            command.CommandText = $"(SELECT sys.sysindexes.rows FROM sys.tables INNER JOIN sys.sysindexes ON sys.tables.object_id = sys.sysindexes.id AND sys.sysindexes.indid < 2 WHERE sys.tables.name = '{tableName}')";
+            return System.Convert.ToInt32(command.ExecuteScalar());
+        }
+        catch
+        {
+
+        }
+        command.CommandText = $"SELECT COUNT(1) FROM [{schemaName}].[{tableName}]";
+        return System.Convert.ToInt32(command.ExecuteScalar());
+    }
+
+    public override string GetSelectStatement(string schemaName, string tableName, IEnumerable<string> columns)
+    {
+        var sb = new StringBuilder();
+
+        sb.AppendLine("SELECT");
+
+        var first = true;
+
+        foreach (var column in columns)
+        {
+            if (!first)
+            {
+                sb.AppendLine(",");
+            }
+            sb.Append($"    [{column}]");
+            first = false;
+        }
+
+        sb.AppendLine("");
+
+        sb.AppendLine("FROM");
+        sb.AppendLine($"    [{schemaName}].[{tableName}]");
+
+        return sb.ToString();
+    }
 }

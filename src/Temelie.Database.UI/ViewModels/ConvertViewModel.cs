@@ -25,7 +25,6 @@ public class ConvertViewModel : ViewModel
         _databaseExecutionService = databaseExecutionService;
         _tableConverterService = tableConverterService;
         this.ThreadCount = 5;
-        this.UseBulkCopy = true;
         this.BatchSize = 10000;
 
         this.ConvertCommand = new Command(this.Convert);
@@ -59,7 +58,6 @@ public class ConvertViewModel : ViewModel
 
     public string ErrorMessage { get; set; }
     public int ThreadCount { get; set; }
-    public bool UseBulkCopy { get; set; }
     public bool UseTransaction { get; set; } = true;
     public int BatchSize { get; set; }
     public bool TrimStrings { get; set; }
@@ -92,7 +90,6 @@ public class ConvertViewModel : ViewModel
         settings.SourceTables = selectedTables;
 
         settings.UseTransaction = this.UseTransaction;
-        settings.UseBulkCopy = this.UseBulkCopy;
         settings.BatchSize = this.BatchSize;
         settings.TrimStrings = this.TrimStrings;
 

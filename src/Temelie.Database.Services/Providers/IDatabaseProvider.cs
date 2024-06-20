@@ -59,5 +59,7 @@ public interface IDatabaseProvider
 
     string GetDatabaseName(string connectionString);
     bool SupportsConnection(DbConnection connection);
+    int GetRowCount(DbCommand connection, string schemaName, string tableName);
+    string GetSelectStatement(string schemaName, string tableName, IEnumerable<string> columns);
 
 }
