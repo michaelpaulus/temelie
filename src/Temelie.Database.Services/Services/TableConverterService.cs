@@ -49,7 +49,7 @@ public class TableConverterService : ITableConverterService
                    i.TableName.Equals(sourceTable.TableName, StringComparison.InvariantCultureIgnoreCase)
                    select i).FirstOrDefault();
 
-        if (targetTable == null && sourceTable.SchemaName == "dbo")
+        if (targetTable == null && (sourceTable.SchemaName == "dbo" || string.IsNullOrEmpty(sourceTable.SchemaName)))
         {
             targetTable = (
                  from i in settings.TargetTables

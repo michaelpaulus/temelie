@@ -417,6 +417,11 @@ GO
 
     private string MakeValidFileName(string name)
     {
+        if (name.StartsWith("."))
+        {
+            name = name.Substring(1);
+        }
+
         string invalidChars = System.Text.RegularExpressions.Regex.Escape(new string(System.IO.Path.GetInvalidFileNameChars()));
         string invalidRegStr = string.Format(@"([{0}]*\.+$)|([{0}]+)", invalidChars);
 

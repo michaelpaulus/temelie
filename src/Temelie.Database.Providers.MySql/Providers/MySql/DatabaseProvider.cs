@@ -160,7 +160,7 @@ public class DatabaseProvider : DatabaseProviderBase
         var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connection.ConnectionString);
         var sql = $@"
 SELECT
-    'dbo' schema_name,
+    '' schema_name,
     KCU.table_name,
     KCU.constraint_name AS foreign_key_name,
     KCU.column_name,
@@ -198,7 +198,7 @@ ORDER BY
 
         var sql = $@"
 SELECT
-    'dbo' schema_name,
+    '' schema_name,
     statistics.table_name,
     statistics.index_name,
     statistics.column_name,
@@ -258,7 +258,7 @@ ORDER BY
         var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connection.ConnectionString);
         var sql = $@"
 SELECT
-    'dbo' schema_name,
+    '' schema_name,
     columns.table_name,
     columns.column_name,
     columns.ordinal_position,
@@ -296,7 +296,7 @@ ORDER BY
         var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connection.ConnectionString);
         var sql = $@"
 SELECT
-    'dbo' schema_name,
+    '' schema_name,
     tables.table_name
 FROM
     information_schema.tables

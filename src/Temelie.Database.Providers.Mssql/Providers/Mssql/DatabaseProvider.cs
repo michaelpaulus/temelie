@@ -993,6 +993,7 @@ ORDER BY
     {
         string generateDropScript()
         {
+            var schema = string.IsNullOrEmpty(model.SchemaName) ? "dbo" : model.SchemaName;
             var sb = new StringBuilder();
 
             sb.AppendLine();
@@ -1009,7 +1010,7 @@ ORDER BY
             tables.schema_id = schemas.schema_id
     WHERE
         check_constraints.name = '{model.CheckConstraintName}' AND
-        schemas.name = '{model.SchemaName}'
+        schemas.name = '{schema}'
 )
 BEGIN
 IF NOT EXISTS
@@ -1024,11 +1025,11 @@ IF NOT EXISTS
                 tables.schema_id = schemas.schema_id
         WHERE
             check_constraints.name = '{model.CheckConstraintName}' AND
-            schemas.name = '{model.SchemaName}' AND
+            schemas.name = '{schema}' AND
             check_constraints.definition = '{model.CheckConstraintDefinition.Replace("'", "''")}'
     )");
             sb.AppendLine($@"BEGIN
-ALTER TABLE {QuoteCharacterStart}{model.SchemaName}{QuoteCharacterEnd}.{QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd} DROP CONSTRAINT {QuoteCharacterStart}{model.CheckConstraintName}{QuoteCharacterEnd}
+ALTER TABLE {QuoteCharacterStart}{schema}{QuoteCharacterEnd}.{QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd} DROP CONSTRAINT {QuoteCharacterStart}{model.CheckConstraintName}{QuoteCharacterEnd}
 END
 END
 GO");
@@ -1039,6 +1040,7 @@ GO");
 
         string generateCreateScript()
         {
+            var schema = string.IsNullOrEmpty(model.SchemaName) ? "dbo" : model.SchemaName;
             var sb = new StringBuilder();
 
             sb.AppendLine();
@@ -1055,9 +1057,9 @@ GO");
             tables.schema_id = schemas.schema_id
     WHERE
         check_constraints.name = '{model.CheckConstraintName}' AND
-        schemas.name = '{model.SchemaName}'
+        schemas.name = '{schema}'
 )");
-            sb.AppendLine($"ALTER TABLE {QuoteCharacterStart}{model.SchemaName}{QuoteCharacterEnd}.{QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd} WITH CHECK ADD CONSTRAINT {QuoteCharacterStart}{model.CheckConstraintName}{QuoteCharacterEnd} CHECK ({model.CheckConstraintDefinition})");
+            sb.AppendLine($"ALTER TABLE {QuoteCharacterStart}{schema}{QuoteCharacterEnd}.{QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd} WITH CHECK ADD CONSTRAINT {QuoteCharacterStart}{model.CheckConstraintName}{QuoteCharacterEnd} CHECK ({model.CheckConstraintDefinition})");
             sb.AppendLine("GO");
 
             return sb.ToString();
@@ -1071,21 +1073,23 @@ GO");
 
         string generateDropScript()
         {
+            var schema = string.IsNullOrEmpty(model.SchemaName) ? "dbo" : model.SchemaName;
             var sb = new StringBuilder();
             sb.AppendLine(string.Format("-- {0}", model.DefinitionName));
-            sb.AppendLine($"DROP {model.Type} IF EXISTS {QuoteCharacterStart}{model.SchemaName}{QuoteCharacterEnd}.{QuoteCharacterStart}{model.DefinitionName}{QuoteCharacterEnd}");
+            sb.AppendLine($"DROP {model.Type} IF EXISTS {QuoteCharacterStart}{schema}{QuoteCharacterEnd}.{QuoteCharacterStart}{model.DefinitionName}{QuoteCharacterEnd}");
             sb.AppendLine("GO");
             return sb.ToString();
         }
 
         string generateCreateScript()
         {
+            var schema = string.IsNullOrEmpty(model.SchemaName) ? "dbo" : model.SchemaName;
             var sb = new StringBuilder();
             sb.AppendLine();
 
-            string strPattern = $"(CREATE\\s*{model.Type}\\s*[\\[]?)([\\[]?{model.SchemaName}[\\.]?[\\]]?[\\.]?[\\[]?)?({model.DefinitionName})([\\]]?)";
+            string strPattern = $"(CREATE\\s*{model.Type}\\s*[\\[]?)([\\[]?{schema}[\\.]?[\\]]?[\\.]?[\\[]?)?({model.DefinitionName})([\\]]?)";
 
-            string strDefinitionReplacement = $"CREATE {model.Type} {QuoteCharacterStart}{model.SchemaName}{QuoteCharacterEnd}.{QuoteCharacterStart}{model.DefinitionName}{QuoteCharacterEnd}";
+            string strDefinitionReplacement = $"CREATE {model.Type} {QuoteCharacterStart}{schema}{QuoteCharacterEnd}.{QuoteCharacterStart}{model.DefinitionName}{QuoteCharacterEnd}";
 
             model.Definition = System.Text.RegularExpressions.Regex.Replace(model.Definition, strPattern, strDefinitionReplacement, System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Multiline);
 
@@ -1110,6 +1114,7 @@ GO");
 
         string generateDropScript()
         {
+            var schema = string.IsNullOrEmpty(model.SchemaName) ? "dbo" : model.SchemaName;
             var sb = new StringBuilder();
             sb.Append($@"IF EXISTS
     (
@@ -1121,7 +1126,7 @@ GO");
                 foreign_keys.schema_id = schemas.schema_id
         WHERE
             foreign_keys.name = '{model.ForeignKeyName}' AND
-            schemas.name = '{model.SchemaName}'
+            schemas.name = '{schema}'
     )
 BEGIN
     IF NOT EXISTS
@@ -1134,7 +1139,7 @@ BEGIN
                     foreign_keys.schema_id = schemas.schema_id
             WHERE
                 foreign_keys.name = '{model.ForeignKeyName}' AND
-                schemas.name = '{model.SchemaName}' AND
+                schemas.name = '{schema}' AND
                 foreign_keys.delete_referential_action_desc = '{model.DeleteAction}' AND
                 foreign_keys.update_referential_action_desc = '{model.UpdateAction}'");
             var i = 0;
@@ -1158,7 +1163,7 @@ BEGIN
                             tables.schema_id = schemas.schema_id
                     WHERE
                         foreign_key_columns.constraint_object_id = foreign_keys.object_id AND
-                        schemas.name = '{model.SchemaName}' AND
+                        schemas.name = '{schema}' AND
                         tables.name = '{model.TableName}' AND
                         columns.name = '{detail.Column}' AND
                         foreign_key_columns.constraint_column_id = {i}
@@ -1189,7 +1194,7 @@ BEGIN
 
             sb.AppendLine($@"        )
     BEGIN
-        ALTER TABLE {QuoteCharacterStart}{model.SchemaName}{QuoteCharacterEnd}.{QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd} DROP CONSTRAINT {QuoteCharacterStart}{model.ForeignKeyName}{QuoteCharacterEnd}
+        ALTER TABLE {QuoteCharacterStart}{schema}{QuoteCharacterEnd}.{QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd} DROP CONSTRAINT {QuoteCharacterStart}{model.ForeignKeyName}{QuoteCharacterEnd}
     END
 END
 GO");
@@ -1200,6 +1205,7 @@ GO");
 
         string generateCreateScript()
         {
+            var schema = string.IsNullOrEmpty(model.SchemaName) ? "dbo" : model.SchemaName;
             var sb = new StringBuilder();
 
             string strColumnNames = string.Empty;
@@ -1237,9 +1243,9 @@ GO");
                 foreign_keys.schema_id = schemas.schema_id
         WHERE
             foreign_keys.name = '{model.ForeignKeyName}' AND
-            schemas.name = '{model.SchemaName}'
+            schemas.name = '{schema}'
     )");
-            sb.AppendLine($"    ALTER TABLE {QuoteCharacterStart}{model.SchemaName}{QuoteCharacterEnd}.{QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd} WITH CHECK ADD CONSTRAINT {QuoteCharacterStart}{model.ForeignKeyName}{QuoteCharacterEnd} FOREIGN KEY ({strColumnNames})");
+            sb.AppendLine($"    ALTER TABLE {QuoteCharacterStart}{schema}{QuoteCharacterEnd}.{QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd} WITH CHECK ADD CONSTRAINT {QuoteCharacterStart}{model.ForeignKeyName}{QuoteCharacterEnd} FOREIGN KEY ({strColumnNames})");
             sb.AppendLine($"    REFERENCES {QuoteCharacterStart}{model.ReferencedSchemaName}{QuoteCharacterEnd}.{QuoteCharacterStart}{model.ReferencedTableName}{QuoteCharacterEnd} ({strReferencedColumnNames})");
 
             if (model.UpdateAction != "NO_ACTION")
@@ -1266,6 +1272,7 @@ GO");
 
         string generateDropScript()
         {
+            var schema = string.IsNullOrEmpty(model.SchemaName) ? "dbo" : model.SchemaName;
             var sb = new StringBuilder();
             if (model.IsPrimaryKey)
             {
@@ -1281,9 +1288,9 @@ GO");
                 tables.schema_id = schemas.schema_id
         WHERE
             indexes.name = '{model.IndexName}' AND
-            schemas.name = '{model.SchemaName}'
+            schemas.name = '{schema}'
     )");
-                sb.AppendLine($"    ALTER TABLE {QuoteCharacterStart}{model.SchemaName}{QuoteCharacterEnd}.{QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd} DROP CONSTRAINT {QuoteCharacterStart}{model.IndexName}{QuoteCharacterEnd}");
+                sb.AppendLine($"    ALTER TABLE {QuoteCharacterStart}{schema}{QuoteCharacterEnd}.{QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd} DROP CONSTRAINT {QuoteCharacterStart}{model.IndexName}{QuoteCharacterEnd}");
             }
             else
             {
@@ -1299,9 +1306,9 @@ GO");
                 tables.schema_id = schemas.schema_id
         WHERE
             indexes.name = '{model.IndexName}' AND
-            schemas.name = '{model.SchemaName}'
+            schemas.name = '{schema}'
     )");
-                sb.AppendLine($"    DROP INDEX {QuoteCharacterStart}{model.IndexName}{QuoteCharacterEnd} ON {QuoteCharacterStart}{model.SchemaName}{QuoteCharacterEnd}.{QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd}");
+                sb.AppendLine($"    DROP INDEX {QuoteCharacterStart}{model.IndexName}{QuoteCharacterEnd} ON {QuoteCharacterStart}{schema}{QuoteCharacterEnd}.{QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd}");
             }
             sb.AppendLine("GO");
             return sb.ToString();
@@ -1309,6 +1316,7 @@ GO");
 
         string generateCreateScript()
         {
+            var schema = string.IsNullOrEmpty(model.SchemaName) ? "dbo" : model.SchemaName;
             var sb = new StringBuilder();
             if (sb.Length > 0)
             {
@@ -1329,9 +1337,9 @@ GO");
                 tables.schema_id = schemas.schema_id
         WHERE
             indexes.name = '{model.IndexName}' AND
-            schemas.name = '{model.SchemaName}'
+            schemas.name = '{schema}'
     )");
-                sb.AppendLine("    " + $"ALTER TABLE {QuoteCharacterStart}{model.SchemaName}{QuoteCharacterEnd}.{QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd} ADD INDEX {QuoteCharacterStart}{model.IndexName}{QuoteCharacterEnd} {model.IndexType}");
+                sb.AppendLine("    " + $"ALTER TABLE {QuoteCharacterStart}{schema}{QuoteCharacterEnd}.{QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd} ADD INDEX {QuoteCharacterStart}{model.IndexName}{QuoteCharacterEnd} {model.IndexType}");
                 sb.AppendLine("    " + "(");
 
                 int intColumnCount = 0;
@@ -1368,9 +1376,9 @@ GO");
                 tables.schema_id = schemas.schema_id
         WHERE
             indexes.name = '{model.IndexName}' AND
-            schemas.name = '{model.SchemaName}'
+            schemas.name = '{schema}'
     )");
-                sb.AppendLine("    " + $"ALTER TABLE {QuoteCharacterStart}{model.SchemaName}{QuoteCharacterEnd}.{QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd} ADD CONSTRAINT {QuoteCharacterStart}{model.IndexName}{QuoteCharacterEnd} PRIMARY KEY {model.IndexType}");
+                sb.AppendLine("    " + $"ALTER TABLE {QuoteCharacterStart}{schema}{QuoteCharacterEnd}.{QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd} ADD CONSTRAINT {QuoteCharacterStart}{model.IndexName}{QuoteCharacterEnd} PRIMARY KEY {model.IndexType}");
                 sb.AppendLine("    " + "(");
 
                 int intColumnCount = 0;
@@ -1414,9 +1422,9 @@ GO");
                 tables.schema_id = schemas.schema_id
         WHERE
             indexes.name = '{model.IndexName}' AND
-            schemas.name = '{model.SchemaName}'
+            schemas.name = '{schema}'
     )");
-                sb.AppendLine("    " + $"CREATE {indexType} INDEX {QuoteCharacterStart}{model.IndexName}{QuoteCharacterEnd} ON {QuoteCharacterStart}{model.SchemaName}{QuoteCharacterEnd}.{QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd}");
+                sb.AppendLine("    " + $"CREATE {indexType} INDEX {QuoteCharacterStart}{model.IndexName}{QuoteCharacterEnd} ON {QuoteCharacterStart}{schema}{QuoteCharacterEnd}.{QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd}");
 
                 if (model.Columns.Any())
                 {
@@ -1562,6 +1570,7 @@ GO");
 
         string generateDropScript()
         {
+            var schema = string.IsNullOrEmpty(model.SchemaName) ? "dbo" : model.SchemaName;
             var sb = new StringBuilder();
             sb.AppendLine($@"IF EXISTS
     (
@@ -1573,15 +1582,16 @@ GO");
                 tables.schema_id = schemas.schema_id
         WHERE
             tables.name = '{model.TableName}' AND
-            schemas.name = '{model.SchemaName}'
+            schemas.name = '{schema}'
     )");
-            sb.AppendLine($"    DROP{(model.IsExternal ? " EXTERNAL " : " ")}TABLE {QuoteCharacterStart}{model.SchemaName}{QuoteCharacterEnd}.{QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd}");
+            sb.AppendLine($"    DROP{(model.IsExternal ? " EXTERNAL " : " ")}TABLE {QuoteCharacterStart}{schema}{QuoteCharacterEnd}.{QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd}");
             sb.AppendLine("GO");
             return sb.ToString();
         }
 
         string generateCreateScript()
         {
+            var schema = string.IsNullOrEmpty(model.SchemaName) ? "dbo" : model.SchemaName;
             var sb = new StringBuilder();
             if (sb.Length > 0)
             {
@@ -1602,7 +1612,7 @@ GO");
                 tables.schema_id = schemas.schema_id
         WHERE
             tables.name = '{model.TableName}' AND
-            schemas.name = '{model.SchemaName}'
+            schemas.name = '{schema}'
     )");
                 sb.AppendLine($"    DROP{(model.IsExternal ? " EXTERNAL " : " ")}TABLE {QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd}");
                 sb.AppendLine("GO");
@@ -1619,10 +1629,10 @@ GO");
                 tables.schema_id = schemas.schema_id
         WHERE
             tables.name = '{model.TableName}' AND
-            schemas.name = '{model.SchemaName}'
+            schemas.name = '{schema}'
     )");
 
-            sb.AppendLine($"    CREATE{(model.IsExternal ? " EXTERNAL " : " ")}TABLE {QuoteCharacterStart}{model.SchemaName}{QuoteCharacterEnd}.{QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd}");
+            sb.AppendLine($"    CREATE{(model.IsExternal ? " EXTERNAL " : " ")}TABLE {QuoteCharacterStart}{schema}{QuoteCharacterEnd}.{QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd}");
             sb.AppendLine("    " + "(");
 
             int intColumnCount = 0;
@@ -1711,8 +1721,9 @@ GO");
 
         string generateDropScript()
         {
+            var schema = string.IsNullOrEmpty(model.SchemaName) ? "dbo" : model.SchemaName;
             var sb = new StringBuilder();
-            sb.AppendLine($"DROP TRIGGER IF EXISTS {QuoteCharacterStart}{model.SchemaName}{QuoteCharacterEnd}.{QuoteCharacterStart}{model.TriggerName}{QuoteCharacterEnd}");
+            sb.AppendLine($"DROP TRIGGER IF EXISTS {QuoteCharacterStart}{schema}{QuoteCharacterEnd}.{QuoteCharacterStart}{model.TriggerName}{QuoteCharacterEnd}");
             sb.AppendLine("GO");
             return sb.ToString();
         }
