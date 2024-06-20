@@ -378,21 +378,16 @@ public class TableConverterService : ITableConverterService
 
     }
 
-    public IList<Models.ColumnModel> GetMatchedColumns(IList<Models.ColumnModel> sourceColumns, IList<Models.ColumnModel> targetColumns)
+    public IEnumerable<Models.ColumnModel> GetMatchedColumns(IEnumerable<Models.ColumnModel> sourceColumns, IEnumerable<Models.ColumnModel> targetColumns)
     {
         var list = new List<Models.ColumnModel>();
 
-        foreach (Temelie.Database.Models.ColumnModel sourceColumn in sourceColumns)
+        foreach (var sourceColumn in sourceColumns)
         {
-            string strColumnName = sourceColumn.ColumnName;
-            Temelie.Database.Models.ColumnModel targetColumn = (
-                from c in targetColumns
-                where c.ColumnName.Equals(strColumnName, StringComparison.InvariantCultureIgnoreCase)
-                select c).FirstOrDefault();
-
+            var strColumnName = sourceColumn.ColumnName;
+            var targetColumn = targetColumns.FirstOrDefault(i => i.ColumnName.Equals(sourceColumn.ColumnName, StringComparison.OrdinalIgnoreCase));
             if (targetColumn != null && !targetColumn.IsComputed)
             {
-
                 list.Add(sourceColumn);
             }
         }
@@ -456,13 +451,15 @@ public class TableConverterService : ITableConverterService
         return columnName.Replace("-", "").Replace(" ", "");
     }
 
-    private string GetRowErrorMessage(System.Data.Common.DbCommand command, IList<Temelie.Database.Models.ColumnModel> columns, int columnIndex, System.Exception ex)
+    private string GetRowErrorMessage(System.Data.Common.DbCommand command, IEnumerable<Temelie.Database.Models.ColumnModel> columns, int columnIndex, System.Exception ex)
     {
         System.Text.StringBuilder sbRow = new System.Text.StringBuilder();
 
+        var columnsList = columns.ToList();
+
         for (int intErrorIndex = 0; intErrorIndex < columnIndex; intErrorIndex++)
         {
-            Temelie.Database.Models.ColumnModel targetColumn = columns[intErrorIndex];
+            Temelie.Database.Models.ColumnModel targetColumn = columnsList[intErrorIndex];
             if (targetColumn != null)
             {
                 if (!targetColumn.IsNullable)

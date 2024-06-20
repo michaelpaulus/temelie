@@ -5,7 +5,6 @@ using Temelie.Database.Models;
 using Temelie.Database.Services;
 using Temelie.DependencyInjection;
 using Microsoft.Data.SqlClient;
-using Temelie.Database.Extensions;
 
 namespace Temelie.Database.Providers.Mssql;
 
@@ -953,7 +952,6 @@ ORDER BY
             }
 
         }
-
 
         if (System.Transactions.Transaction.Current == null && useTransaction)
         {

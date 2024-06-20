@@ -447,6 +447,7 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
                     foreach (var column in
                                 from i in tableColumns
                                 where i.TableName.EqualsIgnoreCase(table.TableName)
+                                orderby i.ColumnId
                                 select i
                                 )
                     {

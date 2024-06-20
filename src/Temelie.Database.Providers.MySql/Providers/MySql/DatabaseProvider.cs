@@ -157,7 +157,29 @@ public class DatabaseProvider : DatabaseProviderBase
     protected override DataTable GetForeignKeysDataTable(DbConnection connection)
     {
         var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connection.ConnectionString);
-        var sql = $"SELECT KCU.table_name, KCU.constraint_name AS foreign_key_name, KCU.column_name, KCU.referenced_table_name, KCU.referenced_column_name, 0 AS is_not_for_replication, CASE WHEN RC.delete_rule = 'RESTRICT' THEN 'NO ACTION' ELSE RC.delete_rule END delete_action, CASE WHEN RC.update_rule = 'RESTRICT' THEN 'NO ACTION' ELSE RC.update_rule END update_action FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE KCU JOIN INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS RC ON KCU.CONSTRAINT_CATALOG = RC.CONSTRAINT_CATALOG AND KCU.CONSTRAINT_SCHEMA = RC.CONSTRAINT_SCHEMA AND KCU.CONSTRAINT_NAME = RC.CONSTRAINT_NAME WHERE RC.constraint_schema = '{csb.Database}' ORDER BY KCU.table_name, KCU.CONSTRAINT_NAME, KCU.ORDINAL_POSITION";
+        var sql = $@"
+SELECT
+    KCU.table_name,
+    KCU.constraint_name AS foreign_key_name,
+    KCU.column_name,
+    KCU.referenced_table_name,
+    KCU.referenced_column_name,
+    0 AS is_not_for_replication,
+    CASE WHEN RC.delete_rule = 'RESTRICT' THEN 'NO ACTION' ELSE RC.delete_rule END delete_action,
+    CASE WHEN RC.update_rule = 'RESTRICT' THEN 'NO ACTION' ELSE RC.update_rule END update_action
+FROM
+    INFORMATION_SCHEMA.KEY_COLUMN_USAGE KCU JOIN
+    INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS RC ON
+        KCU.CONSTRAINT_CATALOG = RC.CONSTRAINT_CATALOG AND
+        KCU.CONSTRAINT_SCHEMA = RC.CONSTRAINT_SCHEMA AND
+        KCU.CONSTRAINT_NAME = RC.CONSTRAINT_NAME
+WHERE
+    RC.constraint_schema = '{csb.Database}'
+ORDER BY
+    KCU.table_name,
+    KCU.CONSTRAINT_NAME,
+    KCU.ORDINAL_POSITION
+";
         System.Data.DataSet ds = _database.Execute(connection, sql);
         DataTable dataTable = ds.Tables[0];
         return dataTable;
@@ -171,7 +193,25 @@ public class DatabaseProvider : DatabaseProviderBase
     protected override DataTable GetIndexesDataTable(DbConnection connection)
     {
         var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connection.ConnectionString);
-        var sql = $"SELECT statistics.table_name, statistics.index_name, statistics.column_name, statistics.seq_in_index AS key_ordinal, CASE WHEN statistics.non_unique = 0 THEN 1 ELSE 0 END AS is_unique FROM information_schema.statistics WHERE table_schema = '{csb.Database}'";
+
+        var sql = $@"
+SELECT
+    statistics.table_schema AS schema_name,
+    statistics.table_name,
+    statistics.index_name,
+    statistics.column_name,
+    statistics.seq_in_index AS key_ordinal,
+    CASE WHEN statistics.non_unique = 0 THEN 1 ELSE 0 END AS is_unique
+FROM
+    information_schema.statistics
+WHERE
+    statistics.table_schema = '{csb.Database}'
+ORDER BY
+    statistics.table_schema,
+    statistics.table_name,
+    statistics.index_name,
+    statistics.column_name
+";
 
         System.Data.DataSet ds = _database.Execute(connection, sql);
         DataTable dataTable = ds.Tables[0];
@@ -182,6 +222,14 @@ public class DatabaseProvider : DatabaseProviderBase
         dataTable.Columns.Add("is_primary_key");
         dataTable.Columns.Add("index_type");
         dataTable.Columns.Add("filter_definition");
+        dataTable.Columns.Add("partition_scheme_name");
+        dataTable.Columns.Add("data_compression_desc");
+        dataTable.Columns.Add("partition_ordinal");
+
+        if (dataTable.Columns["index_name"].MaxLength < 500)
+        {
+            dataTable.Columns["index_name"].MaxLength = 500;
+        }
 
         foreach (var row in dataTable.Rows.OfType<DataRow>())
         {
@@ -189,6 +237,7 @@ public class DatabaseProvider : DatabaseProviderBase
             row["is_descending_key"] = false;
             row["is_included_column"] = false;
             row["fill_factor"] = 0;
+            row["partition_ordinal"] = 0;
             row["is_primary_key"] = row["index_name"].ToString().ToUpper() == "PRIMARY";
             row["index_type"] = "NONCLUSTERED";
 
@@ -206,7 +255,32 @@ public class DatabaseProvider : DatabaseProviderBase
     protected override DataTable GetTableColumnsDataTable(DbConnection connection)
     {
         var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connection.ConnectionString);
-        var sql = $"SELECT *, table_schema schema_name FROM INFORMATION_SCHEMA.COLUMNS WHERE table_schema = '{csb.Database}'";
+        var sql = $@"
+SELECT
+    columns.table_schema schema_name,
+    columns.table_name,
+    columns.column_name,
+    columns.ordinal_position,
+    columns.column_default,
+    columns.is_nullable,
+    columns.data_type,
+    columns.character_maximum_length,
+    columns.numeric_precision,
+    columns.numeric_scale,
+    columns.datetime_precision,
+    columns.column_type,
+    columns.column_key,
+    columns.extra
+FROM
+    information_schema.columns
+WHERE
+    columns.table_schema = '{csb.Database}'
+ORDER BY
+    columns.table_schema,
+    columns.table_name,
+    columns.ordinal_position,
+    columns.column_name
+";
         System.Data.DataSet ds = _database.Execute(connection, sql);
         DataTable dataTable = ds.Tables[0];
         DataTable dataTypes;
@@ -220,7 +294,18 @@ public class DatabaseProvider : DatabaseProviderBase
     protected override DataTable GetTablesDataTable(DbConnection connection)
     {
         var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connection.ConnectionString);
-        var sql = $"SELECT table_name, table_schema schema_name FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = '{csb.Database}'";
+        var sql = $@"
+SELECT
+    tables.table_schema schema_name,
+    tables.table_name
+FROM
+    information_schema.tables
+WHERE
+    table_schema = '{csb.Database}'
+ORDER BY
+    tables.table_schema,
+    tables.table_name
+";
         System.Data.DataSet ds = _database.Execute(connection, sql);
         DataTable dataTable = ds.Tables[0];
         return dataTable;

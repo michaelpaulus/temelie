@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.Data.Common;
 using Temelie.Database.Models;
 
@@ -11,6 +11,6 @@ public interface ITableConverterService
     void ConvertTable(TableConverterSettings settings, TableModel sourceTable, IProgress<TableProgress> progress);
     void ConvertTable(TableConverterSettings settings, TableModel sourceTable, TableModel targetTable, IProgress<TableProgress> progress, bool throwOnFailure = false);
     void ConvertTables(TableConverterSettings settings, IProgress<TableProgress> progress, int maxDegreeOfParallelism);
-    IList<ColumnModel> GetMatchedColumns(IList<ColumnModel> sourceColumns, IList<ColumnModel> targetColumns);
+    IEnumerable<ColumnModel> GetMatchedColumns(IEnumerable<ColumnModel> sourceColumns, IEnumerable<ColumnModel> targetColumns);
     int GetRowCount(TableModel table, DbConnection connection);
 }

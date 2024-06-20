@@ -136,34 +136,40 @@ GO
     }
     private IEnumerable<FileInfo> CreateIndexScripts(IDatabaseProvider provider, Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
     {
-        var files = new List<FileInfo>();
+        var files = new Dictionary<string, FileInfo>();
 
         foreach (var pk in database.PrimaryKeys)
         {
             var fileName = MakeValidFileName($"{pk.SchemaName}.{pk.IndexName}.sql");
-            if (string.IsNullOrEmpty(fileFilter) ||
-                fileFilter.EqualsIgnoreCase(fileName))
+            if (!files.ContainsKey(fileName))
             {
-                var script = provider.GetScript(pk);
-                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), script.CreateScript).File);
-                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(pk)).File);
-
+                if (string.IsNullOrEmpty(fileFilter) ||
+                fileFilter.EqualsIgnoreCase(fileName))
+                {
+                    var script = provider.GetScript(pk);
+                    files.Add(fileName, WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), script.CreateScript).File);
+                    files.Add(fileName + ".json", WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(pk)).File);
+                }
             }
+            
         }
 
         foreach (var index in database.Indexes)
         {
             var fileName = MakeValidFileName($"{index.SchemaName}.{index.IndexName}.sql");
-            if (string.IsNullOrEmpty(fileFilter) ||
-                fileFilter.EqualsIgnoreCase(fileName))
+            if (!files.ContainsKey(fileName))
             {
-                var script = provider.GetScript(index);
-                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), script.CreateScript).File);
-                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(index)).File);
+                if (string.IsNullOrEmpty(fileFilter) ||
+                fileFilter.EqualsIgnoreCase(fileName))
+                {
+                    var script = provider.GetScript(index);
+                    files.Add(fileName, WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), script.CreateScript).File);
+                    files.Add(fileName + ".json", WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(index)).File);
+                }
             }
         }
 
-        return files;
+        return files.Values.ToArray();
     }
     private IEnumerable<FileInfo> CreateCheckConstraintScripts(IDatabaseProvider provider, Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
     {
@@ -272,10 +278,15 @@ GO
         return json;
     }
 
-    public void CreateScripts(ConnectionStringModel connectionString, System.IO.DirectoryInfo directory, IProgress<ScriptProgress> progress, string objectFilter = "")
+    public void CreateScripts(ConnectionStringModel connectionString, System.IO.DirectoryInfo directory, IProgress<ScriptProgress> progress, string objectFilter = "", IDatabaseProvider createScriptsProvider = null)
     {
         var provider = _databaseFactory.GetDatabaseProvider(connectionString);
         Models.DatabaseModel database = _databaseModelService.CreateModel(connectionString, new Models.DatabaseModelOptions { ObjectFilter = objectFilter, ExcludeDoubleUnderscoreObjects = true });
+
+        if (createScriptsProvider is not null)
+        {
+            provider = createScriptsProvider;
+        }
 
         var directoryList = new List<string>()
                 {

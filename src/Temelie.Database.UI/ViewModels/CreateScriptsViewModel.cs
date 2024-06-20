@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,12 +15,15 @@ public class CreateScriptsViewModel : ViewModel
 
     private readonly IDatabaseFactory _databaseFactory;
     private readonly IScriptService _scriptService;
+    private readonly IEnumerable<IDatabaseProvider> _databaseProviders;
 
     public CreateScriptsViewModel(IDatabaseFactory databaseFactory,
-        IScriptService scriptService)
+        IScriptService scriptService,
+        IEnumerable<IDatabaseProvider> databaseProviders)
     {
         _databaseFactory = databaseFactory;
         _scriptService = scriptService;
+        _databaseProviders = databaseProviders;
         this.CreateScriptsCommand = new Command(this.CreateScripts);
         this.ScriptPath = Configuration.Preferences.UserSettingsContext.Current.CreateScriptsPath;
     }
@@ -81,7 +85,7 @@ public class CreateScriptsViewModel : ViewModel
     private void CreateScriptsInternal(IProgress<ScriptProgress> progress)
     {
         System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(this.ScriptPath);
-        _scriptService.CreateScripts(this.DatabaseConnectionString, di, progress, this.ObjectFilter);
+        _scriptService.CreateScripts(this.DatabaseConnectionString, di, progress, this.ObjectFilter, _databaseProviders.FirstOrDefault(i => i.Name == "SqlConnection"));
     }
     private void ReportProgress(ScriptProgress progress)
     {

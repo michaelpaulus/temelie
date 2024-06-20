@@ -52,9 +52,13 @@ public class DatabaseExecutionService : IDatabaseExecutionService
         using (var command = CreateDbCommand(connection))
         {
             command.CommandText = sqlCommand;
-            using (DbDataReader reader = command.ExecuteReader())
+
+            using (var reader = command.ExecuteReader())
             {
-                ds.Load(reader, LoadOption.OverwriteChanges, "Table");
+                var dt = new DataTable();
+                dt.Load(reader, LoadOption.PreserveChanges);
+                ds.Tables.Add(dt);
+                var count = dt.Rows.Count;
             }
         }
 
