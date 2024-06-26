@@ -174,6 +174,10 @@ public record {className} : EntityBase, I{className}
                     if (column.IsPrimaryKey)
                     {
                         sb.AppendLine($"    [System.ComponentModel.DataAnnotations.Key]");
+                        if (!column.IsIdentity)
+                        {
+                            sb.AppendLine($"    [System.ComponentModel.DataAnnotations.Schema.DatabaseGenerated(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None)]");
+                        }
                     }
                     if (column.IsComputed)
                     {

@@ -60,6 +60,12 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
                 if (column.IsPrimaryKey)
                 {
                     keys.Add(column.Name);
+                    if (!column.IsIdentity)
+                    {
+                        columnProperties.AppendLine();
+                        columnProperties.Append($"                .ValueGeneratedNever()");
+                    }
+
                 }
 
                 if (column.IsIdentity)
