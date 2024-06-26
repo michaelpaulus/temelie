@@ -54,7 +54,6 @@ public class EntitySymbolVisitor : SymbolVisitor
                     var isIdentity = false;
                     var isComputed = false;
                     var columnName = propSymbol.Name;
-                    var isEntityId = false;
                     var isNullable = false;
                     int? precision = null;
                     int? scale = null;
@@ -109,10 +108,6 @@ public class EntitySymbolVisitor : SymbolVisitor
                             propertyType.TryGetNonNullable(out propertyType);
                         }
 
-                        if (propertyType.AllInterfaces.Any(i => i.FullName().StartsWith("Temelie.Entities.IEntityId")))
-                        {
-                            isEntityId = true;
-                        }
                     }
 
                     var columnType = propSymbol.Type;
@@ -136,7 +131,7 @@ public class EntitySymbolVisitor : SymbolVisitor
                         }
                     }
 
-                    props.Add(new EntityProperty(columnType.FullName(), propType, prop.Name, order, columnName, precision, scale, isPrimaryKey, isIdentity, isComputed, isEntityId, isNullable));
+                    props.Add(new EntityProperty(columnType.FullName(), propType, prop.Name, order, columnName, precision, scale, isPrimaryKey, isIdentity, isComputed, isNullable));
                 }
             }
 

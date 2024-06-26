@@ -57,46 +57,6 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
             {
                 var columnProperties = new StringBuilder();
 
-                if (column.IsEntityId)
-                {
-                    columnProperties.AppendLine();
-
-                    void addConversion()
-                    {
-                        if (column.IsNullable)
-                        {
-                            if (column.PropertyType == "string")
-                            {
-                                columnProperties.Append($"                .HasConversion(id => id.HasValue ? id.Value.Value : null, value => value != null ? new {column.FullType.Replace("?", "")}(value) : null)");
-                            }
-                            else
-                            {
-                                columnProperties.Append($"                .HasConversion(id => id.HasValue ? id.Value.Value : ({column.PropertyType}?)null, value => value.HasValue ? new {column.FullType.Replace("?", "")}(value.Value) : null)");
-                            }
-                        }
-                        else
-                        {
-                            columnProperties.Append($"                .HasConversion(id => id.Value, value => new {column.FullType.Replace("?", "")}(value))");
-                        }
-                    }
-
-                    if (column.IsIdentity)
-                    {
-                        columnProperties.AppendLine("#if NETSTANDARD");
-                        var converterType = column.PropertyType.Replace("System.", "");
-                        columnProperties.Append($"                .HasConversion(new EntityId{converterType.Substring(0, 1).ToUpper()}{converterType.Substring(1)}ValueConverter<{column.FullType}>(i => i.Value, i => new {column.FullType}(i)))");
-                        columnProperties.AppendLine();
-                        columnProperties.AppendLine("#else");
-                        addConversion();
-                        columnProperties.AppendLine();
-                        columnProperties.AppendLine("#endif");
-                    }
-                    else
-                    {
-                        addConversion();
-                    }
-                }
-
                 if (column.IsPrimaryKey)
                 {
                     keys.Add(column.Name);

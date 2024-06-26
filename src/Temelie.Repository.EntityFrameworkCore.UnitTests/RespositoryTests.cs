@@ -11,7 +11,7 @@ public class RespositoryTests : TestBase
     [Test]
     public async Task AddSingleKeyIdentityIntAsync()
     {
-        using var repository = ServiceProvider.GetRequiredService<IRepository<BusinessEntity>>();
+        using var repository = ServiceProvider.GetRequiredService<IRepository>();
 
         var value = new BusinessEntity() { };
 
@@ -25,9 +25,9 @@ public class RespositoryTests : TestBase
     [Test]
     public async Task AddSingleKeyIdentityGuidAsync()
     {
-        using var repository = ServiceProvider.GetRequiredService<IRepository<Address1>>();
+        using var repository = ServiceProvider.GetRequiredService<IRepository>();
 
-        var value = new Address1() { Address1Id = new Address1Id(Guid.NewGuid()) };
+        var value = new Address1() { Address1Id = Guid.NewGuid() };
 
         await repository.AddAsync(value).ConfigureAwait(true);
 
@@ -39,9 +39,9 @@ public class RespositoryTests : TestBase
     [Test]
     public async Task AddSingleKeyAsync()
     {
-        using var repository = ServiceProvider.GetRequiredService<IRepository<Person>>();
+        using var repository = ServiceProvider.GetRequiredService<IRepository>();
 
-        var person = new Person() { BusinessEntityId = new BusinessEntityId(1), FirstName = "Test" };
+        var person = new Person() { BusinessEntityId = 1, FirstName = "Test" };
 
         await repository.AddAsync(person).ConfigureAwait(true);
 
@@ -53,9 +53,9 @@ public class RespositoryTests : TestBase
     [Test]
     public async Task UpdateSingleKeyAsync()
     {
-        using var repository = ServiceProvider.GetRequiredService<IRepository<Person>>();
+        using var repository = ServiceProvider.GetRequiredService<IRepository>();
 
-        var person = new Person() { BusinessEntityId = new BusinessEntityId(1), FirstName = "Test" };
+        var person = new Person() { BusinessEntityId = 1, FirstName = "Test" };
 
         await repository.AddAsync(person).ConfigureAwait(true);
 
@@ -73,9 +73,9 @@ public class RespositoryTests : TestBase
     [Test]
     public async Task DeleteSingleKeyAsync()
     {
-        using var repository = ServiceProvider.GetRequiredService<IRepository<Person>>();
+        using var repository = ServiceProvider.GetRequiredService<IRepository>();
 
-        var person = new Person() { BusinessEntityId = new BusinessEntityId(1), FirstName = "Test" };
+        var person = new Person() { BusinessEntityId = 1, FirstName = "Test" };
 
         await repository.AddAsync(person).ConfigureAwait(true);
 
@@ -89,9 +89,9 @@ public class RespositoryTests : TestBase
     [Test]
     public async Task AddComplexKeyAsync()
     {
-        using var repository = ServiceProvider.GetRequiredService<IRepository<BusinessEntityAddress>>();
+        using var repository = ServiceProvider.GetRequiredService<IRepository>();
 
-        var address = new BusinessEntityAddress() { BusinessEntityId = new BusinessEntityId(1), AddressId = new AddressId(1), AddressTypeId = new AddressTypeId(1), ModifiedDate = DateTime.UtcNow };
+        var address = new BusinessEntityAddress() { BusinessEntityId = 1, AddressId = 1, AddressTypeId = 1, ModifiedDate = DateTime.UtcNow };
 
         await repository.AddAsync(address).ConfigureAwait(true);
 
@@ -103,9 +103,9 @@ public class RespositoryTests : TestBase
     [Test]
     public async Task UpdateComplexKeyAsync()
     {
-        using var repository = ServiceProvider.GetRequiredService<IRepository<BusinessEntityAddress>>();
+        using var repository = ServiceProvider.GetRequiredService<IRepository>();
 
-        var address = new BusinessEntityAddress() { BusinessEntityId = new BusinessEntityId(1), AddressId = new AddressId(1), AddressTypeId = new AddressTypeId(1), ModifiedDate = DateTime.UtcNow };
+        var address = new BusinessEntityAddress() { BusinessEntityId = 1, AddressId = 1, AddressTypeId = 1, ModifiedDate = DateTime.UtcNow };
 
         await repository.AddAsync(address).ConfigureAwait(true);
 
@@ -123,9 +123,9 @@ public class RespositoryTests : TestBase
     [Test]
     public async Task DeleteComplexKeyAsync()
     {
-        using var repository = ServiceProvider.GetRequiredService<IRepository<BusinessEntityAddress>>();
+        using var repository = ServiceProvider.GetRequiredService<IRepository>();
 
-        var address = new BusinessEntityAddress() { BusinessEntityId = new BusinessEntityId(1), AddressId = new AddressId(1), AddressTypeId = new AddressTypeId(1), ModifiedDate = DateTime.UtcNow };
+        var address = new BusinessEntityAddress() { BusinessEntityId = 1, AddressId = 1, AddressTypeId = 1, ModifiedDate = DateTime.UtcNow };
 
         await repository.AddAsync(address).ConfigureAwait(true);
 
@@ -139,7 +139,7 @@ public class RespositoryTests : TestBase
     [Test]
     public async Task AddRangeAsync()
     {
-        using var repository = ServiceProvider.GetRequiredService<IRepository<Person>>();
+        using var repository = ServiceProvider.GetRequiredService<IRepository>();
 
         var list = new List<Person>();
 
@@ -147,7 +147,7 @@ public class RespositoryTests : TestBase
 
         foreach (var i in Enumerable.Range(1, count))
         {
-            var person = new Person() { BusinessEntityId = new BusinessEntityId(i), FirstName = "Test" };
+            var person = new Person() { BusinessEntityId = i, FirstName = "Test" };
             list.Add(person);
         }
 
@@ -164,11 +164,11 @@ public class RespositoryTests : TestBase
         var list = new List<Person>();
         var count = 10;
 
-        using (var repository = ServiceProvider.GetRequiredService<IRepository<Person>>())
+        using (var repository = ServiceProvider.GetRequiredService<IRepository>())
         {
             foreach (var i in Enumerable.Range(1, count))
             {
-                var person = new Person() { BusinessEntityId = new BusinessEntityId(i), FirstName = "Test" };
+                var person = new Person() { BusinessEntityId = i, FirstName = "Test" };
                 list.Add(person);
             }
 
@@ -179,7 +179,7 @@ public class RespositoryTests : TestBase
             result.Should().Be(count);
         }
 
-        using (var repository = ServiceProvider.GetRequiredService<IRepository<Person>>())
+        using (var repository = ServiceProvider.GetRequiredService<IRepository>())
         {
             foreach (var item in list)
             {
@@ -197,7 +197,7 @@ public class RespositoryTests : TestBase
     [Test]
     public async Task DeleteRangeAsync()
     {
-        using var repository = ServiceProvider.GetRequiredService<IRepository<Person>>();
+        using var repository = ServiceProvider.GetRequiredService<IRepository>();
 
         var list = new List<Person>();
 
@@ -205,7 +205,7 @@ public class RespositoryTests : TestBase
 
         foreach (var i in Enumerable.Range(1, count))
         {
-            var person = new Person() { BusinessEntityId = new BusinessEntityId(i), FirstName = $"Test" };
+            var person = new Person() { BusinessEntityId = i, FirstName = $"Test" };
             list.Add(person);
         }
 
@@ -225,11 +225,11 @@ public class RespositoryTests : TestBase
     [Test]
     public async Task GetListAsync()
     {
-        using var repository = ServiceProvider.GetRequiredService<IRepository<Person>>();
+        using var repository = ServiceProvider.GetRequiredService<IRepository>();
         var count = 10;
         foreach (var i in Enumerable.Range(1, count))
         {
-            var person = new Person() { BusinessEntityId = new BusinessEntityId(i), FirstName = $"Test" };
+            var person = new Person() { BusinessEntityId = i, FirstName = $"Test" };
             await repository.AddAsync(person).ConfigureAwait(true);
         }
 
@@ -241,13 +241,13 @@ public class RespositoryTests : TestBase
     [Test]
     public async Task GetCountAsync()
     {
-        using var repository = ServiceProvider.GetRequiredService<IRepository<Person>>();
+        using var repository = ServiceProvider.GetRequiredService<IRepository>();
 
         var count = 10;
 
         foreach (var i in Enumerable.Range(1, count))
         {
-            var person = new Person() {  BusinessEntityId = new BusinessEntityId(i), FirstName = $"Test" };
+            var person = new Person() {  BusinessEntityId = i, FirstName = $"Test" };
             await repository.AddAsync(person).ConfigureAwait(true);
         }
 

@@ -32,8 +32,6 @@ public class EntityIncrementalGenerator : IIncrementalGenerator
 
             var databaseModel = DatabaseModel.CreateFromFiles(result.files);
 
-            var entityIds = new Dictionary<string, string>();
-
             IEnumerable<ColumnProperty> getColumnProperties(TableModel table)
             {
                 var list = new List<ColumnProperty>();
@@ -64,19 +62,6 @@ public class EntityIncrementalGenerator : IIncrementalGenerator
                     prop.SystemTypeString = ColumnModel.GetSystemTypeString(ColumnModel.GetSystemType(column.DbType));
 
                     list.Add(prop);
-
-                    var fkSouceColumn = databaseModel.GetForeignKeySourceColumn(table.SchemaName, table.TableName, column.ColumnName);
-                    if (fkSouceColumn is not null)
-                    {
-                        prop.IsForeignKey = true;
-                        prop.PropertyType = fkSouceColumn.PropertyName;
-                        prop.IsEntityId = true;
-                    }
-                    else if (column.IsPrimaryKey)
-                    {
-                        prop.PropertyType = column.PropertyName;
-                        prop.IsEntityId = true;
-                    }
 
                     if (prop.PropertyName == table.ClassName)
                     {
@@ -186,15 +171,6 @@ public record {className} : EntityBase, I{className}
 ");
                 foreach (var column in props)
                 {
-                    if (column.IsEntityId &&
-                        !column.IsForeignKey)
-                    {
-                        if (!entityIds.ContainsKey(column.PropertyType))
-                        {
-                            entityIds.Add(column.PropertyType, column.SystemTypeString);
-                        }
-                    }
-                    
                     if (column.IsPrimaryKey)
                     {
                         sb.AppendLine($"    [System.ComponentModel.DataAnnotations.Key]");
@@ -236,26 +212,6 @@ public record {className} : EntityBase, I{className}
                 addRecord(table, props);
             }
 
-            foreach (var group in entityIds)
-            {
-                var ns = rootNamesapce;
-                var className = group.Key;
-                var propertyType = group.Value;
-
-                var sb = new StringBuilder();
-                sb.AppendLine(@$"using Temelie.Entities;
-#nullable enable
-namespace {ns};
-public record struct {className}({propertyType} Value = {GetTypeDefault(propertyType)}) : IEntityId, IComparable<{className}>
-{{
-    public int CompareTo({className} other)
-    {{
-        return Value.CompareTo(other.Value);
-    }}
-}}
-");
-                context.AddSource($"{ns}.{className}.g", sb.ToString());
-            }
         }
         catch (Exception ex)
         {
@@ -290,7 +246,6 @@ public record struct {className}({propertyType} Value = {GetTypeDefault(property
         public string PropertyName { get; set; }
         public string PropertyType { get; set; }
         public string Default { get; set; }
-        public bool IsEntityId { get; set; }
         public bool IsNullable { get; set; }
         public bool IsPrimaryKey { get; set; }
         public bool IsComputed { get; set; }

@@ -2,16 +2,16 @@ using Temelie.Entities;
 
 namespace Temelie.Repository;
 
-public partial interface IRepository<Entity> : IDisposable where Entity : EntityBase, IEntity<Entity>
+public partial interface IRepository : IDisposable 
 {
-    Task<Entity?> GetSingleAsync(IQuerySpec<Entity> spec);
-    Task<IEnumerable<Entity>> GetListAsync(IQuerySpec<Entity> spec);
-    Task<int> GetCountAsync(IQuerySpec<Entity> spec);
+    Task<Entity?> GetSingleAsync<Entity>(IQuerySpec<Entity> spec) where Entity : EntityBase, IEntity<Entity>; 
+    Task<IEnumerable<Entity>> GetListAsync<Entity>(IQuerySpec<Entity> spec) where Entity : EntityBase, IEntity<Entity>;
+    Task<int> GetCountAsync<Entity>(IQuerySpec<Entity> spec) where Entity : EntityBase, IEntity<Entity>;
 
-    Task AddAsync(Entity entity);
-    Task AddRangeAsync(IEnumerable<Entity> entities);
-    Task UpdateAsync(Entity entity);
-    Task UpdateRangeAsync(IEnumerable<Entity> entities);
-    Task DeleteAsync(Entity entity);
-    Task DeleteRangeAsync(IEnumerable<Entity> entities);
+    Task AddAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>;
+    Task AddRangeAsync<Entity>(IEnumerable<Entity> entities) where Entity : EntityBase, IEntity<Entity>;
+    Task UpdateAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>;
+    Task UpdateRangeAsync<Entity>(IEnumerable<Entity> entities) where Entity : EntityBase, IEntity<Entity>;
+    Task DeleteAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>;
+    Task DeleteRangeAsync<Entity>(IEnumerable<Entity> entities) where Entity : EntityBase, IEntity<Entity>;
 }

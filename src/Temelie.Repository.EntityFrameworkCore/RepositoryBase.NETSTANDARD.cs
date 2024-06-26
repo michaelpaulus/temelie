@@ -1,13 +1,14 @@
+#if NETSTANDARD
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Temelie.Entities;
 
 namespace Temelie.Repository.EntityFrameworkCore;
 
-#if NETSTANDARD
-public partial class RepositoryBase<Entity>
+public partial class RepositoryBase
 {
 
-    public virtual Entity? GetSingle(IQuerySpec<Entity> spec)
+    public virtual Entity? GetSingle<Entity>(IQuerySpec<Entity> spec) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = _serviceProvider.GetRequiredService<IRepositoryContext<Entity>>();
         var query = context.DbSet.AsNoTracking();
@@ -15,7 +16,7 @@ public partial class RepositoryBase<Entity>
         return query.FirstOrDefault();
     }
 
-    public virtual IEnumerable<Entity> GetList(IQuerySpec<Entity> spec)
+    public virtual IEnumerable<Entity> GetList<Entity>(IQuerySpec<Entity> spec) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = _serviceProvider.GetRequiredService<IRepositoryContext<Entity>>();
         var query = context.DbSet.AsNoTracking();
@@ -23,7 +24,7 @@ public partial class RepositoryBase<Entity>
         return query.ToList();
     }
 
-    public virtual int GetCount(IQuerySpec<Entity> spec)
+    public virtual int GetCount<Entity>(IQuerySpec<Entity> spec) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = _serviceProvider.GetRequiredService<IRepositoryContext<Entity>>();
         var query = context.DbSet.AsNoTracking();
@@ -31,7 +32,7 @@ public partial class RepositoryBase<Entity>
         return query.Count();
     }
 
-    public virtual void Add(Entity entity)
+    public virtual void Add<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = _serviceProvider.GetRequiredService<IRepositoryContext<Entity>>();
         OnAddingAsync(entity).GetAwaiter().GetResult();
@@ -40,7 +41,7 @@ public partial class RepositoryBase<Entity>
         OnAddedAsync(entity).GetAwaiter().GetResult();
     }
 
-    public virtual void AddRange(IEnumerable<Entity> entities)
+    public virtual void AddRange<Entity>(IEnumerable<Entity> entities) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = _serviceProvider.GetRequiredService<IRepositoryContext<Entity>>();
         foreach (var entity in entities)
@@ -55,7 +56,7 @@ public partial class RepositoryBase<Entity>
         }
     }
 
-    public virtual void Delete(Entity entity)
+    public virtual void Delete<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = _serviceProvider.GetRequiredService<IRepositoryContext<Entity>>();
         OnDeletingAsync(entity).GetAwaiter().GetResult();
@@ -64,7 +65,7 @@ public partial class RepositoryBase<Entity>
         OnDeletedAsync(entity).GetAwaiter().GetResult();
     }
 
-    public virtual void DeleteRange(IEnumerable<Entity> entities)
+    public virtual void DeleteRange<Entity>(IEnumerable<Entity> entities) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = _serviceProvider.GetRequiredService<IRepositoryContext<Entity>>();
         foreach (var entity in entities)
@@ -79,7 +80,7 @@ public partial class RepositoryBase<Entity>
         }
     }
 
-    public virtual void Update(Entity entity)
+    public virtual void Update<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = _serviceProvider.GetRequiredService<IRepositoryContext<Entity>>();
         OnUpdatingAsync(entity).GetAwaiter().GetResult();
@@ -88,7 +89,7 @@ public partial class RepositoryBase<Entity>
         OnUpdatedAsync(entity).GetAwaiter().GetResult();
     }
 
-    public virtual void UpdateRange(IEnumerable<Entity> entities)
+    public virtual void UpdateRange<Entity>(IEnumerable<Entity> entities) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = _serviceProvider.GetRequiredService<IRepositoryContext<Entity>>();
         foreach (var entity in entities)
