@@ -90,7 +90,14 @@ public class ExecuteScriptsViewModel : ViewModel
 
     private void ExecuteScriptsInternal(IProgress<ScriptProgress> progress)
     {
-        _scriptService.ExecuteScripts(DatabaseConnectionString, new System.IO.DirectoryInfo(ScriptPath), progress, ContinueOnError);
+        try
+        {
+            _scriptService.ExecuteScripts(DatabaseConnectionString, new System.IO.DirectoryInfo(ScriptPath), progress, ContinueOnError);
+        }
+        catch
+        {
+            //ignore errors in the UI because they are reported to the user
+        }
     }
 
     private void ReportProgress(ScriptProgress progress)

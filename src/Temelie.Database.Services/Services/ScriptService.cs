@@ -348,8 +348,11 @@ GO
                 {
                     var model = JsonSerializer.Deserialize<T>(File.ReadAllText(file.FullName), ModelsJsonSerializerOptions.Default);
                     var script = getScript(model);
-                    WriteIfDifferent(dropFileName.Replace(".json", ""), script.DropScript);
-                    WriteIfDifferent(dropFileName, File.ReadAllText(file.FullName));
+                    if (script is not null)
+                    {
+                        WriteIfDifferent(dropFileName.Replace(".json", ""), script.DropScript);
+                        WriteIfDifferent(dropFileName, File.ReadAllText(file.FullName));
+                    }
                     file.Delete();
                 }
             }
@@ -506,6 +509,8 @@ GO
 
         double count = list.Count;
 
+        var finalErrors = new List<string>();
+
         var retryList = new Dictionary<FileInfo, int>();
 
         while (list.Count > 0)
@@ -554,10 +559,14 @@ GO
                             list.Add(file);
                             count += 1;
                         }
-                        else if (progress != null)
+                        else
                         {
-                            int percent = Convert.ToInt32((intFileCount / count) * 100);
-                            progress.Report(new ScriptProgress() { ProgressPercentage = percent, ProgressStatus = $"{file.Directory.Name}/{file.Name}", ErrorMessage = ex.Message });
+                            finalErrors.Add($"{file.Directory.Name}/{file.Name} ErrorMessage: {ex.Message}");
+                            if (progress is not null)
+                            {
+                                int percent = Convert.ToInt32((intFileCount / count) * 100);
+                                progress.Report(new ScriptProgress() { ProgressPercentage = percent, ProgressStatus = $"{file.Directory.Name}/{file.Name}", ErrorMessage = ex.Message });
+                            }
                         }
                     }
                     else
@@ -580,6 +589,10 @@ GO
 
         progress?.Report(new ScriptProgress() { ProgressPercentage = 100, ProgressStatus = "Complete" });
 
+        if (finalErrors.Count > 0)
+        {
+            throw new Exception(string.Join(Environment.NewLine, finalErrors));
+        }
     }
 
     public string MergeScripts(IEnumerable<string> scripts)

@@ -1567,6 +1567,10 @@ GO");
 
     public override IDatabaseObjectScript GetScript(TableModel model)
     {
+        if (string.IsNullOrEmpty(model.TableName))
+        {
+            return null;
+        }
 
         string generateDropScript()
         {
