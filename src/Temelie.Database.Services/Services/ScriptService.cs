@@ -503,7 +503,30 @@ GO
             }
             else
             {
-                list.AddRange(dir.GetFiles("*.sql", SearchOption.AllDirectories).OrderBy(i => i.FullName));
+                var files = dir.GetFiles("*.sql", SearchOption.AllDirectories).OrderBy(i => i.FullName);
+                if (files.Any())
+                {
+                    var hash = CreateMd5ForDirectory(dir.FullName);
+                    var id = $"{dir.Name}/{hash}";
+
+                    bool shouldExecuteFiles = true;
+
+                    //if we are executing a folder earlier in the stage, then this should be executed always
+                    if (pendingMigrations.Count == 0)
+                    {
+                        using var conn = _databaseExecutionService.CreateDbConnection(connectionString);
+                        using var cmd = _databaseExecutionService.CreateDbCommand(conn);
+                        cmd.CommandText = $"SELECT COUNT(*) FROM Migrations WHERE Id = '{id}'";
+                        var migrationCount = (int)cmd.ExecuteScalar();
+                        shouldExecuteFiles = migrationCount == 0;
+                    }
+
+                    if (shouldExecuteFiles)
+                    {
+                        pendingMigrations.Add(id);
+                        list.AddRange(files);
+                    }
+                }
             }
         }
 
