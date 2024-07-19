@@ -509,23 +509,22 @@ GO
                     var hash = CreateMd5ForDirectory(dir.FullName);
                     var id = $"{dir.Name}/{hash}";
 
-                    bool shouldExecuteFiles = true;
+                    using var conn = _databaseExecutionService.CreateDbConnection(connectionString);
+                    using var cmd = _databaseExecutionService.CreateDbCommand(conn);
+                    cmd.CommandText = $"SELECT COUNT(*) FROM Migrations WHERE Id = '{id}'";
+                    var migrationCount = (int)cmd.ExecuteScalar();
 
-                    //if we are executing a folder earlier in the stage, then this should be executed always
-                    if (pendingMigrations.Count == 0)
+                    // if this folder has changed, or a previous step has changed, run these files
+                    if (pendingMigrations.Count > 0 || migrationCount == 0)
                     {
-                        using var conn = _databaseExecutionService.CreateDbConnection(connectionString);
-                        using var cmd = _databaseExecutionService.CreateDbCommand(conn);
-                        cmd.CommandText = $"SELECT COUNT(*) FROM Migrations WHERE Id = '{id}'";
-                        var migrationCount = (int)cmd.ExecuteScalar();
-                        shouldExecuteFiles = migrationCount == 0;
-                    }
-
-                    if (shouldExecuteFiles)
-                    {
-                        pendingMigrations.Add(id);
+                        //only add the id if it doesn't already exist
+                        if (migrationCount == 0)
+                        {
+                            pendingMigrations.Add(id);
+                        }
                         list.AddRange(files);
                     }
+
                 }
             }
         }
