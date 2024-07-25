@@ -15,7 +15,8 @@ public class DatabaseProvider : DatabaseProviderBase
     private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
     private readonly IDatabaseExecutionService _databaseService;
 
-    public DatabaseProvider(IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications)
+    public DatabaseProvider(IEnumerable<IConnectionCreatedNotification> connectionCreatedNotifications,
+        IEnumerable<IDatabaseModelProvider> databaseModelProviders) : base(databaseModelProviders)
     {
         _connectionCreatedNotifications = connectionCreatedNotifications;
         var factory = new DatabaseFactory([this], _connectionCreatedNotifications);

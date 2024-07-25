@@ -9,6 +9,13 @@ namespace Temelie.Database.Providers;
 
 public abstract class DatabaseProviderBase : IDatabaseProvider
 {
+    private readonly IEnumerable<IDatabaseModelProvider> _databaseModelProviders;
+
+    public DatabaseProviderBase(IEnumerable<IDatabaseModelProvider> databaseModelProviders)
+    {
+        _databaseModelProviders = databaseModelProviders;
+    }
+
     public abstract string Name { get; }
     public abstract string QuoteCharacterStart { get; }
     public abstract string QuoteCharacterEnd { get; }
@@ -73,6 +80,11 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
             column.ColumnType = targetColumnType.ColumnType;
             column.Precision = targetColumnType.Precision.GetValueOrDefault();
             column.Scale = targetColumnType.Scale.GetValueOrDefault();
+        }
+
+        foreach (var databaseModelProvider in _databaseModelProviders)
+        {
+            databaseModelProvider.Initialize(column);
         }
 
     }
@@ -391,7 +403,7 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
         return list;
     }
 
-    private IEnumerable<TableModel> GetTables(DataTable dataTable, IEnumerable<ColumnModel> columns)
+    private IEnumerable<TableModel> GetTables(DataTable dataTable, IEnumerable<ColumnModel> columns, bool isView = false)
     {
         var list = new List<TableModel>();
 
@@ -420,6 +432,7 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
             table.DataSourceName = GetStringValue(row, "data_source_name");
             table.PartitionSchemeColumns = GetStringValue(row, "partition_scheme_columns");
             table.PartitionSchemeName = GetStringValue(row, "partition_scheme_name");
+            table.IsView = isView;
             var extendedProperites = GetStringValue(row, "extended_properties");
             if (!string.IsNullOrEmpty(extendedProperites))
             {
@@ -457,6 +470,13 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
                 tables.Add(tableKey);
                 list.Add(table);
             }
+
+
+            foreach (var databaseModelProvider in _databaseModelProviders)
+            {
+                databaseModelProvider.Initialize(table);
+            }
+
         }
 
         return list;
@@ -498,18 +518,12 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
 
     public IEnumerable<TableModel> GetViews(DbConnection connection, IEnumerable<ColumnModel> columns)
     {
-        IList<TableModel> list = new List<TableModel>();
         var dataTable = GetViewsDataTable(connection);
         if (dataTable != null)
         {
-            list = GetTables(dataTable, columns).ToList();
-            foreach (var item in list)
-            {
-                item.IsView = true;
-            }
+            return GetTables(dataTable, columns, true);
         }
-
-        return list;
+        return Enumerable.Empty<TableModel>();
     }
 
     public IEnumerable<TriggerModel> GetTriggers(DbConnection connection)
