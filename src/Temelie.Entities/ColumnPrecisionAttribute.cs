@@ -1,4 +1,6 @@
 namespace Temelie.Entities;
+
+[AttributeUsage(AttributeTargets.Property)]
 public class ColumnPrecisionAttribute : Attribute
 {
     private readonly int _precision;

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0;netstandard2.0</TargetFrameworks>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
@@ -19,7 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Temelie.Entities\Temelie.Entities.csproj" />
-    <ProjectReference Include="..\Temelie.Entities.SourceGenerator\Temelie.Entities.SourceGenerator.csproj" OutputItemType="Analyzer" SetTargetFramework="TargetFramework=netstandard2.0" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\Temelie.Entities.SourceGenerator\Temelie.Entities.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
 </Project>

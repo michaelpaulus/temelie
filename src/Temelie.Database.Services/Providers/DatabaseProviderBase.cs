@@ -454,9 +454,9 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
 
             if (!tables.Contains(tableKey))
             {
-                if (columnIndex.ContainsKey(tableKey))
+                if (columnIndex.TryGetValue(tableKey, out var value))
                 {
-                    var tableColumns = columnIndex[tableKey];
+                    var tableColumns = value;
                     foreach (var column in
                                 from i in tableColumns
                                 where i.TableName.EqualsIgnoreCase(table.TableName)

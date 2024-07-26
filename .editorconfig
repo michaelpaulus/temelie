@@ -104,10 +104,10 @@ dotnet_diagnostic.CA1018.severity = warning
 dotnet_diagnostic.CA1047.severity = warning
 
 # CA1305: Specify IFormatProvider
-dotnet_diagnostic.CA1305.severity = warning
+dotnet_diagnostic.CA1305.severity = none
 
 # CA1507: Use nameof to express symbol names
-dotnet_diagnostic.CA1507.severity = warning
+dotnet_diagnostic.CA1507.severity = none
 
 # CA1510: Use ArgumentNullException throw helper
 dotnet_diagnostic.CA1510.severity = warning
@@ -137,7 +137,7 @@ dotnet_diagnostic.CA1810.severity = warning
 dotnet_diagnostic.CA1821.severity = warning
 
 # CA1822: Make member static
-dotnet_diagnostic.CA1822.severity = warning
+dotnet_diagnostic.CA1822.severity = none
 dotnet_code_quality.CA1822.api_surface = private, internal
 
 # CA1823: Avoid unused private fields
@@ -171,7 +171,7 @@ dotnet_diagnostic.CA1832.severity = warning
 dotnet_diagnostic.CA1833.severity = warning
 
 # CA1834: Consider using 'StringBuilder.Append(char)' when applicable
-dotnet_diagnostic.CA1834.severity = warning
+dotnet_diagnostic.CA1834.severity = none
 
 # CA1835: Prefer the 'Memory'-based overloads for 'ReadAsync' and 'WriteAsync'
 dotnet_diagnostic.CA1835.severity = warning
@@ -204,16 +204,16 @@ dotnet_diagnostic.CA1843.severity = warning
 dotnet_diagnostic.CA1844.severity = warning
 
 # CA1845: Use span-based 'string.Concat'
-dotnet_diagnostic.CA1845.severity = warning
+dotnet_diagnostic.CA1845.severity = none
 
 # CA1846: Prefer AsSpan over Substring
-dotnet_diagnostic.CA1846.severity = warning
+dotnet_diagnostic.CA1846.severity = none
 
 # CA1847: Use string.Contains(char) instead of string.Contains(string) with single characters
-dotnet_diagnostic.CA1847.severity = warning
+dotnet_diagnostic.CA1847.severity = none
 
 # CA1852: Seal internal types
-dotnet_diagnostic.CA1852.severity = warning
+dotnet_diagnostic.CA1852.severity = none
 
 # CA1854: Prefer the IDictionary.TryGetValue(TKey, out TValue) method
 dotnet_diagnostic.CA1854.severity = warning
@@ -258,7 +258,7 @@ dotnet_diagnostic.CA2016.severity = warning
 dotnet_diagnostic.CA2200.severity = warning
 
 # CA2201: Do not raise reserved exception types
-dotnet_diagnostic.CA2201.severity = warning
+dotnet_diagnostic.CA2201.severity = none
 
 # CA2208: Instantiate argument exceptions correctly
 dotnet_diagnostic.CA2208.severity = warning

@@ -313,7 +313,7 @@ GO
         }
 
         int intIndex = 1;
-        int intTotalCount = directoryList.Count();
+        int intTotalCount = directoryList.Count;
 
         int intProgress = 0;
 

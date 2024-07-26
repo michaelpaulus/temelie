@@ -111,11 +111,11 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
 
             if (entity.IsView)
             {
-                config.AppendLine($"            builder.ToView(\"{entity.TableName}\");");
+                config.AppendLine($"            builder.ToView(\"{entity.TableName}\", \"{entity.Schema}\");");
             }
             else
             {
-                config.AppendLine($"            builder.ToTable(\"{entity.TableName}\");");
+                config.AppendLine($"            builder.ToTable(\"{entity.TableName}\", \"{entity.Schema}\");");
             }
 
             sbModelBuilder.AppendLine($@"

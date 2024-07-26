@@ -102,7 +102,7 @@ public class Mapping
             bool blnHasIdentity = (
                 from i in tableMapping.ColumnMappings
                 where i.IsTargetColumnIdentity
-                select i).Count() > 0;
+                select i).Any();
 
             string strSourceTableName = tableMapping.SourceTableName;
             string strTargetTableName = tableMapping.TargetTableName;
