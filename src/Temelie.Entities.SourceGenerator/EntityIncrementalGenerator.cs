@@ -203,6 +203,7 @@ public record {className} : EntityBase, I{className}
 
             foreach (var table in databaseModel.Tables)
             {
+                context.CancellationToken.ThrowIfCancellationRequested();
                 var props = getColumnProperties(table);
                 addInterface(table, props);
                 addRecord(table, props);
@@ -211,6 +212,7 @@ public record {className} : EntityBase, I{className}
 
             foreach (var table in databaseModel.Views)
             {
+                context.CancellationToken.ThrowIfCancellationRequested();
                 var props = getColumnProperties(table);
                 addInterface(table, props);
                 addRecord(table, props);

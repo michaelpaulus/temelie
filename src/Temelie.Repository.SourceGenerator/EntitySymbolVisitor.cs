@@ -5,23 +5,28 @@ namespace Temelie.Repository.SourceGenerator;
 public class EntitySymbolVisitor : SymbolVisitor
 {
 
-    public EntitySymbolVisitor()
+    public EntitySymbolVisitor(CancellationToken cancellationToken)
     {
+        _cancellationToken = cancellationToken;
     }
 
     private readonly IList<Entity> _entities = new List<Entity>();
+    private readonly CancellationToken _cancellationToken;
+
     public IEnumerable<Entity> Entities => _entities;
 
     public override void VisitNamespace(INamespaceSymbol symbol)
     {
         foreach (var member in symbol.GetMembers())
         {
+            _cancellationToken.ThrowIfCancellationRequested();
             member.Accept(this);
         }
     }
 
     public override void VisitNamedType(INamedTypeSymbol symbol)
     {
+        _cancellationToken.ThrowIfCancellationRequested();
         if (!symbol.IsAbstract && symbol.AllInterfaces.Any(i => i.FullName().StartsWith("Temelie.Entities.IEntity<")))
         {
             var props = new List<EntityProperty>();

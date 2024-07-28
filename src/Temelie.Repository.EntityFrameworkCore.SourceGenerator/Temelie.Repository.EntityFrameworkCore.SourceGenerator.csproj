@@ -11,8 +11,10 @@
   <ItemGroup>
     <Compile Include="..\Temelie.Entities.SourceGenerator\Extensions.cs" Link="Extensions.cs" />
     <Compile Include="..\Temelie.Repository.SourceGenerator\Entity.cs" Link="Entity.cs" />
+    <Compile Include="..\Temelie.Repository.SourceGenerator\EntityListEqualityComparer.cs" Link="EntityListEqualityComparer.cs" />
     <Compile Include="..\Temelie.Repository.SourceGenerator\EntityProperty.cs" Link="EntityProperty.cs" />
     <Compile Include="..\Temelie.Repository.SourceGenerator\EntitySymbolVisitor.cs" Link="EntitySymbolVisitor.cs" />
+    <Compile Include="..\Temelie.Repository.SourceGenerator\EnumerableEqualityComparer.cs" Link="EnumerableEqualityComparer.cs" />
     <Compile Include="..\Temelie.Repository.SourceGenerator\IsExternalInit.cs" Link="IsExternalInit.cs" />
   </ItemGroup>
 

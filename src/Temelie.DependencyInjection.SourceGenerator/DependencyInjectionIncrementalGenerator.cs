@@ -1,5 +1,6 @@
 using System.Text;
 using Microsoft.CodeAnalysis;
+using Temelie.Repository.SourceGenerator;
 
 namespace Temelie.DependencyInjection.SourceGenerator;
 
@@ -11,12 +12,12 @@ public class DependencyInjectionIncrementalGenerator : IIncrementalGenerator
     {
         var compliationProvider = context.CompilationProvider.Select(static (compilation, token) =>
         {
-            var visitor = new DependencyInjectionSymbolVisitor();
+            var visitor = new DependencyInjectionSymbolVisitor(token);
             visitor.Visit(compilation.GlobalNamespace);
             return visitor.Exports;
         });
 
-        context.RegisterSourceOutput(compliationProvider, (context, symbols) =>
+        context.RegisterSourceOutput(compliationProvider.WithComparer(new ExportListEqualityComparer()), (context, symbols) =>
         {
             if (symbols.Any())
             {

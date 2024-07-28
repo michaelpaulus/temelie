@@ -14,12 +14,12 @@ public class SingleQueryIncrementalGenerator : IIncrementalGenerator
 
         var compliationProvider = context.CompilationProvider.Select(static (compilation, token) =>
         {
-            var visitor = new EntitySymbolVisitor();
+            var visitor = new EntitySymbolVisitor(token);
             visitor.Visit(compilation.GlobalNamespace);
             return visitor.Entities;
         });
 
-        context.RegisterSourceOutput(options.Combine(compliationProvider), Generate);
+        context.RegisterSourceOutput(options.Combine(compliationProvider).WithComparer(new EntityListEqualityComparer()), Generate);
     }
 
     private void Generate(SourceProductionContext context, (string RootNamespace, IEnumerable<Entity> Entities) result)
