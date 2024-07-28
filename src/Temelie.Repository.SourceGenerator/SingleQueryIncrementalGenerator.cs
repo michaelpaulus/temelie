@@ -10,7 +10,7 @@ public class SingleQueryIncrementalGenerator : IIncrementalGenerator
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var options = context.AnalyzerConfigOptionsProvider.Select((c, _) => { c.GlobalOptions.TryGetValue("build_property.RootNamespace", out string rootNamespace); return rootNamespace; });
+        var options = context.AnalyzerConfigOptionsProvider.Select(static (c, _) => { c.GlobalOptions.TryGetValue("build_property.RootNamespace", out string rootNamespace); return rootNamespace; });
 
         var compliationProvider = context.CompilationProvider.Select(static (compilation, token) =>
         {
@@ -22,15 +22,14 @@ public class SingleQueryIncrementalGenerator : IIncrementalGenerator
         context.RegisterSourceOutput(options.Combine(compliationProvider).WithComparer(new EntityListEqualityComparer()), Generate);
     }
 
-    private void Generate(SourceProductionContext context, (string RootNamespace, IEnumerable<Entity> Entities) result)
+    static void Generate(SourceProductionContext context, (string RootNamespace, IEnumerable<Entity> Entities) result)
     {
         foreach (var item in result.Entities)
         {
             Generate(context, result.RootNamespace, item);
         }
     }
-
-    void Generate(SourceProductionContext context, string assemblyName, Entity entity)
+        static void Generate(SourceProductionContext context, string assemblyName, Entity entity)
     {
         if (entity.IsView)
         {

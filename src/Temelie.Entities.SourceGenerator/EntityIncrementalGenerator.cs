@@ -2,6 +2,8 @@ using System.Collections.Immutable;
 using System.Text;
 using Temelie.Database.Models;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Text;
+using Temelie.Repository.SourceGenerator;
 
 namespace Temelie.Entities.SourceGenerator;
 
@@ -11,24 +13,22 @@ public class EntityIncrementalGenerator : IIncrementalGenerator
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var options = context.AnalyzerConfigOptionsProvider.Select((c, _) => { c.GlobalOptions.TryGetValue("build_property.RootNamespace", out string rootNamespace); return rootNamespace; });
+        var options = context.AnalyzerConfigOptionsProvider.Select(static (c, _) => { c.GlobalOptions.TryGetValue("build_property.RootNamespace", out string rootNamespace); return rootNamespace; });
 
         var files = context.AdditionalTextsProvider
-            .Where(a => a.Path.EndsWith(".sql.json"))
-            .Select((a, c) => (a.Path, a.GetText(c)!.ToString()))
-            .Collect();
+            .Where(static a => a.Path.EndsWith(".sql.json"))
+            .Select(static  (a, c) => new File(a.Path, a.GetText()));
 
-        var result = options.Combine(files);
+        var result = files.Combine(options);
 
         context.RegisterSourceOutput(result, Generate);
     }
 
-    void Generate(SourceProductionContext context, (string RootNamesapce, ImmutableArray<(string FileName, string Text)> files) result)
+    static void Generate(SourceProductionContext context, (File File, string RootNamesapce) result)
     {
-
         var rootNamesapce = result.RootNamesapce;
 
-        var databaseModel = DatabaseModel.CreateFromFiles(result.files);
+        var databaseModel = DatabaseModel.CreateFromFiles([(result.File.FilePath, result.File.Content.ToString())]);
 
         IEnumerable<ColumnProperty> getColumnProperties(TableModel table)
         {
@@ -218,7 +218,7 @@ public record {className} : EntityBase, I{className}
 
     }
 
-    private string GetTypeDefault(string propertyType)
+    static string GetTypeDefault(string propertyType)
     {
         if (propertyType == "string")
         {
@@ -254,6 +254,37 @@ public record {className} : EntityBase, I{className}
         public int? Scale { get; set; }
         public bool IsForeignKey { get; internal set; }
         public string SystemTypeString { get; internal set; }
+    }
+
+    private class File(string filePath, SourceText content) : IEquatable<File>
+    {
+        public string FilePath { get; } = filePath;
+        public SourceText Content { get; } = content;
+
+        public bool Equals(File other)
+        {
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
+            return ReferenceEquals(this, other) ||
+                FilePath == other.FilePath &&
+                Content.Length == other.Content.Length;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is File file && Equals(file);
+        }
+
+        public override int GetHashCode()
+        {
+            HashCode hash = new();
+            hash.Add(FilePath);
+            hash.Add(Content);
+            return hash.GetHashCode();
+        }
+
     }
 
 }

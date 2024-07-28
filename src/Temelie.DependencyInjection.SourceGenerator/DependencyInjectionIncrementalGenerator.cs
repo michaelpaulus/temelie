@@ -27,7 +27,7 @@ public class DependencyInjectionIncrementalGenerator : IIncrementalGenerator
         });
     }
 
-    public static string Generate(IEnumerable<Export> symbols)
+    static string Generate(IEnumerable<Export> symbols)
     {
         string regsiterExports()
         {

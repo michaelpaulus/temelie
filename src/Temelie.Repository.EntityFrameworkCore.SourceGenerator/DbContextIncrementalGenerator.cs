@@ -10,7 +10,7 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var options = context.AnalyzerConfigOptionsProvider.Select((c, _) => { c.GlobalOptions.TryGetValue("build_property.RootNamespace", out string rootNamespace); return rootNamespace; });
+        var options = context.AnalyzerConfigOptionsProvider.Select(static (c, _) => { c.GlobalOptions.TryGetValue("build_property.RootNamespace", out string rootNamespace); return rootNamespace; });
 
         var compliationProvider = context.CompilationProvider.Select(static (compilation, token) =>
         {
@@ -22,13 +22,12 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
         context.RegisterSourceOutput(options.Combine(compliationProvider).WithComparer(new EntityListEqualityComparer()), Generate);
     }
 
-    private void Generate(SourceProductionContext context, (string RootNamespace, IEnumerable<Entity> Entities) result)
+    static void Generate(SourceProductionContext context, (string RootNamespace, IEnumerable<Entity> Entities) result)
     {
         Generate(context, result.RootNamespace, result.Entities);
     }
 
-
-    void Generate(SourceProductionContext context, string rootNamespace, IEnumerable<Entity> entities)
+    static void Generate(SourceProductionContext context, string rootNamespace, IEnumerable<Entity> entities)
     {
         var ns = rootNamespace;
 
@@ -164,7 +163,5 @@ namespace {ns};
 
         context.AddSource($"{ns}.DbContextBase.g", sb.ToString());
     }
-
-   
 
 }
