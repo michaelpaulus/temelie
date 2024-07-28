@@ -17,7 +17,7 @@ public class DependencyInjectionIncrementalGenerator : IIncrementalGenerator
             return visitor.Exports;
         });
 
-        context.RegisterSourceOutput(compliationProvider.WithComparer(new ExportListEqualityComparer()), (context, symbols) =>
+        context.RegisterImplementationSourceOutput(compliationProvider.WithComparer(new ExportListEqualityComparer()), (context, symbols) =>
         {
             if (symbols.Any())
             {
