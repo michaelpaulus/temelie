@@ -1,7 +1,7 @@
 using AdventureWorks.Entities;
 using Temelie.Repository;
 
-namespace AdventureWorks.Repository;
+namespace AdventureWorks.Server.Repository;
 public class CustomerByAccountNumberQuery(string accountNumber) : IQuerySpec<Customer>
 {
     public IQueryable<Customer> Apply(IQueryable<Customer> query)

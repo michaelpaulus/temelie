@@ -7,7 +7,6 @@ public partial class ExampleDbContext : DbContextBase
 
     public ExampleDbContext(IServiceProvider serviceProvider, DbContextOptions<ExampleDbContext> dbContextOptions) : base(serviceProvider, dbContextOptions)
     {
-
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

@@ -1,14 +1,11 @@
-using System.Collections.Immutable;
 using System.Text;
 using Temelie.Database.Models;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Text;
-using Temelie.Repository.SourceGenerator;
 
 namespace Temelie.Entities.SourceGenerator;
 
 [Generator]
-public class EntityIncrementalGenerator : IIncrementalGenerator
+public partial class EntityIncrementalGenerator : IIncrementalGenerator
 {
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
@@ -24,11 +21,21 @@ public class EntityIncrementalGenerator : IIncrementalGenerator
         context.RegisterSourceOutput(result, Generate);
     }
 
-    static void Generate(SourceProductionContext context, (File File, string RootNamesapce) result)
+    private static void Generate(SourceProductionContext context, (File File, string RootNamesapce) result)
     {
-        var rootNamesapce = result.RootNamesapce;
+        context.CancellationToken.ThrowIfCancellationRequested();
+        var sourceFiles = Generate(result.RootNamesapce, result.File.FilePath, result.File.Content.ToString());
+        foreach (var file in sourceFiles)
+        {
+            context.AddSource(file.Name, file.Code);
+        }
+    }
 
-        var databaseModel = DatabaseModel.CreateFromFiles([(result.File.FilePath, result.File.Content.ToString())]);
+    public static IEnumerable<(string Name, string Code)> Generate(string rootNamespace, string filePath, string fileContents)
+    {
+        var sourceFiles = new List<(string Name, string Code)>();
+
+        var databaseModel = DatabaseModel.CreateFromFiles([(filePath, fileContents)]);
 
         IEnumerable<ColumnProperty> getColumnProperties(TableModel table)
         {
@@ -87,7 +94,7 @@ public class EntityIncrementalGenerator : IIncrementalGenerator
 
         void addInterface(TableModel table, IEnumerable<ColumnProperty> props)
         {
-            var ns = rootNamesapce;
+            var ns = rootNamespace;
             var className = table.ClassName;
 
             var extends = new StringBuilder();
@@ -149,12 +156,12 @@ public interface I{className} : {extends}
             sb.AppendLine(@$"
 }}
 ");
-            context.AddSource($"{ns}.I{className}.g", sb.ToString());
+            sourceFiles.Add(($"{ns}.I{className}.g", sb.ToString()));
         }
 
         void addRecord(TableModel table, IEnumerable<ColumnProperty> props)
         {
-            var ns = rootNamesapce;
+            var ns = rootNamespace;
             var className = table.ClassName;
 
             var sb = new StringBuilder();
@@ -196,12 +203,11 @@ public record {className} : EntityBase, I{className}
             sb.AppendLine(@$"
 }}
 ");
-            context.AddSource($"{ns}.{className}.g", sb.ToString());
+            sourceFiles.Add(($"{ns}.{className}.g", sb.ToString()));
         }
 
         foreach (var table in databaseModel.Tables)
         {
-            context.CancellationToken.ThrowIfCancellationRequested();
             var props = getColumnProperties(table);
             addInterface(table, props);
             addRecord(table, props);
@@ -210,12 +216,12 @@ public record {className} : EntityBase, I{className}
 
         foreach (var table in databaseModel.Views)
         {
-            context.CancellationToken.ThrowIfCancellationRequested();
             var props = getColumnProperties(table);
             addInterface(table, props);
             addRecord(table, props);
         }
 
+        return sourceFiles;
     }
 
     static string GetTypeDefault(string propertyType)
@@ -237,54 +243,6 @@ public record {className} : EntityBase, I{className}
             return "0";
         }
         return "default";
-    }
-
-    private class ColumnProperty
-    {
-        public string PropertyName { get; set; }
-        public string PropertyType { get; set; }
-        public string Default { get; set; }
-        public bool IsNullable { get; set; }
-        public bool IsPrimaryKey { get; set; }
-        public bool IsComputed { get; set; }
-        public bool IsIdentity { get; set; }
-        public string ColumnName { get; set; }
-        public int ColumnId { get; set; }
-        public int? Precision { get; set; }
-        public int? Scale { get; set; }
-        public bool IsForeignKey { get; internal set; }
-        public string SystemTypeString { get; internal set; }
-    }
-
-    private class File(string filePath, SourceText content) : IEquatable<File>
-    {
-        public string FilePath { get; } = filePath;
-        public SourceText Content { get; } = content;
-
-        public bool Equals(File other)
-        {
-            if (ReferenceEquals(null, other))
-            {
-                return false;
-            }
-            return ReferenceEquals(this, other) ||
-                FilePath == other.FilePath &&
-                Content.Length == other.Content.Length;
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is File file && Equals(file);
-        }
-
-        public override int GetHashCode()
-        {
-            HashCode hash = new();
-            hash.Add(FilePath);
-            hash.Add(Content);
-            return hash.GetHashCode();
-        }
-
     }
 
 }

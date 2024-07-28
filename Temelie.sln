@@ -55,6 +55,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Temelie.Repository.EntityFr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Temelie.Repository.SourceGenerator", "src\Temelie.Repository.SourceGenerator\Temelie.Repository.SourceGenerator.csproj", "{FDF80837-D7A0-45B0-A8A0-A124A1DEEB4F}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "SourceGenerator", "src\SourceGenerator\SourceGenerator.shproj", "{AD31560F-0368-4FE2-B6C0-640A4383505A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -154,5 +156,12 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {93D79511-36CC-452F-9DF6-C3D742B4CF59}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		src\SourceGenerator\SourceGenerator.projitems*{ad31560f-0368-4fe2-b6c0-640a4383505a}*SharedItemsImports = 13
+		src\SourceGenerator\SourceGenerator.projitems*{d0c47399-054f-42a9-9ced-9fe87546e5d6}*SharedItemsImports = 5
+		src\SourceGenerator\SourceGenerator.projitems*{d693d7a8-b164-4dde-b896-8ced6b60fce8}*SharedItemsImports = 5
+		src\SourceGenerator\SourceGenerator.projitems*{e673ea03-e416-4b34-9c12-349cfe5853df}*SharedItemsImports = 5
+		src\SourceGenerator\SourceGenerator.projitems*{fdf80837-d7a0-45b0-a8a0-a124a1deeb4f}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal

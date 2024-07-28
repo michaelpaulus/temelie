@@ -10,7 +10,6 @@
 
   <ItemGroup>
     <Compile Include="..\Temelie.Database.Models\Models\*.cs" LinkBase="Models" />
-    <Compile Include="..\Temelie.Repository.SourceGenerator\IsExternalInit.cs" Link="IsExternalInit.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -38,5 +37,7 @@
     <None Include="$(PKGSystem_Text_Encodings_Web)\lib\netstandard2.0\System.Text.Encodings.Web.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
     <None Include="$(PKGMicrosoft_Bcl_AsyncInterfaces)\lib\netstandard2.0\Microsoft.Bcl.AsyncInterfaces.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
   </ItemGroup>
+
+  <Import Project="..\SourceGenerator\SourceGenerator.projitems" Label="Shared" />
 
 </Project>
