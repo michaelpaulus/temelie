@@ -13,6 +13,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="..\Temelie.Repository.SourceGenerator\EquatableArray.cs" Link="EquatableArray.cs" />
+    <Compile Include="..\Temelie.Repository.SourceGenerator\HashCode.cs" Link="HashCode.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- Package the generator in the analyzer directory of the nuget package -->
     <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
   </ItemGroup>

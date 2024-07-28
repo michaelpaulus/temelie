@@ -142,7 +142,7 @@ public class EntitySymbolVisitor : SymbolVisitor
 
             if (props.Count > 0)
             {
-                _entities.Add(new Entity(symbol.FullName(), symbol.Name, tableName, schema, isView, props.ToArray()));
+                _entities.Add(new Entity(symbol.FullName(), symbol.Name, tableName, schema, isView, new EquatableArray<EntityProperty>(props.ToArray())));
             }
         }
     }

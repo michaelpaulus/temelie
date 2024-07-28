@@ -27,6 +27,7 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
         Generate(context, result.RootNamespace, result.Entities);
     }
 
+
     void Generate(SourceProductionContext context, string rootNamespace, IEnumerable<Entity> entities)
     {
         var ns = rootNamespace;
