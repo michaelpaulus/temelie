@@ -20,7 +20,7 @@ public class EntityIncrementalGenerator : IIncrementalGenerator
 
         var result = options.Combine(files);
 
-        context.RegisterImplementationSourceOutput(result, Generate);
+        context.RegisterSourceOutput(result, Generate);
     }
 
     void Generate(SourceProductionContext context, (string RootNamesapce, ImmutableArray<(string FileName, string Text)> files) result)

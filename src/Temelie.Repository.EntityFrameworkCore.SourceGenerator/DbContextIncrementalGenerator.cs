@@ -19,7 +19,7 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
             return visitor.Entities;
         });
 
-        context.RegisterImplementationSourceOutput(options.Combine(compliationProvider), Generate);
+        context.RegisterSourceOutput(options.Combine(compliationProvider), Generate);
     }
 
     private void Generate(SourceProductionContext context, (string RootNamespace, IEnumerable<Entity> Entities) result)
