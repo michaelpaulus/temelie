@@ -25,117 +25,115 @@ public class EntityIncrementalGenerator : IIncrementalGenerator
 
     void Generate(SourceProductionContext context, (string RootNamesapce, ImmutableArray<(string FileName, string Text)> files) result)
     {
+
         var rootNamesapce = result.RootNamesapce;
 
-        try
+        var databaseModel = DatabaseModel.CreateFromFiles(result.files);
+
+        IEnumerable<ColumnProperty> getColumnProperties(TableModel table)
         {
+            var list = new List<ColumnProperty>();
 
-            var databaseModel = DatabaseModel.CreateFromFiles(result.files);
-
-            IEnumerable<ColumnProperty> getColumnProperties(TableModel table)
+            foreach (var column in table.Columns)
             {
-                var list = new List<ColumnProperty>();
+                var prop = new ColumnProperty();
 
-                foreach (var column in table.Columns)
+                prop.ColumnName = column.ColumnName;
+                prop.ColumnId = column.ColumnId;
+                prop.PropertyName = column.PropertyName;
+                prop.PropertyType = ColumnModel.GetSystemTypeString(ColumnModel.GetSystemType(column.DbType));
+                prop.Default = "";
+                prop.IsIdentity = column.IsIdentity;
+                prop.IsComputed = column.IsComputed;
+                prop.IsPrimaryKey = column.IsPrimaryKey;
+
+                switch (column.ColumnType.ToUpper())
                 {
-                    var prop = new ColumnProperty();
-            
-                    prop.ColumnName = column.ColumnName;
-                    prop.ColumnId = column.ColumnId;
-                    prop.PropertyName = column.PropertyName;
-                    prop.PropertyType = ColumnModel.GetSystemTypeString(ColumnModel.GetSystemType(column.DbType));
-                    prop.Default = "";
-                    prop.IsIdentity = column.IsIdentity;
-                    prop.IsComputed = column.IsComputed;
-                    prop.IsPrimaryKey = column.IsPrimaryKey;
+                    case "DECIMAL":
+                    case "NUMERIC":
+                        prop.Precision = column.Precision;
+                        prop.Scale = column.Scale;
+                        break;
 
-                    switch (column.ColumnType.ToUpper())
-                    {
-                        case "DECIMAL":
-                        case "NUMERIC":
-                            prop.Precision = column.Precision;
-                            prop.Scale = column.Scale;
-                            break;
-                      
-                    }
-
-                    prop.SystemTypeString = ColumnModel.GetSystemTypeString(ColumnModel.GetSystemType(column.DbType));
-
-                    list.Add(prop);
-
-                    if (prop.PropertyName == table.ClassName)
-                    {
-                        prop.PropertyName += "_Id";
-                    }
-
-                    if (column.IsNullable)
-                    {
-                        prop.PropertyType += "?";
-                        prop.IsNullable = true;
-                    }
-                    else
-                    {
-                        if (prop.PropertyType != "int" &&
-                            prop.PropertyType != "System.Guid" &&
-                            prop.PropertyType != "System.DateTime")
-                        {
-                            prop.Default = $" = {GetTypeDefault(prop.PropertyType)};";
-                        }
-                    }
                 }
 
-                return list;
+                prop.SystemTypeString = ColumnModel.GetSystemTypeString(ColumnModel.GetSystemType(column.DbType));
+
+                list.Add(prop);
+
+                if (prop.PropertyName == table.ClassName)
+                {
+                    prop.PropertyName += "_Id";
+                }
+
+                if (column.IsNullable)
+                {
+                    prop.PropertyType += "?";
+                    prop.IsNullable = true;
+                }
+                else
+                {
+                    if (prop.PropertyType != "int" &&
+                        prop.PropertyType != "System.Guid" &&
+                        prop.PropertyType != "System.DateTime")
+                    {
+                        prop.Default = $" = {GetTypeDefault(prop.PropertyType)};";
+                    }
+                }
             }
 
-            void addInterface(TableModel table, IEnumerable<ColumnProperty> props)
+            return list;
+        }
+
+        void addInterface(TableModel table, IEnumerable<ColumnProperty> props)
+        {
+            var ns = rootNamesapce;
+            var className = table.ClassName;
+
+            var extends = new StringBuilder();
+
+            extends.Append($"IEntity<{className}>");
+
+            var props2 = props.ToList();
+
+            var modifiedColumns = new List<ColumnProperty>();
+            var createdColumns = new List<ColumnProperty>();
+
+            foreach (var prop in props)
             {
-                var ns = rootNamesapce;
-                var className = table.ClassName;
-
-                var extends = new StringBuilder();
-
-                extends.Append($"IEntity<{className}>");
-
-                var props2 = props.ToList();
-
-                var modifiedColumns = new List<ColumnProperty>();
-                var createdColumns = new List<ColumnProperty>();
-
-                foreach(var prop in props)
+                if (prop.PropertyName.Equals("CreatedDate") ||
+                    prop.PropertyName.Equals("CreatedBy"))
                 {
-                    if (prop.PropertyName.Equals("CreatedDate") ||
-                        prop.PropertyName.Equals("CreatedBy"))
-                    {
-                        createdColumns.Add(prop);
-                    }
-
-                    if (prop.PropertyName.Equals("ModifiedDate") ||
-                        prop.PropertyName.Equals("ModifiedBy"))
-                    {
-                        modifiedColumns.Add(prop);
-                    }
+                    createdColumns.Add(prop);
                 }
 
-                if (createdColumns.Count == 2)
+                if (prop.PropertyName.Equals("ModifiedDate") ||
+                    prop.PropertyName.Equals("ModifiedBy"))
                 {
-                    extends.Append(", ICreatedByEntity");
-                    foreach (var col in createdColumns)
-                    {
-                        props2.Remove(col);
-                    }
+                    modifiedColumns.Add(prop);
                 }
+            }
 
-                if (modifiedColumns.Count == 2)
+            if (createdColumns.Count == 2)
+            {
+                extends.Append(", ICreatedByEntity");
+                foreach (var col in createdColumns)
                 {
-                    extends.Append(", IModifiedByEntity");
-                    foreach (var col in modifiedColumns)
-                    {
-                        props2.Remove(col);
-                    }
+                    props2.Remove(col);
                 }
+            }
 
-                var sb = new StringBuilder();
-                sb.AppendLine($@"#nullable enable
+            if (modifiedColumns.Count == 2)
+            {
+                extends.Append(", IModifiedByEntity");
+                foreach (var col in modifiedColumns)
+                {
+                    props2.Remove(col);
+                }
+            }
+
+            var sb = new StringBuilder();
+            sb.AppendLine($@"#nullable enable
 using Temelie.Entities;
 
 namespace {ns};
@@ -143,24 +141,24 @@ namespace {ns};
 public interface I{className} : {extends}
 {{
 ");
-                foreach (var column in props2)
-                {
-                    sb.AppendLine($"    {column.PropertyType} {column.PropertyName} {{ get; set; }}");
-                }
-
-                sb.AppendLine(@$"
-}}
-");
-                context.AddSource($"{ns}.I{className}.g", sb.ToString());
+            foreach (var column in props2)
+            {
+                sb.AppendLine($"    {column.PropertyType} {column.PropertyName} {{ get; set; }}");
             }
 
-            void addRecord(TableModel table, IEnumerable<ColumnProperty> props)
-            {
-                var ns = rootNamesapce;
-                var className = table.ClassName;
+            sb.AppendLine(@$"
+}}
+");
+            context.AddSource($"{ns}.I{className}.g", sb.ToString());
+        }
 
-                var sb = new StringBuilder();
-                sb.AppendLine($@"#nullable enable
+        void addRecord(TableModel table, IEnumerable<ColumnProperty> props)
+        {
+            var ns = rootNamesapce;
+            var className = table.ClassName;
+
+            var sb = new StringBuilder();
+            sb.AppendLine($@"#nullable enable
 using Temelie.Entities;
 
 namespace {ns};
@@ -169,59 +167,53 @@ namespace {ns};
 public record {className} : EntityBase, I{className}
 {{
 ");
-                foreach (var column in props)
+            foreach (var column in props)
+            {
+                if (column.IsPrimaryKey)
                 {
-                    if (column.IsPrimaryKey)
+                    sb.AppendLine($"    [System.ComponentModel.DataAnnotations.Key]");
+                    if (!column.IsIdentity)
                     {
-                        sb.AppendLine($"    [System.ComponentModel.DataAnnotations.Key]");
-                        if (!column.IsIdentity)
-                        {
-                            sb.AppendLine($"    [System.ComponentModel.DataAnnotations.Schema.DatabaseGenerated(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None)]");
-                        }
+                        sb.AppendLine($"    [System.ComponentModel.DataAnnotations.Schema.DatabaseGenerated(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None)]");
                     }
-                    if (column.IsComputed)
-                    {
-                        sb.AppendLine($"    [System.ComponentModel.DataAnnotations.Schema.DatabaseGenerated(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Computed)]");
-                    }
-                    if (column.IsIdentity)
-                    {
-                        sb.AppendLine($"    [System.ComponentModel.DataAnnotations.Schema.DatabaseGenerated(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity)]");
-                    }
-                    if (column.Precision.HasValue && column.Scale.HasValue)
-                    {
-                        sb.AppendLine($"    [Temelie.Entities.ColumnPrecision({column.Precision.Value}, {column.Scale.Value})]");
-                    }
-                    sb.AppendLine($"    [System.ComponentModel.DataAnnotations.Schema.Column(\"{column.ColumnName}\", Order = {column.ColumnId})]");
-                    sb.AppendLine($"    public {column.PropertyType} {column.PropertyName} {{ get; set; }}{column.Default}");
                 }
+                if (column.IsComputed)
+                {
+                    sb.AppendLine($"    [System.ComponentModel.DataAnnotations.Schema.DatabaseGenerated(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Computed)]");
+                }
+                if (column.IsIdentity)
+                {
+                    sb.AppendLine($"    [System.ComponentModel.DataAnnotations.Schema.DatabaseGenerated(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity)]");
+                }
+                if (column.Precision.HasValue && column.Scale.HasValue)
+                {
+                    sb.AppendLine($"    [Temelie.Entities.ColumnPrecision({column.Precision.Value}, {column.Scale.Value})]");
+                }
+                sb.AppendLine($"    [System.ComponentModel.DataAnnotations.Schema.Column(\"{column.ColumnName}\", Order = {column.ColumnId})]");
+                sb.AppendLine($"    public {column.PropertyType} {column.PropertyName} {{ get; set; }}{column.Default}");
+            }
 
-                sb.AppendLine(@$"
+            sb.AppendLine(@$"
 }}
 ");
-                context.AddSource($"{ns}.{className}.g", sb.ToString());
-            }
+            context.AddSource($"{ns}.{className}.g", sb.ToString());
+        }
 
-            foreach (var table in databaseModel.Tables)
-            {
-                context.CancellationToken.ThrowIfCancellationRequested();
-                var props = getColumnProperties(table);
-                addInterface(table, props);
-                addRecord(table, props);
-
-            }
-
-            foreach (var table in databaseModel.Views)
-            {
-                context.CancellationToken.ThrowIfCancellationRequested();
-                var props = getColumnProperties(table);
-                addInterface(table, props);
-                addRecord(table, props);
-            }
+        foreach (var table in databaseModel.Tables)
+        {
+            context.CancellationToken.ThrowIfCancellationRequested();
+            var props = getColumnProperties(table);
+            addInterface(table, props);
+            addRecord(table, props);
 
         }
-        catch (Exception ex)
+
+        foreach (var table in databaseModel.Views)
         {
-            throw new Exception(ex.ToString());
+            context.CancellationToken.ThrowIfCancellationRequested();
+            var props = getColumnProperties(table);
+            addInterface(table, props);
+            addRecord(table, props);
         }
 
     }
