@@ -92,8 +92,7 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
 
                 if (columnProperties.Length > 0)
                 {
-                    props.Append($@"
-            builder.Property(p => p.{column.Name}){columnProperties};");
+                    props.Append($@"            builder.Property(p => p.{column.Name}){columnProperties};");
                 }
             }
 
@@ -125,16 +124,13 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
             sbModelBuilder.AppendLine($@"
         modelBuilder.Entity<{entity.FullType}>(builder =>
         {{
-{config}
-{props}
-        }});
-");
+{config}{props}
+        }});");
 
             var sb = new StringBuilder();
 
             sb.AppendLine($@"using Microsoft.EntityFrameworkCore;
 using Temelie.DependencyInjection;
-using Temelie.Repository;
 using Temelie.Repository.EntityFrameworkCore;
 
 namespace {ns};
@@ -158,9 +154,7 @@ public partial class {entity.FullType.Replace(".", "_")}ModelBuilderProvider : I
     {{
 {sbModelBuilder}
     }}
-}}
-
-");
+}}");
 
             list.Add(($"{ns}.{entity.FullType}.DbContextBase.g", sb.ToString()));
         }
@@ -176,8 +170,6 @@ public partial class {entity.FullType.Replace(".", "_")}ModelBuilderProvider : I
 
             sb.AppendLine($@"using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Temelie.DependencyInjection;
-using Temelie.Repository;
 using Temelie.Repository.EntityFrameworkCore;
 
 namespace {ns};
@@ -200,8 +192,7 @@ public abstract partial class DbContextBase : DbContext
             provider.OnModelCreating(modelBuilder);
         }}
     }}
-}}
-");
+}}");
             list.Add(($"{ns}.DbContextBase.g", sb.ToString()));
         }
 

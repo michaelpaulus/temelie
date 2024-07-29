@@ -1,5 +1,7 @@
-using Temelie.Entities;
 #nullable enable
+
+using Temelie.Entities;
+
 namespace AdventureWorks.Entities;
 
 [System.ComponentModel.DataAnnotations.Schema.Table("Address1")]

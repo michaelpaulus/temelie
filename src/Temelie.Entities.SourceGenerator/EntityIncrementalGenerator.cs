@@ -14,7 +14,7 @@ public partial class EntityIncrementalGenerator : IIncrementalGenerator
 
         var files = context.AdditionalTextsProvider
             .Where(static a => a.Path.EndsWith(".sql.json"))
-            .Select(static  (a, c) => new File(a.Path, a.GetText(c)));
+            .Select(static (a, c) => new File(a.Path, a.GetText(c)));
 
         var result = files.Combine(options);
 
@@ -154,8 +154,7 @@ public interface I{className} : {extends}
             }
 
             sb.AppendLine(@$"
-}}
-");
+}}");
             sourceFiles.Add(($"{ns}.I{className}.g", sb.ToString()));
         }
 
@@ -166,11 +165,13 @@ public interface I{className} : {extends}
 
             var sb = new StringBuilder();
             sb.AppendLine($@"#nullable enable
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Temelie.Entities;
 
 namespace {ns};
 
-[System.ComponentModel.DataAnnotations.Schema.Table(""{table.TableName}"", Schema = ""{table.SchemaName}"")]
+[Table(""{table.TableName}"", Schema = ""{table.SchemaName}"")]
 public record {className} : EntityBase, I{className}
 {{
 ");
@@ -178,31 +179,30 @@ public record {className} : EntityBase, I{className}
             {
                 if (column.IsPrimaryKey)
                 {
-                    sb.AppendLine($"    [System.ComponentModel.DataAnnotations.Key]");
+                    sb.AppendLine($"    [Key]");
                     if (!column.IsIdentity)
                     {
-                        sb.AppendLine($"    [System.ComponentModel.DataAnnotations.Schema.DatabaseGenerated(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None)]");
+                        sb.AppendLine($"    [DatabaseGenerated(DatabaseGeneratedOption.None)]");
                     }
                 }
                 if (column.IsComputed)
                 {
-                    sb.AppendLine($"    [System.ComponentModel.DataAnnotations.Schema.DatabaseGenerated(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Computed)]");
+                    sb.AppendLine($"    [DatabaseGenerated(DatabaseGeneratedOption.Computed)]");
                 }
                 if (column.IsIdentity)
                 {
-                    sb.AppendLine($"    [System.ComponentModel.DataAnnotations.Schema.DatabaseGenerated(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity)]");
+                    sb.AppendLine($"    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]");
                 }
                 if (column.Precision.HasValue && column.Scale.HasValue)
                 {
                     sb.AppendLine($"    [Temelie.Entities.ColumnPrecision({column.Precision.Value}, {column.Scale.Value})]");
                 }
-                sb.AppendLine($"    [System.ComponentModel.DataAnnotations.Schema.Column(\"{column.ColumnName}\", Order = {column.ColumnId})]");
+                sb.AppendLine($"    [Column(\"{column.ColumnName}\", Order = {column.ColumnId})]");
                 sb.AppendLine($"    public {column.PropertyType} {column.PropertyName} {{ get; set; }}{column.Default}");
             }
 
             sb.AppendLine(@$"
-}}
-");
+}}");
             sourceFiles.Add(($"{ns}.{className}.g", sb.ToString()));
         }
 
