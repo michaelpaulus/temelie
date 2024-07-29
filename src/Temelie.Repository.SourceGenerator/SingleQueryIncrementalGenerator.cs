@@ -24,22 +24,22 @@ public class SingleQueryIncrementalGenerator : IIncrementalGenerator
 
     static void Generate(SourceProductionContext context, (string RootNamespace, IEnumerable<Entity> Entities) result)
     {
-        foreach (var item in result.Entities)
+        foreach (var entity in result.Entities)
         {
             context.CancellationToken.ThrowIfCancellationRequested();
-            var generated = Generate(result.RootNamespace, item);
-            if (!string.IsNullOrEmpty(generated.Name))
+            var generated = Generate(result.RootNamespace, entity);
+            foreach (var item in generated)
             {
-                context.AddSource(generated.Name, generated.Code);
+                context.AddSource(item.Name, item.Code);
             }
         }
     }
 
-    public static (string Name, string Code) Generate(string rootNamespace, Entity entity)
+    public static IEnumerable<(string Name, string Code)> Generate(string rootNamespace, Entity entity)
     {
         if (entity.IsView)
         {
-            return default;
+            return [];
         }
 
         var ns = rootNamespace;
@@ -62,10 +62,10 @@ public class {entity.Name}SingleQuery({string.Join(", ", keys.Select(i => $"{i.F
     }}
 }}
 ");
-           return($"{entity.FullType}.SingleQuery.g", sb.ToString());
+            return [($"{entity.FullType}.SingleQuery.g", sb.ToString())];
         }
 
-        return default;
+        return [];
     }
 
 }

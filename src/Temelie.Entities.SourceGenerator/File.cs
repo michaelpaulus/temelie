@@ -26,7 +26,7 @@ internal class File(string filePath, SourceText content) : IEquatable<File>
 
     public override int GetHashCode()
     {
-        HashCode hash = new();
+        Repository.SourceGenerator.HashCode hash = new();
         hash.Add(FilePath);
         hash.Add(Content);
         return hash.GetHashCode();

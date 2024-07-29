@@ -14,7 +14,7 @@ public partial class EntityIncrementalGenerator : IIncrementalGenerator
 
         var files = context.AdditionalTextsProvider
             .Where(static a => a.Path.EndsWith(".sql.json"))
-            .Select(static  (a, c) => new File(a.Path, a.GetText()));
+            .Select(static  (a, c) => new File(a.Path, a.GetText(c)));
 
         var result = files.Combine(options);
 

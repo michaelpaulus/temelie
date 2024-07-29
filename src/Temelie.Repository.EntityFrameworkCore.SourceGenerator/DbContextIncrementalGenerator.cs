@@ -25,10 +25,13 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
     static void Generate(SourceProductionContext context, (string RootNamespace, IEnumerable<Entity> Entities) result)
     {
         var generated = Generate(result.RootNamespace, result.Entities);
-        context.AddSource(generated.Name, generated.Code);
+        foreach (var item in generated)
+        {
+            context.AddSource(item.Name, item.Code);
+        }
     }
 
-    public static (string Name, string Code) Generate(string rootNamespace, IEnumerable<Entity> entities)
+    public static IEnumerable<(string Name, string Code)> Generate(string rootNamespace, IEnumerable<Entity> entities)
     {
         var ns = rootNamespace;
 
@@ -162,7 +165,7 @@ namespace {ns};
 }}
 ");
 
-        return($"{ns}.DbContextBase.g", sb.ToString());
+        return [($"{ns}.DbContextBase.g", sb.ToString())];
     }
 
 }
