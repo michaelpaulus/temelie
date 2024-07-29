@@ -35,24 +35,24 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
     {
         var ns = rootNamespace;
 
-        var sbModelBuilder = new StringBuilder();
-        var sbRepositoryContext = new StringBuilder();
-        var sbImplements = new StringBuilder();
-        var sbExports = new StringBuilder();
+        var list = new List<(string Name, string Codde)>();
 
         void addEntity(Entity entity)
         {
+            var sbModelBuilder = new StringBuilder();
+            var sbRepositoryContext = new StringBuilder();
+            var sbImplements = new StringBuilder();
+            var sbExports = new StringBuilder();
+
             var className = entity.FullType.Split('.').Last();
 
-            sbImplements.Append($@",
-                                     IRepositoryContext<{entity.FullType}>");
+            sbImplements.Append($@"IRepositoryContext<{entity.FullType}>");
+
             sbExports.AppendLine($"[ExportTransient(typeof(IRepositoryContext<{entity.FullType}>))]");
 
-            sbRepositoryContext.AppendLine($@"
-    public DbSet<{entity.FullType}> {className} {{ get; set; }}
+            sbRepositoryContext.AppendLine($@"    public DbSet<{entity.FullType}> {className} {{ get; set; }}
     DbContext IRepositoryContext<{entity.FullType}>.DbContext => this;
-    DbSet<{entity.FullType}> IRepositoryContext<{entity.FullType}>.DbSet => {className};
-");
+    DbSet<{entity.FullType}> IRepositoryContext<{entity.FullType}>.DbSet => {className};");
 
             var props = new StringBuilder();
             var keys = new List<string>();
@@ -129,6 +129,40 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
 {props}
         }});
 ");
+
+            var sb = new StringBuilder();
+
+            sb.AppendLine($@"using Microsoft.EntityFrameworkCore;
+using Temelie.DependencyInjection;
+using Temelie.Repository;
+using Temelie.Repository.EntityFrameworkCore;
+
+namespace {ns};
+
+{sbExports}public abstract partial class DbContextBase : {sbImplements}
+{{
+{sbRepositoryContext}
+}}
+
+[ExportProvider(typeof(IModelBuilderProvider))]
+public partial class {entity.FullType.Replace(".", "_")}ModelBuilderProvider : IModelBuilderProvider
+{{
+    private readonly IServiceProvider _serviceProvider;
+
+    public {entity.FullType.Replace(".", "_")}ModelBuilderProvider(IServiceProvider serviceProvider)
+    {{
+        _serviceProvider = serviceProvider;
+    }}
+
+    public void OnModelCreating(ModelBuilder modelBuilder)
+    {{
+{sbModelBuilder}
+    }}
+}}
+
+");
+
+            list.Add(($"{ns}.{entity.FullType}.DbContextBase.g", sb.ToString()));
         }
 
         foreach (var entity in entities)
@@ -136,16 +170,19 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
             addEntity(entity);
         }
 
-        var sb = new StringBuilder();
+        void addBase()
+        {
+            var sb = new StringBuilder();
 
-        sb.AppendLine($@"using Microsoft.EntityFrameworkCore;
+            sb.AppendLine($@"using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Temelie.DependencyInjection;
 using Temelie.Repository;
 using Temelie.Repository.EntityFrameworkCore;
 
 namespace {ns};
 
-{sbExports}public abstract partial class DbContextBase : DbContext{sbImplements}
+public abstract partial class DbContextBase : DbContext
 {{
 
     private readonly IServiceProvider _serviceProvider;
@@ -158,14 +195,19 @@ namespace {ns};
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {{
         base.OnModelCreating(modelBuilder);
-        {sbModelBuilder}
+        foreach (var provider in _serviceProvider.GetServices<IModelBuilderProvider>())
+        {{
+            provider.OnModelCreating(modelBuilder);
+        }}
     }}
-
-    {sbRepositoryContext}
 }}
 ");
+            list.Add(($"{ns}.DbContextBase.g", sb.ToString()));
+        }
 
-        return [($"{ns}.DbContextBase.g", sb.ToString())];
+        addBase();
+
+        return list.ToArray();
     }
 
 }
