@@ -56,12 +56,12 @@ public class ScriptService : IScriptService
             if (string.IsNullOrEmpty(fileFilter) ||
                 fileFilter.EqualsIgnoreCase(fileName))
             {
-
                 var script = provider.GetScript(table);
-
-                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), script.CreateScript));
-                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(table)));
-
+                if (script is not null)
+                {
+                    files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), script.CreateScript));
+                    files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(table)));
+                }
             }
         }
 
@@ -120,13 +120,15 @@ GO
             {
 
                 var script = provider.GetScript(securityPolicy);
+                if (script is not null)
+                {
+                    var sbSecurityPolicyScript = new StringBuilder();
+                    sbSecurityPolicyScript.AppendLine(script.DropScript);
+                    sbSecurityPolicyScript.AppendLine(script.CreateScript);
 
-                var sbSecurityPolicyScript = new StringBuilder();
-                sbSecurityPolicyScript.AppendLine(script.DropScript);
-                sbSecurityPolicyScript.AppendLine(script.CreateScript);
-
-                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sbSecurityPolicyScript.ToString()).File);
-                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(securityPolicy)).File);
+                    files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sbSecurityPolicyScript.ToString()).File);
+                    files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(securityPolicy)).File);
+                }
 
             }
 
@@ -147,11 +149,13 @@ GO
                 fileFilter.EqualsIgnoreCase(fileName))
                 {
                     var script = provider.GetScript(pk);
-                    files.Add(fileName, WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), script.CreateScript).File);
-                    files.Add(fileName + ".json", WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(pk)).File);
+                    if (script is not null)
+                    {
+                        files.Add(fileName, WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), script.CreateScript).File);
+                        files.Add(fileName + ".json", WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(pk)).File);
+                    }
                 }
             }
-            
         }
 
         foreach (var index in database.Indexes)
@@ -163,8 +167,11 @@ GO
                 fileFilter.EqualsIgnoreCase(fileName))
                 {
                     var script = provider.GetScript(index);
-                    files.Add(fileName, WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), script.CreateScript).File);
-                    files.Add(fileName + ".json", WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(index)).File);
+                    if (script is not null)
+                    {
+                        files.Add(fileName, WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), script.CreateScript).File);
+                        files.Add(fileName + ".json", WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(index)).File);
+                    }
                 }
             }
         }
@@ -182,12 +189,15 @@ GO
                 fileFilter.EqualsIgnoreCase(fileName))
             {
                 var script = provider.GetScript(constraint);
-                var sb = new StringBuilder();
-                sb.Append(script.DropScript);
-                sb.Append(script.CreateScript);
+                if (script is not null)
+                {
+                    var sb = new StringBuilder();
+                    sb.Append(script.DropScript);
+                    sb.Append(script.CreateScript);
 
-                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()).File);
-                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(constraint)).File);
+                    files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()).File);
+                    files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(constraint)).File);
+                }
             }
         }
 
@@ -215,12 +225,15 @@ GO
 
                 var script = provider.GetScript(definition);
 
-                var sb = new System.Text.StringBuilder();
-                sb.Append(script.DropScript);
-                sb.Append(script.CreateScript);
+                if (script is not null)
+                {
+                    var sb = new System.Text.StringBuilder();
+                    sb.Append(script.DropScript);
+                    sb.Append(script.CreateScript);
 
-                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()).File);
-                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(definition)).File);
+                    files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()).File);
+                    files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(definition)).File);
+                }
             }
 
         }
@@ -238,13 +251,18 @@ GO
             {
 
                 var script = provider.GetScript(trigger);
-                var sb = new System.Text.StringBuilder();
 
-                sb.Append(script.DropScript);
-                sb.Append(script.CreateScript);
+                if (script is not null)
+                {
+                    var sb = new System.Text.StringBuilder();
 
-                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()).File);
-                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(trigger)).File);
+                    sb.Append(script.DropScript);
+                    sb.Append(script.CreateScript);
+
+                    files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()).File);
+                    files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(trigger)).File);
+                }
+
             }
         }
 
@@ -260,11 +278,14 @@ GO
                 fileFilter.EqualsIgnoreCase(fileName))
             {
                 var script = provider.GetScript(foreignKey);
-                var sb = new System.Text.StringBuilder();
-                sb.Append(script.DropScript);
-                sb.Append(script.CreateScript);
-                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()).File);
-                files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(foreignKey)).File);
+                if (script is not null)
+                {
+                    var sb = new System.Text.StringBuilder();
+                    sb.Append(script.DropScript);
+                    sb.Append(script.CreateScript);
+                    files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()).File);
+                    files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(foreignKey)).File);
+                }
             }
         }
 
@@ -468,20 +489,32 @@ GO
 
                 var sb = new StringBuilder();
 
-                sb.AppendLine(provider.GetScript(table).CreateScript);
-                sb.AppendLine(provider.GetScript(pk).CreateScript);
+                var tableScript = provider.GetScript(table);
+                if (tableScript is not null)
+                {
+                    sb.AppendLine(tableScript.CreateScript);
+                }
 
-                _databaseExecutionService.ExecuteFile(connectionString, sb.ToString());
+                var pkScript = provider.GetScript(pk);
+                if (pkScript is not null)
+                {
+                    sb.AppendLine(pkScript.CreateScript);
+                }
+
+                var script = sb.ToString();
+
+                _databaseExecutionService.ExecuteFile(connectionString, script);
 
                 shouldEnsureMigrationsTable = false;
             }
         }
 
+        ensureMigrationsTable();
+
         foreach (var dir in directory.GetDirectories().OrderBy(i => i.Name))
         {
             if (dir.Name.EndsWith("_Migrations"))
             {
-                ensureMigrationsTable();
                 foreach (var migration in dir.GetDirectories().OrderBy(i => i.Name))
                 {
                     var files = migration.GetFiles("*.sql", SearchOption.AllDirectories).OrderBy(i => i.FullName);
@@ -492,7 +525,7 @@ GO
                         using var conn = _databaseExecutionService.CreateDbConnection(connectionString);
                         using var cmd = _databaseExecutionService.CreateDbCommand(conn);
                         cmd.CommandText = $"SELECT COUNT(*) FROM Migrations WHERE Id = '{id}'";
-                        var migrationCount = (int)cmd.ExecuteScalar();
+                        var migrationCount = (long)cmd.ExecuteScalar();
                         if (migrationCount == 0)
                         {
                             pendingMigrations.Add(id);
@@ -512,7 +545,7 @@ GO
                     using var conn = _databaseExecutionService.CreateDbConnection(connectionString);
                     using var cmd = _databaseExecutionService.CreateDbCommand(conn);
                     cmd.CommandText = $"SELECT COUNT(*) FROM Migrations WHERE Id = '{id}'";
-                    var migrationCount = (int)cmd.ExecuteScalar();
+                    var migrationCount = (long)cmd.ExecuteScalar();
 
                     // if this folder has changed, or a previous step has changed, run these files
                     if (pendingMigrations.Count > 0 || migrationCount == 0)
@@ -545,7 +578,7 @@ GO
             if (progress != null)
             {
                 int percent = Convert.ToInt32((intFileCount / count) * 100);
-                progress.Report(new ScriptProgress() { ProgressPercentage = percent, ProgressStatus = $"{file.Directory.Name}/{file.Name}"});
+                progress.Report(new ScriptProgress() { ProgressPercentage = percent, ProgressStatus = $"{file.Directory.Name}/{file.Name}" });
             }
 
             using (System.IO.Stream stream = System.IO.File.OpenRead(file.FullName))

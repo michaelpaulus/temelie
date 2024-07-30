@@ -5,7 +5,6 @@
   "isMemoryOptimized": false,
   "durabilityDesc": "SCHEMA_AND_DATA",
   "isExternal": false,
-  "isHistoryTable": false,
   "isView": false,
   "columns": [
     {
@@ -21,9 +20,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "INT",
-      "dbType": 11,
-      "extendedProperties": {},
-      "fullColumnType": "INT"
+      "extendedProperties": {}
     },
     {
       "schemaName": "HumanResources",
@@ -38,9 +35,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "NVARCHAR",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "NVARCHAR(15)"
+      "extendedProperties": {}
     },
     {
       "schemaName": "HumanResources",
@@ -55,9 +50,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "NVARCHAR",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "NVARCHAR(256)"
+      "extendedProperties": {}
     },
     {
       "schemaName": "HumanResources",
@@ -72,9 +65,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "HIERARCHYID",
-      "dbType": 13,
-      "extendedProperties": {},
-      "fullColumnType": "HIERARCHYID"
+      "extendedProperties": {}
     },
     {
       "schemaName": "HumanResources",
@@ -90,9 +81,7 @@
       "generatedAlwaysType": 0,
       "computedDefinition": "([OrganizationNode].[GetLevel]())",
       "columnType": "SMALLINT",
-      "dbType": 10,
-      "extendedProperties": {},
-      "fullColumnType": "SMALLINT"
+      "extendedProperties": {}
     },
     {
       "schemaName": "HumanResources",
@@ -107,9 +96,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "NVARCHAR",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "NVARCHAR(50)"
+      "extendedProperties": {}
     },
     {
       "schemaName": "HumanResources",
@@ -124,9 +111,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "DATE",
-      "dbType": 5,
-      "extendedProperties": {},
-      "fullColumnType": "DATE"
+      "extendedProperties": {}
     },
     {
       "schemaName": "HumanResources",
@@ -141,9 +126,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "NCHAR",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "NCHAR(1)"
+      "extendedProperties": {}
     },
     {
       "schemaName": "HumanResources",
@@ -158,9 +141,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "NCHAR",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "NCHAR(1)"
+      "extendedProperties": {}
     },
     {
       "schemaName": "HumanResources",
@@ -175,9 +156,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "DATE",
-      "dbType": 5,
-      "extendedProperties": {},
-      "fullColumnType": "DATE"
+      "extendedProperties": {}
     },
     {
       "schemaName": "HumanResources",
@@ -193,9 +172,7 @@
       "generatedAlwaysType": 0,
       "columnType": "FLAG",
       "columnDefault": "((1))",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "FLAG"
+      "extendedProperties": {}
     },
     {
       "schemaName": "HumanResources",
@@ -211,9 +188,7 @@
       "generatedAlwaysType": 0,
       "columnType": "SMALLINT",
       "columnDefault": "((0))",
-      "dbType": 10,
-      "extendedProperties": {},
-      "fullColumnType": "SMALLINT"
+      "extendedProperties": {}
     },
     {
       "schemaName": "HumanResources",
@@ -229,9 +204,7 @@
       "generatedAlwaysType": 0,
       "columnType": "SMALLINT",
       "columnDefault": "((0))",
-      "dbType": 10,
-      "extendedProperties": {},
-      "fullColumnType": "SMALLINT"
+      "extendedProperties": {}
     },
     {
       "schemaName": "HumanResources",
@@ -247,9 +220,7 @@
       "generatedAlwaysType": 0,
       "columnType": "FLAG",
       "columnDefault": "((1))",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "FLAG"
+      "extendedProperties": {}
     },
     {
       "schemaName": "HumanResources",
@@ -265,9 +236,7 @@
       "generatedAlwaysType": 0,
       "columnType": "UNIQUEIDENTIFIER",
       "columnDefault": "(newid())",
-      "dbType": 9,
-      "extendedProperties": {},
-      "fullColumnType": "UNIQUEIDENTIFIER"
+      "extendedProperties": {}
     },
     {
       "schemaName": "HumanResources",
@@ -283,9 +252,7 @@
       "generatedAlwaysType": 0,
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
-      "dbType": 6,
-      "extendedProperties": {},
-      "fullColumnType": "DATETIME"
+      "extendedProperties": {}
     }
   ],
   "extendedProperties": {}

@@ -41,6 +41,7 @@ public class TableModel : DatabaseObjectModel
     public string DurabilityDesc { get; set; }
     public bool IsExternal { get; set; }
     public string DataSourceName { get; set; }
+    [JsonIgnore]
     public bool IsHistoryTable { get { return TemporalType == 1; } }
     public bool IsView { get; set; }
 

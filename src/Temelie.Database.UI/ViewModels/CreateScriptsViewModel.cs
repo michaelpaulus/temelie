@@ -85,7 +85,7 @@ public class CreateScriptsViewModel : ViewModel
     private void CreateScriptsInternal(IProgress<ScriptProgress> progress)
     {
         System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(this.ScriptPath);
-        _scriptService.CreateScripts(this.DatabaseConnectionString, di, progress, this.ObjectFilter, _databaseProviders.FirstOrDefault(i => i.Name == "SqlConnection"));
+        _scriptService.CreateScripts(this.DatabaseConnectionString, di, progress, this.ObjectFilter);
     }
     private void ReportProgress(ScriptProgress progress)
     {

@@ -5,7 +5,6 @@
   "isMemoryOptimized": false,
   "durabilityDesc": "SCHEMA_AND_DATA",
   "isExternal": false,
-  "isHistoryTable": false,
   "isView": false,
   "columns": [
     {
@@ -21,9 +20,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "INT",
-      "dbType": 11,
-      "extendedProperties": {},
-      "fullColumnType": "INT"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Sales",
@@ -38,9 +35,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "INT",
-      "dbType": 11,
-      "extendedProperties": {},
-      "fullColumnType": "INT"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Sales",
@@ -55,9 +50,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "NVARCHAR",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "NVARCHAR(25)"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Sales",
@@ -72,9 +65,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "SMALLINT",
-      "dbType": 10,
-      "extendedProperties": {},
-      "fullColumnType": "SMALLINT"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Sales",
@@ -89,9 +80,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "INT",
-      "dbType": 11,
-      "extendedProperties": {},
-      "fullColumnType": "INT"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Sales",
@@ -106,9 +95,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "INT",
-      "dbType": 11,
-      "extendedProperties": {},
-      "fullColumnType": "INT"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Sales",
@@ -123,9 +110,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "MONEY",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "MONEY"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Sales",
@@ -141,9 +126,7 @@
       "generatedAlwaysType": 0,
       "columnType": "MONEY",
       "columnDefault": "((0.0))",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "MONEY"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Sales",
@@ -159,9 +142,7 @@
       "generatedAlwaysType": 0,
       "computedDefinition": "(isnull(([UnitPrice]*((1.0)-[UnitPriceDiscount]))*[OrderQty],(0.0)))",
       "columnType": "NUMERIC",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "NUMERIC(38, 6)"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Sales",
@@ -177,9 +158,7 @@
       "generatedAlwaysType": 0,
       "columnType": "UNIQUEIDENTIFIER",
       "columnDefault": "(newid())",
-      "dbType": 9,
-      "extendedProperties": {},
-      "fullColumnType": "UNIQUEIDENTIFIER"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Sales",
@@ -195,9 +174,7 @@
       "generatedAlwaysType": 0,
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
-      "dbType": 6,
-      "extendedProperties": {},
-      "fullColumnType": "DATETIME"
+      "extendedProperties": {}
     }
   ],
   "extendedProperties": {}

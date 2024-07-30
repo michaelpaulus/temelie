@@ -5,7 +5,6 @@
   "isMemoryOptimized": false,
   "durabilityDesc": "SCHEMA_AND_DATA",
   "isExternal": false,
-  "isHistoryTable": false,
   "isView": false,
   "columns": [
     {
@@ -21,9 +20,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "INT",
-      "dbType": 11,
-      "extendedProperties": {},
-      "fullColumnType": "INT"
+      "extendedProperties": {}
     },
     {
       "schemaName": "dbo",
@@ -38,9 +35,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "DATETIME",
-      "dbType": 6,
-      "extendedProperties": {},
-      "fullColumnType": "DATETIME"
+      "extendedProperties": {}
     },
     {
       "schemaName": "dbo",
@@ -55,9 +50,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "SYSNAME",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "SYSNAME"
+      "extendedProperties": {}
     },
     {
       "schemaName": "dbo",
@@ -72,9 +65,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "SYSNAME",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "SYSNAME"
+      "extendedProperties": {}
     },
     {
       "schemaName": "dbo",
@@ -89,9 +80,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "SYSNAME",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "SYSNAME"
+      "extendedProperties": {}
     },
     {
       "schemaName": "dbo",
@@ -106,9 +95,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "SYSNAME",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "SYSNAME"
+      "extendedProperties": {}
     },
     {
       "schemaName": "dbo",
@@ -123,9 +110,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "NVARCHAR",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "NVARCHAR(MAX)"
+      "extendedProperties": {}
     },
     {
       "schemaName": "dbo",
@@ -140,9 +125,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "XML",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "XML"
+      "extendedProperties": {}
     }
   ],
   "extendedProperties": {}

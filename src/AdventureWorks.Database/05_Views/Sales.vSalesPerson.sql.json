@@ -10,7 +10,6 @@
     "temporalType": 0,
     "isMemoryOptimized": false,
     "isExternal": false,
-    "isHistoryTable": false,
     "isView": true,
     "columns": [
       {
@@ -26,9 +25,7 @@
         "isHidden": false,
         "generatedAlwaysType": 0,
         "columnType": "INT",
-        "dbType": 11,
-        "extendedProperties": {},
-        "fullColumnType": "INT"
+        "extendedProperties": {}
       },
       {
         "schemaName": "Sales",
@@ -43,9 +40,7 @@
         "isHidden": false,
         "generatedAlwaysType": 0,
         "columnType": "NVARCHAR",
-        "dbType": 16,
-        "extendedProperties": {},
-        "fullColumnType": "NVARCHAR(8)"
+        "extendedProperties": {}
       },
       {
         "schemaName": "Sales",
@@ -60,9 +55,7 @@
         "isHidden": false,
         "generatedAlwaysType": 0,
         "columnType": "NAME",
-        "dbType": 16,
-        "extendedProperties": {},
-        "fullColumnType": "NAME"
+        "extendedProperties": {}
       },
       {
         "schemaName": "Sales",
@@ -77,9 +70,7 @@
         "isHidden": false,
         "generatedAlwaysType": 0,
         "columnType": "NAME",
-        "dbType": 16,
-        "extendedProperties": {},
-        "fullColumnType": "NAME"
+        "extendedProperties": {}
       },
       {
         "schemaName": "Sales",
@@ -94,9 +85,7 @@
         "isHidden": false,
         "generatedAlwaysType": 0,
         "columnType": "NAME",
-        "dbType": 16,
-        "extendedProperties": {},
-        "fullColumnType": "NAME"
+        "extendedProperties": {}
       },
       {
         "schemaName": "Sales",
@@ -111,9 +100,7 @@
         "isHidden": false,
         "generatedAlwaysType": 0,
         "columnType": "NVARCHAR",
-        "dbType": 16,
-        "extendedProperties": {},
-        "fullColumnType": "NVARCHAR(10)"
+        "extendedProperties": {}
       },
       {
         "schemaName": "Sales",
@@ -128,9 +115,7 @@
         "isHidden": false,
         "generatedAlwaysType": 0,
         "columnType": "NVARCHAR",
-        "dbType": 16,
-        "extendedProperties": {},
-        "fullColumnType": "NVARCHAR(50)"
+        "extendedProperties": {}
       },
       {
         "schemaName": "Sales",
@@ -145,9 +130,7 @@
         "isHidden": false,
         "generatedAlwaysType": 0,
         "columnType": "PHONE",
-        "dbType": 16,
-        "extendedProperties": {},
-        "fullColumnType": "PHONE"
+        "extendedProperties": {}
       },
       {
         "schemaName": "Sales",
@@ -162,9 +145,7 @@
         "isHidden": false,
         "generatedAlwaysType": 0,
         "columnType": "NAME",
-        "dbType": 16,
-        "extendedProperties": {},
-        "fullColumnType": "NAME"
+        "extendedProperties": {}
       },
       {
         "schemaName": "Sales",
@@ -179,9 +160,7 @@
         "isHidden": false,
         "generatedAlwaysType": 0,
         "columnType": "NVARCHAR",
-        "dbType": 16,
-        "extendedProperties": {},
-        "fullColumnType": "NVARCHAR(50)"
+        "extendedProperties": {}
       },
       {
         "schemaName": "Sales",
@@ -196,9 +175,7 @@
         "isHidden": false,
         "generatedAlwaysType": 0,
         "columnType": "INT",
-        "dbType": 11,
-        "extendedProperties": {},
-        "fullColumnType": "INT"
+        "extendedProperties": {}
       },
       {
         "schemaName": "Sales",
@@ -213,9 +190,7 @@
         "isHidden": false,
         "generatedAlwaysType": 0,
         "columnType": "NVARCHAR",
-        "dbType": 16,
-        "extendedProperties": {},
-        "fullColumnType": "NVARCHAR(60)"
+        "extendedProperties": {}
       },
       {
         "schemaName": "Sales",
@@ -230,9 +205,7 @@
         "isHidden": false,
         "generatedAlwaysType": 0,
         "columnType": "NVARCHAR",
-        "dbType": 16,
-        "extendedProperties": {},
-        "fullColumnType": "NVARCHAR(60)"
+        "extendedProperties": {}
       },
       {
         "schemaName": "Sales",
@@ -247,9 +220,7 @@
         "isHidden": false,
         "generatedAlwaysType": 0,
         "columnType": "NVARCHAR",
-        "dbType": 16,
-        "extendedProperties": {},
-        "fullColumnType": "NVARCHAR(30)"
+        "extendedProperties": {}
       },
       {
         "schemaName": "Sales",
@@ -264,9 +235,7 @@
         "isHidden": false,
         "generatedAlwaysType": 0,
         "columnType": "NAME",
-        "dbType": 16,
-        "extendedProperties": {},
-        "fullColumnType": "NAME"
+        "extendedProperties": {}
       },
       {
         "schemaName": "Sales",
@@ -281,9 +250,7 @@
         "isHidden": false,
         "generatedAlwaysType": 0,
         "columnType": "NVARCHAR",
-        "dbType": 16,
-        "extendedProperties": {},
-        "fullColumnType": "NVARCHAR(15)"
+        "extendedProperties": {}
       },
       {
         "schemaName": "Sales",
@@ -298,9 +265,7 @@
         "isHidden": false,
         "generatedAlwaysType": 0,
         "columnType": "NAME",
-        "dbType": 16,
-        "extendedProperties": {},
-        "fullColumnType": "NAME"
+        "extendedProperties": {}
       },
       {
         "schemaName": "Sales",
@@ -315,9 +280,7 @@
         "isHidden": false,
         "generatedAlwaysType": 0,
         "columnType": "NAME",
-        "dbType": 16,
-        "extendedProperties": {},
-        "fullColumnType": "NAME"
+        "extendedProperties": {}
       },
       {
         "schemaName": "Sales",
@@ -332,9 +295,7 @@
         "isHidden": false,
         "generatedAlwaysType": 0,
         "columnType": "NVARCHAR",
-        "dbType": 16,
-        "extendedProperties": {},
-        "fullColumnType": "NVARCHAR(50)"
+        "extendedProperties": {}
       },
       {
         "schemaName": "Sales",
@@ -349,9 +310,7 @@
         "isHidden": false,
         "generatedAlwaysType": 0,
         "columnType": "MONEY",
-        "dbType": 16,
-        "extendedProperties": {},
-        "fullColumnType": "MONEY"
+        "extendedProperties": {}
       },
       {
         "schemaName": "Sales",
@@ -366,9 +325,7 @@
         "isHidden": false,
         "generatedAlwaysType": 0,
         "columnType": "MONEY",
-        "dbType": 16,
-        "extendedProperties": {},
-        "fullColumnType": "MONEY"
+        "extendedProperties": {}
       },
       {
         "schemaName": "Sales",
@@ -383,9 +340,7 @@
         "isHidden": false,
         "generatedAlwaysType": 0,
         "columnType": "MONEY",
-        "dbType": 16,
-        "extendedProperties": {},
-        "fullColumnType": "MONEY"
+        "extendedProperties": {}
       }
     ],
     "extendedProperties": {}

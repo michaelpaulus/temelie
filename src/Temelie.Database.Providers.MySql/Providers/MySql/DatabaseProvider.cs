@@ -3,13 +3,12 @@ using System.Data.Common;
 using Temelie.Database.Models;
 using Temelie.Database.Services;
 using Temelie.DependencyInjection;
-using MySql.Data.MySqlClient;
-using MySql.Data.Types;
 using System.Text;
+using MySqlConnector;
 
 namespace Temelie.Database.Providers.MySql;
 [ExportProvider(typeof(IDatabaseProvider))]
-public class DatabaseProvider : DatabaseProviderBase
+public partial class DatabaseProvider : DatabaseProviderBase
 {
 
     private readonly IEnumerable<IConnectionCreatedNotification> _connectionCreatedNotifications;
@@ -32,9 +31,9 @@ public class DatabaseProvider : DatabaseProviderBase
 
     public override string DefaultConnectionString => "Data Source=localhost;Database=database;User Id=;Password=";
 
-    public System.Data.Common.DbProviderFactory CreateProvider()
+    public DbProviderFactory CreateProvider()
     {
-        return new global::MySql.Data.MySqlClient.MySqlClientFactory();
+        return new MySqlDbProviderFactory();
     }
 
     public override bool TryHandleColumnValueLoadException(Exception ex, Models.ColumnModel column, out object value)
@@ -144,186 +143,6 @@ public class DatabaseProvider : DatabaseProviderBase
 
         return targetColumnType;
 
-    }
-
-    protected override DataTable GetDefinitionDependenciesDataTable(DbConnection connection)
-    {
-        return null;
-    }
-
-    protected override DataTable GetDefinitionsDataTable(DbConnection connection)
-    {
-        return null;
-    }
-
-    protected override DataTable GetForeignKeysDataTable(DbConnection connection)
-    {
-        var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connection.ConnectionString);
-        var sql = $@"
-SELECT
-    '' schema_name,
-    KCU.table_name,
-    KCU.constraint_name AS foreign_key_name,
-    KCU.column_name,
-    KCU.referenced_table_name,
-    KCU.referenced_column_name,
-    0 AS is_not_for_replication,
-    CASE WHEN RC.delete_rule = 'RESTRICT' THEN 'NO ACTION' ELSE RC.delete_rule END delete_action,
-    CASE WHEN RC.update_rule = 'RESTRICT' THEN 'NO ACTION' ELSE RC.update_rule END update_action
-FROM
-    INFORMATION_SCHEMA.KEY_COLUMN_USAGE KCU JOIN
-    INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS RC ON
-        KCU.CONSTRAINT_CATALOG = RC.CONSTRAINT_CATALOG AND
-        KCU.CONSTRAINT_SCHEMA = RC.CONSTRAINT_SCHEMA AND
-        KCU.CONSTRAINT_NAME = RC.CONSTRAINT_NAME
-WHERE
-    RC.constraint_schema = '{csb.Database}'
-ORDER BY
-    KCU.table_name,
-    KCU.CONSTRAINT_NAME,
-    KCU.ORDINAL_POSITION
-";
-        System.Data.DataSet ds = _database.Execute(connection, sql);
-        DataTable dataTable = ds.Tables[0];
-        return dataTable;
-    }
-
-    protected override DataTable GetCheckConstraintsDataTable(DbConnection connection)
-    {
-        return null;
-    }
-
-    protected override DataTable GetIndexesDataTable(DbConnection connection)
-    {
-        var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connection.ConnectionString);
-
-        var sql = $@"
-SELECT
-    '' schema_name,
-    statistics.table_name,
-    statistics.index_name,
-    statistics.column_name,
-    statistics.seq_in_index AS key_ordinal,
-    CASE WHEN statistics.non_unique = 0 THEN 1 ELSE 0 END AS is_unique
-FROM
-    information_schema.statistics
-WHERE
-    statistics.table_schema = '{csb.Database}'
-ORDER BY
-    statistics.table_name,
-    statistics.index_name,
-    statistics.column_name
-";
-
-        System.Data.DataSet ds = _database.Execute(connection, sql);
-        DataTable dataTable = ds.Tables[0];
-
-        dataTable.Columns.Add("is_descending_key");
-        dataTable.Columns.Add("is_included_column");
-        dataTable.Columns.Add("fill_factor");
-        dataTable.Columns.Add("is_primary_key");
-        dataTable.Columns.Add("index_type");
-        dataTable.Columns.Add("filter_definition");
-        dataTable.Columns.Add("partition_scheme_name");
-        dataTable.Columns.Add("data_compression_desc");
-        dataTable.Columns.Add("partition_ordinal");
-
-        if (dataTable.Columns["index_name"].MaxLength < 500)
-        {
-            dataTable.Columns["index_name"].MaxLength = 500;
-        }
-
-        foreach (var row in dataTable.Rows.OfType<DataRow>())
-        {
-
-            row["is_descending_key"] = false;
-            row["is_included_column"] = false;
-            row["fill_factor"] = 0;
-            row["partition_ordinal"] = 0;
-            row["is_primary_key"] = row["index_name"].ToString().ToUpper() == "PRIMARY";
-            row["index_type"] = "NONCLUSTERED";
-
-            if (Convert.ToBoolean(row["is_primary_key"]))
-            {
-                row["index_name"] = "PK_" + row["table_name"].ToString();
-                row["index_type"] = "CLUSTERED";
-            }
-
-        }
-
-        return dataTable;
-    }
-
-    protected override DataTable GetTableColumnsDataTable(DbConnection connection)
-    {
-        var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connection.ConnectionString);
-        var sql = $@"
-SELECT
-    '' schema_name,
-    columns.table_name,
-    columns.column_name,
-    columns.ordinal_position,
-    columns.column_default,
-    columns.is_nullable,
-    columns.data_type,
-    columns.character_maximum_length,
-    columns.numeric_precision,
-    columns.numeric_scale,
-    columns.datetime_precision,
-    columns.column_type,
-    columns.column_key,
-    columns.extra
-FROM
-    information_schema.columns
-WHERE
-    columns.table_schema = '{csb.Database}'
-ORDER BY
-    columns.table_name,
-    columns.ordinal_position,
-    columns.column_name
-";
-        System.Data.DataSet ds = _database.Execute(connection, sql);
-        DataTable dataTable = ds.Tables[0];
-        DataTable dataTypes;
-
-        dataTypes = connection.GetSchema("DataTypes");
-
-        this.UpdateSchemaColumns(dataTable, dataTypes);
-        return dataTable;
-    }
-
-    protected override DataTable GetTablesDataTable(DbConnection connection)
-    {
-        var csb = new global::MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connection.ConnectionString);
-        var sql = $@"
-SELECT
-    '' schema_name,
-    tables.table_name
-FROM
-    information_schema.tables
-WHERE
-    table_schema = '{csb.Database}'
-ORDER BY
-    tables.table_name
-";
-        System.Data.DataSet ds = _database.Execute(connection, sql);
-        DataTable dataTable = ds.Tables[0];
-        return dataTable;
-    }
-
-    protected override DataTable GetTriggersDataTable(DbConnection connection)
-    {
-        return null;
-    }
-
-    protected override DataTable GetViewColumnsDataTable(DbConnection connection)
-    {
-        return null;
-    }
-
-    protected override DataTable GetViewsDataTable(DbConnection connection)
-    {
-        return null;
     }
 
     public override string TransformConnectionString(string connectionString)
@@ -497,7 +316,7 @@ ORDER BY
         {
             if (table.Columns.Contains("character_maximum_length"))
             {
-                table.Columns.Add("precision", typeof(Int32));
+                table.Columns.Add("precision", typeof(long));
                 foreach (System.Data.DataRow row in table.Rows)
                 {
                     if (row.IsNull("numeric_precision"))
@@ -512,7 +331,7 @@ ORDER BY
                             catch (ArgumentException ex)
 #pragma warning restore CS0168 // Variable is declared but never used
                             {
-                                row["precision"] = Int32.MaxValue;
+                                row["precision"] = long.MaxValue;
                             }
                         }
                     }
@@ -540,16 +359,6 @@ ORDER BY
         }
     }
 
-    protected override DataTable GetIndexeBucketCountsDataTable(DbConnection connection)
-    {
-        return null;
-    }
-
-    protected override DataTable GetSecurityPoliciesDataTable(DbConnection connection)
-    {
-        return null;
-    }
-
     public override string GetDatabaseName(string connectionString)
     {
         return new MySqlConnectionStringBuilder(connectionString).Database;
@@ -563,41 +372,6 @@ ORDER BY
     public override DbConnection CreateConnection()
     {
         return new MySqlConnection();
-    }
-
-    public override IDatabaseObjectScript GetScript(CheckConstraintModel model)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override IDatabaseObjectScript GetScript(DefinitionModel model)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override IDatabaseObjectScript GetScript(ForeignKeyModel model)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override IDatabaseObjectScript GetScript(IndexModel model)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override IDatabaseObjectScript GetScript(SecurityPolicyModel model)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override IDatabaseObjectScript GetScript(TableModel model)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override IDatabaseObjectScript GetScript(TriggerModel model)
-    {
-        throw new NotImplementedException();
     }
 
     public override int GetRowCount(DbCommand command, string schemaName, string tableName)
@@ -614,7 +388,7 @@ ORDER BY
         sb.AppendLine("SELECT");
 
         var first = true;
-    
+
         foreach (var column in columns)
         {
             if (!first)

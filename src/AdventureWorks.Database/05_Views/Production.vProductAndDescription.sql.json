@@ -10,7 +10,6 @@
     "temporalType": 0,
     "isMemoryOptimized": false,
     "isExternal": false,
-    "isHistoryTable": false,
     "isView": true,
     "columns": [
       {
@@ -26,9 +25,7 @@
         "isHidden": false,
         "generatedAlwaysType": 0,
         "columnType": "INT",
-        "dbType": 11,
-        "extendedProperties": {},
-        "fullColumnType": "INT"
+        "extendedProperties": {}
       },
       {
         "schemaName": "Production",
@@ -43,9 +40,7 @@
         "isHidden": false,
         "generatedAlwaysType": 0,
         "columnType": "NAME",
-        "dbType": 16,
-        "extendedProperties": {},
-        "fullColumnType": "NAME"
+        "extendedProperties": {}
       },
       {
         "schemaName": "Production",
@@ -60,9 +55,7 @@
         "isHidden": false,
         "generatedAlwaysType": 0,
         "columnType": "NAME",
-        "dbType": 16,
-        "extendedProperties": {},
-        "fullColumnType": "NAME"
+        "extendedProperties": {}
       },
       {
         "schemaName": "Production",
@@ -77,9 +70,7 @@
         "isHidden": false,
         "generatedAlwaysType": 0,
         "columnType": "NCHAR",
-        "dbType": 16,
-        "extendedProperties": {},
-        "fullColumnType": "NCHAR(6)"
+        "extendedProperties": {}
       },
       {
         "schemaName": "Production",
@@ -94,9 +85,7 @@
         "isHidden": false,
         "generatedAlwaysType": 0,
         "columnType": "NVARCHAR",
-        "dbType": 16,
-        "extendedProperties": {},
-        "fullColumnType": "NVARCHAR(400)"
+        "extendedProperties": {}
       }
     ],
     "extendedProperties": {}

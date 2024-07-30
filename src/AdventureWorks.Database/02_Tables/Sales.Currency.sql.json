@@ -5,7 +5,6 @@
   "isMemoryOptimized": false,
   "durabilityDesc": "SCHEMA_AND_DATA",
   "isExternal": false,
-  "isHistoryTable": false,
   "isView": false,
   "columns": [
     {
@@ -21,9 +20,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "NCHAR",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "NCHAR(3)"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Sales",
@@ -38,9 +35,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "NAME",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "NAME"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Sales",
@@ -56,9 +51,7 @@
       "generatedAlwaysType": 0,
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
-      "dbType": 6,
-      "extendedProperties": {},
-      "fullColumnType": "DATETIME"
+      "extendedProperties": {}
     }
   ],
   "extendedProperties": {}

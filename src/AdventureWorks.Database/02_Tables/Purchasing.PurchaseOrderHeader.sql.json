@@ -5,7 +5,6 @@
   "isMemoryOptimized": false,
   "durabilityDesc": "SCHEMA_AND_DATA",
   "isExternal": false,
-  "isHistoryTable": false,
   "isView": false,
   "columns": [
     {
@@ -21,9 +20,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "INT",
-      "dbType": 11,
-      "extendedProperties": {},
-      "fullColumnType": "INT"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Purchasing",
@@ -39,9 +36,7 @@
       "generatedAlwaysType": 0,
       "columnType": "TINYINT",
       "columnDefault": "((0))",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "TINYINT"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Purchasing",
@@ -57,9 +52,7 @@
       "generatedAlwaysType": 0,
       "columnType": "TINYINT",
       "columnDefault": "((1))",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "TINYINT"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Purchasing",
@@ -74,9 +67,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "INT",
-      "dbType": 11,
-      "extendedProperties": {},
-      "fullColumnType": "INT"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Purchasing",
@@ -91,9 +82,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "INT",
-      "dbType": 11,
-      "extendedProperties": {},
-      "fullColumnType": "INT"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Purchasing",
@@ -108,9 +97,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "INT",
-      "dbType": 11,
-      "extendedProperties": {},
-      "fullColumnType": "INT"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Purchasing",
@@ -126,9 +113,7 @@
       "generatedAlwaysType": 0,
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
-      "dbType": 6,
-      "extendedProperties": {},
-      "fullColumnType": "DATETIME"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Purchasing",
@@ -143,9 +128,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "DATETIME",
-      "dbType": 6,
-      "extendedProperties": {},
-      "fullColumnType": "DATETIME"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Purchasing",
@@ -161,9 +144,7 @@
       "generatedAlwaysType": 0,
       "columnType": "MONEY",
       "columnDefault": "((0.00))",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "MONEY"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Purchasing",
@@ -179,9 +160,7 @@
       "generatedAlwaysType": 0,
       "columnType": "MONEY",
       "columnDefault": "((0.00))",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "MONEY"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Purchasing",
@@ -197,9 +176,7 @@
       "generatedAlwaysType": 0,
       "columnType": "MONEY",
       "columnDefault": "((0.00))",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "MONEY"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Purchasing",
@@ -215,9 +192,7 @@
       "generatedAlwaysType": 0,
       "computedDefinition": "(isnull(([SubTotal]+[TaxAmt])+[Freight],(0)))",
       "columnType": "MONEY",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "MONEY"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Purchasing",
@@ -233,9 +208,7 @@
       "generatedAlwaysType": 0,
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
-      "dbType": 6,
-      "extendedProperties": {},
-      "fullColumnType": "DATETIME"
+      "extendedProperties": {}
     }
   ],
   "extendedProperties": {}

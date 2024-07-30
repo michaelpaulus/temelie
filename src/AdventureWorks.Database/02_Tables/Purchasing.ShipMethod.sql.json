@@ -5,7 +5,6 @@
   "isMemoryOptimized": false,
   "durabilityDesc": "SCHEMA_AND_DATA",
   "isExternal": false,
-  "isHistoryTable": false,
   "isView": false,
   "columns": [
     {
@@ -21,9 +20,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "INT",
-      "dbType": 11,
-      "extendedProperties": {},
-      "fullColumnType": "INT"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Purchasing",
@@ -38,9 +35,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "NAME",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "NAME"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Purchasing",
@@ -56,9 +51,7 @@
       "generatedAlwaysType": 0,
       "columnType": "MONEY",
       "columnDefault": "((0.00))",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "MONEY"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Purchasing",
@@ -74,9 +67,7 @@
       "generatedAlwaysType": 0,
       "columnType": "MONEY",
       "columnDefault": "((0.00))",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "MONEY"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Purchasing",
@@ -92,9 +83,7 @@
       "generatedAlwaysType": 0,
       "columnType": "UNIQUEIDENTIFIER",
       "columnDefault": "(newid())",
-      "dbType": 9,
-      "extendedProperties": {},
-      "fullColumnType": "UNIQUEIDENTIFIER"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Purchasing",
@@ -110,9 +99,7 @@
       "generatedAlwaysType": 0,
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
-      "dbType": 6,
-      "extendedProperties": {},
-      "fullColumnType": "DATETIME"
+      "extendedProperties": {}
     }
   ],
   "extendedProperties": {}

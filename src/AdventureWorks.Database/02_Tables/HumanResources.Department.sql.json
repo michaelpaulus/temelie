@@ -5,7 +5,6 @@
   "isMemoryOptimized": false,
   "durabilityDesc": "SCHEMA_AND_DATA",
   "isExternal": false,
-  "isHistoryTable": false,
   "isView": false,
   "columns": [
     {
@@ -21,9 +20,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "SMALLINT",
-      "dbType": 10,
-      "extendedProperties": {},
-      "fullColumnType": "SMALLINT"
+      "extendedProperties": {}
     },
     {
       "schemaName": "HumanResources",
@@ -38,9 +35,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "NAME",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "NAME"
+      "extendedProperties": {}
     },
     {
       "schemaName": "HumanResources",
@@ -55,9 +50,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "NAME",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "NAME"
+      "extendedProperties": {}
     },
     {
       "schemaName": "HumanResources",
@@ -73,9 +66,7 @@
       "generatedAlwaysType": 0,
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
-      "dbType": 6,
-      "extendedProperties": {},
-      "fullColumnType": "DATETIME"
+      "extendedProperties": {}
     }
   ],
   "extendedProperties": {}

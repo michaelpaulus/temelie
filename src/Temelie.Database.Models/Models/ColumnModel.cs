@@ -202,6 +202,7 @@ public class ColumnModel : Model
 
     public string ColumnDefault { get; set; }
 
+    [JsonIgnore]
     public DbType DbType
     {
         get
@@ -212,50 +213,10 @@ public class ColumnModel : Model
 
     public Dictionary<string, string> ExtendedProperties { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-    public string FullColumnType
-    {
-        get
-        {
-
-            string strDataType = this.ColumnType;
-
-            switch (strDataType.ToUpper())
-            {
-                case "DECIMAL":
-                case "NUMERIC":
-                    strDataType = string.Format("{0}({1}, {2})", this.ColumnType, this.Precision, this.Scale);
-                    break;
-                case "BINARY":
-                case "VARBINARY":
-                case "VARCHAR":
-                case "CHAR":
-                case "NVARCHAR":
-                case "NCHAR":
-                    string strPrecision = this.Precision.ToString();
-                    if (this.Precision == -1 || this.Precision == Int32.MaxValue)
-                    {
-                        strPrecision = "MAX";
-                    }
-                    strDataType = string.Format("{0}({1})", this.ColumnType, strPrecision);
-                    break;
-                case "TIME":
-                    strDataType = string.Format("{0}({1})", this.ColumnType, this.Scale);
-                    break;
-                case "DATETIME2":
-                    if (Scale != 7)
-                    {
-                        strDataType = string.Format("{0}({1})", this.ColumnType, this.Scale);
-                    }
-                    break;
-            }
-
-            return strDataType;
-        }
-    }
-
     #endregion
 
     #region Methods
+
     internal static string NormalizePropertyName(string columnName)
     {
         columnName = columnName.Replace(" ", "").Replace(".", "").Replace("-", "_");
@@ -405,92 +366,6 @@ public class ColumnModel : Model
                 return DbType.Object;
         }
         return System.Data.DbType.String;
-    }
-
-    public string ToString(string quoteCharacterStart, string quoteCharacterEnd)
-    {
-        string strDataType = this.FullColumnType;
-
-        if (this.IsComputed &&
-            this.GeneratedAlwaysType == 0)
-        {
-            strDataType = "AS " + this.ComputedDefinition;
-        }
-
-        string strIdentity = string.Empty;
-
-        if (this.IsIdentity)
-        {
-            strIdentity = " IDENTITY (1, 1)";
-        }
-
-        string generatedAlwaysType = "";
-
-        if (this.GeneratedAlwaysType > 0)
-        {
-            if (this.GeneratedAlwaysType == 1)
-            {
-                generatedAlwaysType += " GENERATED ALWAYS AS ROW START";
-            }
-            else if (this.GeneratedAlwaysType == 2)
-            {
-                generatedAlwaysType += " GENERATED ALWAYS AS ROW END";
-            }
-        }
-
-        string strNull = " NULL";
-
-        if (!this.IsNullable)
-        {
-            strNull = " NOT NULL";
-        }
-
-        if (this.IsComputed &&
-            this.GeneratedAlwaysType == 0)
-        {
-            strNull = string.Empty;
-        }
-
-        string defaultValue = "";
-
-        if (!string.IsNullOrEmpty(this.ColumnDefault))
-        {
-            string columnDefault = this.ColumnDefault.Trim();
-
-            if (!columnDefault.StartsWith("("))
-            {
-                if (!columnDefault.StartsWith("'"))
-                {
-                    switch (this.ColumnType.ToUpper())
-                    {
-                        case "VARCHAR":
-                        case "CHAR":
-                        case "NVARCHAR":
-                        case "NCHAR":
-                            columnDefault = "'" + columnDefault + "'";
-                            break;
-                    }
-                }
-                columnDefault = "(" + columnDefault + ")";
-            }
-            else if (columnDefault.StartsWith("((") &&
-                columnDefault.EndsWith("))"))
-            {
-                columnDefault = columnDefault.Substring(1);
-                columnDefault = columnDefault.Substring(0, columnDefault.Length - 1);
-            }
-            columnDefault = columnDefault.Replace("getdate()", "GETDATE()").Replace("newid()", "NEWID()");
-            defaultValue = $" DEFAULT {columnDefault}";
-        }
-
-        var hiddentType = IsHidden ? " HIDDEN" : "";
-
-        return $"{quoteCharacterStart}{this.ColumnName}{quoteCharacterEnd} {strDataType}{generatedAlwaysType}{strIdentity}{hiddentType}{strNull}{defaultValue}".Trim();
-    }
-
-    public override string ToString()
-    {
-        return this.ToString("", "");
     }
 
     #endregion

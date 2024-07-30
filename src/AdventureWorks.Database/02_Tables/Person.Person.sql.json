@@ -5,7 +5,6 @@
   "isMemoryOptimized": false,
   "durabilityDesc": "SCHEMA_AND_DATA",
   "isExternal": false,
-  "isHistoryTable": false,
   "isView": false,
   "columns": [
     {
@@ -21,9 +20,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "INT",
-      "dbType": 11,
-      "extendedProperties": {},
-      "fullColumnType": "INT"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Person",
@@ -38,9 +35,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "NCHAR",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "NCHAR(2)"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Person",
@@ -56,9 +51,7 @@
       "generatedAlwaysType": 0,
       "columnType": "NAMESTYLE",
       "columnDefault": "((0))",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "NAMESTYLE"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Person",
@@ -73,9 +66,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "NVARCHAR",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "NVARCHAR(8)"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Person",
@@ -90,9 +81,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "NAME",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "NAME"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Person",
@@ -107,9 +96,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "NAME",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "NAME"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Person",
@@ -124,9 +111,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "NAME",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "NAME"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Person",
@@ -141,9 +126,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "NVARCHAR",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "NVARCHAR(10)"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Person",
@@ -159,9 +142,7 @@
       "generatedAlwaysType": 0,
       "columnType": "INT",
       "columnDefault": "((0))",
-      "dbType": 11,
-      "extendedProperties": {},
-      "fullColumnType": "INT"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Person",
@@ -176,9 +157,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "XML",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "XML"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Person",
@@ -193,9 +172,7 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "XML",
-      "dbType": 16,
-      "extendedProperties": {},
-      "fullColumnType": "XML"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Person",
@@ -211,9 +188,7 @@
       "generatedAlwaysType": 0,
       "columnType": "UNIQUEIDENTIFIER",
       "columnDefault": "(newid())",
-      "dbType": 9,
-      "extendedProperties": {},
-      "fullColumnType": "UNIQUEIDENTIFIER"
+      "extendedProperties": {}
     },
     {
       "schemaName": "Person",
@@ -229,9 +204,7 @@
       "generatedAlwaysType": 0,
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
-      "dbType": 6,
-      "extendedProperties": {},
-      "fullColumnType": "DATETIME"
+      "extendedProperties": {}
     }
   ],
   "extendedProperties": {}
