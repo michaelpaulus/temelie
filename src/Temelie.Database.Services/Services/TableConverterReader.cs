@@ -272,7 +272,11 @@ public class TableConverterReader : System.Data.IDataReader
 
     public int GetValues(object[] values)
     {
-        throw new NotImplementedException();
+        for(var i = 0; i < values.Length; i++)
+        {
+            values[i] = this.GetValue(i);
+        }
+        return values.Length;
     }
 
     #endregion
