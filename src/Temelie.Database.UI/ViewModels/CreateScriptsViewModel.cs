@@ -26,6 +26,10 @@ public class CreateScriptsViewModel : ViewModel
         _databaseProviders = databaseProviders;
         this.CreateScriptsCommand = new Command(this.CreateScripts);
         this.ScriptPath = Configuration.Preferences.UserSettingsContext.Current.CreateScriptsPath;
+        foreach (var provider in _databaseProviders)
+        {
+            Providers.Add(provider);
+        }
     }
 
     #region Properties
@@ -50,6 +54,11 @@ public class CreateScriptsViewModel : ViewModel
 
     public int ProgressPercentage { get; set; }
     public string ProgressStatus { get; set; }
+
+    public ObservableCollection<IDatabaseProvider> Providers { get; set; } = new ObservableCollection<IDatabaseProvider>();
+
+    public IDatabaseProvider SelectedProvider { get; set; }
+
 
     #endregion
 
@@ -85,7 +94,7 @@ public class CreateScriptsViewModel : ViewModel
     private void CreateScriptsInternal(IProgress<ScriptProgress> progress)
     {
         System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(this.ScriptPath);
-        _scriptService.CreateScripts(this.DatabaseConnectionString, di, progress, this.ObjectFilter);
+        _scriptService.CreateScripts(this.DatabaseConnectionString, di, progress, this.ObjectFilter, SelectedProvider);
     }
     private void ReportProgress(ScriptProgress progress)
     {

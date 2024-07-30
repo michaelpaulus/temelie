@@ -525,7 +525,7 @@ GO
                         using var conn = _databaseExecutionService.CreateDbConnection(connectionString);
                         using var cmd = _databaseExecutionService.CreateDbCommand(conn);
                         cmd.CommandText = $"SELECT COUNT(*) FROM Migrations WHERE Id = '{id}'";
-                        var migrationCount = (long)cmd.ExecuteScalar();
+                        var migrationCount = long.Parse(cmd.ExecuteScalar().ToString());
                         if (migrationCount == 0)
                         {
                             pendingMigrations.Add(id);
@@ -545,7 +545,7 @@ GO
                     using var conn = _databaseExecutionService.CreateDbConnection(connectionString);
                     using var cmd = _databaseExecutionService.CreateDbCommand(conn);
                     cmd.CommandText = $"SELECT COUNT(*) FROM Migrations WHERE Id = '{id}'";
-                    var migrationCount = (long)cmd.ExecuteScalar();
+                    var migrationCount = long.Parse(cmd.ExecuteScalar().ToString());
 
                     // if this folder has changed, or a previous step has changed, run these files
                     if (pendingMigrations.Count > 0 || migrationCount == 0)
