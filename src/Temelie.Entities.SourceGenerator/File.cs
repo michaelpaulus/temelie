@@ -1,5 +1,4 @@
 using Microsoft.CodeAnalysis.Text;
-using Temelie.Repository.SourceGenerator;
 
 namespace Temelie.Entities.SourceGenerator;
 

@@ -1,11 +1,5 @@
-namespace Temelie.Database
+namespace Temelie.Database.Models;
+public abstract class DatabaseObjectModel : Model
 {
-    namespace Models
-    {
-        public abstract class DatabaseObjectModel : Model
-        {
-
-        }
-    }
 
 }

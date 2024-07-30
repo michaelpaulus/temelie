@@ -1,20 +1,14 @@
-namespace Temelie.Database
+namespace Temelie.Database.Models;
+public class Mapping
 {
-    namespace Models
+
+    protected string GetAttributeValue(System.Xml.XmlNode node, string name)
     {
-        public class Mapping
+        if (node.Attributes != null && node.Attributes[name] != null)
         {
-
-            protected string GetAttributeValue(System.Xml.XmlNode node, string name)
-            {
-                if (node.Attributes != null && node.Attributes[name] != null)
-                {
-                    return node.Attributes[name].Value;
-                }
-                return string.Empty;
-            }
-
+            return node.Attributes[name].Value;
         }
+        return string.Empty;
     }
 
 }

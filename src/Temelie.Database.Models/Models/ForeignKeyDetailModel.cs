@@ -1,14 +1,8 @@
-namespace Temelie.Database
+namespace Temelie.Database.Models;
+public class ForeignKeyDetailModel
 {
-    namespace Models
-    {
-        public class ForeignKeyDetailModel
-        {
 
-            public string Column { get; set; }
-            public string ReferencedColumn { get; set; }
-
-        }
-    }
+    public string Column { get; set; }
+    public string ReferencedColumn { get; set; }
 
 }

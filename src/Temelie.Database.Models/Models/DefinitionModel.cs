@@ -1,33 +1,27 @@
-namespace Temelie.Database
+namespace Temelie.Database.Models;
+public class DefinitionModel : DatabaseObjectModel
 {
-    namespace Models
+
+    public string DefinitionName { get; set; }
+    public string SchemaName { get; set; }
+    public string Definition { get; set; }
+    public string XType { get; set; }
+
+    public string Type
     {
-        public class DefinitionModel : DatabaseObjectModel
+        get
         {
-
-            public string DefinitionName { get; set; }
-            public string SchemaName { get; set; }
-            public string Definition { get; set; }
-            public string XType { get; set; }
-
-            public string Type
+            switch (this.XType)
             {
-                get
-                {
-                    switch (this.XType)
-                    {
-                        case "P":
-                            return "PROCEDURE";
-                        case "V":
-                            return "VIEW";
-                    }
-                    return "FUNCTION";
-                }
+                case "P":
+                    return "PROCEDURE";
+                case "V":
+                    return "VIEW";
             }
-
-            public TableModel View { get; set; }
-
+            return "FUNCTION";
         }
     }
+
+    public TableModel View { get; set; }
 
 }

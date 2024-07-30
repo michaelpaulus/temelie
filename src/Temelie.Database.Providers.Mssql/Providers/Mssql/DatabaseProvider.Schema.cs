@@ -1,7 +1,6 @@
 using System.Data;
 using System.Data.Common;
 
-
 namespace Temelie.Database.Providers.Mssql;
 public partial class DatabaseProvider
 {

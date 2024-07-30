@@ -9,7 +9,6 @@
 
 
   <ItemGroup>
-    <Compile Include="..\Temelie.Database.Models\Models\*.cs" LinkBase="Models" />
     <Compile Include="..\Temelie.Entities.SourceGenerator\*.cs" LinkBase="Temelie.Entities.SourceGenerator" />
     <Compile Include="..\Temelie.Repository.SourceGenerator\*.cs" LinkBase="Temelie.Repository.SourceGenerator" />
     <Compile Include="..\Temelie.Repository.EntityFrameworkCore.SourceGenerator\*.cs" LinkBase="Temelie.Repository.EntityFrameworkCore.SourceGenerator" />
@@ -24,6 +23,11 @@
     <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Workspaces" Version="4.10.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="4.10.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\Temelie.Database.Models\Temelie.Database.Models.csproj" />
   </ItemGroup>
 
 
