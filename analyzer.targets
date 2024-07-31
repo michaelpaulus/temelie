@@ -7,6 +7,10 @@
     </JoinItems>
 
     <ItemGroup>
+      <None Update="tools\*.ps1" CopyToOutputDirectory="PreserveNewest" Pack="true" PackagePath="" />
+    </ItemGroup>
+
+    <ItemGroup>
       <!-- Remove NETStandard DLLs -->
       <_PackagesToPack Remove="@(_PackagesToPack)" Condition="%(NuGetPackageId) == 'NETStandard.Library'" />
       <_PackagesToPack Remove="@(_PackagesToPack)" Condition="%(_PackagesToPack.IncludeInPackage) != 'true'" />
