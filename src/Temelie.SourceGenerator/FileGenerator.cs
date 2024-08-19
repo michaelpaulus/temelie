@@ -16,7 +16,8 @@ public class FileGenerator
 
     public async Task GenerateEntitiesAsync(string solutionFile,
         string databaseProjectName,
-        string entitiesProjectName)
+        string entitiesProjectName,
+        string outputPath = "_Generated")
     {
         Console.WriteLine($"{DateTime.UtcNow.ToString("yyyy-MM-ddThh:mm:ss")}: GenerateEntitiesAsync Started");
 
@@ -55,7 +56,7 @@ public class FileGenerator
                 }
             }
 
-            await SyncFilesAsync(entitiesProject, pendingFiles).ConfigureAwait(false);
+            await SyncFilesAsync(entitiesProject, outputPath, pendingFiles).ConfigureAwait(false);
 
             Console.WriteLine($"{DateTime.UtcNow.ToString("yyyy-MM-ddThh:mm:ss")}: Creating Finished");
         }
@@ -65,7 +66,8 @@ public class FileGenerator
 
     public async Task GenerateEntityFrameworkCoreAsync(string solutionFile,
         string entitiesProjectName,
-        string entityFrameworkCoreProjectName)
+        string entityFrameworkCoreProjectName,
+         string outputPath = "_Generated")
     {
         using var workspace = MSBuildWorkspace.Create();
 
@@ -96,7 +98,7 @@ public class FileGenerator
 
             pendingFiles.AddRange(DbContextIncrementalGenerator.Generate(entityFrameworkCoreProject.DefaultNamespace!, entities));
 
-            await SyncFilesAsync(entityFrameworkCoreProject, pendingFiles).ConfigureAwait(false);
+            await SyncFilesAsync(entityFrameworkCoreProject, outputPath, pendingFiles).ConfigureAwait(false);
 
             Console.WriteLine($"{DateTime.UtcNow.ToString("yyyy-MM-ddThh:mm:ss")}: Creating Finished");
         }
@@ -106,7 +108,8 @@ public class FileGenerator
 
     public async Task GenerateRepositoryAsync(string solutionFile,
       string entitiesProjectName,
-      string repositoryProjectName)
+      string repositoryProjectName,
+      string outputPath = "_Generated")
     {
         using var workspace = MSBuildWorkspace.Create();
 
@@ -140,7 +143,7 @@ public class FileGenerator
                 pendingFiles.AddRange(SingleQueryIncrementalGenerator.Generate(repositoryProject.DefaultNamespace!, entity));
             }
 
-            await SyncFilesAsync(repositoryProject, pendingFiles).ConfigureAwait(false);
+            await SyncFilesAsync(repositoryProject, outputPath, pendingFiles).ConfigureAwait(false);
 
             Console.WriteLine($"{DateTime.UtcNow.ToString("yyyy-MM-ddThh:mm:ss")}: Creating Finished");
         }
@@ -148,9 +151,9 @@ public class FileGenerator
         Console.WriteLine($"{DateTime.UtcNow.ToString("yyyy-MM-ddThh:mm:ss")}: GenerateRepositoryAsync Finished");
     }
 
-    private async Task SyncFilesAsync(Project project, IEnumerable<(string Name, string Code)> pendingFiles)
+    private async Task SyncFilesAsync(Project project, string outputPath, IEnumerable<(string Name, string Code)> pendingFiles)
     {
-        var outDirectory = new DirectoryInfo(Path.Combine(new FileInfo(project.FilePath!).Directory!.FullName, "_Generated"));
+        var outDirectory = new DirectoryInfo(Path.Combine(new FileInfo(project.FilePath!).Directory!.FullName, outputPath));
 
         if (!outDirectory.Exists)
         {
