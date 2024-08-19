@@ -153,7 +153,7 @@ public class RespositoryTests : TestBase
 
         await repository.AddRangeAsync(list).ConfigureAwait(true);
 
-        var result = await repository.GetCountAsync(new GenericQuery<Person>(q => q.Where(i => i.FirstName == "Test").OrderBy(i => i.BusinessEntityId))).ConfigureAwait(true);
+        var result = await repository.GetCountAsync<Person>(q => q.Where(i => i.FirstName == "Test").OrderBy(i => i.BusinessEntityId)).ConfigureAwait(true);
 
         result.Should().Be(count);
     }
@@ -174,7 +174,7 @@ public class RespositoryTests : TestBase
 
             await repository.AddRangeAsync(list).ConfigureAwait(true);
 
-            var result = await repository.GetCountAsync(new GenericQuery<Person>(q => q.Where(i => i.FirstName == "Test").OrderBy(i => i.BusinessEntityId))).ConfigureAwait(true);
+            var result = await repository.GetCountAsync<Person>(q => q.Where(i => i.FirstName == "Test").OrderBy(i => i.BusinessEntityId)).ConfigureAwait(true);
 
             result.Should().Be(count);
         }
@@ -188,7 +188,7 @@ public class RespositoryTests : TestBase
 
             await repository.UpdateRangeAsync(list).ConfigureAwait(true);
 
-            var result = await repository.GetCountAsync(new GenericQuery<Person>(q => q.Where(i => i.FirstName == "Test1").OrderBy(i => i.BusinessEntityId))).ConfigureAwait(true);
+            var result = await repository.GetCountAsync<Person>(q => q.Where(i => i.FirstName == "Test1").OrderBy(i => i.BusinessEntityId)).ConfigureAwait(true);
 
             result.Should().Be(count);
         }
@@ -211,13 +211,13 @@ public class RespositoryTests : TestBase
 
         await repository.AddRangeAsync(list).ConfigureAwait(true);
 
-        var result = await repository.GetCountAsync(new GenericQuery<Person>(q => q.Where(i => i.FirstName == "Test").OrderBy(i => i.BusinessEntityId))).ConfigureAwait(true);
+        var result = await repository.GetCountAsync<Person>(q => q.Where(i => i.FirstName == "Test").OrderBy(i => i.BusinessEntityId)).ConfigureAwait(true);
 
         result.Should().Be(count);
 
         await repository.DeleteRangeAsync(list).ConfigureAwait(true);
 
-        result = await repository.GetCountAsync(new GenericQuery<Person>(q => q.Where(i => i.FirstName == "Test").OrderBy(i => i.BusinessEntityId))).ConfigureAwait(true);
+        result = await repository.GetCountAsync<Person>(q => q.Where(i => i.FirstName == "Test").OrderBy(i => i.BusinessEntityId)).ConfigureAwait(true);
 
         result.Should().Be(0);
     }
@@ -233,7 +233,7 @@ public class RespositoryTests : TestBase
             await repository.AddAsync(person).ConfigureAwait(true);
         }
 
-        var result = await repository.GetListAsync(new GenericQuery<Person>(q => q.Where(i => i.FirstName == "Test").OrderBy(i => i.BusinessEntityId))).ConfigureAwait(true);
+        var result = await repository.GetListAsync<Person>(q => q.Where(i => i.FirstName == "Test").OrderBy(i => i.BusinessEntityId)).ConfigureAwait(true);
 
         result.Should().HaveCount(count);
     }
@@ -251,7 +251,7 @@ public class RespositoryTests : TestBase
             await repository.AddAsync(person).ConfigureAwait(true);
         }
 
-        var result = await repository.GetCountAsync(new GenericQuery<Person>(q => q.Where(i => i.FirstName == "Test").OrderBy(i => i.BusinessEntityId))).ConfigureAwait(true);
+        var result = await repository.GetCountAsync<Person>(q => q.Where(i => i.FirstName == "Test").OrderBy(i => i.BusinessEntityId)).ConfigureAwait(true);
 
         result.Should().Be(count);
     }
