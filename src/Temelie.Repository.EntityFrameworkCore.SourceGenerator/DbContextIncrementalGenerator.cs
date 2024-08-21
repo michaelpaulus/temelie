@@ -81,7 +81,7 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
                 if (column.IsComputed)
                 {
                     columnProperties.AppendLine();
-                    columnProperties.Append($"                .HasComputedColumnSql()");
+                    columnProperties.Append($"                .HasComputedColumnSql(\"''\")");
                 }
 
                 if (column.ColumnName != column.Name)
