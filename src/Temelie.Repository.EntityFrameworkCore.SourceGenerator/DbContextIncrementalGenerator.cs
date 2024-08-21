@@ -78,6 +78,12 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
                     columnProperties.Append($"                .UseIdentityColumn(_serviceProvider)");
                 }
 
+                if (column.IsComputed)
+                {
+                    columnProperties.AppendLine();
+                    columnProperties.Append($"                .HasComputedColumnSql()");
+                }
+
                 if (column.ColumnName != column.Name)
                 {
                     columnProperties.AppendLine();
@@ -92,6 +98,10 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
 
                 if (columnProperties.Length > 0)
                 {
+                    if (props.Length > 0)
+                    {
+                        props.AppendLine();
+                    }
                     props.Append($@"            builder.Property(p => p.{column.Name}){columnProperties};");
                 }
             }
