@@ -145,6 +145,11 @@ public partial class DatabaseProvider
         return null;
     }
 
+    public override IDatabaseObjectScript GetColumnScript(ColumnModel column)
+    {
+        return null;
+    }
+
     private string GetScript(ColumnModel columnModel)
     {
         string strDataType = GetFullColumnType(columnModel);

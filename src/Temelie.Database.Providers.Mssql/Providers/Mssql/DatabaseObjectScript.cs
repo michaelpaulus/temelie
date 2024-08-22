@@ -9,6 +9,10 @@ internal class DatabaseObjectScript : IDatabaseObjectScript
         DropScript = drop();
     }
 
+    public DatabaseObjectScript()
+    {
+    }
+
     public string CreateScript { get; set; }
     public string DropScript { get; set; }
 }

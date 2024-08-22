@@ -33,6 +33,7 @@ public interface IDatabaseProvider
     IDatabaseObjectScript GetScript(SecurityPolicyModel model);
     IDatabaseObjectScript GetScript(TableModel model);
     IDatabaseObjectScript GetScript(TriggerModel model);
+    IDatabaseObjectScript GetColumnScript(ColumnModel column);
 
     void SetReadTimeout(System.Data.Common.DbCommand sourceCommand);
     string TransformConnectionString(string connectionString);

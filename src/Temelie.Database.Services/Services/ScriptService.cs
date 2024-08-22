@@ -25,6 +25,11 @@ public class ScriptService : IScriptService
 
     private (FileInfo File, bool Changed, bool New) WriteIfDifferent(string path, string contents)
     {
+        if (!Directory.Exists(Path.GetDirectoryName(path)))
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(path));
+        }
+
         if (path.EndsWith(".sql"))
         {
             contents = contents.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", Environment.NewLine);
@@ -39,8 +44,8 @@ public class ScriptService : IScriptService
         }
         if (currentContents != contents)
         {
-            changed = !File.Exists(path);
-            isNew = !changed;
+            isNew = !File.Exists(path);
+            changed = true;
             File.WriteAllText(path, contents, System.Text.Encoding.UTF8);
         }
         return (new FileInfo(path), changed, isNew);
@@ -60,49 +65,62 @@ public class ScriptService : IScriptService
                 if (script is not null)
                 {
                     files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), script.CreateScript));
-                    files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(table)));
+
+                    var jsonPath = System.IO.Path.Combine(directory.FullName, fileName + ".json");
+                    var json = GetJson(table);
+
+                    if (File.Exists(jsonPath))
+                    {
+                        var currentTable = JsonSerializer.Deserialize<TableModel>(File.ReadAllText(jsonPath), ModelsJsonSerializerOptions.Default);
+                        var newTable = JsonSerializer.Deserialize<TableModel>(json, ModelsJsonSerializerOptions.Default);
+
+                        foreach (var column in currentTable.Columns)
+                        {
+                            column.TableName = currentTable.TableName;
+                        }
+
+                        foreach (var column in newTable.Columns)
+                        {
+                            column.TableName = newTable.TableName;
+                        }
+
+                        var newColumns = newTable.Columns.Where(i => !currentTable.Columns.Any(i2 => i.ColumnName == i2.ColumnName)).ToList();
+                        var removedColumns = currentTable.Columns.Where(i => !newTable.Columns.Any(i2 => i.ColumnName == i2.ColumnName)).ToList();
+
+                        if (newColumns.Count > 0 || removedColumns.Count > 0)
+                        {
+                            var changeFileName = Path.Combine(directory.Parent.FullName, "04_Migrations", DateTime.UtcNow.ToString("yyyy-MM-dd"), $"01_{table.TableName}.sql");
+
+                            var sb = new StringBuilder();
+
+                            foreach (var newColumn in newColumns)
+                            {
+                                var columnScript = provider.GetColumnScript(newColumn);
+                                if (columnScript is not null && !string.IsNullOrEmpty(columnScript.CreateScript))
+                                {
+                                    sb.AppendLine(columnScript.CreateScript);
+                                }
+                            }
+
+                            foreach (var removedColumn in removedColumns)
+                            {
+                                var columnScript = provider.GetColumnScript(removedColumn);
+                                if (columnScript is not null && !string.IsNullOrEmpty(columnScript.DropScript))
+                                {
+                                    sb.AppendLine(columnScript.DropScript);
+                                }
+                            }
+
+                            if (sb.Length > 0)
+                            {
+                                WriteIfDifferent(changeFileName, sb.ToString());
+                            }
+                        }
+
+                    }
+
+                    files.Add(WriteIfDifferent(jsonPath, json));
                 }
-            }
-        }
-
-        foreach (var file in files.Where(i => i.Changed && !i.New && i.File.Name.EndsWith(".sql")).Select(i => i.File))
-        {
-            var changeFileName = Path.Combine(directory.Parent.FullName, "04_Migrations", DateTime.UtcNow.ToString("yyyy-MM-dd"), $"01_{file.Name}");
-            if (!Directory.Exists(Path.GetDirectoryName(changeFileName)))
-            {
-                Directory.CreateDirectory(Path.GetDirectoryName(changeFileName));
-            }
-            if (!File.Exists(changeFileName))
-            {
-                WriteIfDifferent(changeFileName, @"TODO: write migration
-
--- example: add column null
-IF NOT EXISTS (SELECT 1 FROM sys.tables INNER JOIN sys.columns ON tables.object_id = columns.object_id INNER JOIN sys.schemas ON tables.schema_id = schemas.schema_id WHERE schemas.name = '{schemaName}' AND tables.name = '{tableName}' AND columns.name = '{columnName}')
-BEGIN
-	ALTER TABLE {schemaName}.{tableName} ADD {columnName} NULL
-END
-GO
-
--- example: add column not null with default
-IF NOT EXISTS (SELECT 1 FROM sys.tables INNER JOIN sys.columns ON tables.object_id = columns.object_id INNER JOIN sys.schemas ON tables.schema_id = schemas.schema_id WHERE schemas.name = '{schemaName}' AND tables.name = '{tableName}' AND columns.name = '{columnName}')
-BEGIN
-	ALTER TABLE {schemaName}.{tableName} ADD {columnName} NOT NULL CONSTRAINT {contraintName} DEFAULT {defaultValue} WITH VALUES
-END
-GO
-
-IF EXISTS (SELECT 1 FROM sys.check_constraints INNER JOIN sys.tables ON check_constraints.parent_object_id = tables.object_id INNER JOIN sys.schemas ON tables.schema_id = schemas.schema_id WHERE check_constraints.name = '{contraintName}' AND schemas.name = '{schemaName}')
-BEGIN
-	ALTER TABLE {schemaName}.{tableName} DROP CONSTRAINT {contraintName}
-END
-GO
-
--- example: delete column
-IF EXISTS (SELECT 1 FROM sys.tables INNER JOIN sys.columns ON tables.object_id = columns.object_id INNER JOIN sys.schemas ON tables.schema_id = schemas.schema_id WHERE schemas.name = '{schemaName}' AND tables.name = '{tableName}' AND columns.name = '{columnName}')
-BEGIN
-	ALTER TABLE {schemaName}.{tableName} DROP COLUMN {columnName}
-END
-GO
-");
             }
         }
 

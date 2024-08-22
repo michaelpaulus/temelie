@@ -628,6 +628,7 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
 
     public abstract int GetRowCount(DbCommand command, string schemaName, string tableName);
     public abstract string GetSelectStatement(string schemaName, string tableName, IEnumerable<string> columns);
+    public abstract IDatabaseObjectScript GetColumnScript(ColumnModel column);
 
     #endregion
 

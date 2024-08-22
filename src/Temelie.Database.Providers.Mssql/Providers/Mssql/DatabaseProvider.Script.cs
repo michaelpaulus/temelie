@@ -1,7 +1,6 @@
 using System.Data;
 using System.Text;
 using Temelie.Database.Models;
-using static System.Formats.Asn1.AsnWriter;
 
 namespace Temelie.Database.Providers.Mssql;
 
@@ -960,6 +959,50 @@ GO
                 sb.AppendLine($"{new string(' ', indentCount * 4)}ON {model.PartitionSchemeName}");
             }
         }
+
+    }
+
+    public override IDatabaseObjectScript GetColumnScript(ColumnModel column)
+    {
+        var script = new DatabaseObjectScript();
+
+        script.CreateScript = $@"IF NOT EXISTS
+(
+	SELECT
+		1
+	FROM
+		sys.schemas INNER JOIN
+		sys.tables ON
+			schemas.schema_id = tables.schema_id INNER JOIN
+		sys.columns ON
+			tables.object_id = columns.object_id
+	WHERE
+        schemas.name = '{column.SchemaName}' AND
+		tables.name = '{column.TableName}' AND
+		columns.name = '{column.ColumnName}'
+)
+ALTER TABLE [{column.SchemaName}].[{column.TableName}] ADD {GetScript(column)}
+GO";
+
+        script.DropScript = $@"IF EXISTS
+(
+	SELECT
+		1
+	FROM
+		sys.schemas INNER JOIN
+		sys.tables ON
+			schemas.schema_id = tables.schema_id INNER JOIN
+		sys.columns ON
+			tables.object_id = columns.object_id
+	WHERE
+        schemas.name = '{column.SchemaName}' AND
+		tables.name = '{column.TableName}' AND
+		columns.name = '{column.ColumnName}'
+)
+ALTER TABLE [{column.SchemaName}].[{column.TableName}] DROP COLUMN [{column.ColumnName}]
+GO";
+
+        return script;
 
     }
 
