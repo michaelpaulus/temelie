@@ -1,6 +1,7 @@
 using Temelie.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using System.Linq.Expressions;
 namespace Temelie.Repository.EntityFrameworkCore;
 
 public abstract partial class RepositoryBase : IRepository
@@ -36,28 +37,67 @@ public abstract partial class RepositoryBase : IRepository
         return await query.CountAsync().ConfigureAwait(false);
     }
 
-    public async Task<Entity?> GetSingleAsync<Entity>(Func<IQueryable<Entity>, IQueryable<Entity>> apply) where Entity : EntityBase, IEntity<Entity>
+    public async Task<Entity?> GetSingleAsync<Entity>(Expression<Func<Entity, bool>>? filter = null, Func<IQueryable<Entity>, IQueryable<Entity>>? query = null) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = _serviceProvider.GetRequiredService<IRepositoryContext<Entity>>();
-        var query = context.DbSet.AsNoTracking();
-        query = await OnQueryAsync(query, apply).ConfigureAwait(false);
-        return await query.FirstOrDefaultAsync().ConfigureAwait(false);
+        var query1 = context.DbSet.AsNoTracking();
+        query1 = await OnQueryAsync(query1,
+            i =>
+            {
+                if (filter is not null)
+                {
+                    i = i.Where(filter);
+                }
+                if (query is not null)
+                {
+                    i = query.Invoke(i);
+                }
+                return i;
+            }
+            ).ConfigureAwait(false);
+        return await query1.FirstOrDefaultAsync().ConfigureAwait(false);
     }
 
-    public async Task<IEnumerable<Entity>> GetListAsync<Entity>(Func<IQueryable<Entity>, IQueryable<Entity>> apply) where Entity : EntityBase, IEntity<Entity>
+    public async Task<IEnumerable<Entity>> GetListAsync<Entity>(Expression<Func<Entity, bool>>? filter = null, Func<IQueryable<Entity>, IQueryable<Entity>>? query = null) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = _serviceProvider.GetRequiredService<IRepositoryContext<Entity>>();
-        var query = context.DbSet.AsNoTracking();
-        query = await OnQueryAsync(query, apply).ConfigureAwait(false);
-        return await query.ToListAsync().ConfigureAwait(false);
+        var query1 = context.DbSet.AsNoTracking();
+        query1 = await OnQueryAsync(query1,
+            i =>
+            {
+                if (filter is not null)
+                {
+                    i = i.Where(filter);
+                }
+                if (query is not null)
+                {
+                    i = query.Invoke(i);
+                }
+                return i;
+            }
+            ).ConfigureAwait(false);
+        return await query1.ToListAsync().ConfigureAwait(false);
     }
 
-    public async Task<int> GetCountAsync<Entity>(Func<IQueryable<Entity>, IQueryable<Entity>> apply) where Entity : EntityBase, IEntity<Entity>
+    public async Task<int> GetCountAsync<Entity>(Expression<Func<Entity, bool>>? filter = null, Func<IQueryable<Entity>, IQueryable<Entity>>? query = null) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = _serviceProvider.GetRequiredService<IRepositoryContext<Entity>>();
-        var query = context.DbSet.AsNoTracking();
-        query = await OnQueryAsync(query, apply).ConfigureAwait(false);
-        return await query.CountAsync().ConfigureAwait(false);
+        var query1 = context.DbSet.AsNoTracking();
+        query1 = await OnQueryAsync(query1,
+            i =>
+            {
+                if (filter is not null)
+                {
+                    i = i.Where(filter);
+                }
+                if (query is not null)
+                {
+                    i = query.Invoke(i);
+                }
+                return i;
+            }
+            ).ConfigureAwait(false);
+        return await query1.CountAsync().ConfigureAwait(false);
     }
 
     public virtual async Task AddAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
