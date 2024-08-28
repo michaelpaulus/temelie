@@ -145,7 +145,7 @@ using Temelie.Entities;
 
 namespace {ns};
 
-public partial interface I{className} : {extends}
+public interface I{className} : {extends}
 {{
 ");
             foreach (var column in props2)
@@ -172,7 +172,7 @@ using Temelie.Entities;
 namespace {ns};
 
 [Table(""{table.TableName}"", Schema = ""{table.SchemaName}"")]
-public partial record {className} : EntityBase, I{className}
+public record {className} : EntityBase, I{className}
 {{
 ");
             foreach (var column in props)
