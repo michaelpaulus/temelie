@@ -47,6 +47,10 @@ public class ColumnModel : Model
             {
                 return name;
             }
+            if (ExtendedProperties.TryGetValue("dynamicName", out var dynamicName))
+            {
+                return dynamicName;
+            }
             return NormalizePropertyName(ColumnName);
         }
     }

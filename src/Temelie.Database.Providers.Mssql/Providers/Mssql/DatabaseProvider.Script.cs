@@ -1,5 +1,6 @@
 using System.Data;
 using System.Text;
+using Temelie.Database.Extensions;
 using Temelie.Database.Models;
 
 namespace Temelie.Database.Providers.Mssql;
@@ -797,7 +798,7 @@ GO
 
         foreach (var column in table.Columns)
         {
-            foreach (var prop in column.ExtendedProperties)
+            foreach (var prop in column.ExtendedProperties.Where(i => !i.Key.EqualsIgnoreCase("dynamicName")))
             {
                 sb.AppendLine($@"
 IF EXISTS
