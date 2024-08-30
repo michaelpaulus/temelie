@@ -767,7 +767,7 @@ GO");
     {
         string type = table.IsView ? "view" : "table";
 
-        foreach (var prop in table.ExtendedProperties)
+        foreach (var prop in table.ExtendedProperties.Where(i => !i.Key.EqualsIgnoreCase("dynamicName")))
         {
             sb.AppendLine($@"
 IF EXISTS

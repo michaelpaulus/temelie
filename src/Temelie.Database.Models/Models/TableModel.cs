@@ -25,6 +25,10 @@ public class TableModel : DatabaseObjectModel
             {
                 return name;
             }
+            if (ExtendedProperties.TryGetValue("dynamicName", out var dynamicName))
+            {
+                return dynamicName;
+            }
             return ColumnModel.NormalizePropertyName(TableName);
         }
     }
