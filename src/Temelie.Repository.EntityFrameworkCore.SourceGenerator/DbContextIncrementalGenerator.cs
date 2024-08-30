@@ -124,11 +124,25 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
 
             if (entity.IsView)
             {
-                config.AppendLine($"            builder.ToView(\"{entity.TableName}\", \"{entity.Schema}\");");
+                if (string.IsNullOrEmpty(entity.Schema))
+                {
+                    config.AppendLine($"            builder.ToView(\"{entity.TableName}\");");
+                }
+                else
+                {
+                    config.AppendLine($"            builder.ToView(\"{entity.TableName}\", \"{entity.Schema}\");");
+                }
             }
             else
             {
-                config.AppendLine($"            builder.ToTable(\"{entity.TableName}\", \"{entity.Schema}\");");
+                if (string.IsNullOrEmpty(entity.Schema))
+                {
+                    config.AppendLine($"            builder.ToTable(\"{entity.TableName}\");");
+                }
+                else
+                {
+                    config.AppendLine($"            builder.ToTable(\"{entity.TableName}\", \"{entity.Schema}\");");
+                }
             }
 
             sbModelBuilder.AppendLine($@"

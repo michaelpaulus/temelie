@@ -163,6 +163,8 @@ public interface I{className} : {extends}
             var ns = rootNamespace;
             var className = table.ClassName;
 
+            var tableAttribute = string.IsNullOrEmpty(table.SchemaName) ? $"[Table(\"{table.TableName}\")]" : $"[Table(\"{table.TableName}\", Schema = \"{table.SchemaName}\")]";
+
             var sb = new StringBuilder();
             sb.AppendLine($@"#nullable enable
 using System.ComponentModel.DataAnnotations;
@@ -171,7 +173,7 @@ using Temelie.Entities;
 
 namespace {ns};
 
-[Table(""{table.TableName}"", Schema = ""{table.SchemaName}"")]
+{tableAttribute}
 public record {className} : EntityBase, I{className}
 {{
 ");
