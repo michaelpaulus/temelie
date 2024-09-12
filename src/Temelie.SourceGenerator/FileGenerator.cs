@@ -45,7 +45,7 @@ public class FileGenerator
 
             if (jsonFiles.Count > 0)
             {
-                var files = jsonFiles.Select(i => (i.Name, i.GetTextAsync().Result.ToString())).ToList();
+                var files = jsonFiles.Select(i => (i.FilePath, i.GetTextAsync().Result.ToString())).ToList();
                 pendingFiles.AddRange(EntityIncrementalGenerator.Generate(entitiesProject.DefaultNamespace!, files));
             }
 
