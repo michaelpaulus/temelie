@@ -34,6 +34,7 @@ public class EntitySymbolVisitor : SymbolVisitor
             var tableName = symbol.Name;
             var schema = "dbo";
             var isView = true;
+            var hasTrgger = false;
 
             foreach (var attr in symbol.GetAttributes())
             {
@@ -47,6 +48,10 @@ public class EntitySymbolVisitor : SymbolVisitor
                             schema = (string)na.Value.Value;
                         }
                     }
+                }
+                if (attr.AttributeClass.FullName() == "Temelie.Entities.HasTriggerAttribute")
+                {
+                    hasTrgger = true;
                 }
             }
 
@@ -142,7 +147,7 @@ public class EntitySymbolVisitor : SymbolVisitor
 
             if (props.Count > 0)
             {
-                _entities.Add(new Entity(symbol.FullName(), symbol.Name, tableName, schema, isView, new EquatableArray<EntityProperty>(props.ToArray())));
+                _entities.Add(new Entity(symbol.FullName(), symbol.Name, tableName, schema, isView, hasTrgger, new EquatableArray<EntityProperty>(props.ToArray())));
             }
         }
     }

@@ -163,7 +163,16 @@ public interface I{className} : {extends}
             var ns = rootNamespace;
             var className = table.ClassName;
 
-            var tableAttribute = string.IsNullOrEmpty(table.SchemaName) ? $"[Table(\"{table.TableName}\")]" : $"[Table(\"{table.TableName}\", Schema = \"{table.SchemaName}\")]";
+            var tableAttributes = new StringBuilder();
+
+            tableAttributes.AppendLine(string.IsNullOrEmpty(table.SchemaName) ? $"[Table(\"{table.TableName}\")]" : $"[Table(\"{table.TableName}\", Schema = \"{table.SchemaName}\")]");
+
+            var triggers = databaseModel.Triggers.Any(i => i.TableName == table.TableName && i.SchemaName == table.SchemaName);
+
+            if (triggers)
+            {
+                tableAttributes.AppendLine($"[Temelie.Entities.HasTrigger]");
+            }
 
             var sb = new StringBuilder();
             sb.AppendLine($@"#nullable enable
@@ -173,8 +182,7 @@ using Temelie.Entities;
 
 namespace {ns};
 
-{tableAttribute}
-public record {className} : EntityBase, I{className}
+{tableAttributes}public record {className} : EntityBase, I{className}
 {{
 ");
             foreach (var column in props)

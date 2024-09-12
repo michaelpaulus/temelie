@@ -143,6 +143,10 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
                 {
                     config.AppendLine($"            builder.ToTable(\"{entity.TableName}\", \"{entity.Schema}\");");
                 }
+                if (entity.HasTrigger)
+                {
+                    config.AppendLine($"            builder.ToTable(tb => tb.UseSqlOutputClause(false));");
+                }
             }
 
             sbModelBuilder.AppendLine($@"
