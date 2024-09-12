@@ -9,6 +9,7 @@
   <ItemGroup>
     <AdditionalFiles Include="..\AdventureWorks.Database\02_Tables\**\*.sql.json" LinkBase="Scripts\02_Tables" />
     <AdditionalFiles Include="..\AdventureWorks.Database\05_Views\**\*.sql.json" LinkBase="Scripts\05_Views" />
+    <AdditionalFiles Include="..\AdventureWorks.Database\06_Triggers\**\*.sql.json" LinkBase="Scripts\06_Triggers" />
     <AdditionalFiles Include="..\AdventureWorks.Database\08_ForeignKeys\**\*.sql.json" LinkBase="Scripts\08_ForeignKeys" />
   </ItemGroup>
 

@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.MSBuild;
 using Temelie.Entities.SourceGenerator;
 using Temelie.Repository.SourceGenerator;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Temelie.SourceGenerator;
 
@@ -44,16 +45,8 @@ public class FileGenerator
 
             if (jsonFiles.Count > 0)
             {
-                foreach (var jsonFile in jsonFiles)
-                {
-                    if (!string.IsNullOrEmpty(jsonFile.FilePath))
-                    {
-#pragma warning disable RS1035 // Do not use APIs banned for analyzers
-                        var text = await System.IO.File.ReadAllTextAsync(jsonFile.FilePath).ConfigureAwait(false);
-#pragma warning restore RS1035 // Do not use APIs banned for analyzers
-                        pendingFiles.AddRange(EntityIncrementalGenerator.Generate(entitiesProject.DefaultNamespace!, jsonFile.FilePath, text));
-                    }
-                }
+                var files = jsonFiles.Select(i => (i.Name, i.GetTextAsync().Result.ToString())).ToList();
+                pendingFiles.AddRange(EntityIncrementalGenerator.Generate(entitiesProject.DefaultNamespace!, files));
             }
 
             await SyncFilesAsync(entitiesProject, outputPath, pendingFiles).ConfigureAwait(false);

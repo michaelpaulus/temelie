@@ -1,6 +1,7 @@
 using System.Text;
 using Temelie.Database.Models;
 using Microsoft.CodeAnalysis;
+using System.Collections.Immutable;
 
 namespace Temelie.Entities.SourceGenerator;
 
@@ -16,26 +17,30 @@ public partial class EntityIncrementalGenerator : IIncrementalGenerator
             .Where(static a => a.Path.EndsWith(".sql.json"))
             .Select(static (a, c) => new File(a.Path, a.GetText(c)));
 
-        var result = files.Combine(options);
+        var result = files.Combine(options).Collect();
 
         context.RegisterSourceOutput(result, Generate);
     }
 
-    private static void Generate(SourceProductionContext context, (File File, string RootNamesapce) result)
+    private static void Generate(SourceProductionContext context, ImmutableArray<(File File, string RootNamesapce)> result)
     {
         context.CancellationToken.ThrowIfCancellationRequested();
-        var sourceFiles = Generate(result.RootNamesapce, result.File.FilePath, result.File.Content.ToString());
-        foreach (var file in sourceFiles)
+
+        if (result.Any())
         {
-            context.AddSource(file.Name, file.Code);
+            var sourceFiles = Generate(result.First().RootNamesapce, result.Select(i => (i.File.FilePath, i.File.Content.ToString())).ToList());
+            foreach (var file in sourceFiles)
+            {
+                context.AddSource(file.Name, file.Code);
+            }
         }
     }
 
-    public static IEnumerable<(string Name, string Code)> Generate(string rootNamespace, string filePath, string fileContents)
+    public static IEnumerable<(string Name, string Code)> Generate(string rootNamespace, IEnumerable<(string FilePath, string FileContents)> files)
     {
         var sourceFiles = new List<(string Name, string Code)>();
 
-        var databaseModel = DatabaseModel.CreateFromFiles([(filePath, fileContents)]);
+        var databaseModel = DatabaseModel.CreateFromFiles(files);
 
         IEnumerable<ColumnProperty> getColumnProperties(TableModel table)
         {

@@ -135,17 +135,15 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
             }
             else
             {
+                var triggerOptions = entity.HasTrigger ? ", table => table.HasTrigger(_serviceProvider)" : "";
+
                 if (string.IsNullOrEmpty(entity.Schema))
                 {
-                    config.AppendLine($"            builder.ToTable(\"{entity.TableName}\");");
+                    config.AppendLine($"            builder.ToTable(\"{entity.TableName}\"{triggerOptions});");
                 }
                 else
                 {
-                    config.AppendLine($"            builder.ToTable(\"{entity.TableName}\", \"{entity.Schema}\");");
-                }
-                if (entity.HasTrigger)
-                {
-                    config.AppendLine($"            builder.ToTable(tb => tb.UseSqlOutputClause(false));");
+                    config.AppendLine($"            builder.ToTable(\"{entity.TableName}\", \"{entity.Schema}\"{triggerOptions});");
                 }
             }
 
