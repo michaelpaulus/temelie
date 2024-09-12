@@ -30,11 +30,6 @@ public class ScriptService : IScriptService
             Directory.CreateDirectory(Path.GetDirectoryName(path));
         }
 
-        if (path.EndsWith(".sql"))
-        {
-            contents = contents.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", Environment.NewLine);
-            contents = contents.Replace("\t", "    ");
-        }
         var currentContents = "";
         bool changed = false;
         bool isNew = false;

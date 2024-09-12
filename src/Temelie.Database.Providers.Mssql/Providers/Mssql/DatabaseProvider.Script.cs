@@ -112,7 +112,7 @@ GO");
 
             model.Definition = System.Text.RegularExpressions.Regex.Replace(model.Definition, strPattern, strDefinitionReplacement, System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Multiline);
 
-            sb.AppendLine(model.Definition);
+            sb.AppendLine(model.Definition.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", Environment.NewLine));
             sb.AppendLine("GO");
 
             if (model.View != null)
@@ -755,7 +755,7 @@ GO");
         {
             var sb = new StringBuilder();
             sb.AppendLine();
-            sb.AppendLine(model.Definition);
+            sb.AppendLine(model.Definition.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", Environment.NewLine));
             sb.AppendLine("GO");
             return sb.ToString();
         }

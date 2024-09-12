@@ -205,6 +205,11 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
                     XType = row["xtype"].ToString().Trim()
                 };
                 list.Add(model);
+
+                foreach (var databaseModelProvider in _databaseModelProviders)
+                {
+                    databaseModelProvider.Initialize(model);
+                }
             }
 
         }
@@ -236,6 +241,15 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
                     IsSchemaBound = g.Key.IsSchemaBound
                 }
                 ).ToList();
+
+            foreach (var item in list)
+            {
+                foreach (var databaseModelProvider in _databaseModelProviders)
+                {
+                    databaseModelProvider.Initialize(item);
+                }
+            }
+
         }
         return list;
     }
@@ -287,6 +301,11 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
                     ReferencedColumn = i["referenced_column_name"].ToString()
                 }).ToList();
 
+                foreach (var databaseModelProvider in _databaseModelProviders)
+                {
+                    databaseModelProvider.Initialize(foreignKey);
+                }
+
             }
         }
 
@@ -308,13 +327,21 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
                 var strConstraintName = detailRow["check_constraint_name"].ToString();
                 var strDefinition = detailRow["check_constraint_definition"].ToString();
 
-                list.Add(new CheckConstraintModel
+                var constraint = new CheckConstraintModel
                 {
                     CheckConstraintName = strConstraintName,
                     TableName = strTableName,
                     SchemaName = strSchemaName,
                     CheckConstraintDefinition = strDefinition
-                });
+                };
+
+                list.Add(constraint);
+
+                foreach (var databaseModelProvider in _databaseModelProviders)
+                {
+                    databaseModelProvider.Initialize(constraint);
+                }
+
             }
         }
 
@@ -397,6 +424,12 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
                 }
 
                 list.Add(index);
+
+                foreach (var databaseModelProvider in _databaseModelProviders)
+                {
+                    databaseModelProvider.Initialize(index);
+                }
+
             }
         }
 
@@ -539,13 +572,20 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
                 var strTriggerName = detailRow["trigger_name"].ToString();
                 var strDefinition = detailRow["definition"].ToString();
 
-                list.Add(new TriggerModel
+                var trigger = new TriggerModel
                 {
                     TableName = strTableName,
                     TriggerName = strTriggerName,
                     SchemaName = detailRow["schema_name"].ToString(),
                     Definition = strDefinition.Replace("\t", "    ").RemoveLeadingAndTrailingLines()
-                });
+                };
+
+                list.Add(trigger);
+
+                foreach (var databaseModelProvider in _databaseModelProviders)
+                {
+                    databaseModelProvider.Initialize(trigger);
+                }
             }
         }
 

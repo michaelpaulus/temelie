@@ -17,6 +17,7 @@
     <ProjectReference Include="..\Temelie.Database.Providers.Mssql\Temelie.Database.Providers.Mssql.csproj" />
     <ProjectReference Include="..\Temelie.Database.Services\Temelie.Database.Services.csproj" />
     <ProjectReference Include="..\Temelie.DependencyInjection.SourceGenerator\Temelie.DependencyInjection.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <PackageReference Include="Temelie.SqlServer.TransactSql.ScriptDom" Version="1.0.0" />
   </ItemGroup>
 
   <ItemGroup>
