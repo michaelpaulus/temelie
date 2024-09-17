@@ -19,7 +19,6 @@ The rest of the projects are a result of me switching jobs in 2024.  When I move
 - [Temelie.DependencyInjection.SourceGenerator](/src/Temelie.DependencyInjection.SourceGenerator/README.md)
 - [Temelie.Entities](/src/Temelie.Entities/README.md)
 - [Temelie.Entities.SourceGenerator](/src/Temelie.Entities.SourceGenerator/README.md)
-- [Temelie.Repository.EntityFrameworkCore](/src/Temelie.Repository.EntityFrameworkCore/README.md)
-- [Temelie.Repository.EntityFrameworkCore.SourceGenerator](/src/Temelie.Repository.EntityFrameworkCore.SourceGenerator/README.md)
 - [Temelie.Repository](/src/Temelie.Repository/README.md)
+- [Temelie.Repository.SourceGenerator](/src/Temelie.Repository.SourceGenerator/README.md)
 

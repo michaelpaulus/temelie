@@ -2,7 +2,7 @@ using AdventureWorks.Entities;
 using FluentAssertions;
 using Temelie.Entities;
 
-namespace Temelie.Repository.EntityFrameworkCore.UnitTests;
+namespace Temelie.Repository.UnitTests;
 
 public class EntityTests : TestBase
 {

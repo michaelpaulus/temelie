@@ -25,10 +25,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Temelie.DependencyInjection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Temelie.Entities", "src\Temelie.Entities\Temelie.Entities.csproj", "{A9FC7A45-D529-4383-BADE-A10470E49452}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Temelie.Repository.EntityFrameworkCore", "src\Temelie.Repository.EntityFrameworkCore\Temelie.Repository.EntityFrameworkCore.csproj", "{56FBBE1B-F386-4823-BEFF-33B3F05ACFB7}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Temelie.Repository.EntityFrameworkCore.UnitTests", "src\Temelie.Repository.EntityFrameworkCore.UnitTests\Temelie.Repository.EntityFrameworkCore.UnitTests.csproj", "{66A3261B-7AE7-4972-AF43-C5A8975C1FF4}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Temelie.Repository", "src\Temelie.Repository\Temelie.Repository.csproj", "{4AFF4137-8E7F-4585-AECD-C18867E5A82D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Temelie.DependencyInjection.SourceGenerator", "src\Temelie.DependencyInjection.SourceGenerator\Temelie.DependencyInjection.SourceGenerator.csproj", "{E673EA03-E416-4B34-9C12-349CFE5853DF}"
@@ -36,8 +32,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdventureWorks.Entities", "src\AdventureWorks.Entities\AdventureWorks.Entities.csproj", "{83B9AD41-712C-498C-B35E-BF3F712E440B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdventureWorks.Server.Repository", "src\AdventureWorks.Server.Repository\AdventureWorks.Server.Repository.csproj", "{26D71722-40A9-475E-A18B-183A513E8192}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdventureWorks.Server.Repository.EntityFrameworkCore", "src\AdventureWorks.Server.Repository.EntityFrameworkCore\AdventureWorks.Server.Repository.EntityFrameworkCore.csproj", "{553CA04A-3D10-4C6D-A7B8-89D694A770EA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFiles", "SolutionFiles", "{33024E9A-DD63-497F-8003-0C9974B860C4}"
 	ProjectSection(SolutionItems) = preProject
@@ -51,8 +45,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFiles", "SolutionFi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Temelie.Entities.SourceGenerator", "src\Temelie.Entities.SourceGenerator\Temelie.Entities.SourceGenerator.csproj", "{D693D7A8-B164-4DDE-B896-8CED6B60FCE8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Temelie.Repository.EntityFrameworkCore.SourceGenerator", "src\Temelie.Repository.EntityFrameworkCore.SourceGenerator\Temelie.Repository.EntityFrameworkCore.SourceGenerator.csproj", "{D0C47399-054F-42A9-9CED-9FE87546E5D6}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Temelie.Repository.SourceGenerator", "src\Temelie.Repository.SourceGenerator\Temelie.Repository.SourceGenerator.csproj", "{FDF80837-D7A0-45B0-A8A0-A124A1DEEB4F}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "SourceGenerator", "src\SourceGenerator\SourceGenerator.shproj", "{AD31560F-0368-4FE2-B6C0-640A4383505A}"
@@ -60,6 +52,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Temelie.SourceGenerator", "src\Temelie.SourceGenerator\Temelie.SourceGenerator.csproj", "{1C0AB603-00EE-49FF-B004-A9FACC644E4C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Temelie.SourceGenerator.App", "src\Temelie.SourceGenerator.App\Temelie.SourceGenerator.App.csproj", "{96D9AF34-8098-48A0-81C5-7FD73E416D57}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Temelie.Repository.UnitTests", "src\Temelie.Repository.UnitTests\Temelie.Repository.UnitTests.csproj", "{0561C683-7208-4F72-912D-BEB3C1A1F4F6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -107,14 +101,6 @@ Global
 		{A9FC7A45-D529-4383-BADE-A10470E49452}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A9FC7A45-D529-4383-BADE-A10470E49452}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A9FC7A45-D529-4383-BADE-A10470E49452}.Release|Any CPU.Build.0 = Release|Any CPU
-		{56FBBE1B-F386-4823-BEFF-33B3F05ACFB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{56FBBE1B-F386-4823-BEFF-33B3F05ACFB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{56FBBE1B-F386-4823-BEFF-33B3F05ACFB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{56FBBE1B-F386-4823-BEFF-33B3F05ACFB7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{66A3261B-7AE7-4972-AF43-C5A8975C1FF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{66A3261B-7AE7-4972-AF43-C5A8975C1FF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{66A3261B-7AE7-4972-AF43-C5A8975C1FF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{66A3261B-7AE7-4972-AF43-C5A8975C1FF4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4AFF4137-8E7F-4585-AECD-C18867E5A82D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4AFF4137-8E7F-4585-AECD-C18867E5A82D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4AFF4137-8E7F-4585-AECD-C18867E5A82D}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -131,18 +117,10 @@ Global
 		{26D71722-40A9-475E-A18B-183A513E8192}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{26D71722-40A9-475E-A18B-183A513E8192}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{26D71722-40A9-475E-A18B-183A513E8192}.Release|Any CPU.Build.0 = Release|Any CPU
-		{553CA04A-3D10-4C6D-A7B8-89D694A770EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{553CA04A-3D10-4C6D-A7B8-89D694A770EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{553CA04A-3D10-4C6D-A7B8-89D694A770EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{553CA04A-3D10-4C6D-A7B8-89D694A770EA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D693D7A8-B164-4DDE-B896-8CED6B60FCE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D693D7A8-B164-4DDE-B896-8CED6B60FCE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D693D7A8-B164-4DDE-B896-8CED6B60FCE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D693D7A8-B164-4DDE-B896-8CED6B60FCE8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D0C47399-054F-42A9-9CED-9FE87546E5D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D0C47399-054F-42A9-9CED-9FE87546E5D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D0C47399-054F-42A9-9CED-9FE87546E5D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D0C47399-054F-42A9-9CED-9FE87546E5D6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FDF80837-D7A0-45B0-A8A0-A124A1DEEB4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FDF80837-D7A0-45B0-A8A0-A124A1DEEB4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FDF80837-D7A0-45B0-A8A0-A124A1DEEB4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -155,6 +133,10 @@ Global
 		{96D9AF34-8098-48A0-81C5-7FD73E416D57}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{96D9AF34-8098-48A0-81C5-7FD73E416D57}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{96D9AF34-8098-48A0-81C5-7FD73E416D57}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0561C683-7208-4F72-912D-BEB3C1A1F4F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0561C683-7208-4F72-912D-BEB3C1A1F4F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0561C683-7208-4F72-912D-BEB3C1A1F4F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0561C683-7208-4F72-912D-BEB3C1A1F4F6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -164,7 +146,6 @@ Global
 		{FE145D2D-F787-46EF-BAF3-06FF823398EE} = {E1751DAE-1BFD-4888-AC39-F890B65567F2}
 		{83B9AD41-712C-498C-B35E-BF3F712E440B} = {E1751DAE-1BFD-4888-AC39-F890B65567F2}
 		{26D71722-40A9-475E-A18B-183A513E8192} = {E1751DAE-1BFD-4888-AC39-F890B65567F2}
-		{553CA04A-3D10-4C6D-A7B8-89D694A770EA} = {E1751DAE-1BFD-4888-AC39-F890B65567F2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {93D79511-36CC-452F-9DF6-C3D742B4CF59}
@@ -172,7 +153,6 @@ Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		src\SourceGenerator\SourceGenerator.projitems*{1c0ab603-00ee-49ff-b004-a9facc644e4c}*SharedItemsImports = 5
 		src\SourceGenerator\SourceGenerator.projitems*{ad31560f-0368-4fe2-b6c0-640a4383505a}*SharedItemsImports = 13
-		src\SourceGenerator\SourceGenerator.projitems*{d0c47399-054f-42a9-9ced-9fe87546e5d6}*SharedItemsImports = 5
 		src\SourceGenerator\SourceGenerator.projitems*{d693d7a8-b164-4dde-b896-8ced6b60fce8}*SharedItemsImports = 5
 		src\SourceGenerator\SourceGenerator.projitems*{e673ea03-e416-4b34-9c12-349cfe5853df}*SharedItemsImports = 5
 		src\SourceGenerator\SourceGenerator.projitems*{fdf80837-d7a0-45b0-a8a0-a124a1deeb4f}*SharedItemsImports = 5

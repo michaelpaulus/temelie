@@ -1,1 +1,0 @@
-# Temelie.Repository.EntityFrameworkCore.UnitTests

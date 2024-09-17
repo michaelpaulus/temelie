@@ -2,7 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Temelie.DependencyInjection;
 
-namespace Temelie.Repository.EntityFrameworkCore.UnitTests;
+namespace Temelie.Repository.UnitTests;
 
 public class TestBase
 {

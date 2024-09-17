@@ -1,4 +1,4 @@
-using AdventureWorks.Server.Repository.EntityFrameworkCore;
+using AdventureWorks.Server.Repository;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Temelie.DependencyInjection;
 
-namespace Temelie.Repository.EntityFrameworkCore.UnitTests;
+namespace Temelie.Repository.UnitTests;
 [ExportStartupConfiguration]
 public class TestStartupConfiguration : IStartupConfiguration
 {

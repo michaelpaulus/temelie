@@ -41,18 +41,11 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
         {
             var sbModelBuilder = new StringBuilder();
             var sbRepositoryContext = new StringBuilder();
-            var sbImplements = new StringBuilder();
             var sbExports = new StringBuilder();
 
             var className = entity.FullType.Split('.').Last();
 
-            sbImplements.Append($@"IRepositoryContext<{entity.FullType}>");
-
-            sbExports.AppendLine($"[ExportTransient(typeof(IRepositoryContext<{entity.FullType}>))]");
-
-            sbRepositoryContext.AppendLine($@"    public DbSet<{entity.FullType}> {className} {{ get; set; }}
-    DbContext IRepositoryContext<{entity.FullType}>.DbContext => this;
-    DbSet<{entity.FullType}> IRepositoryContext<{entity.FullType}>.DbSet => {className};");
+            sbRepositoryContext.AppendLine($@"    public DbSet<{entity.FullType}> {className} {{ get; set; }}");
 
             var props = new StringBuilder();
             var keys = new List<string>();
@@ -157,11 +150,11 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
 
             sb.AppendLine($@"using Microsoft.EntityFrameworkCore;
 using Temelie.DependencyInjection;
-using Temelie.Repository.EntityFrameworkCore;
+using Temelie.Repository;
 
 namespace {ns};
 
-{sbExports}public abstract partial class DbContextBase : {sbImplements}
+{sbExports}public abstract partial class DbContextBase
 {{
 {sbRepositoryContext}
 }}
@@ -196,7 +189,7 @@ public partial class {entity.FullType.Replace(".", "_")}ModelBuilderProvider : I
 
             sb.AppendLine($@"using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Temelie.Repository.EntityFrameworkCore;
+using Temelie.Repository;
 
 namespace {ns};
 

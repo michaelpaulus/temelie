@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Temelie.Repository.EntityFrameworkCore;
+namespace Temelie.Repository;
 public static class Extensions
 {
 

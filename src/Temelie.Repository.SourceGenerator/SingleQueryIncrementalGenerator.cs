@@ -56,7 +56,7 @@ namespace {ns};
 
 public class {entity.Name}SingleQuery({string.Join(", ", keys.Select(i => $"{i.FullType} {i.Name.ToCamelCase()}"))}) : IQuerySpec<{entity.FullType}>
 {{
-    public IQueryable<{entity.FullType}> Apply(IQueryable<{entity.FullType}> query)
+    public IQueryable<{entity.FullType}> Apply(IRepositoryContext context, IQueryable<{entity.FullType}> query)
     {{
         return query.Where(i => {string.Join(" && ", keys.Select(i => $"i.{i.Name} == {i.Name.ToCamelCase()}"))});
     }}

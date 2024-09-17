@@ -1,8 +1,7 @@
 using Temelie.DependencyInjection;
 using Temelie.Repository;
-using Temelie.Repository.EntityFrameworkCore;
 
-namespace AdventureWorks.Server.Repository.EntityFrameworkCore;
+namespace AdventureWorks.Server.Repository;
 [ExportTransient(typeof(IRepository), Type = typeof(ExampleRepository))]
 public class ExampleRepository : RepositoryBase
 {

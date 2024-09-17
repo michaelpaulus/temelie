@@ -1,9 +1,10 @@
 using AdventureWorks.Entities;
 using AdventureWorks.Server.Repository;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Temelie.Repository.EntityFrameworkCore.UnitTests;
+namespace Temelie.Repository.UnitTests;
 
 public class RespositoryTests : TestBase
 {
@@ -247,7 +248,7 @@ public class RespositoryTests : TestBase
 
         foreach (var i in Enumerable.Range(1, count))
         {
-            var person = new Person() {  BusinessEntityId = i, FirstName = $"Test" };
+            var person = new Person() { BusinessEntityId = i, FirstName = $"Test" };
             await repository.AddAsync(person).ConfigureAwait(true);
         }
 
@@ -271,7 +272,33 @@ public class RespositoryTests : TestBase
 
         var result = await repository.GetListAsync(new CustomerByTerritoryQuery()).ConfigureAwait(true);
         result.Should().HaveCount(1);
-        result.First().Count.Should().Be(count); 
+        result.First().Count.Should().Be(count);
+    }
+
+    [Test]
+    public async Task ExistsAsync()
+    {
+        var storId = 1;
+        var terrirotyName = "TEST";
+
+        using var repository = ServiceProvider.GetRequiredService<IRepository>();
+
+        var count = 10;
+
+        foreach (var i in Enumerable.Range(1, count))
+        {
+            var customer = new Customer() { TerritoryId = 1, StoreId = storId };
+            await repository.AddAsync(customer).ConfigureAwait(true);
+        }
+
+        var spec = new TestExistsQuery(storId, terrirotyName);
+       
+        var result = await repository.GetCountAsync(spec).ConfigureAwait(false);
+        result.Should().Be(0);
+        await repository.AddAsync(new SalesTerritory() { TerritoryId = 1, Name = terrirotyName }).ConfigureAwait(true);
+        result = await repository.GetCountAsync(spec).ConfigureAwait(false);
+        result.Should().Be(count);
+
     }
 
 }

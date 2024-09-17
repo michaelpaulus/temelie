@@ -4,7 +4,7 @@ using Temelie.Repository;
 namespace AdventureWorks.Server.Repository;
 public class CustomerByTerritoryQuery : IQuerySpec2<Customer, CustomerByTerritory>
 {
-    public IQueryable<CustomerByTerritory> Apply(IQueryable<Customer> query)
+    public IQueryable<CustomerByTerritory> Apply(IRepositoryContext context, IQueryable<Customer> query)
     {
         return query
             .Where(i => i.TerritoryId.HasValue)
