@@ -29,6 +29,15 @@ public abstract partial class RepositoryBase : IRepository
         return await query.ToListAsync().ConfigureAwait(false);
     }
 
+
+    public virtual async Task<IEnumerable<TReturn>> GetListAsync<Entity, TReturn>(IQuerySpec2<Entity, TReturn> spec) where Entity : EntityBase, IEntity<Entity>
+    {
+        using var context = _serviceProvider.GetRequiredService<IRepositoryContext<Entity>>();
+        var query = context.DbSet.AsNoTracking();
+        var query1 = spec.Apply(query);
+        return await query1.ToListAsync().ConfigureAwait(false);
+    }
+
     public virtual async Task<int> GetCountAsync<Entity>(IQuerySpec<Entity> spec) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = _serviceProvider.GetRequiredService<IRepositoryContext<Entity>>();

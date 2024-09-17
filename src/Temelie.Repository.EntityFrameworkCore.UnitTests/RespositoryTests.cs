@@ -256,4 +256,22 @@ public class RespositoryTests : TestBase
         result.Should().Be(count);
     }
 
+    [Test]
+    public async Task GroupByAsync()
+    {
+        using var repository = ServiceProvider.GetRequiredService<IRepository>();
+
+        var count = 10;
+
+        foreach (var i in Enumerable.Range(1, count))
+        {
+            var customer = new Customer() { TerritoryId = 1 };
+            await repository.AddAsync(customer).ConfigureAwait(true);
+        }
+
+        var result = await repository.GetListAsync(new CustomerByTerritoryQuery()).ConfigureAwait(true);
+        result.Should().HaveCount(1);
+        result.First().Count.Should().Be(count); 
+    }
+
 }
