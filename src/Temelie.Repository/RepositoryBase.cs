@@ -1,21 +1,22 @@
 using Temelie.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using System.Linq.Expressions;
 namespace Temelie.Repository;
 
 public abstract partial class RepositoryBase : IRepository
 {
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IIdentityResolver _identityResolver;
 
-    public RepositoryBase(IServiceProvider serviceProvider)
+    public RepositoryBase(IIdentityResolver identityResolver)
     {
-        _serviceProvider = serviceProvider;
+        _identityResolver = identityResolver;
     }
+
+    protected abstract IRepositoryContext CreateContext();
 
     public virtual async Task<Entity?> GetSingleAsync<Entity>(IQuerySpec<Entity> spec) where Entity : EntityBase, IEntity<Entity>
     {
-        using var context = _serviceProvider.GetRequiredService<IRepositoryContext>();
+        using var context = CreateContext();
         var query = context.DbContext.Set<Entity>().AsNoTracking();
         query = await OnQueryAsync(context, query, spec.Apply).ConfigureAwait(false);
         return await query.FirstOrDefaultAsync().ConfigureAwait(false);
@@ -23,7 +24,7 @@ public abstract partial class RepositoryBase : IRepository
 
     public virtual async Task<IEnumerable<Entity>> GetListAsync<Entity>(IQuerySpec<Entity> spec) where Entity : EntityBase, IEntity<Entity>
     {
-        using var context = _serviceProvider.GetRequiredService<IRepositoryContext>();
+        using var context = CreateContext();
         var query = context.DbContext.Set<Entity>().AsNoTracking();
         query = await OnQueryAsync(context, query, spec.Apply).ConfigureAwait(false);
         return await query.ToListAsync().ConfigureAwait(false);
@@ -32,7 +33,7 @@ public abstract partial class RepositoryBase : IRepository
 
     public virtual async Task<IEnumerable<TReturn>> GetListAsync<Entity, TReturn>(IQuerySpec2<Entity, TReturn> spec) where Entity : EntityBase, IEntity<Entity>
     {
-        using var context = _serviceProvider.GetRequiredService<IRepositoryContext>();
+        using var context = CreateContext();
         var query = context.DbContext.Set<Entity>().AsNoTracking();
         var query1 = spec.Apply(context, query);
         return await query1.ToListAsync().ConfigureAwait(false);
@@ -40,7 +41,7 @@ public abstract partial class RepositoryBase : IRepository
 
     public virtual async Task<int> GetCountAsync<Entity>(IQuerySpec<Entity> spec) where Entity : EntityBase, IEntity<Entity>
     {
-        using var context = _serviceProvider.GetRequiredService<IRepositoryContext>();
+        using var context = CreateContext();
         var query = context.DbContext.Set<Entity>().AsNoTracking();
         query = await OnQueryAsync(context, query, spec.Apply).ConfigureAwait(false);
         return await query.CountAsync().ConfigureAwait(false);
@@ -48,7 +49,7 @@ public abstract partial class RepositoryBase : IRepository
 
     public virtual async Task<int> GetCountAsync<Entity, TReturn>(IQuerySpec2<Entity, TReturn> spec) where Entity : EntityBase, IEntity<Entity>
     {
-        using var context = _serviceProvider.GetRequiredService<IRepositoryContext>();
+        using var context = CreateContext();
         var query = context.DbContext.Set<Entity>().AsNoTracking();
         var query1 = spec.Apply(context, query);
         return await query1.CountAsync().ConfigureAwait(false);
@@ -56,7 +57,7 @@ public abstract partial class RepositoryBase : IRepository
 
     public async Task<Entity?> GetSingleAsync<Entity>(Expression<Func<Entity, bool>>? filter = null, Func<IQueryable<Entity>, IQueryable<Entity>>? query = null) where Entity : EntityBase, IEntity<Entity>
     {
-        using var context = _serviceProvider.GetRequiredService<IRepositoryContext>();
+        using var context = CreateContext();
         var query1 = context.DbContext.Set<Entity>().AsNoTracking();
         query1 = await OnQueryAsync(context, query1,
             (context, i) =>
@@ -77,7 +78,7 @@ public abstract partial class RepositoryBase : IRepository
 
     public async Task<IEnumerable<Entity>> GetListAsync<Entity>(Expression<Func<Entity, bool>>? filter = null, Func<IQueryable<Entity>, IQueryable<Entity>>? query = null) where Entity : EntityBase, IEntity<Entity>
     {
-        using var context = _serviceProvider.GetRequiredService<IRepositoryContext>();
+        using var context = CreateContext();
         var query1 = context.DbContext.Set<Entity>().AsNoTracking();
         query1 = await OnQueryAsync(context, query1,
             (context, i) =>
@@ -98,7 +99,7 @@ public abstract partial class RepositoryBase : IRepository
 
     public async Task<int> GetCountAsync<Entity>(Expression<Func<Entity, bool>>? filter = null, Func<IQueryable<Entity>, IQueryable<Entity>>? query = null) where Entity : EntityBase, IEntity<Entity>
     {
-        using var context = _serviceProvider.GetRequiredService<IRepositoryContext>();
+        using var context = CreateContext();
         var query1 = context.DbContext.Set<Entity>().AsNoTracking();
         query1 = await OnQueryAsync(context, query1,
             (context, i) =>
@@ -119,7 +120,7 @@ public abstract partial class RepositoryBase : IRepository
 
     public virtual async Task AddAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
     {
-        using var context = _serviceProvider.GetRequiredService<IRepositoryContext>();
+        using var context = CreateContext();
         await OnAddingAsync(entity).ConfigureAwait(false);
         context.DbContext.Entry(entity).State = EntityState.Added;
         await context.DbContext.SaveChangesAsync().ConfigureAwait(false);
@@ -128,7 +129,7 @@ public abstract partial class RepositoryBase : IRepository
 
     public virtual async Task AddRangeAsync<Entity>(IEnumerable<Entity> entities) where Entity : EntityBase, IEntity<Entity>
     {
-        using var context = _serviceProvider.GetRequiredService<IRepositoryContext>();
+        using var context = CreateContext();
         foreach (var entity in entities)
         {
             await OnAddingAsync(entity).ConfigureAwait(false);
@@ -143,7 +144,7 @@ public abstract partial class RepositoryBase : IRepository
 
     public virtual async Task DeleteAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
     {
-        using var context = _serviceProvider.GetRequiredService<IRepositoryContext>();
+        using var context = CreateContext();
         await OnDeletingAsync(entity).ConfigureAwait(false);
         context.DbContext.Entry(entity).State = EntityState.Deleted;
         await context.DbContext.SaveChangesAsync().ConfigureAwait(false);
@@ -152,7 +153,7 @@ public abstract partial class RepositoryBase : IRepository
 
     public virtual async Task DeleteRangeAsync<Entity>(IEnumerable<Entity> entities) where Entity : EntityBase, IEntity<Entity>
     {
-        using var context = _serviceProvider.GetRequiredService<IRepositoryContext>();
+        using var context = CreateContext();
         foreach (var entity in entities)
         {
             await OnDeletingAsync(entity).ConfigureAwait(false);
@@ -167,7 +168,7 @@ public abstract partial class RepositoryBase : IRepository
 
     public virtual async Task UpdateAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
     {
-        using var context = _serviceProvider.GetRequiredService<IRepositoryContext>();
+        using var context = CreateContext();
         await OnUpdatingAsync(entity).ConfigureAwait(false);
         context.DbContext.Entry(entity).State = EntityState.Modified;
         await context.DbContext.SaveChangesAsync().ConfigureAwait(false);
@@ -176,7 +177,7 @@ public abstract partial class RepositoryBase : IRepository
 
     public virtual async Task UpdateRangeAsync<Entity>(IEnumerable<Entity> entities) where Entity : EntityBase, IEntity<Entity>
     {
-        using var context = _serviceProvider.GetRequiredService<IRepositoryContext>();
+        using var context = CreateContext();
         foreach (var entity in entities)
         {
             await OnUpdatingAsync(entity).ConfigureAwait(false);
@@ -196,16 +197,15 @@ public abstract partial class RepositoryBase : IRepository
 
     protected virtual Task OnAddingAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
     {
-        var identityResolver = _serviceProvider.GetService<IIdentityResolver>();
         if (entity is ICreatedByEntity createdByEntity)
         {
             createdByEntity.CreatedDate = DateTime.UtcNow;
-            createdByEntity.CreatedBy = identityResolver?.GetIdentity();
+            createdByEntity.CreatedBy = _identityResolver?.GetIdentity();
         }
         if (entity is IModifiedByEntity modifiedByEntity)
         {
             modifiedByEntity.ModifiedDate = DateTime.UtcNow;
-            modifiedByEntity.ModifiedBy = identityResolver?.GetIdentity();
+            modifiedByEntity.ModifiedBy = _identityResolver?.GetIdentity();
         }
         return Task.CompletedTask;
     }
@@ -227,11 +227,10 @@ public abstract partial class RepositoryBase : IRepository
 
     protected virtual Task OnUpdatingAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
     {
-        var identityResolver = _serviceProvider.GetService<IIdentityResolver>();
         if (entity is IModifiedByEntity modifiedByEntity)
         {
             modifiedByEntity.ModifiedDate = DateTime.UtcNow;
-            modifiedByEntity.ModifiedBy = identityResolver?.GetIdentity();
+            modifiedByEntity.ModifiedBy = _identityResolver?.GetIdentity();
         }
         return Task.CompletedTask;
     }
