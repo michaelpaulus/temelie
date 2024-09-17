@@ -46,6 +46,14 @@ public abstract partial class RepositoryBase : IRepository
         return await query.CountAsync().ConfigureAwait(false);
     }
 
+    public virtual async Task<int> GetCountAsync<Entity, TReturn>(IQuerySpec2<Entity, TReturn> spec) where Entity : EntityBase, IEntity<Entity>
+    {
+        using var context = _serviceProvider.GetRequiredService<IRepositoryContext<Entity>>();
+        var query = context.DbSet.AsNoTracking();
+        var query1 = spec.Apply(query);
+        return await query1.CountAsync().ConfigureAwait(false);
+    }
+
     public async Task<Entity?> GetSingleAsync<Entity>(Expression<Func<Entity, bool>>? filter = null, Func<IQueryable<Entity>, IQueryable<Entity>>? query = null) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = _serviceProvider.GetRequiredService<IRepositoryContext<Entity>>();
