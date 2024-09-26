@@ -14,25 +14,25 @@ public class ExampleRepositoryEventProvider : IRepositoryEventProvider<Person>
         _logger = logger;
     }
 
-    public Task OnAddedAsync(Person entity)
+    public Task OnAddedAsync(IRepositoryContext context, Person entity)
     {
         _logger.LogInformation("Person {0} added", entity.FirstName);
         return Task.CompletedTask;
     }
 
-    public Task OnAddingAsync(Person entity)
+    public Task OnAddingAsync(IRepositoryContext context, Person entity)
     {
         _logger.LogInformation("Person {0} adding", entity.FirstName);
         return Task.CompletedTask;
     }
 
-    public Task OnDeletedAsync(Person entity)
+    public Task OnDeletedAsync(IRepositoryContext context, Person entity)
     {
         _logger.LogInformation("Person {0} Deleted", entity.FirstName);
         return Task.CompletedTask;
     }
 
-    public Task OnDeletingAsync(Person entity)
+    public Task OnDeletingAsync(IRepositoryContext context, Person entity)
     {
         _logger.LogInformation("Person {0} Deleting", entity.FirstName);
         return Task.CompletedTask;
@@ -44,13 +44,13 @@ public class ExampleRepositoryEventProvider : IRepositoryEventProvider<Person>
         return Task.FromResult(query);
     }
 
-    public Task OnUpdatedAsync(Person entity)
+    public Task OnUpdatedAsync(IRepositoryContext context, Person entity)
     {
         _logger.LogInformation("Person {0} Updated", entity.FirstName);
         return Task.CompletedTask;
     }
 
-    public Task OnUpdatingAsync(Person entity)
+    public Task OnUpdatingAsync(IRepositoryContext context, Person entity)
     {
         _logger.LogInformation("Person {0} Updating", entity.FirstName);
         return Task.CompletedTask;

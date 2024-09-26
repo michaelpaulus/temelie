@@ -118,10 +118,10 @@ public abstract partial class RepositoryBase : IRepository
     public virtual async Task AddAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = CreateContext();
-        await OnAddingAsync(entity).ConfigureAwait(false);
+        await OnAddingAsync(context, entity).ConfigureAwait(false);
         context.DbContext.Entry(entity).State = EntityState.Added;
         await context.DbContext.SaveChangesAsync().ConfigureAwait(false);
-        await OnAddedAsync(entity).ConfigureAwait(false);
+        await OnAddedAsync(context, entity).ConfigureAwait(false);
     }
 
     public virtual async Task AddRangeAsync<Entity>(IEnumerable<Entity> entities) where Entity : EntityBase, IEntity<Entity>
@@ -129,23 +129,23 @@ public abstract partial class RepositoryBase : IRepository
         using var context = CreateContext();
         foreach (var entity in entities)
         {
-            await OnAddingAsync(entity).ConfigureAwait(false);
+            await OnAddingAsync(context, entity).ConfigureAwait(false);
             context.DbContext.Entry(entity).State = EntityState.Added;
         }
         await context.DbContext.SaveChangesAsync().ConfigureAwait(false);
         foreach (var entity in entities)
         {
-            await OnAddedAsync(entity).ConfigureAwait(false);
+            await OnAddedAsync(context, entity).ConfigureAwait(false);
         }
     }
 
     public virtual async Task DeleteAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = CreateContext();
-        await OnDeletingAsync(entity).ConfigureAwait(false);
+        await OnDeletingAsync(context, entity).ConfigureAwait(false);
         context.DbContext.Entry(entity).State = EntityState.Deleted;
         await context.DbContext.SaveChangesAsync().ConfigureAwait(false);
-        await OnDeletedAsync(entity).ConfigureAwait(false);
+        await OnDeletedAsync(context, entity).ConfigureAwait(false);
     }
 
     public virtual async Task DeleteRangeAsync<Entity>(IEnumerable<Entity> entities) where Entity : EntityBase, IEntity<Entity>
@@ -153,23 +153,23 @@ public abstract partial class RepositoryBase : IRepository
         using var context = CreateContext();
         foreach (var entity in entities)
         {
-            await OnDeletingAsync(entity).ConfigureAwait(false);
+            await OnDeletingAsync(context, entity).ConfigureAwait(false);
             context.DbContext.Entry(entity).State = EntityState.Deleted;
         }
         await context.DbContext.SaveChangesAsync().ConfigureAwait(false);
         foreach (var entity in entities)
         {
-            await OnDeletedAsync(entity).ConfigureAwait(false);
+            await OnDeletedAsync(context, entity).ConfigureAwait(false);
         }
     }
 
     public virtual async Task UpdateAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = CreateContext();
-        await OnUpdatingAsync(entity).ConfigureAwait(false);
+        await OnUpdatingAsync(context, entity).ConfigureAwait(false);
         context.DbContext.Entry(entity).State = EntityState.Modified;
         await context.DbContext.SaveChangesAsync().ConfigureAwait(false);
-        await OnUpdatedAsync(entity).ConfigureAwait(false);
+        await OnUpdatedAsync(context, entity).ConfigureAwait(false);
     }
 
     public virtual async Task UpdateRangeAsync<Entity>(IEnumerable<Entity> entities) where Entity : EntityBase, IEntity<Entity>
@@ -177,13 +177,13 @@ public abstract partial class RepositoryBase : IRepository
         using var context = CreateContext();
         foreach (var entity in entities)
         {
-            await OnUpdatingAsync(entity).ConfigureAwait(false);
+            await OnUpdatingAsync(context, entity).ConfigureAwait(false);
             context.DbContext.Entry(entity).State = EntityState.Modified;
         }
         await context.DbContext.SaveChangesAsync().ConfigureAwait(false);
         foreach (var entity in entities)
         {
-            await OnUpdatedAsync(entity).ConfigureAwait(false);
+            await OnUpdatedAsync(context, entity).ConfigureAwait(false);
         }
     }
 
@@ -197,7 +197,7 @@ public abstract partial class RepositoryBase : IRepository
         return query;
     }
 
-    protected virtual async Task OnAddingAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
+    protected virtual async Task OnAddingAsync<Entity>(IRepositoryContext context, Entity entity) where Entity : EntityBase, IEntity<Entity>
     {
         if (entity is ICreatedByEntity createdByEntity)
         {
@@ -212,35 +212,35 @@ public abstract partial class RepositoryBase : IRepository
 
         foreach (var provider in GetEventProviders<Entity>())
         {
-            await provider.OnAddingAsync(entity).ConfigureAwait(false);
+            await provider.OnAddingAsync(context, entity).ConfigureAwait(false);
         }
     }
 
-    protected virtual async Task OnAddedAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
+    protected virtual async Task OnAddedAsync<Entity>(IRepositoryContext context, Entity entity) where Entity : EntityBase, IEntity<Entity>
     {
         foreach (var provider in GetEventProviders<Entity>())
         {
-            await provider.OnAddedAsync(entity).ConfigureAwait(false);
+            await provider.OnAddedAsync(context, entity).ConfigureAwait(false);
         }
     }
 
-    protected virtual async Task OnDeletingAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
+    protected virtual async Task OnDeletingAsync<Entity>(IRepositoryContext context, Entity entity) where Entity : EntityBase, IEntity<Entity>
     {
         foreach (var provider in GetEventProviders<Entity>())
         {
-            await provider.OnDeletingAsync(entity).ConfigureAwait(false);
+            await provider.OnDeletingAsync(context, entity).ConfigureAwait(false);
         }
     }
 
-    protected virtual async Task OnDeletedAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
+    protected virtual async Task OnDeletedAsync<Entity>(IRepositoryContext context, Entity entity) where Entity : EntityBase, IEntity<Entity>
     {
         foreach (var provider in GetEventProviders<Entity>())
         {
-            await provider.OnDeletedAsync(entity).ConfigureAwait(false);
+            await provider.OnDeletedAsync(context, entity).ConfigureAwait(false);
         }
     }
 
-    protected virtual async Task OnUpdatingAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
+    protected virtual async Task OnUpdatingAsync<Entity>(IRepositoryContext context, Entity entity) where Entity : EntityBase, IEntity<Entity>
     {
         if (entity is IModifiedByEntity modifiedByEntity)
         {
@@ -249,15 +249,15 @@ public abstract partial class RepositoryBase : IRepository
         }
         foreach (var provider in GetEventProviders<Entity>())
         {
-            await provider.OnUpdatingAsync(entity).ConfigureAwait(false);
+            await provider.OnUpdatingAsync(context, entity).ConfigureAwait(false);
         }
     }
 
-    protected virtual async Task OnUpdatedAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
+    protected virtual async Task OnUpdatedAsync<Entity>(IRepositoryContext context, Entity entity) where Entity : EntityBase, IEntity<Entity>
     {
         foreach (var provider in GetEventProviders<Entity>())
         {
-            await provider.OnUpdatedAsync(entity).ConfigureAwait(false);
+            await provider.OnUpdatedAsync(context, entity).ConfigureAwait(false);
         }
     }
 
