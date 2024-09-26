@@ -5,14 +5,10 @@ namespace Temelie.Repository;
 
 public abstract partial class RepositoryBase : IRepository
 {
-    private readonly IIdentityResolver _identityResolver;
-
-    public RepositoryBase(IIdentityResolver identityResolver)
-    {
-        _identityResolver = identityResolver;
-    }
 
     protected abstract IRepositoryContext CreateContext();
+    protected abstract string GetCreatedModifiedBy();
+    protected abstract IEnumerable<IRepositoryEventProvider<Entity>> GetEventProviders<Entity>() where Entity : EntityBase, IEntity<Entity>;
 
     public virtual async Task<Entity?> GetSingleAsync<Entity>(IQuerySpec<Entity> spec) where Entity : EntityBase, IEntity<Entity>
     {
@@ -30,12 +26,12 @@ public abstract partial class RepositoryBase : IRepository
         return await query.ToListAsync().ConfigureAwait(false);
     }
 
-
-    public virtual async Task<IEnumerable<TReturn>> GetListAsync<Entity, TReturn>(IQuerySpec2<Entity, TReturn> spec) where Entity : EntityBase, IEntity<Entity>
+    public virtual async Task<IEnumerable<TReturn>> GetListAsync<Entity, TReturn>(IQueryAndTransformSpec<Entity, TReturn> spec) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = CreateContext();
         var query = context.DbContext.Set<Entity>().AsNoTracking();
-        var query1 = spec.Apply(context, query);
+        query = await OnQueryAsync(context, query, spec.Apply).ConfigureAwait(false);
+        var query1 = spec.Transform(context, query);
         return await query1.ToListAsync().ConfigureAwait(false);
     }
 
@@ -47,11 +43,12 @@ public abstract partial class RepositoryBase : IRepository
         return await query.CountAsync().ConfigureAwait(false);
     }
 
-    public virtual async Task<int> GetCountAsync<Entity, TReturn>(IQuerySpec2<Entity, TReturn> spec) where Entity : EntityBase, IEntity<Entity>
+    public virtual async Task<int> GetCountAsync<Entity, TReturn>(IQueryAndTransformSpec<Entity, TReturn> spec) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = CreateContext();
         var query = context.DbContext.Set<Entity>().AsNoTracking();
-        var query1 = spec.Apply(context, query);
+        query = await OnQueryAsync(context, query, spec.Apply).ConfigureAwait(false);
+        var query1 = spec.Transform(context, query);
         return await query1.CountAsync().ConfigureAwait(false);
     }
 
@@ -190,54 +187,78 @@ public abstract partial class RepositoryBase : IRepository
         }
     }
 
-    protected virtual Task<IQueryable<Entity>> OnQueryAsync<Entity>(IRepositoryContext context, IQueryable<Entity> query, Func<IRepositoryContext, IQueryable<Entity>, IQueryable<Entity>> apply) where Entity : EntityBase, IEntity<Entity>
+    protected virtual async Task<IQueryable<Entity>> OnQueryAsync<Entity>(IRepositoryContext context, IQueryable<Entity> query, Func<IRepositoryContext, IQueryable<Entity>, IQueryable<Entity>> apply) where Entity : EntityBase, IEntity<Entity>
     {
-        return Task.FromResult(apply.Invoke(context, query));
+        query = apply.Invoke(context, query);
+        foreach (var provider in GetEventProviders<Entity>())
+        {
+            query = await provider.OnQueryAsync(context, query).ConfigureAwait(false);
+        }
+        return query;
     }
 
-    protected virtual Task OnAddingAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
+    protected virtual async Task OnAddingAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
     {
         if (entity is ICreatedByEntity createdByEntity)
         {
             createdByEntity.CreatedDate = DateTime.UtcNow;
-            createdByEntity.CreatedBy = _identityResolver?.GetIdentity();
+            createdByEntity.CreatedBy = GetCreatedModifiedBy();
         }
         if (entity is IModifiedByEntity modifiedByEntity)
         {
             modifiedByEntity.ModifiedDate = DateTime.UtcNow;
-            modifiedByEntity.ModifiedBy = _identityResolver?.GetIdentity();
+            modifiedByEntity.ModifiedBy = GetCreatedModifiedBy();
         }
-        return Task.CompletedTask;
+
+        foreach (var provider in GetEventProviders<Entity>())
+        {
+            await provider.OnAddingAsync(entity).ConfigureAwait(false);
+        }
     }
 
-    protected virtual Task OnAddedAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
+    protected virtual async Task OnAddedAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
     {
-        return Task.CompletedTask;
+        foreach (var provider in GetEventProviders<Entity>())
+        {
+            await provider.OnAddedAsync(entity).ConfigureAwait(false);
+        }
     }
 
-    protected virtual Task OnDeletingAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
+    protected virtual async Task OnDeletingAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
     {
-        return Task.CompletedTask;
+        foreach (var provider in GetEventProviders<Entity>())
+        {
+            await provider.OnDeletingAsync(entity).ConfigureAwait(false);
+        }
     }
 
-    protected virtual Task OnDeletedAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
+    protected virtual async Task OnDeletedAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
     {
-        return Task.CompletedTask;
+        foreach (var provider in GetEventProviders<Entity>())
+        {
+            await provider.OnDeletedAsync(entity).ConfigureAwait(false);
+        }
     }
 
-    protected virtual Task OnUpdatingAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
+    protected virtual async Task OnUpdatingAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
     {
         if (entity is IModifiedByEntity modifiedByEntity)
         {
             modifiedByEntity.ModifiedDate = DateTime.UtcNow;
-            modifiedByEntity.ModifiedBy = _identityResolver?.GetIdentity();
+            modifiedByEntity.ModifiedBy = GetCreatedModifiedBy();
         }
-        return Task.CompletedTask;
+        foreach (var provider in GetEventProviders<Entity>())
+        {
+            await provider.OnUpdatingAsync(entity).ConfigureAwait(false);
+        }
     }
 
-    protected virtual Task OnUpdatedAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
+    protected virtual async Task OnUpdatedAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
     {
-        return Task.CompletedTask;
+        foreach (var provider in GetEventProviders<Entity>())
+        {
+            await provider.OnUpdatedAsync(entity).ConfigureAwait(false);
+        }
     }
 
     public virtual void Dispose()

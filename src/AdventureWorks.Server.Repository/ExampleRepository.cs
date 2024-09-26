@@ -8,7 +8,7 @@ public class ExampleRepository : RepositoryBase
 {
     private readonly IServiceProvider _serviceProvider;
 
-    public ExampleRepository(IServiceProvider serviceProvider, IIdentityResolver identityResolver) : base(identityResolver)
+    public ExampleRepository(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
     }
@@ -16,5 +16,15 @@ public class ExampleRepository : RepositoryBase
     protected override IRepositoryContext CreateContext()
     {
         return _serviceProvider.GetRequiredService<IRepositoryContext>();
+    }
+
+    protected override string GetCreatedModifiedBy()
+    {
+        return "";
+    }
+
+    protected override IEnumerable<IRepositoryEventProvider<Entity>> GetEventProviders<Entity>()
+    {
+        return _serviceProvider.GetServices<IRepositoryEventProvider<Entity>>();
     }
 }
