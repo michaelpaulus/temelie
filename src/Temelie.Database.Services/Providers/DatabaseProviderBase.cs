@@ -411,7 +411,13 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
                     var blnIsIncludeColumn = Convert.ToBoolean(detialRow["is_included_column"]);
                     var strColumnName = detialRow["column_name"].ToString();
 
-                    var columnModel = new IndexColumnModel { ColumnName = strColumnName, IsDescending = blnIsDescending, PartitionOrdinal = Convert.ToInt32(detialRow["partition_ordinal"]) };
+                    var columnModel = new IndexColumnModel
+                    {
+                        ColumnName = strColumnName,
+                        IsDescending = blnIsDescending,
+                        PartitionOrdinal = Convert.ToInt32(detialRow["partition_ordinal"]),
+                        SubPart = detialRow["sub_part"] == DBNull.Value ? null : Convert.ToInt32(detialRow["sub_part"])
+                    };
 
                     if (blnIsIncludeColumn)
                     {

@@ -74,6 +74,7 @@ SELECT
     statistics.index_name,
     statistics.column_name,
     statistics.seq_in_index AS key_ordinal,
+    statistics.sub_part,
     CASE WHEN statistics.non_unique = 0 THEN 1 ELSE 0 END AS is_unique
 FROM
     information_schema.statistics

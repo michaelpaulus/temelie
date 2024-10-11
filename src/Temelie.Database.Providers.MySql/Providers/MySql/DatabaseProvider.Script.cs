@@ -45,7 +45,7 @@ public partial class DatabaseProvider
                         {
                             sb.AppendLine(",");
                         }
-                        sb.Append($"    {QuoteCharacterStart}{column.ColumnName}{QuoteCharacterEnd}{(column.IsDescending ? " DESC" : "")}");
+                        sb.Append($"    {QuoteCharacterStart}{column.ColumnName}{QuoteCharacterEnd}{(column.SubPart.HasValue ? $"({column.SubPart})" : "")}{(column.IsDescending ? " DESC" : "")}");
                         blnHasColumns = true;
                     }
 

@@ -196,6 +196,7 @@ SELECT
 	sys.index_columns.key_ordinal,
 	sys.index_columns.partition_ordinal,
 	sys.indexes.is_primary_key,
+    CONVERT(INT, NULL) sub_part,
 	sys.indexes.filter_definition,
 	(
 		SELECT
