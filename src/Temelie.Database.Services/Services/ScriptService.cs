@@ -458,10 +458,6 @@ public class ScriptService : IScriptService
 
         var shouldEnsureMigrationsTable = true;
 
-        var currentDatabaseModel = _databaseModelService.CreateModel(connectionString, new Models.DatabaseModelOptions { ExcludeDoubleUnderscoreObjects = true });
-        var updatedDatabaseModel = DatabaseModel.CreateFromFiles(modelList.Select(i => (i.FullName, File.ReadAllText(i.FullName))));
-        var provider = _databaseFactory.GetDatabaseProvider(connectionString);
-
         void ensureMigrationsTable()
         {
             if (shouldEnsureMigrationsTable)
@@ -510,6 +506,37 @@ public class ScriptService : IScriptService
         }
 
         ensureMigrationsTable();
+
+        var currentDatabaseModel = _databaseModelService.CreateModel(connectionString, new Models.DatabaseModelOptions { ExcludeDoubleUnderscoreObjects = true });
+        var updatedDatabaseModel = DatabaseModel.CreateFromFiles(modelList.Select(i => (i.FullName, File.ReadAllText(i.FullName))));
+        var provider = _databaseFactory.GetDatabaseProvider(connectionString);
+
+        var tablesDirectory = directory.GetDirectories("02_Tables");
+
+        var renameFound = false;
+
+        if (tablesDirectory is not null)
+        {
+            foreach (var current in currentDatabaseModel.Tables)
+            {
+                var updatedTable = updatedDatabaseModel.Tables.FirstOrDefault(i => i.SchemaName == current.SchemaName && i.TableName == current.TableName);
+                if (updatedTable is null)
+                {
+                    var rename = provider.GetRenameScript(current, $"__{current.TableName}");
+
+                    progress?.Report(new ScriptProgress() { ProgressPercentage = 0, ProgressStatus = $"__{current.TableName}" });
+
+                    _databaseExecutionService.ExecuteFile(connectionString, rename);
+
+                    renameFound = true;
+                }
+            }
+        }
+
+        if (renameFound)
+        {
+            currentDatabaseModel = _databaseModelService.CreateModel(connectionString, new Models.DatabaseModelOptions { ExcludeDoubleUnderscoreObjects = true });
+        }
 
         foreach (var dir in directory.GetDirectories().OrderBy(i => i.Name))
         {
@@ -604,7 +631,7 @@ public class ScriptService : IScriptService
                                 i => provider.GetScript(i),
                                 handleDrop: (current) =>
                                 {
-                                    list.Add(($"{dir.Name}/{current.SchemaName}.{current.TableName}", provider.GetRenameScript(current, $"__{current.TableName}")));
+                                    // handled above
                                 },
                                 handleUpdate: (current, updated) =>
                                 {

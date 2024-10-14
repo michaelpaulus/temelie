@@ -67,14 +67,7 @@ public partial class DatabaseProvider : DatabaseProviderBase
         if (targetColumnType.ColumnType.Contains("(") &&
         targetColumnType.ColumnType.EndsWith(")"))
         {
-            if (targetColumnType.ColumnType == "TINYINT(1)")
-            {
-                targetColumnType.ColumnType = "BIT";
-            }
-            else
-            {
-                targetColumnType.ColumnType = targetColumnType.ColumnType.Substring(0, targetColumnType.ColumnType.IndexOf("("));
-            }
+            targetColumnType.ColumnType = targetColumnType.ColumnType.Substring(0, targetColumnType.ColumnType.IndexOf("("));
         }
 
         targetColumnType.Precision = sourceColumnType.Precision;
