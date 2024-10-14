@@ -225,6 +225,9 @@ public partial class DatabaseProvider
             case "NUMERIC":
                 strDataType = string.Format("{0}({1}, {2})", columnModel.ColumnType, columnModel.Precision, columnModel.Scale);
                 break;
+            case "TINYINT":
+                strDataType = string.Format("{0}({1})", columnModel.ColumnType, columnModel.Precision);
+                break;
             case "BINARY":
             case "VARBINARY":
             case "VARCHAR":

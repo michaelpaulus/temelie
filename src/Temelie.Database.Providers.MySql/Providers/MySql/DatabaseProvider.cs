@@ -65,7 +65,7 @@ public partial class DatabaseProvider : DatabaseProviderBase
         targetColumnType.ColumnType = sourceColumnType.ColumnType.ToUpper().Replace("UNSIGNED", "").Trim();
 
         if (targetColumnType.ColumnType.Contains("(") &&
-        targetColumnType.ColumnType.EndsWith(")"))
+            targetColumnType.ColumnType.EndsWith(")"))
         {
             targetColumnType.ColumnType = targetColumnType.ColumnType.Substring(0, targetColumnType.ColumnType.IndexOf("("));
         }
@@ -95,8 +95,15 @@ public partial class DatabaseProvider : DatabaseProviderBase
                 targetColumnType.ColumnType = "INT";
                 break;
             case "INT16":
-            case "TINYINT":
                 targetColumnType.ColumnType = "SMALLINT";
+                break;
+            case "TINYINT":
+                targetColumnType.ColumnType = "TINYINT";
+                if (sourceColumnType.ColumnType.Contains("(") && sourceColumnType.ColumnType.EndsWith(")"))
+                {
+                    var precision = sourceColumnType.ColumnType.Substring(sourceColumnType.ColumnType.IndexOf("(") + 1);
+                    targetColumnType.Precision = System.Convert.ToInt32(precision.Substring(0, precision.IndexOf(")")));
+                }
                 break;
             case "NUMERIC":
             case "DOUBLE":
