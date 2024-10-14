@@ -739,6 +739,11 @@ GO");
         return new DatabaseObjectScript(generateCreateScript, generateDropScript);
     }
 
+    public override string GetRenameScript(TableModel model, string newTableName)
+    {
+        return $"EXEC sp_rename '{model.SchemaName}.{model.TableName}', '{newTableName}'";
+    }
+
     public override IDatabaseObjectScript GetScript(TriggerModel model)
     {
 

@@ -306,6 +306,12 @@ public partial class DatabaseProvider : DatabaseProviderBase
                 {
                     columnDefault = "0";
                 }
+
+                if (columnDefault.StartsWith("_utf8mb4\\'") && columnDefault.EndsWith("\\'"))
+                {
+                    columnDefault = columnDefault.Replace("_utf8mb4\\'", "").Replace("\\'", "");
+                }
+
             }
 
             row["COLUMN_DEFAULT"] = columnDefault;

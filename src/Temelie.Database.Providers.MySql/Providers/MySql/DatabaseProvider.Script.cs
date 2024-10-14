@@ -31,7 +31,7 @@ public partial class DatabaseProvider
 
             if (!model.IsPrimaryKey)
             {
-                sb.AppendLine($"CREATE INDEX {QuoteCharacterStart}{model.IndexName}{QuoteCharacterEnd} ON {QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd}");
+                sb.AppendLine($"CREATE{(model.IsUnique ? " UNIQUE" : "")} INDEX {QuoteCharacterStart}{model.IndexName}{QuoteCharacterEnd} ON {QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd}");
 
                 if (model.Columns.Any())
                 {
@@ -119,6 +119,11 @@ public partial class DatabaseProvider
         }
 
         return new DatabaseObjectScript(generateCreateScript, generateDropScript);
+    }
+
+    public override string GetRenameScript(TableModel model, string newTableName)
+    {
+        return $"RENAME TABLE {QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd} TO {QuoteCharacterStart}{newTableName}{QuoteCharacterEnd};";
     }
 
     public override IDatabaseObjectScript GetScript(CheckConstraintModel model)

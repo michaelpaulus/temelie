@@ -641,6 +641,7 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
     public abstract IDatabaseObjectScript GetScript(SecurityPolicyModel model);
 
     public abstract IDatabaseObjectScript GetScript(TableModel model);
+    public abstract string GetRenameScript(TableModel model, string newTableName);
 
     public abstract IDatabaseObjectScript GetScript(TriggerModel model);
 

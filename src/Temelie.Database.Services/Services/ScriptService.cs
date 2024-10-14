@@ -136,7 +136,6 @@ public class ScriptService : IScriptService
                 if (script is not null)
                 {
                     var sbSecurityPolicyScript = new StringBuilder();
-                    sbSecurityPolicyScript.AppendLine(script.DropScript);
                     sbSecurityPolicyScript.AppendLine(script.CreateScript);
 
                     files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sbSecurityPolicyScript.ToString()).File);
@@ -205,7 +204,6 @@ public class ScriptService : IScriptService
                 if (script is not null)
                 {
                     var sb = new StringBuilder();
-                    sb.Append(script.DropScript);
                     sb.Append(script.CreateScript);
 
                     files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()).File);
@@ -241,7 +239,6 @@ public class ScriptService : IScriptService
                 if (script is not null)
                 {
                     var sb = new System.Text.StringBuilder();
-                    sb.Append(script.DropScript);
                     sb.Append(script.CreateScript);
 
                     files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()).File);
@@ -269,7 +266,6 @@ public class ScriptService : IScriptService
                 {
                     var sb = new System.Text.StringBuilder();
 
-                    sb.Append(script.DropScript);
                     sb.Append(script.CreateScript);
 
                     files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()).File);
@@ -294,7 +290,6 @@ public class ScriptService : IScriptService
                 if (script is not null)
                 {
                     var sb = new System.Text.StringBuilder();
-                    sb.Append(script.DropScript);
                     sb.Append(script.CreateScript);
                     files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), sb.ToString()).File);
                     files.Add(WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName + ".json"), GetJson(foreignKey)).File);
@@ -351,42 +346,19 @@ public class ScriptService : IScriptService
 
         int intProgress = 0;
 
-        void syncFiles<T>(DirectoryInfo subDirectory, Dictionary<string, FileInfo> files, Func<T, IDatabaseObjectScript> getScript) where T : Model
+        static void syncFiles(DirectoryInfo subDirectory, Dictionary<string, FileInfo> files)
         {
             foreach (var file in subDirectory.GetFiles("*.sql"))
             {
-                if (files.ContainsKey(file.Name))
-                {
-                    var dropFileName = Path.Combine(directory.FullName, "01_Drop", subDirectory.Name, file.Name);
-                    if (File.Exists(dropFileName))
-                    {
-                        File.Delete(dropFileName);
-                    }
-                }
-                else
+                if (!files.ContainsKey(file.Name))
                 {
                     file.Delete();
                 }
             }
             foreach (var file in subDirectory.GetFiles("*.sql.json"))
             {
-                var dropFileName = Path.Combine(directory.FullName, "01_Drop", subDirectory.Name, file.Name);
-                if (files.ContainsKey(file.Name))
+                if (!files.ContainsKey(file.Name))
                 {
-                    if (File.Exists(dropFileName))
-                    {
-                        File.Delete(dropFileName);
-                    }
-                }
-                else
-                {
-                    var model = JsonSerializer.Deserialize<T>(File.ReadAllText(file.FullName), ModelsJsonSerializerOptions.Default);
-                    var script = getScript(model);
-                    if (script is not null)
-                    {
-                        WriteIfDifferent(dropFileName.Replace(".json", ""), script.DropScript);
-                        WriteIfDifferent(dropFileName, File.ReadAllText(file.FullName));
-                    }
                     file.Delete();
                 }
             }
@@ -404,42 +376,42 @@ public class ScriptService : IScriptService
             if (subDirectory.Name.StartsWith("02_Tables", StringComparison.InvariantCultureIgnoreCase))
             {
                 var files = CreateTableScripts(provider, database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
-                syncFiles<TableModel>(subDirectory, files, provider.GetScript);
+                syncFiles(subDirectory, files);
             }
             else if (subDirectory.Name.StartsWith("03_Indexes", StringComparison.InvariantCultureIgnoreCase))
             {
                 var files = CreateIndexScripts(provider, database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
-                syncFiles<IndexModel>(subDirectory, files, provider.GetScript);
+                syncFiles(subDirectory, files);
             }
             else if (subDirectory.Name.StartsWith("04_CheckConstraints", StringComparison.InvariantCultureIgnoreCase))
             {
                 var files = CreateCheckConstraintScripts(provider, database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
-                syncFiles<CheckConstraintModel>(subDirectory, files, provider.GetScript);
+                syncFiles(subDirectory, files);
             }
             else if (subDirectory.Name.StartsWith("05_Programmability", StringComparison.InvariantCultureIgnoreCase))
             {
                 var files = CreateViewsAndProgrammabilityScripts(provider, database, subDirectory, false, true).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
-                syncFiles<DefinitionModel>(subDirectory, files, provider.GetScript);
+                syncFiles(subDirectory, files);
             }
             else if (subDirectory.Name.StartsWith("05_Views", StringComparison.InvariantCultureIgnoreCase))
             {
                 var files = CreateViewsAndProgrammabilityScripts(provider, database, subDirectory, true, false).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
-                syncFiles<TableModel>(subDirectory, files, provider.GetScript);
+                syncFiles(subDirectory, files);
             }
             else if (subDirectory.Name.StartsWith("06_Triggers", StringComparison.InvariantCultureIgnoreCase))
             {
                 var files = CreateTriggerScripts(provider, database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
-                syncFiles<TriggerModel>(subDirectory, files, provider.GetScript);
+                syncFiles(subDirectory, files);
             }
             else if (subDirectory.Name.StartsWith("08_ForeignKeys", StringComparison.InvariantCultureIgnoreCase))
             {
                 var files = CreateFkScripts(provider, database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
-                syncFiles<ForeignKeyModel>(subDirectory, files, provider.GetScript);
+                syncFiles(subDirectory, files);
             }
             else if (subDirectory.Name.StartsWith("09_SecurityPolicies", StringComparison.InvariantCultureIgnoreCase))
             {
                 var files = CreateSecurityPolicyScripts(provider, database, subDirectory).ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
-                syncFiles<SecurityPolicyModel>(subDirectory, files, provider.GetScript);
+                syncFiles(subDirectory, files);
             }
 
             intProgress = Convert.ToInt32((intIndex / (double)intTotalCount) * 100);
@@ -469,11 +441,26 @@ public class ScriptService : IScriptService
     {
         int intFileCount = 1;
 
-        var list = new List<FileInfo>();
+        var list = new List<(string Name, string Contents)>();
+
+        var modelList = directory.GetDirectories().Where(i =>
+            i.Name == "02_Tables" ||
+            i.Name == "03_Indexes" ||
+            i.Name == "04_CheckConstraints" ||
+            i.Name.Contains("05_Programmability") ||
+            i.Name.Contains("05_Views") ||
+            i.Name == "06_Triggers" ||
+            i.Name == "08_ForeignKeys" ||
+            i.Name == "09_SecurityPolicies"
+        ).SelectMany(i => i.GetFiles("*.sql.json", SearchOption.AllDirectories)).ToList();
 
         var pendingMigrations = new List<string>();
 
         var shouldEnsureMigrationsTable = true;
+
+        var currentDatabaseModel = _databaseModelService.CreateModel(connectionString, new Models.DatabaseModelOptions { ExcludeDoubleUnderscoreObjects = true });
+        var updatedDatabaseModel = DatabaseModel.CreateFromFiles(modelList.Select(i => (i.FullName, File.ReadAllText(i.FullName))));
+        var provider = _databaseFactory.GetDatabaseProvider(connectionString);
 
         void ensureMigrationsTable()
         {
@@ -530,7 +517,7 @@ public class ScriptService : IScriptService
             {
                 foreach (var migration in dir.GetDirectories().OrderBy(i => i.Name))
                 {
-                    var files = migration.GetFiles("*.sql", SearchOption.AllDirectories).OrderBy(i => i.FullName);
+                    var files = migration.GetFiles("*.sql").OrderBy(i => i.FullName);
                     if (files.Any())
                     {
                         var hash = CreateMd5ForDirectory(migration.FullName);
@@ -542,33 +529,159 @@ public class ScriptService : IScriptService
                         if (migrationCount == 0)
                         {
                             pendingMigrations.Add(id);
-                            list.AddRange(files);
+                            list.AddRange(files.Select(i => ($"{i.Directory.Name}/{i.Name}", File.ReadAllText(i.FullName))));
                         }
                     }
                 }
             }
             else
             {
-                var files = dir.GetFiles("*.sql", SearchOption.AllDirectories).OrderBy(i => i.FullName);
-                if (files.Any())
+                var files = dir.GetFiles("*.sql").OrderBy(i => i.FullName).ToList();
+                if (files.Count > 0)
                 {
-                    var hash = CreateMd5ForDirectory(dir.FullName);
-                    var id = $"{dir.Name}/{hash}";
+                    var jsonFiles = dir.GetFiles("*.sql.json").OrderBy(i => i.FullName).ToList();
 
-                    using var conn = _databaseExecutionService.CreateDbConnection(connectionString);
-                    using var cmd = _databaseExecutionService.CreateDbCommand(conn);
-                    cmd.CommandText = $"SELECT COUNT(*) FROM Migrations WHERE Id = '{id}'";
-                    var migrationCount = long.Parse(cmd.ExecuteScalar().ToString());
-
-                    // if this folder has changed, or a previous step has changed, run these files
-                    if (pendingMigrations.Count > 0 || migrationCount == 0)
+                    if (jsonFiles.Count > 0)
                     {
-                        //only add the id if it doesn't already exist
+
+                        void compareObjects<T>(IList<T> currentList,
+                            IList<T> updatedList,
+                            Func<T, string> getName,
+                            Func<T, IDatabaseObjectScript> createScript,
+                            Action<T> handleDrop = null,
+                            Action<T, T> handleUpdate = null) where T : DatabaseObjectModel
+                        {
+                            foreach (var current in currentList)
+                            {
+                                var updated = updatedList.FirstOrDefault(i => getName(i) == getName(current));
+                                if (updated is null)
+                                {
+                                    if (handleDrop is null)
+                                    {
+                                        var script = createScript(current);
+                                        list.Add(($"{dir.Name}/{getName(current)}", script.DropScript));
+                                    }
+                                    else
+                                    {
+                                        handleDrop(current);
+                                    }
+                                }
+                                else
+                                {
+                                    updatedList.Remove(updated);
+                                    var currentScript = createScript(current);
+                                    var updatedScript = createScript(updated);
+                                    if (currentScript is not null &&
+                                        updatedScript is not null &&
+                                        currentScript.CreateScript != updatedScript.CreateScript)
+                                    {
+                                        if (handleUpdate is null)
+                                        {
+                                            list.Add(($"{dir.Name}/{getName(current)}", updatedScript.DropScript));
+                                            list.Add(($"{dir.Name}/{getName(current)}", updatedScript.CreateScript));
+                                        }
+                                        else
+                                        {
+                                            handleUpdate(current, updated);
+                                        }
+                                    }
+                                }
+                            }
+
+                            foreach (var updated in updatedList)
+                            {
+                                var script = createScript(updated);
+                                list.Add(($"{dir.Name}/{getName(updated)}", script.CreateScript));
+                            }
+                        }
+
+                        if (dir.Name.Contains("02_Tables"))
+                        {
+                            compareObjects(
+                                currentDatabaseModel.Tables.ToList(),
+                                updatedDatabaseModel.Tables.ToList(),
+                                i => $"{i.SchemaName}.{i.TableName}",
+                                i => provider.GetScript(i),
+                                handleDrop: (current) =>
+                                {
+                                    list.Add(($"{dir.Name}/{current.SchemaName}.{current.TableName}", provider.GetRenameScript(current, $"__{current.TableName}")));
+                                },
+                                handleUpdate: (current, updated) =>
+                                {
+                                    //needs to be handled by a migration script
+                                }
+                             );
+                        }
+                        else if (dir.Name.Contains("03_Indexes"))
+                        {
+                            compareObjects(
+                                currentDatabaseModel.Indexes.ToList(),
+                                updatedDatabaseModel.Indexes.ToList(),
+                                i => $"{i.SchemaName}.{i.TableName}.{i.IndexName}",
+                                i => provider.GetScript(i)
+                             );
+                        }
+                        else if (dir.Name.Contains("04_CheckConstraints"))
+                        {
+                            compareObjects(
+                                currentDatabaseModel.CheckConstraints.ToList(),
+                                updatedDatabaseModel.CheckConstraints.ToList(),
+                                i => $"{i.SchemaName}.{i.TableName}.{i.CheckConstraintName}",
+                                i => provider.GetScript(i)
+                             );
+                        }
+                        else if (dir.Name.Contains("05_Programmability") || dir.Name.Contains("05_Views"))
+                        {
+                            compareObjects(
+                                currentDatabaseModel.Definitions.ToList(),
+                                updatedDatabaseModel.Definitions.ToList(),
+                                i => $"{i.SchemaName}.{i.DefinitionName}",
+                                i => provider.GetScript(i)
+                             );
+                        }
+                        else if (dir.Name.Contains("06_Triggers"))
+                        {
+                            compareObjects(
+                                currentDatabaseModel.Triggers.ToList(),
+                                updatedDatabaseModel.Triggers.ToList(),
+                                i => $"{i.SchemaName}.{i.TriggerName}",
+                                i => provider.GetScript(i)
+                             );
+                        }
+                        else if (dir.Name.Contains("08_ForeignKeys"))
+                        {
+                            compareObjects(
+                               currentDatabaseModel.ForeignKeys.ToList(),
+                               updatedDatabaseModel.ForeignKeys.ToList(),
+                               i => $"{i.SchemaName}.{i.TableName}.{i.ForeignKeyName}",
+                               i => provider.GetScript(i)
+                            );
+                        }
+                        else if (dir.Name.Contains("09_SecurityPolicies"))
+                        {
+                            compareObjects(
+                               currentDatabaseModel.SecurityPolicies.ToList(),
+                               updatedDatabaseModel.SecurityPolicies.ToList(),
+                               i => $"{i.PolicySchema}.{i.PolicyName}",
+                               i => provider.GetScript(i)
+                            );
+                        }
+                    }
+                    else
+                    {
+                        var hash = CreateMd5ForDirectory(dir.FullName);
+                        var id = $"{dir.Name}/{hash}";
+
+                        using var conn = _databaseExecutionService.CreateDbConnection(connectionString);
+                        using var cmd = _databaseExecutionService.CreateDbCommand(conn);
+                        cmd.CommandText = $"SELECT COUNT(*) FROM Migrations WHERE Id = '{id}'";
+                        var migrationCount = long.Parse(cmd.ExecuteScalar().ToString());
+
                         if (migrationCount == 0)
                         {
                             pendingMigrations.Add(id);
+                            list.AddRange(files.Select(i => ($"{i.Directory.Name}/{i.Name}", File.ReadAllText(i.FullName))));
                         }
-                        list.AddRange(files);
                     }
 
                 }
@@ -579,36 +692,24 @@ public class ScriptService : IScriptService
 
         var finalErrors = new List<string>();
 
-        var retryList = new Dictionary<FileInfo, int>();
+        var retryList = new Dictionary<(string Name, string Contents), int>();
 
         while (list.Count > 0)
         {
             var file = list.First();
             list.Remove(file);
 
-            string strFile = string.Empty;
-
             if (progress != null)
             {
                 int percent = Convert.ToInt32((intFileCount / count) * 100);
-                progress.Report(new ScriptProgress() { ProgressPercentage = percent, ProgressStatus = $"{file.Directory.Name}/{file.Name}" });
+                progress.Report(new ScriptProgress() { ProgressPercentage = percent, ProgressStatus = $"{file.Name}" });
             }
 
-            using (System.IO.Stream stream = System.IO.File.OpenRead(file.FullName))
-            {
-                using (System.IO.StreamReader reader = new System.IO.StreamReader(stream))
-                {
-                    strFile = reader.ReadToEnd();
-                    reader.Close();
-                }
-                stream.Close();
-            }
-
-            if (!(string.IsNullOrEmpty(strFile.Trim())))
+            if (!(string.IsNullOrEmpty(file.Contents.Trim())))
             {
                 try
                 {
-                    _databaseExecutionService.ExecuteFile(connectionString, strFile);
+                    _databaseExecutionService.ExecuteFile(connectionString, file.Contents);
                 }
                 catch (Exception ex)
                 {
@@ -629,16 +730,21 @@ public class ScriptService : IScriptService
                         }
                         else
                         {
-                            finalErrors.Add($"{file.Directory.Name}/{file.Name} ErrorMessage: {ex.Message}");
+                            finalErrors.Add($"{file.Name} ErrorMessage: {ex.Message}");
                             if (progress is not null)
                             {
                                 int percent = Convert.ToInt32((intFileCount / count) * 100);
-                                progress.Report(new ScriptProgress() { ProgressPercentage = percent, ProgressStatus = $"{file.Directory.Name}/{file.Name}", ErrorMessage = ex.Message });
+                                progress.Report(new ScriptProgress() { ProgressPercentage = percent, ProgressStatus = $"{file.Name}", ErrorMessage = ex.Message });
                             }
                         }
                     }
                     else
                     {
+                        if (progress is not null)
+                        {
+                            int percent = Convert.ToInt32((intFileCount / count) * 100);
+                            progress.Report(new ScriptProgress() { ProgressPercentage = percent, ProgressStatus = $"{file.Name}", ErrorMessage = ex.Message });
+                        }
                         throw;
                     }
                 }

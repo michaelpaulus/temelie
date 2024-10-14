@@ -43,6 +43,10 @@ public class IndexModel : DatabaseObjectModel
             }
             return this._includeColumns;
         }
+        set
+        {
+            this._includeColumns = value;
+        }
     }
 
 }
