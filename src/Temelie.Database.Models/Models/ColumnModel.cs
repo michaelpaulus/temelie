@@ -211,7 +211,7 @@ public class ColumnModel : Model
     {
         get
         {
-            return GetDBType(this.ColumnType);
+            return GetDBType();
         }
     }
 
@@ -333,9 +333,13 @@ public class ColumnModel : Model
         return propertyType;
     }
 
-    public static System.Data.DbType GetDBType(string typeName)
+    public DbType GetDBType()
     {
-        switch (typeName.ToUpper())
+        if (ColumnType.ToUpper() == "TINYINT" && Precision == 1)
+        {
+            return System.Data.DbType.Boolean;
+        }
+        switch (ColumnType.ToUpper())
         {
             case "BIT":
                 return System.Data.DbType.Boolean;
@@ -357,6 +361,7 @@ public class ColumnModel : Model
             case "INT":
                 return System.Data.DbType.Int32;
             case "SMALLINT":
+            case "TINYINT":
                 return System.Data.DbType.Int16;
             case "BIGINT":
                 return DbType.Int64;
