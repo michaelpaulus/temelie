@@ -102,7 +102,12 @@ public class DatabaseModel(
                     var model = JsonSerializer.Deserialize(json, typeof(CheckConstraintModel), ModelsJsonSerializerOptions.Default)! as CheckConstraintModel;
                     checkConstraints.Add(model);
                 }
-                else if (name.Contains("05_Programmability") || name.Contains("05_Views"))
+                else if (name.Contains("05_Programmability"))
+                {
+                    var model = JsonSerializer.Deserialize(json, typeof(DefinitionModel), ModelsJsonSerializerOptions.Default)! as DefinitionModel;
+                    definitions.Add(model);
+                }
+                else if (name.Contains("05_Views"))
                 {
                     var model = JsonSerializer.Deserialize(json, typeof(DefinitionModel), ModelsJsonSerializerOptions.Default)! as DefinitionModel;
                     definitions.Add(model);

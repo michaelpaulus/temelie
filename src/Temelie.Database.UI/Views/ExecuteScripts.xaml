@@ -39,7 +39,7 @@
                 </Grid.RowDefinitions>
                 <ProgressBar x:Name="ProgressBar" Grid.Row="0" MinHeight="20" Value="{Binding ProgressPercentage}" />
                 <TextBlock x:Name="ProgressLabel" Margin="0, 4, 0, 0"  Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Text="{Binding ProgressStatus}" />
-                <TextBox AcceptsReturn="True" Foreground="Red"  ScrollViewer.VerticalScrollBarVisibility="Auto"  Grid.Row="2" Text="{Binding ErrorMessage}"/>
+                <TextBox AcceptsReturn="True" ScrollViewer.VerticalScrollBarVisibility="Auto"  Grid.Row="2" Text="{Binding Message}"/>
             </Grid>
             <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom">
                 <CheckBox Margin="8, 8" IsChecked="{Binding ContinueOnError}" Content="Continue On Error"/>

@@ -30,7 +30,7 @@ public class ExecuteScriptsViewModel : ViewModel
 
     public int ProgressPercentage { get; set; }
     public string ProgressStatus { get; set; }
-    public string ErrorMessage { get; set; }
+    public string Message { get; set; }
     public bool ContinueOnError { get; set; }
 
     #endregion
@@ -47,7 +47,7 @@ public class ExecuteScriptsViewModel : ViewModel
     {
         this.ProgressPercentage = 0;
         this.ProgressStatus = "";
-        this.ErrorMessage = $"Started: {DateTime.Now:yyyy-MM-ddTHH:mm:ss}";
+        this.Message = $"Started: {DateTime.Now:yyyy-MM-ddTHH:mm:ss}";
         this.ExecuteScriptsCommand.IsEnabled = false;
 
         var progress = new Progress<ScriptProgress>(this.ReportProgress);
@@ -64,22 +64,22 @@ public class ExecuteScriptsViewModel : ViewModel
                 {
                     if (task.Exception.InnerException != null)
                     {
-                        this.ErrorMessage = task.Exception.InnerException.Message;
+                        this.Message = task.Exception.InnerException.Message;
                     }
                     else
                     {
-                        this.ErrorMessage = task.Exception.Message;
+                        this.Message = task.Exception.Message;
                     }
                 }
                 else
                 {
-                    this.ErrorMessage = "The task didn't complete";
+                    this.Message = "The task didn't complete";
                 }
             }
             else
             {
                 this.ProgressPercentage = 0;
-                this.ErrorMessage += $"Completed: {DateTime.Now:yyyy-MM-ddTHH:mm:ss}";
+                this.Message += $"\nCompleted: {DateTime.Now:yyyy-MM-ddTHH:mm:ss}";
                 this.ProgressStatus = "Completed";
             }
 
@@ -102,19 +102,27 @@ public class ExecuteScriptsViewModel : ViewModel
 
     private void ReportProgress(ScriptProgress progress)
     {
+        if (string.IsNullOrEmpty(this.Message))
+        {
+            Message = "";
+        }
+
         this.ProgressPercentage = progress.ProgressPercentage;
         this.ProgressStatus = progress.ProgressStatus;
+
+        Message += $"\n{progress.ProgressPercentage}% {progress.ProgressStatus}";
+
         if (!string.IsNullOrEmpty(progress.ErrorMessage))
         {
-            if (string.IsNullOrEmpty(this.ErrorMessage))
+            if (string.IsNullOrEmpty(this.Message))
             {
-                ErrorMessage = "";
+                Message = "";
             }
             else
             {
-                ErrorMessage += "\n";
+                Message += "\n";
             }
-            ErrorMessage += $"{progress.ProgressStatus}: {progress.ErrorMessage}";
+            Message += $"\n{progress.ProgressStatus}: {progress.ErrorMessage}";
         }
     }
 
