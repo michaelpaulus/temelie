@@ -3,7 +3,7 @@ using Temelie.Entities;
 
 namespace Temelie.Repository;
 
-public partial interface IRepository : IDisposable
+public partial interface IRepository
 {
     Task<Entity?> GetSingleAsync<Entity>(IQuerySpec<Entity> spec) where Entity : EntityBase, IEntity<Entity>;
     Task<Entity?> GetSingleAsync<Entity>(Expression<Func<Entity, bool>>? filter = null, Func<IQueryable<Entity>, IQueryable<Entity>>? query = null) where Entity : EntityBase, IEntity<Entity>;

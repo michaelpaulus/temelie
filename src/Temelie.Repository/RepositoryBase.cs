@@ -261,8 +261,4 @@ public abstract partial class RepositoryBase : IRepository
         }
     }
 
-    public virtual void Dispose()
-    {
-    }
-
 }
