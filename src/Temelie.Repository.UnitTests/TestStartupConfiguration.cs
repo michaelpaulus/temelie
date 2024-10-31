@@ -31,6 +31,7 @@ public class TestStartupConfiguration : IStartupConfiguration
         });
 
         services.AddDbContext<ExampleDbContext>();
+        services.AddDbContextFactory<ExampleDbContext>();
 
         services.AddLogging(options =>
         {

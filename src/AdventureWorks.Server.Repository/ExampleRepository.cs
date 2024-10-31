@@ -1,4 +1,4 @@
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
 using Temelie.DependencyInjection;
 using Temelie.Repository;
 
@@ -6,16 +6,20 @@ namespace AdventureWorks.Server.Repository;
 [ExportTransient(typeof(IRepository), Type = typeof(ExampleRepository))]
 public class ExampleRepository : RepositoryBase
 {
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IDbContextFactory<ExampleDbContext> _dbContextFactory;
+    private readonly IRepositoryEventFactory _repositoryEventFactory;
 
-    public ExampleRepository(IServiceProvider serviceProvider)
+    public ExampleRepository(
+        IDbContextFactory<ExampleDbContext> dbContextFactory,
+        IRepositoryEventFactory repositoryEventFactory) : base(repositoryEventFactory)
     {
-        _serviceProvider = serviceProvider;
+        _dbContextFactory = dbContextFactory;
+        _repositoryEventFactory = repositoryEventFactory;
     }
 
     protected override IRepositoryContext CreateContext()
     {
-        return _serviceProvider.GetRequiredService<IRepositoryContext>();
+        return _dbContextFactory.CreateDbContext();
     }
 
     protected override string GetCreatedModifiedBy()
@@ -23,8 +27,4 @@ public class ExampleRepository : RepositoryBase
         return "";
     }
 
-    protected override IEnumerable<IRepositoryEventProvider<Entity>> GetEventProviders<Entity>()
-    {
-        return _serviceProvider.GetServices<IRepositoryEventProvider<Entity>>();
-    }
 }

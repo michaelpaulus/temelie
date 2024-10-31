@@ -5,10 +5,15 @@ namespace Temelie.Repository;
 
 public abstract partial class RepositoryBase : IRepository
 {
+    private readonly IRepositoryEventFactory _repositoryEventFactory;
+
+    public RepositoryBase(IRepositoryEventFactory repositoryEventFactory)
+    {
+        _repositoryEventFactory = repositoryEventFactory;
+    }
 
     protected abstract IRepositoryContext CreateContext();
     protected abstract string GetCreatedModifiedBy();
-    protected abstract IEnumerable<IRepositoryEventProvider<Entity>> GetEventProviders<Entity>() where Entity : EntityBase, IEntity<Entity>;
 
     public virtual async Task<Entity?> GetSingleAsync<Entity>(IQuerySpec<Entity> spec) where Entity : EntityBase, IEntity<Entity>
     {
@@ -190,7 +195,7 @@ public abstract partial class RepositoryBase : IRepository
     protected virtual async Task<IQueryable<Entity>> OnQueryAsync<Entity>(IRepositoryContext context, IQueryable<Entity> query, Func<IRepositoryContext, IQueryable<Entity>, IQueryable<Entity>> apply) where Entity : EntityBase, IEntity<Entity>
     {
         query = apply.Invoke(context, query);
-        foreach (var provider in GetEventProviders<Entity>())
+        foreach (var provider in _repositoryEventFactory.GetEventProviders<Entity>())
         {
             query = await provider.OnQueryAsync(context, query).ConfigureAwait(false);
         }
@@ -210,7 +215,7 @@ public abstract partial class RepositoryBase : IRepository
             modifiedByEntity.ModifiedBy = GetCreatedModifiedBy();
         }
 
-        foreach (var provider in GetEventProviders<Entity>())
+        foreach (var provider in _repositoryEventFactory.GetEventProviders<Entity>())
         {
             await provider.OnAddingAsync(context, entity).ConfigureAwait(false);
         }
@@ -218,7 +223,7 @@ public abstract partial class RepositoryBase : IRepository
 
     protected virtual async Task OnAddedAsync<Entity>(IRepositoryContext context, Entity entity) where Entity : EntityBase, IEntity<Entity>
     {
-        foreach (var provider in GetEventProviders<Entity>())
+        foreach (var provider in _repositoryEventFactory.GetEventProviders<Entity>())
         {
             await provider.OnAddedAsync(context, entity).ConfigureAwait(false);
         }
@@ -226,7 +231,7 @@ public abstract partial class RepositoryBase : IRepository
 
     protected virtual async Task OnDeletingAsync<Entity>(IRepositoryContext context, Entity entity) where Entity : EntityBase, IEntity<Entity>
     {
-        foreach (var provider in GetEventProviders<Entity>())
+        foreach (var provider in _repositoryEventFactory.GetEventProviders<Entity>())
         {
             await provider.OnDeletingAsync(context, entity).ConfigureAwait(false);
         }
@@ -234,7 +239,7 @@ public abstract partial class RepositoryBase : IRepository
 
     protected virtual async Task OnDeletedAsync<Entity>(IRepositoryContext context, Entity entity) where Entity : EntityBase, IEntity<Entity>
     {
-        foreach (var provider in GetEventProviders<Entity>())
+        foreach (var provider in _repositoryEventFactory.GetEventProviders<Entity>())
         {
             await provider.OnDeletedAsync(context, entity).ConfigureAwait(false);
         }
@@ -247,7 +252,7 @@ public abstract partial class RepositoryBase : IRepository
             modifiedByEntity.ModifiedDate = DateTime.UtcNow;
             modifiedByEntity.ModifiedBy = GetCreatedModifiedBy();
         }
-        foreach (var provider in GetEventProviders<Entity>())
+        foreach (var provider in _repositoryEventFactory.GetEventProviders<Entity>())
         {
             await provider.OnUpdatingAsync(context, entity).ConfigureAwait(false);
         }
@@ -255,7 +260,7 @@ public abstract partial class RepositoryBase : IRepository
 
     protected virtual async Task OnUpdatedAsync<Entity>(IRepositoryContext context, Entity entity) where Entity : EntityBase, IEntity<Entity>
     {
-        foreach (var provider in GetEventProviders<Entity>())
+        foreach (var provider in _repositoryEventFactory.GetEventProviders<Entity>())
         {
             await provider.OnUpdatedAsync(context, entity).ConfigureAwait(false);
         }
