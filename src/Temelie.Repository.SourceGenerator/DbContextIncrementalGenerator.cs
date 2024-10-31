@@ -68,7 +68,7 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
                 if (column.IsIdentity)
                 {
                     columnProperties.AppendLine();
-                    columnProperties.Append($"                .UseIdentityColumn(_serviceProvider)");
+                    columnProperties.Append($"                .UseIdentityColumn(_modelBuilderExtensions)");
                 }
 
                 if (column.IsComputed)
@@ -128,7 +128,7 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
             }
             else
             {
-                var triggerOptions = entity.HasTrigger ? ", table => table.HasTrigger(_serviceProvider)" : "";
+                var triggerOptions = entity.HasTrigger ? ", table => table.HasTrigger(_modelBuilderExtensions)" : "";
 
                 if (string.IsNullOrEmpty(entity.Schema))
                 {
@@ -162,11 +162,11 @@ namespace {ns};
 [ExportProvider(typeof(IModelBuilderProvider))]
 public partial class {entity.FullType.Replace(".", "_")}ModelBuilderProvider : IModelBuilderProvider
 {{
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IModelBuilderExtensions _modelBuilderExtensions;
 
-    public {entity.FullType.Replace(".", "_")}ModelBuilderProvider(IServiceProvider serviceProvider)
+    public {entity.FullType.Replace(".", "_")}ModelBuilderProvider(IModelBuilderExtensions modelBuilderExtensions)
     {{
-        _serviceProvider = serviceProvider;
+        _modelBuilderExtensions = modelBuilderExtensions;
     }}
 
     public void OnModelCreating(ModelBuilder modelBuilder)
@@ -196,17 +196,17 @@ namespace {ns};
 public abstract partial class DbContextBase : DbContext
 {{
 
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IModelBuilderContext _modelBuilderContext;
 
-    public DbContextBase(IServiceProvider serviceProvider, DbContextOptions options) : base(options)
+    public DbContextBase(IModelBuilderContext modelBuilderContext, DbContextOptions options) : base(options)
     {{
-        _serviceProvider = serviceProvider;
+        _modelBuilderContext = modelBuilderContext;
     }}
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {{
         base.OnModelCreating(modelBuilder);
-        foreach (var provider in _serviceProvider.GetServices<IModelBuilderProvider>())
+        foreach (var provider in _modelBuilderContext.Providers)
         {{
             provider.OnModelCreating(modelBuilder);
         }}

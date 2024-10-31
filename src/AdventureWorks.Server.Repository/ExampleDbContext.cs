@@ -8,7 +8,7 @@ namespace AdventureWorks.Server.Repository;
 public partial class ExampleDbContext : DbContextBase, IRepositoryContext
 {
 
-    public ExampleDbContext(IServiceProvider serviceProvider, DbContextOptions<ExampleDbContext> dbContextOptions) : base(serviceProvider, dbContextOptions)
+    public ExampleDbContext(IModelBuilderContext context, DbContextOptions<ExampleDbContext> dbContextOptions) : base(context, dbContextOptions)
     {
     }
 

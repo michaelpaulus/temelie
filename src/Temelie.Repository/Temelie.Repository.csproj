@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Temelie.DependencyInjection\Temelie.DependencyInjection.csproj" />
     <ProjectReference Include="..\Temelie.Entities\Temelie.Entities.csproj" />
   </ItemGroup>
 

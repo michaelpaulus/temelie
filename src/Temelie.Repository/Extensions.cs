@@ -1,38 +1,18 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Temelie.Repository;
 public static class Extensions
 {
 
-    public static PropertyBuilder<TProperty> UseIdentityColumn<TProperty>(this PropertyBuilder<TProperty> propertyBuilder, IServiceProvider serviceProvider)
+    public static PropertyBuilder<TProperty> UseIdentityColumn<TProperty>(this PropertyBuilder<TProperty> propertyBuilder, IModelBuilderExtensions extensions)
     {
-        var providers = serviceProvider.GetServices<IModelBuilderExtensionsProvider>();
-
-        if (!providers.Any())
-        {
-            propertyBuilder.ValueGeneratedOnAdd();
-        }
-        else
-        {
-            foreach (var provider in providers)
-            {
-                provider.UseIdentityColumn(propertyBuilder);
-            }
-        }
-
+        extensions.UseIdentityColumn(propertyBuilder);
         return propertyBuilder;
     }
 
-    public static TableBuilder HasTrigger(this TableBuilder tableBuilder, IServiceProvider serviceProvider)
+    public static TableBuilder HasTrigger(this TableBuilder tableBuilder, IModelBuilderExtensions extensions)
     {
-        var providers = serviceProvider.GetServices<IModelBuilderExtensionsProvider>();
-
-        foreach (var provider in providers)
-        {
-            provider.HasTrigger(tableBuilder);
-        }
-
+        extensions.HasTrigger(tableBuilder);
         return tableBuilder;
     }
 
