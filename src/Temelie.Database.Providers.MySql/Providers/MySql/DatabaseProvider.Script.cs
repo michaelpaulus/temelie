@@ -104,11 +104,11 @@ public partial class DatabaseProvider
                 intColumnCount += 1;
             }
 
-            var pk = model.Columns.FirstOrDefault(i => i.IsPrimaryKey);
-            if (pk is not null)
+            var pk = model.Columns.Where(i => i.IsPrimaryKey).ToList();
+            if (pk.Any())
             {
                 sb.AppendLine(",");
-                sb.Append($"    PRIMARY KEY (`{pk.ColumnName}`)");
+                sb.Append($"    PRIMARY KEY ({string.Join(", ", pk.Select(i => $"`{i.ColumnName}`"))})");
             }
 
             sb.AppendLine();
