@@ -484,8 +484,8 @@ public class ScriptService : IScriptService
                         SchemaName = "dbo",
                         TableName = "Migrations"
                     };
-                    table.Columns.Add(new ColumnModel() { IsPrimaryKey = true, ColumnName = "Id", ColumnType = "NVARCHAR(500)" });
-                    table.Columns.Add(new ColumnModel() { IsPrimaryKey = true, ColumnName = "Date", ColumnType = "DATETIME" });
+                    table.Columns.Add(new ColumnModel() { IsPrimaryKey = true, ColumnName = "Id", ColumnType = "NVARCHAR(500)", ColumnId = 1 });
+                    table.Columns.Add(new ColumnModel() { ColumnName = "Date", ColumnType = "DATETIME", ColumnId = 2 });
 
                     var pk = new IndexModel()
                     {
@@ -605,7 +605,10 @@ public class ScriptService : IScriptService
                                         if (handleDrop is null)
                                         {
                                             var script = createScript(current);
-                                            list.Add(($"DROP {dir.Name}/{name}", script.DropScript));
+                                            if (script is not null)
+                                            {
+                                                list.Add(($"DROP {dir.Name}/{name}", script.DropScript));
+                                            }
                                         }
                                         else
                                         {
