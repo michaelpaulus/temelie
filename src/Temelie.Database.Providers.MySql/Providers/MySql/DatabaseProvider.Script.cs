@@ -232,7 +232,7 @@ public partial class DatabaseProvider
             }
         }
 
-        return $"{QuoteCharacterStart}{columnModel.ColumnName}{QuoteCharacterEnd} {strDataType.ToLower()}{strNull}{strIdentity}{characterSet}{collate}{defaultValue}".Trim();
+        return $"{QuoteCharacterStart}{columnModel.ColumnName}{QuoteCharacterEnd} {strDataType.ToLower()}{characterSet}{collate}{strNull}{strIdentity}{defaultValue}".Trim();
 
     }
 
