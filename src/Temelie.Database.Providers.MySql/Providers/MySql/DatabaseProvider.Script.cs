@@ -53,7 +53,7 @@ public partial class DatabaseProvider
 
                     if (model.IndexType != "HASH")
                     {
-                        indexType = $" AS {model.IndexType}";
+                        indexType = $" USING {model.IndexType}";
                     }
 
                     sb.AppendLine();
@@ -101,7 +101,7 @@ public partial class DatabaseProvider
                 options.Append($" DEFAULT CHARSET={model.CharacterSetName}");
             }
 
-            if (!string.IsNullOrEmpty(model.CollationName))
+            if (!string.IsNullOrEmpty(model.CollationName) && model.CharacterSetName != "latin1")
             {
                 options.Append($" COLLATE={model.CollationName}");
             }
@@ -205,14 +205,14 @@ public partial class DatabaseProvider
 
         string characterSet = "";
 
-        if (!string.IsNullOrEmpty(columnModel.CharacterSetName))
+        if (!string.IsNullOrEmpty(columnModel.CharacterSetName) && !columnModel.IsPrimaryKey && columnModel.CharacterSetName != "latin1")
         {
             characterSet = $" CHARACTER SET {columnModel.CharacterSetName}";
         }
 
         string collate = "";
 
-        if (!string.IsNullOrEmpty(columnModel.CollationName))
+        if (!string.IsNullOrEmpty(columnModel.CollationName) && !columnModel.IsPrimaryKey && !string.IsNullOrEmpty(characterSet))
         {
             collate = $" COLLATE {columnModel.CollationName}";
         }
@@ -256,7 +256,7 @@ public partial class DatabaseProvider
             case "NVARCHAR":
             case "NCHAR":
                 string strPrecision = columnModel.Precision.ToString();
-                if (columnModel.Precision == -1 || columnModel.Precision == Int32.MaxValue || columnModel.Precision > 16383)
+                if (columnModel.Precision == -1 || columnModel.Precision == Int32.MaxValue)
                 {
                     return "TEXT";
                 }
