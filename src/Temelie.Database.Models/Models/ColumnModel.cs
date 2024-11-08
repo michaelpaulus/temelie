@@ -355,6 +355,7 @@ public class ColumnModel : Model
                 return System.Data.DbType.DateTime2;
             case "DECIMAL":
             case "FLOAT":
+            case "DOUBLE":
                 return System.Data.DbType.Decimal;
             case "IMAGE":
             case "BINARY":
