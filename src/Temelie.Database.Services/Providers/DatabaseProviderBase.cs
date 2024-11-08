@@ -65,6 +65,9 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
         column.ColumnId = GetInt32Value(row, "column_id");
         column.IsPrimaryKey = GetBoolValue(row, "is_primary_key");
         column.ColumnDefault = GetStringValue(row, "column_default");
+        column.CollationName = GetStringValue(row, "COLLATION_NAME");
+        column.CharacterSetName = GetStringValue(row, "CHARACTER_SET_NAME");
+
         var extendedProperites = GetStringValue(row, "extended_properties");
         if (!string.IsNullOrEmpty(extendedProperites))
         {
@@ -471,6 +474,9 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
             table.DataSourceName = GetStringValue(row, "data_source_name");
             table.PartitionSchemeColumns = GetStringValue(row, "partition_scheme_columns");
             table.PartitionSchemeName = GetStringValue(row, "partition_scheme_name");
+            table.Engine = GetStringValue(row, "engine");
+            table.CharacterSetName = GetStringValue(row, "character_set_name");
+            table.CollationName = GetStringValue(row, "collation_name");
             table.IsView = isView;
             var extendedProperites = GetStringValue(row, "extended_properties");
             if (!string.IsNullOrEmpty(extendedProperites))

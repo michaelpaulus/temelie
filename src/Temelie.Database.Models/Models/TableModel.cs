@@ -15,6 +15,9 @@ public class TableModel : DatabaseObjectModel
 
     public string TableName { get; set; }
     public string SchemaName { get; set; }
+    public string Engine { get; set; }
+    public string CollationName { get; set; }
+    public string CharacterSetName { get; set; }
 
     [JsonIgnore]
     public string ClassName

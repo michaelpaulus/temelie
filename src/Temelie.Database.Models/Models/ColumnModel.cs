@@ -205,6 +205,8 @@ public class ColumnModel : Model
     }
 
     public string ColumnDefault { get; set; }
+    public string CollationName { get; set; }
+    public string CharacterSetName { get; set; }
 
     [JsonIgnore]
     public DbType DbType

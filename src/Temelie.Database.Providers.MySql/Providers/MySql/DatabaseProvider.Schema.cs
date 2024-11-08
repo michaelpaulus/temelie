@@ -75,6 +75,7 @@ SELECT
     statistics.column_name,
     statistics.seq_in_index AS key_ordinal,
     statistics.sub_part,
+    statistics.index_type,
     CASE WHEN statistics.non_unique = 0 THEN 1 ELSE 0 END AS is_unique
 FROM
     information_schema.statistics
@@ -93,7 +94,6 @@ ORDER BY
         dataTable.Columns.Add("is_included_column");
         dataTable.Columns.Add("fill_factor");
         dataTable.Columns.Add("is_primary_key");
-        dataTable.Columns.Add("index_type");
         dataTable.Columns.Add("filter_definition");
         dataTable.Columns.Add("partition_scheme_name");
         dataTable.Columns.Add("data_compression_desc");
@@ -112,12 +112,9 @@ ORDER BY
             row["fill_factor"] = 0;
             row["partition_ordinal"] = 0;
             row["is_primary_key"] = row["index_name"].ToString().ToUpper() == "PRIMARY";
-            row["index_type"] = "NONCLUSTERED";
-
             if (Convert.ToBoolean(row["is_primary_key"]))
             {
                 row["index_name"] = "PK_" + row["table_name"].ToString();
-                row["index_type"] = "CLUSTERED";
             }
 
         }
@@ -143,7 +140,9 @@ SELECT
     columns.datetime_precision,
     columns.column_type,
     columns.column_key,
-    columns.extra
+    columns.extra,
+    columns.character_set_name,
+    columns.collation_name
 FROM
     information_schema.columns
 WHERE
@@ -169,7 +168,16 @@ ORDER BY
         var sql = $@"
 SELECT
     '' schema_name,
-    tables.table_name
+    tables.table_name,
+    tables.engine,
+    tables.table_collation collation_name,
+    (SELECT
+        character_set_name 
+    FROM
+        information_schema.collation_character_set_applicability
+    WHERE
+        collation_character_set_applicability.collation_name = tables.table_collation
+    ) character_set_name
 FROM
     information_schema.tables
 WHERE

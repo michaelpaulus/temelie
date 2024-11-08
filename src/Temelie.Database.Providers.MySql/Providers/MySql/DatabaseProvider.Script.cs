@@ -49,8 +49,15 @@ public partial class DatabaseProvider
                         blnHasColumns = true;
                     }
 
+                    var indexType = "";
+
+                    if (model.IndexType != "HASH")
+                    {
+                        indexType = $" AS {model.IndexType}";
+                    }
+
                     sb.AppendLine();
-                    sb.AppendLine(");");
+                    sb.AppendLine($"){indexType};");
                 }
 
             }
@@ -80,6 +87,23 @@ public partial class DatabaseProvider
             if (sb.Length > 0)
             {
                 sb.AppendLine();
+            }
+
+            var options = new StringBuilder();
+
+            if (!string.IsNullOrEmpty(model.Engine))
+            {
+                options.Append($" ENGINE={model.Engine}");
+            }
+
+            if (!string.IsNullOrEmpty(model.CharacterSetName))
+            {
+                options.Append($" DEFAULT CHARSET={model.CharacterSetName}");
+            }
+
+            if (!string.IsNullOrEmpty(model.CollationName))
+            {
+                options.Append($" COLLATE={model.CollationName}");
             }
 
             sb.AppendLine(string.Format("-- {0}", model.TableName));
@@ -113,7 +137,7 @@ public partial class DatabaseProvider
 
             sb.AppendLine();
 
-            sb.AppendLine(");");
+            sb.AppendLine($"){options};");
 
             return sb.ToString();
         }
@@ -172,11 +196,25 @@ public partial class DatabaseProvider
             strIdentity = " AUTO_INCREMENT";
         }
 
-        string strNull = " NULL";
+        string strNull = "";
 
         if (!columnModel.IsNullable)
         {
             strNull = " NOT NULL";
+        }
+
+        string characterSet = "";
+
+        if (!string.IsNullOrEmpty(columnModel.CharacterSetName))
+        {
+            characterSet = $" CHARACTER SET {columnModel.CharacterSetName}";
+        }
+
+        string collate = "";
+
+        if (!string.IsNullOrEmpty(columnModel.CollationName))
+        {
+            collate = $" COLLATE {columnModel.CollationName}";
         }
 
         string defaultValue = "";
@@ -184,34 +222,17 @@ public partial class DatabaseProvider
         if (!string.IsNullOrEmpty(columnModel.ColumnDefault))
         {
             string columnDefault = columnModel.ColumnDefault.Trim();
-
-            if (!columnDefault.StartsWith("("))
+            defaultValue = $" DEFAULT '{columnDefault}'";
+        }
+        else if (columnModel.IsNullable)
+        {
+            if (!strDataType.Contains("TEXT"))
             {
-                if (!columnDefault.StartsWith("'"))
-                {
-                    switch (columnModel.ColumnType.ToUpper())
-                    {
-                        case "VARCHAR":
-                        case "CHAR":
-                        case "NVARCHAR":
-                        case "NCHAR":
-                            columnDefault = "'" + columnDefault + "'";
-                            break;
-                    }
-                }
-                columnDefault = "(" + columnDefault + ")";
+                defaultValue = " DEFAULT NULL";
             }
-            else if (columnDefault.StartsWith("((") &&
-                columnDefault.EndsWith("))"))
-            {
-                columnDefault = columnDefault.Substring(1);
-                columnDefault = columnDefault.Substring(0, columnDefault.Length - 1);
-            }
-            columnDefault = columnDefault.Replace("getdate()", "GETDATE()").Replace("newid()", "NEWID()");
-            defaultValue = $" DEFAULT {columnDefault}";
         }
 
-        return $"{QuoteCharacterStart}{columnModel.ColumnName}{QuoteCharacterEnd} {strDataType}{strNull}{strIdentity}{defaultValue}".Trim();
+        return $"{QuoteCharacterStart}{columnModel.ColumnName}{QuoteCharacterEnd} {strDataType.ToLower()}{strNull}{strIdentity}{characterSet}{collate}{defaultValue}".Trim();
 
     }
 
@@ -235,7 +256,7 @@ public partial class DatabaseProvider
             case "NVARCHAR":
             case "NCHAR":
                 string strPrecision = columnModel.Precision.ToString();
-                if (columnModel.Precision == -1 || columnModel.Precision == Int32.MaxValue)
+                if (columnModel.Precision == -1 || columnModel.Precision == Int32.MaxValue || columnModel.Precision > 16383)
                 {
                     return "TEXT";
                 }

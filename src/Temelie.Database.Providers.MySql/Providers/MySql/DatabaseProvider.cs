@@ -75,28 +75,6 @@ public partial class DatabaseProvider : DatabaseProviderBase
 
         switch (targetColumnType.ColumnType)
         {
-            case "LONG VARCHAR":
-            case "TEXT":
-            case "MEDIUMTEXT":
-            case "LONGTEXT":
-                targetColumnType.ColumnType = "NVARCHAR";
-                if (targetColumnType.Precision.GetValueOrDefault() < 4000)
-                {
-                    targetColumnType.Precision = int.MaxValue;
-                }
-                break;
-            case "VARCHAR":
-            case "STRING":
-                targetColumnType.ColumnType = "NVARCHAR";
-                break;
-            case "INTEGER":
-            case "INT32":
-            case "MEDIUMINT":
-                targetColumnType.ColumnType = "INT";
-                break;
-            case "INT16":
-                targetColumnType.ColumnType = "SMALLINT";
-                break;
             case "TINYINT":
                 targetColumnType.ColumnType = "TINYINT";
                 if (sourceColumnType.ColumnType.Contains("(") && sourceColumnType.ColumnType.EndsWith(")"))
@@ -104,29 +82,6 @@ public partial class DatabaseProvider : DatabaseProviderBase
                     var precision = sourceColumnType.ColumnType.Substring(sourceColumnType.ColumnType.IndexOf("(") + 1);
                     targetColumnType.Precision = System.Convert.ToInt32(precision.Substring(0, precision.IndexOf(")")));
                 }
-                break;
-            case "NUMERIC":
-            case "DOUBLE":
-            case "SINGLE":
-            case "DEC":
-                targetColumnType.ColumnType = "DECIMAL";
-                break;
-            case "TIMESTAMP":
-                targetColumnType.ColumnType = "DATETIME2";
-                break;
-            case "DATETIME":
-                targetColumnType.ColumnType = "DATETIME2";
-                break;
-            case "CHAR":
-                targetColumnType.ColumnType = "NCHAR";
-                break;
-            case "BOOLEAN":
-                targetColumnType.ColumnType = "BIT";
-                break;
-            case "BYTE[]":
-            case "BLOB":
-            case "LONGBLOB":
-                targetColumnType.ColumnType = "VARBINARY";
                 break;
         }
 
