@@ -32,7 +32,7 @@ public class EntitySymbolVisitor : SymbolVisitor
             var props = new List<EntityProperty>();
 
             var tableName = symbol.Name;
-            var schema = "dbo";
+            var schema = "";
             var isView = true;
             var hasTrgger = false;
 
