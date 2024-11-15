@@ -157,7 +157,24 @@ public partial class DatabaseProvider
 
     public override IDatabaseObjectScript GetScript(DefinitionModel model)
     {
-        return null;
+
+        string generateDropScript()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine(string.Format("-- {0}", model.DefinitionName));
+            sb.AppendLine($"DROP {model.Type} IF EXISTS {QuoteCharacterStart}{model.DefinitionName}{QuoteCharacterEnd};");
+
+            return sb.ToString();
+        }
+
+        string generateCreateScript()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine(model.Definition.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", Environment.NewLine));
+            return sb.ToString();
+        }
+
+        return new DatabaseObjectScript(generateCreateScript, generateDropScript);
     }
     public override IDatabaseObjectScript GetScript(ForeignKeyModel model)
     {

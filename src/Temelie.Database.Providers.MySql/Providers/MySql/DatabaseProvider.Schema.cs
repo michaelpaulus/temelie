@@ -13,7 +13,24 @@ public partial class DatabaseProvider
 
     protected override DataTable GetDefinitionsDataTable(DbConnection connection)
     {
-        return null;
+        var csb = new MySqlConnectionStringBuilder(connection.ConnectionString);
+        string sql = $@"
+SELECT 
+    views.table_name AS name, 
+    'V' AS xtype, 
+    '' AS schema_name,
+    CONCAT('CREATE VIEW `', views.table_name, '` AS ', REPLACE(views.view_definition, CONCAT('`', views.table_schema, '`.'), ''), ';') AS definition
+FROM 
+    information_schema.views
+WHERE
+    views.table_schema = '{csb.Database}' 
+ORDER BY 
+   views.table_name
+                ";
+        System.Data.DataSet ds = _database.Execute(connection, sql);
+        DataTable dataTable = ds.Tables[0];
+        return dataTable;
+
     }
 
     protected override DataTable GetIndexeBucketCountsDataTable(DbConnection connection)
@@ -144,9 +161,13 @@ SELECT
     columns.character_set_name,
     columns.collation_name
 FROM
-    information_schema.columns
+    information_schema.columns INNER JOIN
+    information_schema.tables ON
+        columns.table_schema = tables.table_schema AND
+        columns.table_name = tables.table_name 
 WHERE
-    columns.table_schema = '{csb.Database}'
+    columns.table_schema = '{csb.Database}' AND
+    tables.table_type = 'BASE TABLE'
 ORDER BY
     columns.table_name,
     columns.ordinal_position,
@@ -181,7 +202,8 @@ SELECT
 FROM
     information_schema.tables
 WHERE
-    table_schema = '{csb.Database}'
+    table_schema = '{csb.Database}' AND
+    table_type = 'BASE TABLE'
 ORDER BY
     tables.table_name
 ";
@@ -197,12 +219,75 @@ ORDER BY
 
     protected override DataTable GetViewColumnsDataTable(DbConnection connection)
     {
-        return null;
+        var csb = new MySqlConnectionStringBuilder(connection.ConnectionString);
+        var sql = $@"
+SELECT
+    '' schema_name,
+    columns.table_name,
+    columns.column_name,
+    columns.ordinal_position,
+    columns.column_default,
+    columns.is_nullable,
+    columns.data_type,
+    columns.character_maximum_length,
+    columns.numeric_precision,
+    columns.numeric_scale,
+    columns.datetime_precision,
+    columns.column_type,
+    columns.column_key,
+    columns.extra,
+    columns.character_set_name,
+    columns.collation_name
+FROM
+    information_schema.columns INNER JOIN
+    information_schema.tables ON
+        columns.table_schema = tables.table_schema AND
+        columns.table_name = tables.table_name 
+WHERE
+    columns.table_schema = '{csb.Database}' AND
+    tables.table_type = 'VIEW'
+ORDER BY
+    columns.table_name,
+    columns.ordinal_position,
+    columns.column_name
+";
+        System.Data.DataSet ds = _database.Execute(connection, sql);
+        DataTable dataTable = ds.Tables[0];
+        DataTable dataTypes;
+
+        dataTypes = connection.GetSchema("DataTypes");
+
+        this.UpdateSchemaColumns(dataTable, dataTypes);
+        return dataTable;
     }
 
     protected override DataTable GetViewsDataTable(DbConnection connection)
     {
-        return null;
+        var csb = new MySqlConnectionStringBuilder(connection.ConnectionString);
+        var sql = $@"
+SELECT
+    '' schema_name,
+    tables.table_name,
+    tables.engine,
+    tables.table_collation collation_name,
+    (SELECT
+        character_set_name 
+    FROM
+        information_schema.collation_character_set_applicability
+    WHERE
+        collation_character_set_applicability.collation_name = tables.table_collation
+    ) character_set_name
+FROM
+    information_schema.tables
+WHERE
+    table_schema = '{csb.Database}' AND
+    table_type = 'VIEW'
+ORDER BY
+    tables.table_name
+";
+        System.Data.DataSet ds = _database.Execute(connection, sql);
+        DataTable dataTable = ds.Tables[0];
+        return dataTable;
     }
 
 }
