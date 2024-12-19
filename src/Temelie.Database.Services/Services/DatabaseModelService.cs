@@ -55,7 +55,7 @@ public class DatabaseModelService : IDatabaseModelService
 
         var conts = GetCheckConstraints(connection).Where(i => tableNames.Contains(i.TableName) ).ToList();
         var indexes = GetIndexes(connection).Where(i => tableNames.Contains(i.TableName)).ToList();
-        var triggers = GetTriggers(connection, options).Where(i => tableNames.Contains(i.TableName)).ToList();
+        var triggers = GetTriggers(connection, options).Where(i => tableNames.Contains(i.TableName) || viewNames.Contains(i.TableName)).ToList();
         var secPol = GetSecurityPolicies(connection);
 
         return new DatabaseModel(

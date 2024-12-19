@@ -110,8 +110,10 @@ public class DbContextIncrementalGenerator : IIncrementalGenerator
                 config.AppendLine($"            builder.HasKey(i => i.{keys[0]});");
 
             }
-            else
+            else if (entity.IsView && !entity.HasTrigger)
             {
+                //if the table, or the view has a trigger, then it is assumed that we are going to insert into it
+                //it'll be up to the user to define the key
                 config.AppendLine($"            builder.HasNoKey();");
             }
 
