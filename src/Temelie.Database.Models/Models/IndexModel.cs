@@ -9,6 +9,7 @@ public class IndexModel : DatabaseObjectModel
     public string FilterDefinition { get; set; }
     public string PartitionSchemeName { get; set; }
     public string DataCompressionDesc { get; set; }
+    public int? CompressionDelay { get; set; }
     public bool IsUnique { get; set; }
     public int FillFactor { get; set; }
 

@@ -216,7 +216,8 @@ SELECT
 			partitions.object_id = tables.object_id AND
 			partitions.index_id = indexes.index_id AND
 			partitions.data_compression_desc <> 'NONE'
-	) data_compression_desc
+	) data_compression_desc,
+	indexes.compression_delay
 FROM
 	sys.indexes INNER JOIN
 	sys.tables ON

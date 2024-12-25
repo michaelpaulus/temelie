@@ -390,6 +390,7 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
                     SchemaName = indexGroup.SchemaName,
                     PartitionSchemeName = summaryRow["partition_scheme_name"] == DBNull.Value ? "" : summaryRow["partition_scheme_name"].ToString(),
                     DataCompressionDesc = summaryRow["data_compression_desc"] == DBNull.Value ? "" : summaryRow["data_compression_desc"].ToString(),
+                    CompressionDelay = summaryRow["compression_delay"] == DBNull.Value ? null : int.Parse(summaryRow["compression_delay"].ToString()),
                     IndexType = summaryRow["index_type"].ToString(),
                     FilterDefinition = summaryRow["filter_definition"] == DBNull.Value ? "" : summaryRow["filter_definition"].ToString(),
                     IsUnique = Convert.ToBoolean(summaryRow["is_unique"]),

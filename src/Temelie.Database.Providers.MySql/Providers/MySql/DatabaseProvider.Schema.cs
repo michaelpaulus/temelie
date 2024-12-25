@@ -115,6 +115,7 @@ ORDER BY
         dataTable.Columns.Add("partition_scheme_name");
         dataTable.Columns.Add("data_compression_desc");
         dataTable.Columns.Add("partition_ordinal");
+        dataTable.Columns.Add("compression_delay");
 
         if (dataTable.Columns["index_name"].MaxLength < 500)
         {

@@ -946,6 +946,14 @@ GO
                 }
                 sbOptions.Append($"DATA_COMPRESSION = {model.DataCompressionDesc}");
             }
+            if (model.CompressionDelay.GetValueOrDefault() > 0)
+            {
+                if (sbOptions.Length > 0)
+                {
+                    sbOptions.Append(", ");
+                }
+                sbOptions.Append($"COMPRESSION_DELAY = {model.CompressionDelay} MINUTES");
+            }
             sb.AppendLine($"{new string(' ', indentCount * 4)}WITH ({sbOptions.ToString()})");
         }
 
