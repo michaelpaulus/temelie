@@ -236,7 +236,7 @@ public class TableMappingViewModel : ViewModel
 
     public Temelie.Database.Models.TableMapping CreateTableMapping()
     {
-        Temelie.Database.Models.TableMapping tableMapping = new Temelie.Database.Models.TableMapping { SourceTableName = this.SourceTable.TableName, TargetTableName = this.TargetTable.TableName };
+        Temelie.Database.Models.TableMapping tableMapping = new Temelie.Database.Models.TableMapping { SourceTableName = this.SourceTable.SchemaAndTableName, TargetTableName = this.TargetTable.SchemaAndTableName };
         tableMapping.ColumnMappings.AddRange(this.ColumnMappings);
 
         if (this.IncludeSourceDatabase)

@@ -135,7 +135,7 @@ public class ConvertViewModel : ViewModel
             this.Tables.Clear();
             if (SourceDatabaseConnectionString is not null)
             {
-                var tables = Controls.DatabaseConnection.GetTables(_databaseExecutionService, _databaseFactory, this.SourceDatabaseConnectionString);
+                var tables = Controls.DatabaseConnection.GetTables(_databaseExecutionService, _databaseFactory, this.SourceDatabaseConnectionString).OrderBy(i => i.SchemaAndTableName);
                 foreach (var table in tables)
                 {
                     this.Tables.Add(table);

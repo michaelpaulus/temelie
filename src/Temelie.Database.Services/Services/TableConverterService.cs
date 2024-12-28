@@ -221,44 +221,4 @@ public class TableConverterService : ITableConverterService
         return rowCount;
     }
 
-    private string GetParameterNameFromColumn(string columnName)
-    {
-        return columnName.Replace("-", "").Replace(" ", "");
-    }
-
-    private string GetRowErrorMessage(System.Data.Common.DbCommand command, IEnumerable<Temelie.Database.Models.ColumnModel> columns, int columnIndex, System.Exception ex)
-    {
-        System.Text.StringBuilder sbRow = new System.Text.StringBuilder();
-
-        var columnsList = columns.ToList();
-
-        for (int intErrorIndex = 0; intErrorIndex < columnIndex; intErrorIndex++)
-        {
-            Temelie.Database.Models.ColumnModel targetColumn = columnsList[intErrorIndex];
-            if (targetColumn != null)
-            {
-                if (!targetColumn.IsNullable)
-                {
-                    string strColumnName = targetColumn.ColumnName;
-                    object objTargetValue = command.Parameters[intErrorIndex].Value;
-                    if (objTargetValue == null || objTargetValue == DBNull.Value)
-                    {
-                        objTargetValue = "NULL";
-                    }
-                    if (sbRow.Length > 0)
-                    {
-                        sbRow.Append(" AND ");
-                    }
-                    sbRow.AppendFormat(" {0} = '{1}'", strColumnName, System.Convert.ToString(objTargetValue));
-                }
-            }
-        }
-        sbRow.AppendLine();
-
-        sbRow.AppendLine("ERROR:");
-        sbRow.AppendLine(ex.Message);
-
-        return sbRow.ToString();
-    }
-
 }

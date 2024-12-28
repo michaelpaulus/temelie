@@ -20,6 +20,9 @@ public class TableModel : DatabaseObjectModel
     public string CharacterSetName { get; set; }
 
     [JsonIgnore]
+    public string SchemaAndTableName => string.IsNullOrEmpty(SchemaName) ? TableName : $"{SchemaName}.{TableName}";
+
+    [JsonIgnore]
     public string ClassName
     {
         get

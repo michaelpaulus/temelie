@@ -126,15 +126,26 @@ public partial class DatabaseProvider : DatabaseProviderBase
     {
         try
         {
-            command.CommandText = $"(SELECT sys.sysindexes.rows FROM sys.tables INNER JOIN sys.sysindexes ON sys.tables.object_id = sys.sysindexes.id AND sys.sysindexes.indid < 2 WHERE sys.tables.name = '{tableName}')";
-            return System.Convert.ToInt32(command.ExecuteScalar());
+            command.CommandText = $@"SELECT 
+	SUM(sysindexes.rows)
+FROM 
+	sys.tables INNER JOIN 
+	sys.sysindexes ON 
+		tables.object_id = sysindexes.id AND 
+		sysindexes.indid < 2 INNER JOIN
+	sys.schemas ON
+		tables.schema_id = schemas.schema_id
+WHERE
+    schemas.name = '{schemaName}' AND
+	tables.name = '{tableName}'";
+            return System.Convert.ToInt32(command.ExecuteScalar().ToString());
         }
         catch
         {
 
         }
         command.CommandText = $"SELECT COUNT(1) FROM [{schemaName}].[{tableName}]";
-        return System.Convert.ToInt32(command.ExecuteScalar());
+        return System.Convert.ToInt32(command.ExecuteScalar().ToString());
     }
 
     public override string GetSelectStatement(string schemaName, string tableName, IEnumerable<string> columns)

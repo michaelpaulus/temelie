@@ -38,7 +38,7 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="Table" DisplayMemberBinding="{Binding TableName}" />
+                    <GridViewColumn Header="Table" DisplayMemberBinding="{Binding SchemaAndTableName}" />
                     <GridViewColumn Header="Progress">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>

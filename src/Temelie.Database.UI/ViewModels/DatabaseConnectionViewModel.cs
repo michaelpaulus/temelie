@@ -21,6 +21,7 @@ public class DatabaseConnectionViewModel : ViewModel
 
         this.AddCommand = new Command(this.Add);
 
+        this.CopyCommand = new Command(this.Copy);
         this.DeleteCommand = new Command(this.Delete);
 
         this.SaveCommand = new Command(this.Save);
@@ -29,6 +30,7 @@ public class DatabaseConnectionViewModel : ViewModel
     }
 
     public Command AddCommand { get; set; }
+    public Command CopyCommand { get; set; }
     public Command DeleteCommand { get; set; }
     public Command SaveCommand { get; set; }
 
@@ -67,6 +69,21 @@ public class DatabaseConnectionViewModel : ViewModel
         var connection = new Models.ConnectionStringModel() { Name = "Connection" };
         this.Connections.Add(connection);
         this.SelectedConnection = connection;
+    }
+
+    private void Copy()
+    {
+        if (this.SelectedConnection != null)
+        {
+            var newConnection = new Models.ConnectionStringModel()
+            {
+                Name = this.SelectedConnection.Name + " - Copy",
+                DatabaseProviderName = this.SelectedConnection.DatabaseProviderName,
+                ConnectionString = this.SelectedConnection.ConnectionString
+            };
+            this.Connections.Add(newConnection);
+            this.SelectedConnection = newConnection;
+        }
     }
 
     private void Delete()

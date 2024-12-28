@@ -8,7 +8,7 @@
         Title="Database Connections" Height="300" Width="600" >
     <Grid Margin="8">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="200" />
+            <ColumnDefinition Width="250" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
@@ -23,6 +23,7 @@
             <ListBox ItemsSource="{Binding Connections}" DisplayMemberPath="Name"  Margin="4" SelectedItem="{Binding SelectedConnection}" />
             <StackPanel Grid.Row="1" Orientation="Horizontal">
                 <Button Content="Add" Margin="4" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Command="{Binding AddCommand}"/>
+                <Button Content="Copy" Margin="4" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Command="{Binding CopyCommand}"/>
                 <Button Content="Delete" Margin="4" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Command="{Binding DeleteCommand}"/>
             </StackPanel>
         </Grid>

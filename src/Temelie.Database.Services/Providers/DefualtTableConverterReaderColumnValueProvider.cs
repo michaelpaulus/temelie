@@ -47,7 +47,15 @@ public class DefualtTableConverterReaderColumnValueProvider : ITableConverterRea
                 case System.Data.DbType.DateTime:
                     try
                     {
-                        DateTime dt = System.Convert.ToDateTime(value);
+                        DateTime dt;
+                        if (value is DateTime dateTime)
+                        {
+                            dt = dateTime;
+                        }
+                        else
+                        {
+                            dt = System.Convert.ToDateTime(value);
+                        }
 
                         if (dt <= new DateTime(1753, 1, 1))
                         {
@@ -70,7 +78,15 @@ public class DefualtTableConverterReaderColumnValueProvider : ITableConverterRea
                 case System.Data.DbType.DateTime2:
                     try
                     {
-                        DateTime dt = System.Convert.ToDateTime(value);
+                        DateTime dt;
+                        if (value is DateTime dateTime)
+                        {
+                            dt = dateTime;
+                        }
+                        else
+                        {
+                            dt = System.Convert.ToDateTime(value);
+                        }
                         returnValue = dt;
                     }
                     catch
@@ -80,14 +96,13 @@ public class DefualtTableConverterReaderColumnValueProvider : ITableConverterRea
                     break;
                 case System.Data.DbType.Time:
                     {
-                        if ((value) is TimeSpan)
+                        if (value is TimeSpan timeSpan)
                         {
-                            returnValue = value;
+                            returnValue = timeSpan;
                         }
-                        else if ((value) is DateTime)
+                        else if (value is DateTime dateTime)
                         {
-                            var dt = System.Convert.ToDateTime(value);
-                            returnValue = dt.TimeOfDay;
+                            returnValue = dateTime.TimeOfDay;
                         }
                         else
                         {
@@ -96,55 +111,56 @@ public class DefualtTableConverterReaderColumnValueProvider : ITableConverterRea
                         break;
                     }
                 case DbType.Boolean:
-                    if (value.GetType() == typeof(string))
                     {
-                        if (value.ToString() == "1" ||
-                            value.ToString().Equals("yes", StringComparison.InvariantCultureIgnoreCase) ||
-                            value.ToString().Equals("y", StringComparison.InvariantCultureIgnoreCase))
+                        if (value is string stringValue)
                         {
-                            returnValue = true;
+                            if (stringValue == "1" ||
+                                stringValue.Equals("yes", StringComparison.InvariantCultureIgnoreCase) ||
+                                stringValue.Equals("y", StringComparison.InvariantCultureIgnoreCase))
+                            {
+                                returnValue = true;
+                            }
+                            else if (stringValue == "0" ||
+                                stringValue.Equals("no", StringComparison.InvariantCultureIgnoreCase) ||
+                                stringValue.Equals("n", StringComparison.InvariantCultureIgnoreCase))
+                            {
+                                returnValue = false;
+                            }
                         }
-                        else if (value.ToString() == "0" ||
-                            value.ToString().Equals("no", StringComparison.InvariantCultureIgnoreCase) ||
-                            value.ToString().Equals("n", StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            returnValue = false;
-                        }
+                        break;
                     }
-                    break;
                 case DbType.Guid:
-                    if (value.GetType() == typeof(string))
                     {
-                        var valueAsString = System.Convert.ToString(value);
-
-                        if (string.IsNullOrEmpty(valueAsString) &&
-                            targetColumn.IsNullable)
+                        if (value is string stringValue)
                         {
-                            returnValue = DBNull.Value;
+                            if (string.IsNullOrEmpty(stringValue) &&
+                                targetColumn.IsNullable)
+                            {
+                                returnValue = DBNull.Value;
+                            }
+                            else if (string.IsNullOrEmpty(stringValue))
+                            {
+                                returnValue = Guid.Empty;
+                            }
+                            else
+                            {
+                                returnValue = new Guid(stringValue);
+                            }
                         }
-                        else if (string.IsNullOrEmpty(valueAsString))
-                        {
-                            returnValue = Guid.Empty;
-                        }
-                        else
-                        {
-                            returnValue = new Guid(valueAsString);
-                        }
-
+                        break;
                     }
-                    break;
                 case System.Data.DbType.AnsiString:
                 case System.Data.DbType.AnsiStringFixedLength:
                 case System.Data.DbType.String:
                 case System.Data.DbType.StringFixedLength:
                     {
-                        if (trimStrings)
+                        if (value is string stringValue)
                         {
-                            returnValue = System.Convert.ToString(value).TrimEnd();
+                            returnValue = trimStrings ? stringValue.TrimEnd() : stringValue;
                         }
                         else
                         {
-                            returnValue = System.Convert.ToString(value);
+                            returnValue = trimStrings ? value.ToString().TrimEnd() : value.ToString();
                         }
                         break;
                     }
