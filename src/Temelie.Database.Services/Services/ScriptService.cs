@@ -467,13 +467,23 @@ public class ScriptService : IScriptService
             cmd.ExecuteNonQuery();
         }
 
-        bool checkMigration(string id)
+        IEnumerable<string> getMigrations(string id)
         {
             using var conn = _databaseExecutionService.CreateDbConnection(connectionString);
             using var cmd = _databaseExecutionService.CreateDbCommand(conn);
-            cmd.CommandText = $"SELECT COUNT(*) FROM Migrations WHERE Id LIKE '{id}'";
-            var migrationCount = long.Parse(cmd.ExecuteScalar().ToString());
-            return migrationCount > 0;
+            cmd.CommandText = $"SELECT Id FROM Migrations WHERE Id LIKE '{id}'";
+            using var reader = cmd.ExecuteReader();
+            var list = new List<string>();
+            while (reader.Read())
+            {
+                list.Add(reader.GetString(0));
+            }
+            return list;
+        }
+
+        bool checkMigration(string id)
+        {
+            return getMigrations(id).Any();
         }
 
         void executeScriptsInernal()
@@ -578,16 +588,15 @@ public class ScriptService : IScriptService
                         var files = migration.GetFiles("*.sql").OrderBy(i => i.FullName);
                         if (files.Any())
                         {
+                            var existingMigrations = getMigrations($"{dir.Name}/{migration.Name}/%");
+
                             //validate historical migrations by directory
-                            if (checkMigration($"{dir.Name}/{migration.Name}/%"))
+                            if (existingMigrations.Count() == 1 && !existingMigrations.First().EndsWith(".sql"))
                             {
                                 foreach (var file in files)
                                 {
                                     var id = $"{dir.Name}/{migration.Name}/{file.Name}";
-                                    if (!checkMigration(id))
-                                    {
-                                        addMigration(id);
-                                    }
+                                    addMigration(id);
                                 }
                             }
                             else
