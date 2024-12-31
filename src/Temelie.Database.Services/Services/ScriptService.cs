@@ -4,7 +4,6 @@ using Temelie.Database.Extensions;
 using Temelie.Database.Models;
 using Temelie.Database.Providers;
 using Temelie.DependencyInjection;
-using System.Security.Cryptography;
 
 namespace Temelie.Database.Services;
 [ExportTransient(typeof(IScriptService))]
@@ -460,18 +459,32 @@ public class ScriptService : IScriptService
 
     public void ExecuteScripts(ConnectionStringModel connectionString, DirectoryInfo directory, IProgress<ScriptProgress> progress, bool continueOnError = true)
     {
+        void addMigration(string id)
+        {
+            using var conn = _databaseExecutionService.CreateDbConnection(connectionString);
+            using var cmd = _databaseExecutionService.CreateDbCommand(conn);
+            cmd.CommandText = $"INSERT INTO Migrations (Id, Date) VALUES {$"('{id}', '{DateTime.UtcNow:yyyy-MM-ddTHH:mm:ss}')"}";
+            cmd.ExecuteNonQuery();
+        }
+
+        bool checkMigration(string id)
+        {
+            using var conn = _databaseExecutionService.CreateDbConnection(connectionString);
+            using var cmd = _databaseExecutionService.CreateDbCommand(conn);
+            cmd.CommandText = $"SELECT COUNT(*) FROM Migrations WHERE Id LIKE '{id}'";
+            var migrationCount = long.Parse(cmd.ExecuteScalar().ToString());
+            return migrationCount > 0;
+        }
 
         void executeScriptsInernal()
         {
             int intFileCount = 1;
 
-            var list = new List<(string Name, string Contents)>();
+            var list = new List<(string Name, string Contents, bool isMigration)>();
 
             var modelList = directory.GetDirectories().Where(i =>
                 _directoryList.Any(i2 => i.Name.Contains(i2))
             ).SelectMany(i => i.GetFiles("*.sql.json", SearchOption.AllDirectories)).ToList();
-
-            var pendingMigrations = new List<string>();
 
             var shouldEnsureMigrationsTable = true;
 
@@ -561,21 +574,36 @@ public class ScriptService : IScriptService
                 {
                     foreach (var migration in dir.GetDirectories().OrderBy(i => i.Name))
                     {
+
                         var files = migration.GetFiles("*.sql").OrderBy(i => i.FullName);
                         if (files.Any())
                         {
-                            var hash = CreateMd5ForDirectory(migration.FullName);
-                            var id = $"{dir.Name}/{migration.Name}/{hash}";
-                            using var conn = _databaseExecutionService.CreateDbConnection(connectionString);
-                            using var cmd = _databaseExecutionService.CreateDbCommand(conn);
-                            cmd.CommandText = $"SELECT COUNT(*) FROM Migrations WHERE Id = '{id}'";
-                            var migrationCount = long.Parse(cmd.ExecuteScalar().ToString());
-                            if (migrationCount == 0)
+                            //validate historical migrations by directory
+                            if (checkMigration($"{dir.Name}/{migration.Name}/%"))
                             {
-                                pendingMigrations.Add(id);
-                                list.AddRange(files.Select(i => ($"{dir.Name}/{migration.Name}/{i.Name}", File.ReadAllText(i.FullName))));
+                                foreach (var file in files)
+                                {
+                                    var id = $"{dir.Name}/{migration.Name}/{file.Name}";
+                                    if (!checkMigration(id))
+                                    {
+                                        addMigration(id);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                foreach (var file in files)
+                                {
+                                    var id = $"{dir.Name}/{migration.Name}/{file.Name}";
+                                    if (!checkMigration(id))
+                                    {
+                                        list.Add((id, File.ReadAllText(file.FullName), true));
+                                    }
+                                }
+
                             }
                         }
+
                     }
                 }
                 else
@@ -607,7 +635,7 @@ public class ScriptService : IScriptService
                                             var script = createScript(current);
                                             if (script is not null)
                                             {
-                                                list.Add(($"DROP {dir.Name}/{name}", script.DropScript));
+                                                list.Add(($"DROP {dir.Name}/{name}", script.DropScript, false));
                                             }
                                         }
                                         else
@@ -626,8 +654,8 @@ public class ScriptService : IScriptService
                                         {
                                             if (handleUpdate is null)
                                             {
-                                                list.Add(($"DROP {dir.Name}/{name}", updatedScript.DropScript));
-                                                list.Add(($"CREATE {dir.Name}/{name}", updatedScript.CreateScript));
+                                                list.Add(($"DROP {dir.Name}/{name}", updatedScript.DropScript, false));
+                                                list.Add(($"CREATE {dir.Name}/{name}", updatedScript.CreateScript, false));
                                             }
                                             else
                                             {
@@ -641,7 +669,7 @@ public class ScriptService : IScriptService
                                 {
                                     var name = getName(updated);
                                     var script = createScript(updated);
-                                    list.Add(($"CREATE {dir.Name}/{name}", script.CreateScript));
+                                    list.Add(($"CREATE {dir.Name}/{name}", script.CreateScript, false));
                                 }
                             }
 
@@ -734,27 +762,18 @@ public class ScriptService : IScriptService
                         }
                         else
                         {
-                            var migrationCount = 0L;
-
                             if (!dir.Name.Contains("Always"))
                             {
-                                var hash = CreateMd5ForDirectory(dir.FullName);
-                                var id = $"{dir.Name}/{hash}";
-
-                                using var conn = _databaseExecutionService.CreateDbConnection(connectionString);
-                                using var cmd = _databaseExecutionService.CreateDbCommand(conn);
-                                cmd.CommandText = $"SELECT COUNT(*) FROM Migrations WHERE Id = '{id}'";
-                                migrationCount = long.Parse(cmd.ExecuteScalar().ToString());
-                                if (migrationCount == 0)
+                                foreach (var file in files)
                                 {
-                                    pendingMigrations.Add(id);
+                                    var id = $"{dir.Name}/{file.Name}";
+                                    if (!checkMigration(id))
+                                    {
+                                        list.Add((id, File.ReadAllText(file.FullName), true));
+                                    }
                                 }
                             }
 
-                            if (migrationCount == 0)
-                            {
-                                list.AddRange(files.Select(i => ($"{i.Directory.Name}/{i.Name}", File.ReadAllText(i.FullName))));
-                            }
                         }
 
                     }
@@ -781,6 +800,10 @@ public class ScriptService : IScriptService
                     try
                     {
                         _databaseExecutionService.ExecuteFile(connectionString, file.Contents);
+                        if (file.isMigration)
+                        {
+                            addMigration(file.Name);
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -811,14 +834,6 @@ public class ScriptService : IScriptService
             if (errors.Count > 0)
             {
                 throw new Exception(string.Join(Environment.NewLine, errors));
-            }
-
-            if (pendingMigrations.Count > 0)
-            {
-                using var conn = _databaseExecutionService.CreateDbConnection(connectionString);
-                using var cmd = _databaseExecutionService.CreateDbCommand(conn);
-                cmd.CommandText = $"INSERT INTO Migrations (Id, Date) VALUES {string.Join(", ", pendingMigrations.Select(i => $"('{i}', '{DateTime.UtcNow:yyyy-MM-ddTHH:mm:ss}')"))}";
-                cmd.ExecuteNonQuery();
             }
         }
 
@@ -877,37 +892,4 @@ public class ScriptService : IScriptService
 
         System.IO.File.WriteAllText(toFile, strFile);
     }
-
-    private static string CreateMd5ForDirectory(string path)
-    {
-        // assuming you want to include nested folders
-        var files = Directory.GetFiles(path, "*", SearchOption.AllDirectories)
-                             .OrderBy(p => p).ToList();
-
-        MD5 md5 = MD5.Create();
-
-        for (int i = 0; i < files.Count; i++)
-        {
-            string file = files[i];
-
-            // hash path
-            string relativePath = file.Substring(path.Length + 1);
-            byte[] pathBytes = Encoding.UTF8.GetBytes(relativePath.ToLower());
-            md5.TransformBlock(pathBytes, 0, pathBytes.Length, pathBytes, 0);
-
-            // hash contents
-            byte[] contentBytes = File.ReadAllBytes(file);
-            if (i == files.Count - 1)
-            {
-                md5.TransformFinalBlock(contentBytes, 0, contentBytes.Length);
-            }
-            else
-            {
-                md5.TransformBlock(contentBytes, 0, contentBytes.Length, contentBytes, 0);
-            }
-        }
-
-        return BitConverter.ToString(md5.Hash).Replace("-", "").ToLower();
-    }
-
 }
