@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 namespace Temelie.Repository;
 
-public abstract partial class RepositoryBase : IRepository
+public abstract partial class RepositoryBase
 {
     private readonly IRepositoryEventFactory _repositoryEventFactory;
 
@@ -15,7 +15,7 @@ public abstract partial class RepositoryBase : IRepository
     protected abstract IRepositoryContext CreateContext();
     protected abstract string GetCreatedModifiedBy();
 
-    public virtual async Task<Entity?> GetSingleAsync<Entity>(IQuerySpec<Entity> spec) where Entity : EntityBase, IEntity<Entity>
+    protected virtual async Task<Entity?> GetSingleInternalAsync<Entity>(IQuerySpec<Entity> spec) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = CreateContext();
         var query = context.DbContext.Set<Entity>().AsNoTracking();
@@ -23,7 +23,7 @@ public abstract partial class RepositoryBase : IRepository
         return await query.FirstOrDefaultAsync().ConfigureAwait(false);
     }
 
-    public virtual async Task<IEnumerable<Entity>> GetListAsync<Entity>(IQuerySpec<Entity> spec) where Entity : EntityBase, IEntity<Entity>
+    protected virtual async Task<IEnumerable<Entity>> GetListInternalAsync<Entity>(IQuerySpec<Entity> spec) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = CreateContext();
         var query = context.DbContext.Set<Entity>().AsNoTracking();
@@ -31,7 +31,7 @@ public abstract partial class RepositoryBase : IRepository
         return await query.ToListAsync().ConfigureAwait(false);
     }
 
-    public virtual async Task<IEnumerable<TReturn>> GetListAsync<Entity, TReturn>(IQueryAndTransformSpec<Entity, TReturn> spec) where Entity : EntityBase, IEntity<Entity>
+    protected virtual async Task<IEnumerable<TReturn>> GetListInternalAsync<Entity, TReturn>(IQueryAndTransformSpec<Entity, TReturn> spec) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = CreateContext();
         var query = context.DbContext.Set<Entity>().AsNoTracking();
@@ -40,7 +40,7 @@ public abstract partial class RepositoryBase : IRepository
         return await query1.ToListAsync().ConfigureAwait(false);
     }
 
-    public virtual async Task<int> GetCountAsync<Entity>(IQuerySpec<Entity> spec) where Entity : EntityBase, IEntity<Entity>
+    protected virtual async Task<int> GetCountInternalAsync<Entity>(IQuerySpec<Entity> spec) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = CreateContext();
         var query = context.DbContext.Set<Entity>().AsNoTracking();
@@ -48,7 +48,7 @@ public abstract partial class RepositoryBase : IRepository
         return await query.CountAsync().ConfigureAwait(false);
     }
 
-    public virtual async Task<int> GetCountAsync<Entity, TReturn>(IQueryAndTransformSpec<Entity, TReturn> spec) where Entity : EntityBase, IEntity<Entity>
+    protected virtual async Task<int> GetCountInternalAsync<Entity, TReturn>(IQueryAndTransformSpec<Entity, TReturn> spec) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = CreateContext();
         var query = context.DbContext.Set<Entity>().AsNoTracking();
@@ -57,7 +57,7 @@ public abstract partial class RepositoryBase : IRepository
         return await query1.CountAsync().ConfigureAwait(false);
     }
 
-    public async Task<Entity?> GetSingleAsync<Entity>(Expression<Func<Entity, bool>>? filter = null, Func<IQueryable<Entity>, IQueryable<Entity>>? query = null) where Entity : EntityBase, IEntity<Entity>
+    protected async Task<Entity?> GetSingleInternalAsync<Entity>(Expression<Func<Entity, bool>>? filter = null, Func<IQueryable<Entity>, IQueryable<Entity>>? query = null) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = CreateContext();
         var query1 = context.DbContext.Set<Entity>().AsNoTracking();
@@ -78,7 +78,7 @@ public abstract partial class RepositoryBase : IRepository
         return await query1.FirstOrDefaultAsync().ConfigureAwait(false);
     }
 
-    public async Task<IEnumerable<Entity>> GetListAsync<Entity>(Expression<Func<Entity, bool>>? filter = null, Func<IQueryable<Entity>, IQueryable<Entity>>? query = null) where Entity : EntityBase, IEntity<Entity>
+    protected async Task<IEnumerable<Entity>> GetListInternalAsync<Entity>(Expression<Func<Entity, bool>>? filter = null, Func<IQueryable<Entity>, IQueryable<Entity>>? query = null) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = CreateContext();
         var query1 = context.DbContext.Set<Entity>().AsNoTracking();
@@ -99,7 +99,7 @@ public abstract partial class RepositoryBase : IRepository
         return await query1.ToListAsync().ConfigureAwait(false);
     }
 
-    public async Task<int> GetCountAsync<Entity>(Expression<Func<Entity, bool>>? filter = null, Func<IQueryable<Entity>, IQueryable<Entity>>? query = null) where Entity : EntityBase, IEntity<Entity>
+    protected async Task<int> GetCountInternalAsync<Entity>(Expression<Func<Entity, bool>>? filter = null, Func<IQueryable<Entity>, IQueryable<Entity>>? query = null) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = CreateContext();
         var query1 = context.DbContext.Set<Entity>().AsNoTracking();
@@ -120,7 +120,7 @@ public abstract partial class RepositoryBase : IRepository
         return await query1.CountAsync().ConfigureAwait(false);
     }
 
-    public virtual async Task AddAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
+    protected virtual async Task AddInternalAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = CreateContext();
         await OnAddingAsync(context, entity).ConfigureAwait(false);
@@ -129,7 +129,7 @@ public abstract partial class RepositoryBase : IRepository
         await OnAddedAsync(context, entity).ConfigureAwait(false);
     }
 
-    public virtual async Task AddRangeAsync<Entity>(IEnumerable<Entity> entities) where Entity : EntityBase, IEntity<Entity>
+    protected virtual async Task AddRangeInternalAsync<Entity>(IEnumerable<Entity> entities) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = CreateContext();
         foreach (var entity in entities)
@@ -144,7 +144,7 @@ public abstract partial class RepositoryBase : IRepository
         }
     }
 
-    public virtual async Task DeleteAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
+    protected virtual async Task DeleteInternalAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = CreateContext();
         await OnDeletingAsync(context, entity).ConfigureAwait(false);
@@ -153,7 +153,7 @@ public abstract partial class RepositoryBase : IRepository
         await OnDeletedAsync(context, entity).ConfigureAwait(false);
     }
 
-    public virtual async Task DeleteRangeAsync<Entity>(IEnumerable<Entity> entities) where Entity : EntityBase, IEntity<Entity>
+    protected virtual async Task DeleteRangeInternalAsync<Entity>(IEnumerable<Entity> entities) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = CreateContext();
         foreach (var entity in entities)
@@ -168,7 +168,7 @@ public abstract partial class RepositoryBase : IRepository
         }
     }
 
-    public virtual async Task UpdateAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
+    protected virtual async Task UpdateInternalAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = CreateContext();
         await OnUpdatingAsync(context, entity).ConfigureAwait(false);
@@ -177,7 +177,7 @@ public abstract partial class RepositoryBase : IRepository
         await OnUpdatedAsync(context, entity).ConfigureAwait(false);
     }
 
-    public virtual async Task UpdateRangeAsync<Entity>(IEnumerable<Entity> entities) where Entity : EntityBase, IEntity<Entity>
+    protected virtual async Task UpdateRangeInternalAsync<Entity>(IEnumerable<Entity> entities) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = CreateContext();
         foreach (var entity in entities)
@@ -204,14 +204,20 @@ public abstract partial class RepositoryBase : IRepository
 
     protected virtual async Task OnAddingAsync<Entity>(IRepositoryContext context, Entity entity) where Entity : EntityBase, IEntity<Entity>
     {
+        if (entity is ICreatedDateEntity createdDateEntity)
+        {
+            createdDateEntity.CreatedDate = DateTime.UtcNow;
+        }
         if (entity is ICreatedByEntity createdByEntity)
         {
-            createdByEntity.CreatedDate = DateTime.UtcNow;
             createdByEntity.CreatedBy = GetCreatedModifiedBy();
+        }
+        if (entity is IModifiedDateEntity modifiedDateEntity)
+        {
+            modifiedDateEntity.ModifiedDate = DateTime.UtcNow;
         }
         if (entity is IModifiedByEntity modifiedByEntity)
         {
-            modifiedByEntity.ModifiedDate = DateTime.UtcNow;
             modifiedByEntity.ModifiedBy = GetCreatedModifiedBy();
         }
 
@@ -247,9 +253,12 @@ public abstract partial class RepositoryBase : IRepository
 
     protected virtual async Task OnUpdatingAsync<Entity>(IRepositoryContext context, Entity entity) where Entity : EntityBase, IEntity<Entity>
     {
+        if (entity is IModifiedDateEntity modifiedDateEntity)
+        {
+            modifiedDateEntity.ModifiedDate = DateTime.UtcNow;
+        }
         if (entity is IModifiedByEntity modifiedByEntity)
         {
-            modifiedByEntity.ModifiedDate = DateTime.UtcNow;
             modifiedByEntity.ModifiedBy = GetCreatedModifiedBy();
         }
         foreach (var provider in _repositoryEventFactory.GetEventProviders<Entity>())

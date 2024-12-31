@@ -1,4 +1,5 @@
 using AdventureWorks.Entities;
+using AdventureWorks.Server;
 using AdventureWorks.Server.Repository;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,7 +12,7 @@ public class RespositoryTests : TestBase
     [Test]
     public async Task AddSingleKeyIdentityIntAsync()
     {
-        var repository = ServiceProvider.GetRequiredService<IRepository>();
+        var repository = ServiceProvider.GetRequiredService<IExampleRepository>();
 
         var value = new BusinessEntity() { };
 
@@ -25,7 +26,7 @@ public class RespositoryTests : TestBase
     [Test]
     public async Task AddSingleKeyIdentityGuidAsync()
     {
-        var repository = ServiceProvider.GetRequiredService<IRepository>();
+        var repository = ServiceProvider.GetRequiredService<IExampleRepository>();
 
         var value = new Address1() { Address1Id = Guid.NewGuid() };
 
@@ -39,7 +40,7 @@ public class RespositoryTests : TestBase
     [Test]
     public async Task AddSingleKeyAsync()
     {
-        var repository = ServiceProvider.GetRequiredService<IRepository>();
+        var repository = ServiceProvider.GetRequiredService<IExampleRepository>();
 
         var person = new Person() { BusinessEntityId = 1, FirstName = "Test" };
 
@@ -53,7 +54,7 @@ public class RespositoryTests : TestBase
     [Test]
     public async Task UpdateSingleKeyAsync()
     {
-        var repository = ServiceProvider.GetRequiredService<IRepository>();
+        var repository = ServiceProvider.GetRequiredService<IExampleRepository>();
 
         var person = new Person() { BusinessEntityId = 1, FirstName = "Test" };
 
@@ -73,7 +74,7 @@ public class RespositoryTests : TestBase
     [Test]
     public async Task DeleteSingleKeyAsync()
     {
-        var repository = ServiceProvider.GetRequiredService<IRepository>();
+        var repository = ServiceProvider.GetRequiredService<IExampleRepository>();
 
         var person = new Person() { BusinessEntityId = 1, FirstName = "Test" };
 
@@ -89,7 +90,7 @@ public class RespositoryTests : TestBase
     [Test]
     public async Task AddComplexKeyAsync()
     {
-        var repository = ServiceProvider.GetRequiredService<IRepository>();
+        var repository = ServiceProvider.GetRequiredService<IExampleRepository>();
 
         var address = new BusinessEntityAddress() { BusinessEntityId = 1, AddressId = 1, AddressTypeId = 1, ModifiedDate = DateTime.UtcNow };
 
@@ -103,7 +104,7 @@ public class RespositoryTests : TestBase
     [Test]
     public async Task UpdateComplexKeyAsync()
     {
-        var repository = ServiceProvider.GetRequiredService<IRepository>();
+        var repository = ServiceProvider.GetRequiredService<IExampleRepository>();
 
         var address = new BusinessEntityAddress() { BusinessEntityId = 1, AddressId = 1, AddressTypeId = 1, ModifiedDate = DateTime.UtcNow };
 
@@ -123,7 +124,7 @@ public class RespositoryTests : TestBase
     [Test]
     public async Task DeleteComplexKeyAsync()
     {
-        var repository = ServiceProvider.GetRequiredService<IRepository>();
+        var repository = ServiceProvider.GetRequiredService<IExampleRepository>();
 
         var address = new BusinessEntityAddress() { BusinessEntityId = 1, AddressId = 1, AddressTypeId = 1, ModifiedDate = DateTime.UtcNow };
 
@@ -139,7 +140,7 @@ public class RespositoryTests : TestBase
     [Test]
     public async Task AddRangeAsync()
     {
-        var repository = ServiceProvider.GetRequiredService<IRepository>();
+        var repository = ServiceProvider.GetRequiredService<IExampleRepository>();
 
         var list = new List<Person>();
 
@@ -164,7 +165,7 @@ public class RespositoryTests : TestBase
         var list = new List<Person>();
         var count = 10;
 
-        var repository = ServiceProvider.GetRequiredService<IRepository>();
+        var repository = ServiceProvider.GetRequiredService<IExampleRepository>();
 
         foreach (var i in Enumerable.Range(1, count))
         {
@@ -194,7 +195,7 @@ public class RespositoryTests : TestBase
     [Test]
     public async Task DeleteRangeAsync()
     {
-        var repository = ServiceProvider.GetRequiredService<IRepository>();
+        var repository = ServiceProvider.GetRequiredService<IExampleRepository>();
 
         var list = new List<Person>();
 
@@ -222,7 +223,7 @@ public class RespositoryTests : TestBase
     [Test]
     public async Task GetListAsync()
     {
-        var repository = ServiceProvider.GetRequiredService<IRepository>();
+        var repository = ServiceProvider.GetRequiredService<IExampleRepository>();
         var count = 10;
         foreach (var i in Enumerable.Range(1, count))
         {
@@ -238,7 +239,7 @@ public class RespositoryTests : TestBase
     [Test]
     public async Task GetCountAsync()
     {
-        var repository = ServiceProvider.GetRequiredService<IRepository>();
+        var repository = ServiceProvider.GetRequiredService<IExampleRepository>();
 
         var count = 10;
 
@@ -256,7 +257,7 @@ public class RespositoryTests : TestBase
     [Test]
     public async Task GroupByAsync()
     {
-        var repository = ServiceProvider.GetRequiredService<IRepository>();
+        var repository = ServiceProvider.GetRequiredService<IExampleRepository>();
 
         var count = 10;
 
@@ -277,7 +278,7 @@ public class RespositoryTests : TestBase
         var storId = 1;
         var terrirotyName = "TEST";
 
-        var repository = ServiceProvider.GetRequiredService<IRepository>();
+        var repository = ServiceProvider.GetRequiredService<IExampleRepository>();
 
         var count = 10;
 

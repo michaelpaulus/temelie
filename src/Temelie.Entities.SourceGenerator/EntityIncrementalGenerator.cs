@@ -97,6 +97,12 @@ public partial class EntityIncrementalGenerator : IIncrementalGenerator
             return list;
         }
 
+        sourceFiles.Add(($"{rootNamespace}.IProjectEntity.g", $@"namespace {rootNamespace};
+
+public partial interface IProjectEntity
+{{
+}}"));
+
         void addInterface(TableModel table, IEnumerable<ColumnProperty> props)
         {
             var ns = rootNamespace;
@@ -105,43 +111,32 @@ public partial class EntityIncrementalGenerator : IIncrementalGenerator
             var extends = new StringBuilder();
 
             extends.Append($"IEntity<{className}>");
+            extends.Append($", IProjectEntity");
 
             var props2 = props.ToList();
 
-            var modifiedColumns = new List<ColumnProperty>();
-            var createdColumns = new List<ColumnProperty>();
-
-            foreach (var prop in props)
+            if (props.Any(i => i.PropertyName.Equals("CreatedDate")))
             {
-                if (prop.PropertyName.Equals("CreatedDate") ||
-                    prop.PropertyName.Equals("CreatedBy"))
-                {
-                    createdColumns.Add(prop);
-                }
-
-                if (prop.PropertyName.Equals("ModifiedDate") ||
-                    prop.PropertyName.Equals("ModifiedBy"))
-                {
-                    modifiedColumns.Add(prop);
-                }
+                extends.Append(", ICreatedDateEntity");
+                props2 = props2.Where(i => i.PropertyName != "CreatedDate").ToList();
             }
 
-            if (createdColumns.Count == 2)
+            if (props.Any(i => i.PropertyName.Equals("CreatedBy")))
             {
                 extends.Append(", ICreatedByEntity");
-                foreach (var col in createdColumns)
-                {
-                    props2.Remove(col);
-                }
+                props2 = props2.Where(i => i.PropertyName != "CreatedBy").ToList();
             }
 
-            if (modifiedColumns.Count == 2)
+            if (props.Any(i => i.PropertyName.Equals("ModifiedDate")))
+            {
+                extends.Append(", IModifiedDateEntity");
+                props2 = props2.Where(i => i.PropertyName != "ModifiedDate").ToList();
+            }
+
+            if (props.Any(i => i.PropertyName.Equals("ModifiedBy")))
             {
                 extends.Append(", IModifiedByEntity");
-                foreach (var col in modifiedColumns)
-                {
-                    props2.Remove(col);
-                }
+                props2 = props2.Where(i => i.PropertyName != "ModifiedBy").ToList();
             }
 
             var sb = new StringBuilder();
