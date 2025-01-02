@@ -730,6 +730,22 @@ GO");
                 }
                 options += $"DATA_SOURCE = {QuoteCharacterStart}{model.DataSourceName}{QuoteCharacterEnd}";
             }
+            if (!string.IsNullOrEmpty(model.RemoteSchemaName))
+            {
+                if (!string.IsNullOrEmpty(options))
+                {
+                    options += ", ";
+                }
+                options += $"SCHEMA_NAME = N'{model.RemoteSchemaName}'";
+            }
+            if (!string.IsNullOrEmpty(model.RemoteObjectName))
+            {
+                if (!string.IsNullOrEmpty(options))
+                {
+                    options += ", ";
+                }
+                options += $"OBJECT_NAME = N'{model.RemoteObjectName}'";
+            }
             if (!string.IsNullOrEmpty(options))
             {
                 sb.AppendLine($"    WITH ({options})");

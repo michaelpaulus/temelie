@@ -408,6 +408,8 @@ SELECT
     0 is_memory_optimized,
     '' durability_desc,
     0 is_external,
+	'' remote_schema_name,
+	'' remote_object_name,
     '' data_source_name,
     '[]' extended_properties,
     NULL partition_scheme_name,
@@ -431,6 +433,8 @@ SELECT
 	t1.is_memory_optimized,
 	t1.durability_desc,
 	t1.is_external,
+	t1.remote_schema_name,
+	t1.remote_object_name,
 	t1.data_source_name,
 	t1.extended_properties,
 	(
@@ -480,6 +484,8 @@ FROM
 			tables.is_memory_optimized,
 			tables.durability_desc,
 			tables.is_external,
+			external_tables.remote_schema_name,
+			external_tables.remote_object_name,
 			external_data_sources.name data_source_name,
 			ISNULL(
 			(

@@ -472,6 +472,8 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
             table.IsMemoryOptimized = GetBoolValue(row, "is_memory_optimized");
             table.DurabilityDesc = GetStringValue(row, "durability_desc");
             table.IsExternal = GetBoolValue(row, "is_external");
+            table.RemoteSchemaName = GetStringValue(row, "remote_schema_name");
+            table.RemoteObjectName = GetStringValue(row, "remote_object_name");
             table.DataSourceName = GetStringValue(row, "data_source_name");
             table.PartitionSchemeColumns = GetStringValue(row, "partition_scheme_columns");
             table.PartitionSchemeName = GetStringValue(row, "partition_scheme_name");
