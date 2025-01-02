@@ -728,7 +728,7 @@ GO");
                 {
                     options += ", ";
                 }
-                options += $"DATA_SOURCE = {model.DataSourceName}";
+                options += $"DATA_SOURCE = {QuoteCharacterStart}{model.DataSourceName}{QuoteCharacterEnd}";
             }
             if (!string.IsNullOrEmpty(options))
             {
