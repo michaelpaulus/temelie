@@ -14,7 +14,32 @@ public partial class DatabaseProvider
     protected override DataTable GetDefinitionsDataTable(DbConnection connection)
     {
         var csb = new MySqlConnectionStringBuilder(connection.ConnectionString);
+
         string sql = $@"
+SELECT
+    routines.routine_name AS name, 
+    'P' AS xtype, 
+    '' AS schema_name,
+    '' AS definition
+FROM
+    information_schema.routines
+WHERE 
+    routine_schema = '{csb.Database}' AND 
+    routine_type = 'PROCEDURE'
+";
+
+        var dataTable = _database.Execute(connection, sql).Tables[0];
+
+        dataTable.Columns["definition"].MaxLength = int.MaxValue;
+
+        foreach (DataRow row in dataTable.Rows)
+        {
+            var name = row["name"].ToString();
+            var procedureDefinition = _database.Execute(connection, $"SHOW CREATE PROCEDURE `{name}`").Tables[0];
+            row["definition"] = procedureDefinition.Rows[0]["Create Procedure"].ToString().Replace(" DEFINER=`root`@`%`", "") + ";";
+        }
+
+        sql = $@"
 SELECT 
     views.table_name AS name, 
     'V' AS xtype, 
@@ -27,8 +52,19 @@ WHERE
 ORDER BY 
    views.table_name
                 ";
-        System.Data.DataSet ds = _database.Execute(connection, sql);
-        DataTable dataTable = ds.Tables[0];
+
+        var viewsDataTable = _database.Execute(connection, sql).Tables[0];
+
+        foreach (DataRow row in viewsDataTable.Rows)
+        {
+            var newRow = dataTable.NewRow();
+            newRow["name"] = row["name"];
+            newRow["xtype"] = row["xtype"];
+            newRow["schema_name"] = row["schema_name"];
+            newRow["definition"] = row["definition"];
+            dataTable.Rows.Add(newRow);
+        }
+
         return dataTable;
 
     }
