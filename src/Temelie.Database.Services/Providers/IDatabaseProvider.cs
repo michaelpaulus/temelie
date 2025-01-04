@@ -29,7 +29,7 @@ public interface IDatabaseProvider
     IDatabaseObjectScript GetScript(CheckConstraintModel model);
     IDatabaseObjectScript GetScript(DefinitionModel model);
     IDatabaseObjectScript GetScript(ForeignKeyModel model);
-    IDatabaseObjectScript GetScript(IndexModel model);
+    IDatabaseObjectScript GetScript(IndexModel model, bool isView);
     IDatabaseObjectScript GetScript(SecurityPolicyModel model);
     IDatabaseObjectScript GetScript(TableModel model);
     IDatabaseObjectScript GetScript(TriggerModel model);

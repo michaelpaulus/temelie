@@ -645,7 +645,7 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
 
     public abstract IDatabaseObjectScript GetScript(ForeignKeyModel model);
 
-    public abstract IDatabaseObjectScript GetScript(IndexModel model);
+    public abstract IDatabaseObjectScript GetScript(IndexModel model, bool isView);
 
     public abstract IDatabaseObjectScript GetScript(SecurityPolicyModel model);
 

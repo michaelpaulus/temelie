@@ -286,8 +286,10 @@ GO");
 
     }
 
-    public override IDatabaseObjectScript GetScript(IndexModel model)
+    public override IDatabaseObjectScript GetScript(IndexModel model, bool isView)
     {
+        var objectType = isView ? "VIEW" : "TABLE";
+        var sysTableName = isView ? "views" : "tables";
 
         string generateDropScript()
         {
@@ -301,15 +303,15 @@ GO");
             1
         FROM
             sys.indexes INNER JOIN
-            sys.tables ON
-                indexes.object_id = tables.object_id INNER JOIN
+            sys.{sysTableName} ON
+                indexes.object_id = {sysTableName}.object_id INNER JOIN
             sys.schemas ON
-                tables.schema_id = schemas.schema_id
+                {sysTableName}.schema_id = schemas.schema_id
         WHERE
             indexes.name = '{model.IndexName}' AND
             schemas.name = '{schema}'
     )");
-                sb.AppendLine($"    ALTER TABLE {QuoteCharacterStart}{schema}{QuoteCharacterEnd}.{QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd} DROP CONSTRAINT {QuoteCharacterStart}{model.IndexName}{QuoteCharacterEnd}");
+                sb.AppendLine($"    ALTER {objectType} {QuoteCharacterStart}{schema}{QuoteCharacterEnd}.{QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd} DROP CONSTRAINT {QuoteCharacterStart}{model.IndexName}{QuoteCharacterEnd}");
             }
             else
             {
@@ -319,10 +321,10 @@ GO");
             1
         FROM
             sys.indexes INNER JOIN
-            sys.tables ON
-                indexes.object_id = tables.object_id INNER JOIN
+            sys.{sysTableName} ON
+                indexes.object_id = {sysTableName}.object_id INNER JOIN
             sys.schemas ON
-                tables.schema_id = schemas.schema_id
+                {sysTableName}.schema_id = schemas.schema_id
         WHERE
             indexes.name = '{model.IndexName}' AND
             schemas.name = '{schema}'
@@ -350,15 +352,15 @@ GO");
             1
         FROM
             sys.indexes INNER JOIN
-            sys.tables ON
-                indexes.object_id = tables.object_id INNER JOIN
+            sys.{sysTableName} ON
+                indexes.object_id = ta{sysTableName}bles.object_id INNER JOIN
             sys.schemas ON
-                tables.schema_id = schemas.schema_id
+                {sysTableName}.schema_id = schemas.schema_id
         WHERE
             indexes.name = '{model.IndexName}' AND
             schemas.name = '{schema}'
     )");
-                sb.AppendLine("    " + $"ALTER TABLE {QuoteCharacterStart}{schema}{QuoteCharacterEnd}.{QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd} ADD INDEX {QuoteCharacterStart}{model.IndexName}{QuoteCharacterEnd} {model.IndexType}");
+                sb.AppendLine("    " + $"ALTER {objectType} {QuoteCharacterStart}{schema}{QuoteCharacterEnd}.{QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd} ADD INDEX {QuoteCharacterStart}{model.IndexName}{QuoteCharacterEnd} {model.IndexType}");
                 sb.AppendLine("    " + "(");
 
                 int intColumnCount = 0;
@@ -389,15 +391,15 @@ GO");
             1
         FROM
             sys.indexes INNER JOIN
-            sys.tables ON
-                indexes.object_id = tables.object_id INNER JOIN
+            sys.{sysTableName} ON
+                indexes.object_id = {sysTableName}.object_id INNER JOIN
             sys.schemas ON
-                tables.schema_id = schemas.schema_id
+                {sysTableName}.schema_id = schemas.schema_id
         WHERE
             indexes.name = '{model.IndexName}' AND
             schemas.name = '{schema}'
     )");
-                sb.AppendLine("    " + $"ALTER TABLE {QuoteCharacterStart}{schema}{QuoteCharacterEnd}.{QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd} ADD CONSTRAINT {QuoteCharacterStart}{model.IndexName}{QuoteCharacterEnd} PRIMARY KEY {model.IndexType}");
+                sb.AppendLine("    " + $"ALTER {objectType} {QuoteCharacterStart}{schema}{QuoteCharacterEnd}.{QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd} ADD CONSTRAINT {QuoteCharacterStart}{model.IndexName}{QuoteCharacterEnd} PRIMARY KEY {model.IndexType}");
                 sb.AppendLine("    " + "(");
 
                 int intColumnCount = 0;
@@ -435,10 +437,10 @@ GO");
             1
         FROM
             sys.indexes INNER JOIN
-            sys.tables ON
-                indexes.object_id = tables.object_id INNER JOIN
+            sys.{sysTableName} ON
+                indexes.object_id = {sysTableName}.object_id INNER JOIN
             sys.schemas ON
-                tables.schema_id = schemas.schema_id
+                {sysTableName}.schema_id = schemas.schema_id
         WHERE
             indexes.name = '{model.IndexName}' AND
             schemas.name = '{schema}'

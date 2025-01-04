@@ -156,19 +156,19 @@ ORDER BY
         {
             var dtIndexes = _databaseService.Execute(connection, @"
 SELECT
-    sys.tables.name AS table_name, 
+    sys.objects.name AS table_name, 
     sys.schemas.name schema_name,
     sys.indexes.name AS index_name, 
     dm_db_xtp_hash_index_stats.total_bucket_count
 FROM
     sys.indexes INNER JOIN
-    sys.tables ON 
-       sys.indexes.object_id = sys.tables.object_id INNER JOIN 
+    sys.objects ON 
+       sys.indexes.object_id = sys.objects.object_id INNER JOIN 
    sys.dm_db_xtp_hash_index_stats  ON
        indexes.index_id = dm_db_xtp_hash_index_stats.index_id AND 
        indexes.object_id = dm_db_xtp_hash_index_stats.object_id INNER JOIN 
     sys.schemas on 
-        sys.tables.schema_id = sys.schemas.schema_id
+        sys.objects.schema_id = sys.schemas.schema_id
 ").Tables[0];
 
             return dtIndexes;
@@ -184,7 +184,7 @@ FROM
     {
         var dtIndexes = _databaseService.Execute(connection, @"
 SELECT
-	sys.tables.name AS table_name,
+	sys.objects.name AS table_name,
 	sys.schemas.name schema_name,
 	sys.indexes.name AS index_name,
 	sys.indexes.type_desc index_type,
@@ -213,15 +213,15 @@ SELECT
 		FROM
 			sys.partitions
 		WHERE
-			partitions.object_id = tables.object_id AND
+			partitions.object_id = objects.object_id AND
 			partitions.index_id = indexes.index_id AND
 			partitions.data_compression_desc <> 'NONE'
 	) data_compression_desc,
 	indexes.compression_delay
 FROM
 	sys.indexes INNER JOIN
-	sys.tables ON
-		sys.indexes.object_id = sys.tables.object_id INNER JOIN
+	sys.objects ON
+		sys.indexes.object_id = sys.objects.object_id INNER JOIN
 	sys.index_columns ON
 		sys.indexes.object_id = sys.index_columns.object_id AND
 		sys.indexes.index_id = sys.index_columns.index_id INNER JOIN
@@ -229,13 +229,13 @@ FROM
 		sys.index_columns.object_id = sys.columns.object_id AND
 		sys.index_columns.column_id = sys.columns.column_id INNER JOIN
 	sys.schemas ON
-		sys.tables.schema_id = sys.schemas.schema_id
+		sys.objects.schema_id = sys.schemas.schema_id
 WHERE
-	sys.tables.name <> 'sysdiagrams' AND
+	sys.objects.name <> 'sysdiagrams' AND
 	sys.indexes.name NOT LIKE 'MSmerge_index%' AND
 	sys.indexes.name IS NOT NULL
 ORDER BY
-	sys.tables.name,
+	sys.objects.name,
 	sys.indexes.name,
 	sys.index_columns.key_ordinal,
 	sys.index_columns.index_column_id

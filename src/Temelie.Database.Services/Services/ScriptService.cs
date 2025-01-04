@@ -57,6 +57,11 @@ public class ScriptService : IScriptService
         return (new FileInfo(path), changed, isNew);
     }
 
+    private bool IsView(IndexModel index, Models.DatabaseModel databaseModel)
+    {
+        return databaseModel.Views.Any(i => i.SchemaName == index.SchemaName && i.TableName == index.TableName);
+    }
+
     private IEnumerable<FileInfo> CreateTableScripts(IDatabaseProvider provider, Models.DatabaseModel database, System.IO.DirectoryInfo directory, string fileFilter = "")
     {
         var files = new List<(FileInfo File, bool Changed, bool New)>();
@@ -171,7 +176,7 @@ public class ScriptService : IScriptService
                 if (string.IsNullOrEmpty(fileFilter) ||
                 fileFilter.EqualsIgnoreCase(fileName))
                 {
-                    var script = provider.GetScript(pk);
+                    var script = provider.GetScript(pk, IsView(pk, database));
                     if (script is not null)
                     {
                         files.Add(fileName, WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), script.CreateScript).File);
@@ -189,7 +194,7 @@ public class ScriptService : IScriptService
                 if (string.IsNullOrEmpty(fileFilter) ||
                 fileFilter.EqualsIgnoreCase(fileName))
                 {
-                    var script = provider.GetScript(index);
+                    var script = provider.GetScript(index, IsView(index, database));
                     if (script is not null)
                     {
                         files.Add(fileName, WriteIfDifferent(System.IO.Path.Combine(directory.FullName, fileName), script.CreateScript).File);
@@ -531,7 +536,7 @@ public class ScriptService : IScriptService
                         sb.AppendLine(tableScript.CreateScript);
                     }
 
-                    var pkScript = provider.GetScript(pk);
+                    var pkScript = provider.GetScript(pk, false);
                     if (pkScript is not null)
                     {
                         sb.AppendLine(pkScript.CreateScript);
@@ -705,13 +710,13 @@ public class ScriptService : IScriptService
                                     currentDatabaseModel.PrimaryKeys.ToList(),
                                     updatedDatabaseModel.PrimaryKeys.ToList(),
                                     i => $"{i.SchemaName}.{i.TableName}.{i.IndexName}",
-                                    i => provider.GetScript(i)
+                                    i => provider.GetScript(i, IsView(i, currentDatabaseModel))
                                  );
                                 compareObjects(
                                     currentDatabaseModel.Indexes.ToList(),
                                     updatedDatabaseModel.Indexes.ToList(),
                                     i => $"{i.SchemaName}.{i.TableName}.{i.IndexName}",
-                                    i => provider.GetScript(i)
+                                    i => provider.GetScript(i, IsView(i, currentDatabaseModel))
                                  );
                             }
                             else if (dir.Name.Contains("04_CheckConstraints"))

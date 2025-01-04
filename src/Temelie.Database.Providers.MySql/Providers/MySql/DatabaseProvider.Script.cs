@@ -7,7 +7,7 @@ namespace Temelie.Database.Providers.MySql;
 public partial class DatabaseProvider
 {
 
-    public override IDatabaseObjectScript GetScript(IndexModel model)
+    public override IDatabaseObjectScript GetScript(IndexModel model, bool isView)
     {
         if (model.IsPrimaryKey)
         {
