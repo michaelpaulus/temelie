@@ -197,7 +197,8 @@ SELECT
     columns.column_key,
     columns.extra,
     columns.character_set_name,
-    columns.collation_name
+    columns.collation_name,
+    columns.generation_expression
 FROM
     information_schema.columns INNER JOIN
     information_schema.tables ON

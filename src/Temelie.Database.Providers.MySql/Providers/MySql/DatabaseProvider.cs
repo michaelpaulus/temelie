@@ -128,6 +128,32 @@ public partial class DatabaseProvider : DatabaseProviderBase
     protected void UpdateSchemaColumns(DataTable table, DataTable dataTypes)
     {
 
+        if (table.Columns.Contains("generation_expression") && table.Columns.Contains("extra"))
+        {
+            table.Columns.Add("computed_definition", typeof(string));
+            table.Columns.Add("generated_always_type", typeof(string));
+            table.Columns.Add("is_computed", typeof(bool));
+
+            foreach (DataRow row in table.Rows)
+            {
+                if (row["extra"].ToString().Contains("VIRTUAL") || row["extra"].ToString().Contains("STORED"))
+                {
+                    row["is_computed"] = true;
+
+                    var computedDefinition = row["generation_expression"]
+                                                    .ToString()
+                                                    .Replace("b\"(", "(")
+                                                    .Replace(")\"", ")")
+                                                    .Replace("\\", "")
+                                                    .Replace("_utf8mb4", "");
+
+                    var extra = row["extra"].ToString().Replace("GENERATED", "").Trim();
+
+                    row["computed_definition"] = $"GENERATED ALWAYS AS {computedDefinition} {extra}";
+                }
+            }
+        }
+
         if (table.Columns.Contains("ordinal_position"))
         {
             table.Columns["ordinal_position"].ColumnName = "column_id";

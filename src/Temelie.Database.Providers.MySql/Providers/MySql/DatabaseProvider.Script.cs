@@ -203,7 +203,7 @@ public partial class DatabaseProvider
         if (columnModel.IsComputed &&
             columnModel.GeneratedAlwaysType == 0)
         {
-            strDataType = "AS " + columnModel.ComputedDefinition;
+            strDataType += " " + columnModel.ComputedDefinition;
         }
 
         string strIdentity = string.Empty;
@@ -236,16 +236,19 @@ public partial class DatabaseProvider
 
         string defaultValue = "";
 
-        if (!string.IsNullOrEmpty(columnModel.ColumnDefault))
+        if (!columnModel.IsComputed)
         {
-            string columnDefault = columnModel.ColumnDefault.Trim();
-            defaultValue = $" DEFAULT '{columnDefault}'";
-        }
-        else if (columnModel.IsNullable)
-        {
-            if (!strDataType.Contains("TEXT"))
+            if (!string.IsNullOrEmpty(columnModel.ColumnDefault))
             {
-                defaultValue = " DEFAULT NULL";
+                string columnDefault = columnModel.ColumnDefault.Trim();
+                defaultValue = $" DEFAULT '{columnDefault}'";
+            }
+            else if (columnModel.IsNullable)
+            {
+                if (!strDataType.Contains("TEXT"))
+                {
+                    defaultValue = " DEFAULT NULL";
+                }
             }
         }
 
