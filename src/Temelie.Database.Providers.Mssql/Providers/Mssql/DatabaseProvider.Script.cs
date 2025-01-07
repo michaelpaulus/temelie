@@ -1046,6 +1046,10 @@ GO";
             columnModel.GeneratedAlwaysType == 0)
         {
             strDataType = "AS " + columnModel.ComputedDefinition;
+            if (columnModel.IsPersisted.GetValueOrDefault())
+            {
+                strDataType += " PERSISTED";
+            }
         }
 
         string strIdentity = string.Empty;

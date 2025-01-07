@@ -246,60 +246,7 @@ ORDER BY
 
     protected override DataTable GetTableColumnsDataTable(DbConnection connection)
     {
-        string sql2014 = @"
-                        SELECT
-                            sys.tables.name AS table_name, 
-                            sys.schemas.name schema_name,
-                            sys.columns.name AS column_name, 
-                            UPPER(sys.types.name) AS column_type, 
-                            CASE ISNULL(sys.columns.precision, 0) 
-                                WHEN 0 THEN 
-                                    CASE WHEN sys.types.name = 'nvarchar' OR
-                                            sys.types.name = 'nchar' THEN 
-                                        sys.columns.max_length / 2
-                                    ELSE
-                                        sys.columns.max_length 
-                                    END 
-                                ELSE 
-                                    ISNULL(sys.columns.precision, 0) 
-                            END AS precision, 
-                            ISNULL(sys.columns.scale, 0) AS scale, 
-                            sys.columns.is_nullable, 
-                            sys.columns.is_identity, 
-                            CASE 
-                                WHEN sys.columns.is_computed = 1 THEN 1  
-                                ELSE 0 
-                            END is_computed, 
-                            sys.computed_columns.definition computed_definition, 
-                            sys.columns.column_id, 
-                            0 is_hidden,
-                            0 generated_always_type,
-                            sys.default_constraints.definition column_default,
-                            ISNULL((SELECT 1 FROM sys.indexes INNER JOIN sys.index_columns ON sys.indexes.object_id = sys.index_columns.object_id AND sys.indexes.index_id = sys.index_columns.index_id WHERE sys.indexes.is_primary_key = 1 AND sys.indexes.object_id = sys.tables.object_id AND sys.index_columns.object_id = sys.columns.object_id AND sys.index_columns.column_id = sys.columns.column_id), 0) is_primary_key,
-                            '[]' extended_properties
-                        FROM 
-                            sys.tables INNER JOIN 
-                            sys.schemas on 
-                                sys.tables.schema_id = sys.schemas.schema_id INNER JOIN 
-                            sys.columns ON 
-                                sys.tables.object_id = sys.columns.object_id INNER JOIN 
-                            sys.types ON 
-                                sys.columns.user_type_id = sys.types.user_type_id LEFT OUTER JOIN 
-                            sys.computed_columns ON 
-                                sys.columns.object_id = sys.computed_columns.object_id AND 
-                                sys.columns.column_id = sys.computed_columns.column_id LEFT OUTER JOIN
-                            sys.default_constraints ON
-                                sys.columns.object_id = sys.default_constraints.parent_object_id AND
-                                sys.columns.column_id = sys.default_constraints.parent_column_id
-
-                        WHERE 
-                            sys.tables.name <> 'sysdiagrams'
-                        ORDER BY 
-                            sys.tables.name, 
-                            sys.columns.column_id
-                        ";
-
-        string sql2016 = @"
+        string sql = @"
 SELECT
     sys.tables.name AS table_name,
     sys.schemas.name schema_name,
@@ -329,6 +276,7 @@ SELECT
         ELSE
             0
     END is_computed,
+    computed_columns.is_persisted,
     sys.computed_columns.definition computed_definition,
     sys.columns.column_id,
     sys.columns.is_hidden,
@@ -382,49 +330,14 @@ ORDER BY
     sys.tables.name,
     sys.columns.column_id
 ";
-
-        DataSet ds;
-        try
-        {
-            ds = _databaseService.Execute(connection, sql2016);
-        }
-        catch
-        {
-            ds = _databaseService.Execute(connection, sql2014);
-        }
-
+        DataSet ds = _databaseService.Execute(connection, sql);
         DataTable dataTable = ds.Tables[0];
         return dataTable;
     }
 
     protected override DataTable GetTablesDataTable(DbConnection connection)
     {
-        string sql2014 = @"
-SELECT 
-    tables.name AS table_name,
-    schemas.name schema_name,
-    0 temporal_type,
-    '' history_table_name,
-    0 is_memory_optimized,
-    '' durability_desc,
-    0 is_external,
-	'' remote_schema_name,
-	'' remote_object_name,
-    '' data_source_name,
-    '[]' extended_properties,
-    NULL partition_scheme_name,
-    NULL partition_scheme_columns
-FROM 
-    sys.tables INNER JOIN 
-    sys.schemas ON 
-        tables.schema_id = schemas.schema_id 
-WHERE 
-    tables.name <> 'sysdiagrams'
-ORDER BY 
-    tables.name
-                        ";
-
-        string sql2016 = @"
+        string sql = @"
 SELECT
 	t1.table_name,
 	t1.schema_name,
@@ -523,17 +436,7 @@ FROM
 ORDER BY
 	t1.table_name
                         ";
-
-        DataSet ds;
-        try
-        {
-            ds = _databaseService.Execute(connection, sql2016);
-        }
-        catch
-        {
-            ds = _databaseService.Execute(connection, sql2014);
-        }
-
+        DataSet ds = _databaseService.Execute(connection, sql);
         DataTable dataTable = ds.Tables[0];
         return dataTable;
     }
@@ -593,70 +496,7 @@ ORDER BY
 
     protected override DataTable GetViewColumnsDataTable(DbConnection connection)
     {
-        string sql2014 = @"
-SELECT
-    sys.views.name AS table_name,
-    sys.schemas.name schema_name,
-    sys.columns.name AS column_name,
-    UPPER(sys.types.name) AS column_type,
-    CASE
-        ISNULL(sys.columns.precision, 0)
-        WHEN 0 THEN
-            CASE
-                WHEN sys.types.name = 'nvarchar' OR
-                    sys.types.name = 'nchar' THEN
-                    sys.columns.max_length / 2
-                ELSE
-                    sys.columns.max_length
-            END
-        ELSE
-            ISNULL(sys.columns.precision, 0)
-    END AS precision,
-    ISNULL(sys.columns.scale, 0) AS scale,
-    sys.columns.is_nullable,
-    sys.columns.is_identity,
-    sys.columns.is_computed,
-    sys.computed_columns.definition computed_definition,
-    sys.columns.column_id,
-    sys.default_constraints.definition column_default,
-    ISNULL(
-    (
-        SELECT
-            1
-        FROM
-            sys.indexes INNER JOIN
-            sys.index_columns ON
-                sys.indexes.object_id = sys.index_columns.object_id AND
-                sys.indexes.index_id = sys.index_columns.index_id
-        WHERE
-            sys.indexes.is_primary_key = 1 AND
-            sys.indexes.object_id = sys.views.object_id AND
-            sys.index_columns.object_id = sys.columns.object_id AND
-            sys.index_columns.column_id = sys.columns.column_id
-    ), 0) is_primary_key,
-    '[]' extended_properties
-FROM
-    sys.views INNER JOIN
-    sys.schemas ON
-        sys.views.schema_id = sys.schemas.schema_id INNER JOIN
-    sys.columns ON
-        sys.views.object_id = sys.columns.object_id INNER JOIN
-    sys.types ON
-        sys.columns.user_type_id = sys.types.user_type_id LEFT OUTER JOIN
-    sys.computed_columns ON
-        sys.columns.object_id = sys.computed_columns.object_id AND
-        sys.columns.column_id = sys.computed_columns.column_id LEFT OUTER JOIN
-    sys.default_constraints ON
-        sys.columns.object_id = sys.default_constraints.parent_object_id AND
-        sys.columns.column_id = sys.default_constraints.parent_column_id
-WHERE
-    sys.views.name <> 'sysdiagrams'
-ORDER BY
-    sys.views.name,
-    sys.columns.column_id
-                        ";
-
-        string sql2016 = @"
+        string sql = @"
 SELECT
     sys.views.name AS table_name,
     sys.schemas.name schema_name,
@@ -729,16 +569,7 @@ ORDER BY
     sys.views.name,
     sys.columns.column_id
                         ";
-
-        DataSet ds;
-        try
-        {
-            ds = _databaseService.Execute(connection, sql2016);
-        }
-        catch
-        {
-            ds = _databaseService.Execute(connection, sql2014);
-        }
+        DataSet ds = _databaseService.Execute(connection, sql);
         DataTable dataTable = ds.Tables[0];
         return dataTable;
     }
@@ -746,22 +577,7 @@ ORDER BY
     protected override DataTable GetViewsDataTable(DbConnection connection)
     {
 
-        string sql2014 = @"
-SELECT
-    sys.views.name AS table_name,
-    sys.schemas.name schema_name,
-    '[]' extended_properties
-FROM
-    sys.views INNER JOIN
-    sys.schemas ON
-        sys.views.schema_id = sys.schemas.schema_id
-WHERE
-    sys.views.name <> 'sysdiagrams'
-ORDER BY
-    sys.views.name
-                        ";
-
-        string sql2016 = @"
+        string sql = @"
 SELECT
     sys.views.name AS table_name,
     sys.schemas.name schema_name,
@@ -783,17 +599,7 @@ WHERE
 ORDER BY
     sys.views.name
                         ";
-
-        DataSet ds;
-        try
-        {
-            ds = _databaseService.Execute(connection, sql2016);
-        }
-        catch
-        {
-            ds = _databaseService.Execute(connection, sql2014);
-        }
-
+        DataSet ds = _databaseService.Execute(connection, sql);
         DataTable dataTable = ds.Tables[0];
         return dataTable;
     }

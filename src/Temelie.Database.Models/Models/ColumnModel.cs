@@ -150,6 +150,20 @@ public class ColumnModel : Model
         }
     }
 
+    private bool? _isPersisted;
+    public bool? IsPersisted
+    {
+        get
+        {
+            return _isPersisted;
+        }
+        set
+        {
+            _isPersisted = value;
+            this.OnPropertyChanged("IsPersisted");
+        }
+    }
+
     private bool _isHidden;
     public bool IsHidden
     {

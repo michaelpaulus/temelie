@@ -59,6 +59,7 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
         column.IsNullable = GetBoolValue(row, "is_nullable");
         column.IsIdentity = GetBoolValue(row, "is_identity");
         column.IsComputed = GetBoolValue(row, "is_computed");
+        column.IsPersisted = GetNullableBoolValue(row, "is_persisted");
         column.IsHidden = GetBoolValue(row, "is_hidden");
         column.GeneratedAlwaysType = GetInt32Value(row, "generated_always_type");
         column.ComputedDefinition = GetStringValue(row, "computed_definition");
@@ -113,22 +114,7 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
 
     protected static int GetInt32Value(DataRow row, string columnName)
     {
-        var value = 0;
-
-        try
-        {
-            var strValue = GetStringValue(row, columnName);
-            if (!string.IsNullOrEmpty(strValue))
-            {
-                int.TryParse(strValue, out value);
-            }
-        }
-        catch
-        {
-
-        }
-
-        return value;
+        return GetNullableInt32Value(row, columnName) ?? 0;
     }
 
     protected static int? GetNullableInt32Value(DataRow row, string columnName)
@@ -156,7 +142,12 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
 
     protected static bool GetBoolValue(DataRow row, string columnName)
     {
-        var value = false;
+        return GetNullableBoolValue(row, columnName) ?? false;
+    }
+
+    protected static bool? GetNullableBoolValue(DataRow row, string columnName)
+    {
+        bool? value = null;
 
         try
         {
@@ -172,7 +163,10 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
                 {
                     strValue = "False";
                 }
-                bool.TryParse(strValue, out value);
+                if (bool.TryParse(strValue, out var value2))
+                {
+                    value = value2;
+                }
             }
         }
         catch
