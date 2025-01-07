@@ -88,6 +88,7 @@ SELECT
     KCU.table_name,
     KCU.constraint_name AS foreign_key_name,
     KCU.column_name,
+    '' referenced_schema_name,
     KCU.referenced_table_name,
     KCU.referenced_column_name,
     0 AS is_not_for_replication,

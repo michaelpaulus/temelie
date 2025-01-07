@@ -131,6 +131,29 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
         return value;
     }
 
+    protected static int? GetNullableInt32Value(DataRow row, string columnName)
+    {
+        int? value = null;
+
+        try
+        {
+            var strValue = GetStringValue(row, columnName);
+            if (!string.IsNullOrEmpty(strValue))
+            {
+                if (int.TryParse(strValue, out var value2))
+                {
+                    value = value2;
+                }
+            }
+        }
+        catch
+        {
+
+        }
+
+        return value;
+    }
+
     protected static bool GetBoolValue(DataRow row, string columnName)
     {
         var value = false;
@@ -202,10 +225,10 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
             {
                 var model = new DefinitionModel
                 {
-                    Definition = row["definition"].ToString().Replace("\t", "    ").RemoveLeadingAndTrailingLines(),
-                    DefinitionName = row["name"].ToString(),
-                    SchemaName = row["schema_name"].ToString(),
-                    XType = row["xtype"].ToString().Trim()
+                    Definition = GetStringValue(row, "definition").Replace("\t", "    ").RemoveLeadingAndTrailingLines(),
+                    DefinitionName = GetStringValue(row, "name"),
+                    SchemaName = GetStringValue(row, "schema_name"),
+                    XType = GetStringValue(row, "xtype").Trim()
                 };
                 list.Add(model);
 
@@ -233,8 +256,21 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
         {
             list = (
                 from i in dtDefinitions.Rows.OfType<DataRow>()
-                group new SecurityPolicyPredicate { TargetSchema = i["TargetSchema"].ToString(), Operation = i["Operation"].ToString(), PredicateDefinition = i["PredicateDefinition"].ToString(), PredicateType = i["PredicateType"].ToString(), TargetName = i["TargetName"].ToString() }
-                by new { PolicySchema = i["PolicySchema"].ToString(), PolicyName = i["PolicyName"].ToString(), IsEnabled = (bool)i["IsEnabled"], IsSchemaBound = (bool)i["IsSchemaBound"] } into g
+                group new SecurityPolicyPredicate
+                {
+                    TargetSchema = GetStringValue(i, "TargetSchema"),
+                    Operation = GetStringValue(i, "Operation"),
+                    PredicateDefinition = GetStringValue(i, "PredicateDefinition"),
+                    PredicateType = GetStringValue(i, "PredicateType"),
+                    TargetName = GetStringValue(i, "TargetName")
+                }
+                by new
+                {
+                    PolicySchema = GetStringValue(i, "PolicySchema"),
+                    PolicyName = GetStringValue(i, "PolicyName"),
+                    IsEnabled = GetBoolValue(i, "IsEnabled"),
+                    IsSchemaBound = GetBoolValue(i, "IsSchemaBound")
+                } into g
                 select new SecurityPolicyModel
                 {
                     IsEnabled = g.Key.IsEnabled,
@@ -269,9 +305,9 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
            from i in dataTable.Rows.Cast<DataRow>()
            group i by new
            {
-               SchemaName = i["schema_name"].ToString(),
-               TableName = i["table_name"].ToString(),
-               ForeignKeyName = i["foreign_key_name"].ToString()
+               SchemaName = GetStringValue(i, "schema_name"),
+               TableName = GetStringValue(i, "table_name"),
+               ForeignKeyName = GetStringValue(i, "foreign_key_name")
            } into g
            select new
            {
@@ -289,19 +325,19 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
                     ForeignKeyName = tableGroup.ForeignKeyName,
                     TableName = tableGroup.TableName,
                     SchemaName = tableGroup.SchemaName,
-                    ReferencedSchemaName = summaryRow["referenced_schema_name"].ToString(),
-                    ReferencedTableName = summaryRow["referenced_table_name"].ToString(),
-                    IsNotForReplication = Convert.ToBoolean(summaryRow["is_not_for_replication"]),
-                    DeleteAction = summaryRow["delete_action"].ToString(),
-                    UpdateAction = summaryRow["update_action"].ToString()
+                    ReferencedSchemaName = GetStringValue(summaryRow, "referenced_schema_name"),
+                    ReferencedTableName = GetStringValue(summaryRow, "referenced_table_name"),
+                    IsNotForReplication = GetBoolValue(summaryRow, "is_not_for_replication"),
+                    DeleteAction = GetStringValue(summaryRow, "delete_action"),
+                    UpdateAction = GetStringValue(summaryRow, "update_action")
                 };
 
                 list.Add(foreignKey);
 
                 foreignKey.Detail = tableGroup.Items.Select(i => new ForeignKeyDetailModel
                 {
-                    Column = i["column_name"].ToString(),
-                    ReferencedColumn = i["referenced_column_name"].ToString()
+                    Column = GetStringValue(i, "column_name"),
+                    ReferencedColumn = GetStringValue(i, "referenced_column_name"),
                 }).ToList();
 
                 foreach (var databaseModelProvider in _databaseModelProviders)
@@ -325,10 +361,10 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
         {
             foreach (DataRow detailRow in dataTable.Rows)
             {
-                var strTableName = detailRow["table_name"].ToString();
-                var strSchemaName = detailRow["schema_name"].ToString();
-                var strConstraintName = detailRow["check_constraint_name"].ToString();
-                var strDefinition = detailRow["check_constraint_definition"].ToString();
+                var strTableName = GetStringValue(detailRow, "table_name");
+                var strSchemaName = GetStringValue(detailRow, "schema_name");
+                var strConstraintName = GetStringValue(detailRow, "check_constraint_name");
+                var strDefinition = GetStringValue(detailRow, "check_constraint_definition");
 
                 var constraint = new CheckConstraintModel
                 {
@@ -368,17 +404,28 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
                 indexBucketCounts = (from i in dtIndexBucketCounts.Rows.OfType<DataRow>()
                                      select new IndexBucket
                                      {
-                                         TableName = i["table_name"].ToString(),
-                                         IndexName = i["index_name"].ToString(),
-                                         SchemaName = i["schema_name"].ToString(),
-                                         BucketCount = Convert.ToInt32(i["total_bucket_count"])
+                                         TableName = GetStringValue(i, "table_name"),
+                                         IndexName = GetStringValue(i, "index_name"),
+                                         SchemaName = GetStringValue(i, "schema_name"),
+                                         BucketCount = GetInt32Value(i, "total_bucket_count")
                                      }).ToList();
             }
 
             foreach (var indexGroup in
                 from i in dtIndexes.Rows.Cast<DataRow>()
-                group i by new { IndexName = i["index_name"].ToString(), TableName = i["table_name"].ToString(), SchemaName = i["schema_name"].ToString() } into g
-                select new { g.Key.IndexName, g.Key.TableName, g.Key.SchemaName, Items = g.ToList() })
+                group i by new
+                {
+                    IndexName = GetStringValue(i, "index_name"),
+                    TableName = GetStringValue(i, "table_name"),
+                    SchemaName = GetStringValue(i, "schema_name")
+                } into g
+                select new
+                {
+                    g.Key.IndexName,
+                    g.Key.TableName,
+                    g.Key.SchemaName,
+                    Items = g.ToList()
+                })
             {
 
                 var summaryRow = indexGroup.Items[0];
@@ -388,14 +435,14 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
                     TableName = indexGroup.TableName,
                     IndexName = indexGroup.IndexName,
                     SchemaName = indexGroup.SchemaName,
-                    PartitionSchemeName = summaryRow["partition_scheme_name"] == DBNull.Value ? "" : summaryRow["partition_scheme_name"].ToString(),
-                    DataCompressionDesc = summaryRow["data_compression_desc"] == DBNull.Value ? "" : summaryRow["data_compression_desc"].ToString(),
-                    CompressionDelay = summaryRow["compression_delay"] == DBNull.Value ? null : int.Parse(summaryRow["compression_delay"].ToString()),
-                    IndexType = summaryRow["index_type"].ToString(),
-                    FilterDefinition = summaryRow["filter_definition"] == DBNull.Value ? "" : summaryRow["filter_definition"].ToString(),
-                    IsUnique = Convert.ToBoolean(summaryRow["is_unique"]),
-                    FillFactor = Convert.ToInt32(summaryRow["fill_factor"]),
-                    IsPrimaryKey = Convert.ToBoolean(summaryRow["is_primary_key"])
+                    PartitionSchemeName = GetStringValue(summaryRow, "partition_scheme_name") ?? "",
+                    DataCompressionDesc = GetStringValue(summaryRow, "data_compression_desc") ?? "",
+                    CompressionDelay = GetNullableInt32Value(summaryRow, "compression_delay"),
+                    IndexType = GetStringValue(summaryRow, "index_type"),
+                    FilterDefinition = GetStringValue(summaryRow, "filter_definition") ?? "",
+                    IsUnique = GetBoolValue(summaryRow, "is_unique"),
+                    FillFactor = GetInt32Value(summaryRow, "fill_factor"),
+                    IsPrimaryKey = GetBoolValue(summaryRow, "is_primary_key")
                 };
 
                 var indexBucketCount = (from i in indexBucketCounts
@@ -409,18 +456,18 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
                     index.TotalBucketCount = indexBucketCount.BucketCount;
                 }
 
-                foreach (var detialRow in indexGroup.Items.OrderBy(i => Convert.ToInt32(i["key_ordinal"])))
+                foreach (var detialRow in indexGroup.Items.OrderBy(i => GetInt32Value(i, "key_ordinal")))
                 {
-                    var blnIsDescending = Convert.ToBoolean(detialRow["is_descending_key"]);
-                    var blnIsIncludeColumn = Convert.ToBoolean(detialRow["is_included_column"]);
-                    var strColumnName = detialRow["column_name"].ToString();
+                    var blnIsDescending = GetBoolValue(detialRow, "is_descending_key");
+                    var blnIsIncludeColumn = GetBoolValue(detialRow, "is_included_column");
+                    var strColumnName = GetStringValue(detialRow, "column_name");
 
                     var columnModel = new IndexColumnModel
                     {
                         ColumnName = strColumnName,
                         IsDescending = blnIsDescending,
-                        PartitionOrdinal = Convert.ToInt32(detialRow["partition_ordinal"]),
-                        SubPart = detialRow["sub_part"] == DBNull.Value ? null : Convert.ToInt32(detialRow["sub_part"])
+                        PartitionOrdinal = GetInt32Value(detialRow, "partition_ordinal"),
+                        SubPart = GetNullableInt32Value(detialRow, "sub_part")
                     };
 
                     if (blnIsIncludeColumn)
@@ -583,15 +630,15 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
         {
             foreach (DataRow detailRow in dataTable.Rows)
             {
-                var strTableName = detailRow["table_name"].ToString();
-                var strTriggerName = detailRow["trigger_name"].ToString();
-                var strDefinition = detailRow["definition"].ToString();
+                var strTableName = GetStringValue(detailRow, "table_name");
+                var strTriggerName = GetStringValue(detailRow, "trigger_name");
+                var strDefinition = GetStringValue(detailRow, "definition");
 
                 var trigger = new TriggerModel
                 {
                     TableName = strTableName,
                     TriggerName = strTriggerName,
-                    SchemaName = detailRow["schema_name"].ToString(),
+                    SchemaName = GetStringValue(detailRow, "schema_name"),
                     Definition = strDefinition.Replace("\t", "    ").RemoveLeadingAndTrailingLines()
                 };
 
