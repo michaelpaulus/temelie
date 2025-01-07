@@ -104,6 +104,7 @@ public partial class DatabaseProvider : DatabaseProviderBase
     {
         var csb = new MySqlConnectionStringBuilder(connectionString);
         csb.DefaultCommandTimeout = Temelie.Database.Services.DatabaseExecutionService.DefaultCommandTimeout;
+        csb.AllowUserVariables = true;
         return csb.ConnectionString;
     }
 
