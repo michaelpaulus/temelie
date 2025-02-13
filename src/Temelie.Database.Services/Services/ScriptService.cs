@@ -518,6 +518,7 @@ public class ScriptService : IScriptService
                             var id = $"{dir.Parent.Name}/{dir.Name}/{file.Name}";
                             if (!checkMigration(id))
                             {
+                                //this was a bug introduced, so dont' reprocess if the id already exists in the database as a mistake
                                 var errorId = $"{dir.Name}/{dir.Name}/{file.Name}";
                                 if (checkMigration(errorId))
                                 {
