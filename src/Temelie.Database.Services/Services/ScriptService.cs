@@ -518,7 +518,15 @@ public class ScriptService : IScriptService
                             var id = $"{dir.Parent.Name}/{dir.Name}/{file.Name}";
                             if (!checkMigration(id))
                             {
-                                list.Add((id, File.ReadAllText(file.FullName)));
+                                var errorId = $"{dir.Name}/{dir.Name}/{file.Name}";
+                                if (checkMigration(errorId))
+                                {
+                                    addMigration(id);
+                                }
+                                else
+                                {
+                                    list.Add((id, File.ReadAllText(file.FullName)));
+                                }
                             }
                         }
 
