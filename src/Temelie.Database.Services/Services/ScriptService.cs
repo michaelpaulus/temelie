@@ -500,14 +500,14 @@ public class ScriptService : IScriptService
                 var files = dir.GetFiles("*.sql").OrderBy(i => i.FullName);
                 if (files.Any())
                 {
-                    var existingMigrations = getMigrations($"{dir.Name}/{dir.Name}/%");
+                    var existingMigrations = getMigrations($"{dir.Parent.Name}/{dir.Name}/%");
 
                     //validate historical migrations by directory
                     if (existingMigrations.Count() == 1 && !existingMigrations.First().EndsWith(".sql"))
                     {
                         foreach (var file in files)
                         {
-                            var id = $"{dir.Name}/{dir.Name}/{file.Name}";
+                            var id = $"{dir.Parent.Name}/{dir.Name}/{file.Name}";
                             addMigration(id);
                         }
                     }
@@ -515,7 +515,7 @@ public class ScriptService : IScriptService
                     {
                         foreach (var file in files)
                         {
-                            var id = $"{dir.Name}/{dir.Name}/{file.Name}";
+                            var id = $"{dir.Parent.Name}/{dir.Name}/{file.Name}";
                             if (!checkMigration(id))
                             {
                                 list.Add((id, File.ReadAllText(file.FullName)));
