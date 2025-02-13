@@ -500,37 +500,13 @@ public class ScriptService : IScriptService
                 var files = dir.GetFiles("*.sql").OrderBy(i => i.FullName);
                 if (files.Any())
                 {
-                    var existingMigrations = getMigrations($"{dir.Parent.Name}/{dir.Name}/%");
-
-                    //validate historical migrations by directory
-                    if (existingMigrations.Count() == 1 && !existingMigrations.First().EndsWith(".sql"))
+                    foreach (var file in files)
                     {
-                        foreach (var file in files)
+                        var id = $"{dir.Parent.Name}/{dir.Name}/{file.Name}";
+                        if (!checkMigration(id))
                         {
-                            var id = $"{dir.Parent.Name}/{dir.Name}/{file.Name}";
-                            addMigration(id);
+                            list.Add((id, File.ReadAllText(file.FullName)));
                         }
-                    }
-                    else
-                    {
-                        foreach (var file in files)
-                        {
-                            var id = $"{dir.Parent.Name}/{dir.Name}/{file.Name}";
-                            if (!checkMigration(id))
-                            {
-                                //this was a bug introduced, so dont' reprocess if the id already exists in the database as a mistake
-                                var errorId = $"{dir.Name}/{dir.Name}/{file.Name}";
-                                if (checkMigration(errorId))
-                                {
-                                    addMigration(id);
-                                }
-                                else
-                                {
-                                    list.Add((id, File.ReadAllText(file.FullName)));
-                                }
-                            }
-                        }
-
                     }
                 }
 
