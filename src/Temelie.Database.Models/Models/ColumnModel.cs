@@ -55,6 +55,23 @@ public class ColumnModel : Model
         }
     }
 
+    [JsonIgnore]
+    public bool IsIgnored
+    {
+        get
+        {
+            if (ExtendedProperties.TryGetValue("isIgnored", out var v1) && bool.TryParse(v1, out var v2))
+            {
+                return v2;
+            }
+            if (ExtendedProperties.TryGetValue("dynamicIsIgnored", out var v3) && bool.TryParse(v3, out var v4))
+            {
+                return v4;
+            }
+            return false;
+        }
+    }
+
     private int _columnId;
     public int ColumnId
     {

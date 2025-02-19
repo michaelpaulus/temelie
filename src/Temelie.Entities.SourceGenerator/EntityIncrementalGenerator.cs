@@ -46,7 +46,7 @@ public partial class EntityIncrementalGenerator : IIncrementalGenerator
         {
             var list = new List<ColumnProperty>();
 
-            foreach (var column in table.Columns)
+            foreach (var column in table.Columns.Where(i => !i.IsIgnored))
             {
                 var prop = new ColumnProperty();
 
