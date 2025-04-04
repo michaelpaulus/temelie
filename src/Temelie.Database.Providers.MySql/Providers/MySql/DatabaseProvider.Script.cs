@@ -193,7 +193,26 @@ public partial class DatabaseProvider
 
     public override IDatabaseObjectScript GetColumnScript(ColumnModel column)
     {
-        return null;
+        if (string.IsNullOrEmpty(column.ColumnName) || string.IsNullOrEmpty(column.TableName))
+        {
+            return null;
+        }
+
+        string generateDropScript()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine($"ALTER TABLE {QuoteCharacterStart}{column.TableName}{QuoteCharacterEnd} DROP COLUMN {QuoteCharacterStart}{column.ColumnName}{QuoteCharacterEnd}");
+            return sb.ToString();
+        }
+
+        string generateCreateScript()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine($"ALTER TABLE {QuoteCharacterStart}{column.TableName}{QuoteCharacterEnd} ADD COLUMN {GetScript(column)}");
+            return sb.ToString();
+        }
+
+        return new DatabaseObjectScript(generateCreateScript, generateDropScript);
     }
 
     private string GetScript(ColumnModel columnModel)
