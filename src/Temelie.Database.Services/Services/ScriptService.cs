@@ -462,13 +462,14 @@ public class ScriptService : IScriptService
         return System.Text.RegularExpressions.Regex.Replace(name, invalidRegStr, "_");
     }
 
-    public void ExecuteScripts(ConnectionStringModel connectionString, DirectoryInfo directory, IProgress<ScriptProgress> progress, bool continueOnError = true)
+    public void ExecuteScripts(ConnectionStringModel connectionString, DirectoryInfo directory, IProgress<ScriptProgress> progress, bool continueOnError = true, bool skipMigrations = false)
     {
         void addMigration(string id)
         {
             using var conn = _databaseExecutionService.CreateDbConnection(connectionString);
             using var cmd = _databaseExecutionService.CreateDbCommand(conn);
-            cmd.CommandText = $"INSERT INTO Migrations (Id, Date) VALUES {$"('{id}', '{DateTime.UtcNow:yyyy-MM-ddTHH:mm:ss}')"}";
+            var skipMigrationsBit = skipMigrations ? "1" : "0";
+            cmd.CommandText = $"INSERT INTO Migrations (Id, Date, Skipped) VALUES {$"('{id}', '{DateTime.UtcNow:yyyy-MM-ddTHH:mm:ss}', {skipMigrationsBit})"}";
             cmd.ExecuteNonQuery();
         }
 
@@ -696,7 +697,7 @@ public class ScriptService : IScriptService
 
             var shouldEnsureMigrationsTable = true;
 
-            void ensureMigrationsTable()
+            void ensureMigrationsTable(DatabaseModel currentDatabaseModel)
             {
                 if (shouldEnsureMigrationsTable)
                 {
@@ -707,6 +708,20 @@ public class ScriptService : IScriptService
                     };
                     table.Columns.Add(new ColumnModel() { IsPrimaryKey = true, ColumnName = "Id", ColumnType = "NVARCHAR(500)", ColumnId = 1 });
                     table.Columns.Add(new ColumnModel() { ColumnName = "Date", ColumnType = "DATETIME", ColumnId = 2 });
+
+                    // Use this list to add any columns that will need to be added to any existing migrations databases
+                    var additionalColumns = new List<ColumnModel>()
+                    {
+                        new ColumnModel() { ColumnName = "Skipped", ColumnType = "BIT", IsNullable = true, TableName = table.TableName, ColumnId = 3 }
+                    };
+                    
+                    foreach (var column in additionalColumns)
+                    {
+                        if (!table.Columns.Any(i => i.ColumnName == column.ColumnName))
+                        {
+                            table.Columns.Add(column);
+                        }
+                    }
 
                     var pk = new IndexModel()
                     {
@@ -735,6 +750,29 @@ public class ScriptService : IScriptService
                         sb.AppendLine(pkScript.CreateScript);
                     }
 
+                    var existingTable = currentDatabaseModel.Tables.FirstOrDefault(t =>
+                            t.TableName == table.TableName);
+
+                    // If the table doesn't currently exist, it will be created with all new columns
+                    if (existingTable is not null)
+                    {
+                        foreach (var column in additionalColumns)
+                        {
+                            var existingColumn = existingTable?.Columns.FirstOrDefault(i => i.ColumnName == column.ColumnName);
+
+                            if (existingColumn is not null)
+                            {
+                                continue;
+                            }
+
+                            var columnScript = provider.GetColumnScript(column);
+                            if (columnScript is not null)
+                            {
+                                sb.AppendLine(columnScript.CreateScript);
+                            }
+                        }
+                    }
+
                     var script = sb.ToString();
 
                     _databaseExecutionService.ExecuteFile(connectionString, script);
@@ -743,9 +781,8 @@ public class ScriptService : IScriptService
                 }
             }
 
-            ensureMigrationsTable();
-
             var currentDatabaseModel = _databaseModelService.CreateModel(connectionString, new Models.DatabaseModelOptions { ExcludeDoubleUnderscoreObjects = true });
+            ensureMigrationsTable(currentDatabaseModel);
             var updatedDatabaseModel = DatabaseModel.CreateFromFiles(modelList.Select(i => (i.FullName, File.ReadAllText(i.FullName))));
             var provider = _databaseFactory.GetDatabaseProvider(connectionString);
 
@@ -816,7 +853,7 @@ public class ScriptService : IScriptService
 
                     try
                     {
-                        if (!(string.IsNullOrEmpty(file.Contents.Trim())))
+                        if (!(dir.IsMigration && skipMigrations) && !string.IsNullOrEmpty(file.Contents.Trim()))
                         {
                             _databaseExecutionService.ExecuteFile(connectionString, file.Contents);
                         }
