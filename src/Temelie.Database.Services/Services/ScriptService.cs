@@ -670,18 +670,14 @@ public class ScriptService : IScriptService
                     }
                     else
                     {
-                        if (!dir.Name.Contains("Always"))
+                        foreach (var file in files)
                         {
-                            foreach (var file in files)
+                            var id = $"{dir.Name}/{file.Name}";
+                            if (dir.Name.EndsWith("_Always") || !checkMigration(id))
                             {
-                                var id = $"{dir.Name}/{file.Name}";
-                                if (!checkMigration(id))
-                                {
-                                    list.Add((id, File.ReadAllText(file.FullName)));
-                                }
+                                list.Add((id, File.ReadAllText(file.FullName)));
                             }
                         }
-
                     }
 
                 }
@@ -706,23 +702,10 @@ public class ScriptService : IScriptService
                         SchemaName = "dbo",
                         TableName = "Migrations"
                     };
-                    table.Columns.Add(new ColumnModel() { IsPrimaryKey = true, ColumnName = "Id", ColumnType = "NVARCHAR(500)", ColumnId = 1 });
-                    table.Columns.Add(new ColumnModel() { ColumnName = "Date", ColumnType = "DATETIME", ColumnId = 2 });
-
-                    // Use this list to add any columns that will need to be added to any existing migrations databases
-                    var additionalColumns = new List<ColumnModel>()
-                    {
-                        new ColumnModel() { ColumnName = "Skipped", ColumnType = "BIT", IsNullable = true, TableName = table.TableName, ColumnId = 3 }
-                    };
-                    
-                    foreach (var column in additionalColumns)
-                    {
-                        if (!table.Columns.Any(i => i.ColumnName == column.ColumnName))
-                        {
-                            table.Columns.Add(column);
-                        }
-                    }
-
+                    table.Columns.Add(new ColumnModel() { IsPrimaryKey = true, ColumnName = "Id", ColumnType = "NVARCHAR(500)", ColumnId = 1, SchemaName = table.SchemaName });
+                    table.Columns.Add(new ColumnModel() { ColumnName = "Date", ColumnType = "DATETIME", ColumnId = 2, SchemaName = table.SchemaName });
+                    table.Columns.Add(new ColumnModel() { ColumnName = "Skipped", ColumnType = "BIT", IsNullable = true, TableName = table.TableName, ColumnId = 3, SchemaName = table.SchemaName });
+ 
                     var pk = new IndexModel()
                     {
                         SchemaName = table.SchemaName,
@@ -756,9 +739,9 @@ public class ScriptService : IScriptService
                     // If the table doesn't currently exist, it will be created with all new columns
                     if (existingTable is not null)
                     {
-                        foreach (var column in additionalColumns)
+                        foreach (var column in table.Columns)
                         {
-                            var existingColumn = existingTable?.Columns.FirstOrDefault(i => i.ColumnName == column.ColumnName);
+                            var existingColumn = existingTable?.Columns.FirstOrDefault(i => i.ColumnName.EqualsIgnoreCase(column.ColumnName));
 
                             if (existingColumn is not null)
                             {

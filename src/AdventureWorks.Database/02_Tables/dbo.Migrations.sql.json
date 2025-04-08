@@ -1,0 +1,57 @@
+﻿{
+  "tableName": "Migrations",
+  "schemaName": "dbo",
+  "temporalType": 0,
+  "isMemoryOptimized": false,
+  "durabilityDesc": "SCHEMA_AND_DATA",
+  "isExternal": false,
+  "isView": false,
+  "columns": [
+    {
+      "schemaName": "dbo",
+      "columnName": "Id",
+      "columnId": 1,
+      "isPrimaryKey": false,
+      "precision": 500,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NVARCHAR",
+      "extendedProperties": {}
+    },
+    {
+      "schemaName": "dbo",
+      "columnName": "Date",
+      "columnId": 2,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
+      "extendedProperties": {}
+    },
+    {
+      "schemaName": "dbo",
+      "columnName": "Skipped",
+      "columnId": 3,
+      "isPrimaryKey": false,
+      "precision": 1,
+      "scale": 0,
+      "isNullable": true,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "BIT",
+      "extendedProperties": {}
+    }
+  ],
+  "extendedProperties": {}
+}
