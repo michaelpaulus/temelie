@@ -22,6 +22,8 @@ IF NOT EXISTS
         [PostalCode] NVARCHAR(15) NOT NULL,
         [SpatialLocation] GEOGRAPHY NULL,
         [rowguid] UNIQUEIDENTIFIER NOT NULL DEFAULT (NEWID()),
-        [ModifiedDate] DATETIME NOT NULL DEFAULT (GETDATE())
+        [ModifiedDate] DATETIME NOT NULL DEFAULT (GETDATE()),
+        [CreatedBy] NVARCHAR(250) NOT NULL,
+        [ModifiedBy] NVARCHAR(250) NOT NULL
     )
 GO

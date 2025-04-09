@@ -143,6 +143,36 @@
       "columnType": "DATETIME",
       "columnDefault": "(getdate())",
       "extendedProperties": {}
+    },
+    {
+      "schemaName": "Person",
+      "columnName": "CreatedBy",
+      "columnId": 10,
+      "isPrimaryKey": false,
+      "precision": 250,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NVARCHAR",
+      "extendedProperties": {}
+    },
+    {
+      "schemaName": "Person",
+      "columnName": "ModifiedBy",
+      "columnId": 11,
+      "isPrimaryKey": false,
+      "precision": 250,
+      "scale": 0,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "NVARCHAR",
+      "extendedProperties": {}
     }
   ],
   "extendedProperties": {}
