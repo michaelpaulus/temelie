@@ -1,0 +1,26 @@
+﻿{
+  "tableName": "vProductAndDescription",
+  "schemaName": "Production",
+  "indexName": "IX_vProductAndDescription",
+  "indexType": "CLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": true,
+  "fillFactor": 0,
+  "isPrimaryKey": false,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "CultureID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    },
+    {
+      "columnName": "ProductID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

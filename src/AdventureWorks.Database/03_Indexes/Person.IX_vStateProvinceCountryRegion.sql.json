@@ -1,0 +1,26 @@
+﻿{
+  "tableName": "vStateProvinceCountryRegion",
+  "schemaName": "Person",
+  "indexName": "IX_vStateProvinceCountryRegion",
+  "indexType": "CLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": true,
+  "fillFactor": 0,
+  "isPrimaryKey": false,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "StateProvinceID",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    },
+    {
+      "columnName": "CountryRegionCode",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

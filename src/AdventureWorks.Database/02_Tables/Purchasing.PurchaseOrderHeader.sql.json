@@ -188,6 +188,7 @@
       "isNullable": false,
       "isIdentity": false,
       "isComputed": true,
+      "isPersisted": true,
       "isHidden": false,
       "generatedAlwaysType": 0,
       "computedDefinition": "(isnull(([SubTotal]+[TaxAmt])+[Freight],(0)))",

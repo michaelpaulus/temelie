@@ -1,0 +1,21 @@
+﻿{
+  "tableName": "Migrations",
+  "schemaName": "dbo",
+  "indexName": "PK_Migrations",
+  "indexType": "CLUSTERED",
+  "filterDefinition": "",
+  "partitionSchemeName": "",
+  "dataCompressionDesc": "",
+  "isUnique": true,
+  "fillFactor": 0,
+  "isPrimaryKey": true,
+  "totalBucketCount": 0,
+  "columns": [
+    {
+      "columnName": "Id",
+      "isDescending": false,
+      "partitionOrdinal": 0
+    }
+  ],
+  "includeColumns": []
+}

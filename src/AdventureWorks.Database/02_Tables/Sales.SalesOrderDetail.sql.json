@@ -138,6 +138,7 @@
       "isNullable": false,
       "isIdentity": false,
       "isComputed": true,
+      "isPersisted": false,
       "isHidden": false,
       "generatedAlwaysType": 0,
       "computedDefinition": "(isnull(([UnitPrice]*((1.0)-[UnitPriceDiscount]))*[OrderQty],(0.0)))",

@@ -25,7 +25,7 @@ IF NOT EXISTS
         [SubTotal] MONEY NOT NULL DEFAULT (0.00),
         [TaxAmt] MONEY NOT NULL DEFAULT (0.00),
         [Freight] MONEY NOT NULL DEFAULT (0.00),
-        [TotalDue] AS (isnull(([SubTotal]+[TaxAmt])+[Freight],(0))),
+        [TotalDue] AS (isnull(([SubTotal]+[TaxAmt])+[Freight],(0))) PERSISTED,
         [ModifiedDate] DATETIME NOT NULL DEFAULT (GETDATE())
     )
 GO

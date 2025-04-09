@@ -1,7 +1,7 @@
 ﻿{
   "definitionName": "vEmployeeDepartment",
   "schemaName": "HumanResources",
-  "definition": "CREATE VIEW [HumanResources].[vEmployeeDepartment] AS\nSELECT\n    e.[BusinessEntityID],\n    p.[Title],\n    p.[FirstName],\n    p.[MiddleName],\n    p.[LastName],\n    p.[Suffix],\n    e.[JobTitle],\n    d.[Name] AS [Department],\n    d.[GroupName],\n    edh.[StartDate]\nFROM  \n    [HumanResources].[Employee] AS e INNER JOIN\n    [Person].[Person] AS p ON\n         p.[BusinessEntityID] = e.[BusinessEntityID] INNER JOIN\n    [HumanResources].[EmployeeDepartmentHistory] AS edh ON\n         e.[BusinessEntityID] = edh.[BusinessEntityID] INNER JOIN\n    [HumanResources].[Department] AS d ON\n         edh.[DepartmentID] = d.[DepartmentID] WHERE\n                                                    edh.EndDate IS NULL;",
+  "definition": "CREATE VIEW [HumanResources].[vEmployeeDepartment] \nAS \nSELECT \n    e.[BusinessEntityID] \n    ,p.[Title] \n    ,p.[FirstName] \n    ,p.[MiddleName] \n    ,p.[LastName] \n    ,p.[Suffix] \n    ,e.[JobTitle]\n    ,d.[Name] AS [Department] \n    ,d.[GroupName] \n    ,edh.[StartDate] \nFROM [HumanResources].[Employee] e\n    INNER JOIN [Person].[Person] p\n    ON p.[BusinessEntityID] = e.[BusinessEntityID]\n    INNER JOIN [HumanResources].[EmployeeDepartmentHistory] edh \n    ON e.[BusinessEntityID] = edh.[BusinessEntityID] \n    INNER JOIN [HumanResources].[Department] d \n    ON edh.[DepartmentID] = d.[DepartmentID] \nWHERE edh.EndDate IS NULL",
   "xType": "V",
   "type": "VIEW",
   "view": {

@@ -62,6 +62,7 @@
       "isNullable": false,
       "isIdentity": false,
       "isComputed": true,
+      "isPersisted": false,
       "isHidden": false,
       "generatedAlwaysType": 0,
       "computedDefinition": "(isnull([OrderQty]-[ScrappedQty],(0)))",

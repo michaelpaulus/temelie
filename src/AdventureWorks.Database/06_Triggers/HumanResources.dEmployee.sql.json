@@ -1,6 +1,6 @@
 ﻿{
   "triggerName": "dEmployee",
   "schemaName": "HumanResources",
-  "definition": "CREATE TRIGGER [HumanResources].[dEmployee]\n    ON [HumanResources].[Employee]\n    INSTEAD OF DELETE\n    NOT FOR REPLICATION\n    AS BEGIN\n           DECLARE @Count AS INT;\n           SET @Count = @@ROWCOUNT;\n           IF @Count = 0\n               RETURN;\n           SET NOCOUNT ON;\n           BEGIN\n               RAISERROR (N'Employees cannot be deleted. They can only be marked as not current.', 10, 1);\n               IF @@TRANCOUNT > 0\n                   BEGIN\n                       ROLLBACK;\n                   END\n           END\n       END",
+  "definition": "CREATE TRIGGER [HumanResources].[dEmployee] ON [HumanResources].[Employee] \nINSTEAD OF DELETE NOT FOR REPLICATION AS \nBEGIN\n    DECLARE @Count int;\n\n    SET @Count = @@ROWCOUNT;\n    IF @Count = 0 \n        RETURN;\n\n    SET NOCOUNT ON;\n\n    BEGIN\n        RAISERROR\n            (N'Employees cannot be deleted. They can only be marked as not current.', -- Message\n            10, -- Severity.\n            1); -- State.\n\n        -- Rollback any active or uncommittable transactions\n        IF @@TRANCOUNT > 0\n        BEGIN\n            ROLLBACK TRANSACTION;\n        END\n    END;\nEND;",
   "tableName": "Employee"
 }

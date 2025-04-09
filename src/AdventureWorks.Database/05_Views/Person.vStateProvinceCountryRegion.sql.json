@@ -1,7 +1,7 @@
 ﻿{
   "definitionName": "vStateProvinceCountryRegion",
   "schemaName": "Person",
-  "definition": "CREATE VIEW [Person].[vStateProvinceCountryRegion]\nWITH SCHEMABINDING AS\nSELECT\n    sp.[StateProvinceID],\n    sp.[StateProvinceCode],\n    sp.[IsOnlyStateProvinceFlag],\n    sp.[Name] AS [StateProvinceName],\n    sp.[TerritoryID],\n    cr.[CountryRegionCode],\n    cr.[Name] AS [CountryRegionName]\nFROM  \n    [Person].[StateProvince] AS sp INNER JOIN\n    [Person].[CountryRegion] AS cr ON\n         sp.[CountryRegionCode] = cr.[CountryRegionCode];",
+  "definition": "CREATE VIEW [Person].[vStateProvinceCountryRegion] \nWITH SCHEMABINDING \nAS \nSELECT \n    sp.[StateProvinceID] \n    ,sp.[StateProvinceCode] \n    ,sp.[IsOnlyStateProvinceFlag] \n    ,sp.[Name] AS [StateProvinceName] \n    ,sp.[TerritoryID] \n    ,cr.[CountryRegionCode] \n    ,cr.[Name] AS [CountryRegionName]\nFROM [Person].[StateProvince] sp \n    INNER JOIN [Person].[CountryRegion] cr \n    ON sp.[CountryRegionCode] = cr.[CountryRegionCode];",
   "xType": "V",
   "type": "VIEW",
   "view": {

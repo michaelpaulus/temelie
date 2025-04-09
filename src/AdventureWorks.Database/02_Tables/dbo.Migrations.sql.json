@@ -11,7 +11,7 @@
       "schemaName": "dbo",
       "columnName": "Id",
       "columnId": 1,
-      "isPrimaryKey": false,
+      "isPrimaryKey": true,
       "precision": 500,
       "scale": 0,
       "isNullable": false,

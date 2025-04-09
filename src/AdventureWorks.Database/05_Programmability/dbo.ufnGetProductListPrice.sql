@@ -1,19 +1,17 @@
-﻿-- ufnGetProductListPrice
-DROP FUNCTION IF EXISTS [dbo].[ufnGetProductListPrice]
-GO
-
-CREATE FUNCTION [dbo].[ufnGetProductListPrice]
-(@ProductID INT, @OrderDate DATETIME)
-RETURNS MONEY
-AS
+﻿
+CREATE FUNCTION [dbo].[ufnGetProductListPrice](@ProductID [int], @OrderDate [datetime])
+RETURNS [money] 
+AS 
 BEGIN
-    DECLARE @ListPrice AS MONEY;
-    SELECT
-        @ListPrice = plph.[ListPrice]
-    FROM  
-        [Production].[Product] AS p INNER JOIN
-        [Production].[ProductListPriceHistory] AS plph ON
-             p.[ProductID] = plph.[ProductID] AND p.[ProductID] = @ProductID AND @OrderDate BETWEEN plph.[StartDate] AND COALESCE (plph.[EndDate], CONVERT (DATETIME, '99991231', 112));
+    DECLARE @ListPrice money;
+
+    SELECT @ListPrice = plph.[ListPrice] 
+    FROM [Production].[Product] p 
+        INNER JOIN [Production].[ProductListPriceHistory] plph 
+        ON p.[ProductID] = plph.[ProductID] 
+            AND p.[ProductID] = @ProductID 
+            AND @OrderDate BETWEEN plph.[StartDate] AND COALESCE(plph.[EndDate], CONVERT(datetime, '99991231', 112)); -- Make sure we get all the prices!
+
     RETURN @ListPrice;
-END
+END;
 GO

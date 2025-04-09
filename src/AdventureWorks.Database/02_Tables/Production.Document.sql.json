@@ -32,6 +32,7 @@
       "isNullable": true,
       "isIdentity": false,
       "isComputed": true,
+      "isPersisted": false,
       "isHidden": false,
       "generatedAlwaysType": 0,
       "computedDefinition": "([DocumentNode].[GetLevel]())",
