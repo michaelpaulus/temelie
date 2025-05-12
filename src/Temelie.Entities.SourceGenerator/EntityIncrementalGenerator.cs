@@ -66,7 +66,67 @@ public partial class EntityIncrementalGenerator : IIncrementalGenerator
                         prop.Precision = column.Precision;
                         prop.Scale = column.Scale;
                         break;
+                }
 
+                if (column.ColumnDefault is not null)
+                {
+                    var columnTypeBasedDefaultValue = "";
+
+                    switch (column.ColumnType.ToUpper())
+                    {
+                        case "NUMERIC":
+                        case "INT":
+                        case "BIGINT":
+                        case "DOUBLE":
+                            columnTypeBasedDefaultValue = $" = {column.ColumnDefault};";
+                            break;
+                        case "FLOAT":
+                        case "DECIMAL":
+                            columnTypeBasedDefaultValue = $" = ({prop.PropertyType}){column.ColumnDefault};";
+                            break;
+                        case "BIT":
+                            if (column.ColumnDefault == "((1))")
+                            {
+                                columnTypeBasedDefaultValue = " = true;";
+                            }
+                            else if (column.ColumnDefault == "((0))")
+                            {
+                                columnTypeBasedDefaultValue = " = false;";
+                            }
+                            break;
+                        case "TINYINT":
+                            if (column.ColumnDefault == "1")
+                            {
+                                columnTypeBasedDefaultValue = " = true;";
+                            }
+                            else if (column.ColumnDefault == "0")
+                            {
+                                columnTypeBasedDefaultValue = " = false;";
+                            }
+                            break;
+                        case "DATETIME":
+                        case "DATETIME2":
+                        case "DATE":
+                        case "TIME":
+                            columnTypeBasedDefaultValue = $" = DateTime.Parse(\"{column.ColumnDefault}\");";
+                            break;
+                        case "UNIQUEIDENTIFIER":
+                            columnTypeBasedDefaultValue = $" = Guid.Parse(\"{column.ColumnDefault}\");";
+                            break;
+                        case "CHAR":
+                        case "NCHAR":
+                        case "VARCHAR":
+                        case "NVARCHAR":
+                        case "TEXT":
+                        case "LONGTEXT":
+                        case "MEDIUMTEXT":
+                            // Escape quotes in string literals
+                            var escaped = column.ColumnDefault.Replace("\"", "\\\"");
+                            columnTypeBasedDefaultValue = $" = \"{escaped}\";";
+                            break;
+                    }
+
+                    prop.Default = column.ColumnDefault is not null ? columnTypeBasedDefaultValue : string.Empty;
                 }
 
                 prop.SystemTypeString = ColumnModel.GetSystemTypeString(ColumnModel.GetSystemType(column.DbType));
