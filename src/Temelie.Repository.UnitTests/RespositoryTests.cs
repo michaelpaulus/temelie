@@ -1,7 +1,7 @@
 using AdventureWorks.Entities;
 using AdventureWorks.Server;
 using AdventureWorks.Server.Repository;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Temelie.Repository.UnitTests;

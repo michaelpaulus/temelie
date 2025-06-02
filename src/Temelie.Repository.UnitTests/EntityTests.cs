@@ -1,5 +1,5 @@
 using AdventureWorks.Entities;
-using FluentAssertions;
+using AwesomeAssertions;
 using Temelie.Entities;
 
 namespace Temelie.Repository.UnitTests;
