@@ -91,7 +91,7 @@ internal class StartupConfigurationContext : IDisposable, IStartupConfiguration
 
     public StartupConfigurationContext()
     {{
-        _configurations = new List<IStartupConfiguration>() {{ {string.Join(", ", symbols.Where(i => i.IsStartupConfig).Select(i => $"new {i.Type}()"))} }};
+        _configurations = new List<IStartupConfiguration>() {{ {string.Join(", ", symbols.Where(i => i.IsStartupConfig).OrderBy(i => i.Priority).Select(i => $"new {i.Type}()"))} }};
     }}
 
     public IConfigurationBuilder Configure(IConfigurationBuilder builder)
