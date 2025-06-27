@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using System.Text.Json;
 using Temelie.Database.Extensions;
@@ -41,12 +42,14 @@ public class ScriptService : IScriptService
             Directory.CreateDirectory(Path.GetDirectoryName(path));
         }
 
+        contents = contents.NormalizeLineEndings("\n").Trim('\n').NormalizeLineEndings(Environment.NewLine);
+
         var currentContents = "";
         bool changed = false;
         bool isNew = false;
         if (File.Exists(path))
         {
-            currentContents = File.ReadAllText(path);
+            currentContents = File.ReadAllText(path).NormalizeLineEndings("\n").Trim('\n').NormalizeLineEndings(Environment.NewLine);
         }
         if (currentContents != contents)
         {
@@ -339,7 +342,7 @@ public class ScriptService : IScriptService
     private string GetJson<T>(T model) where T : DatabaseObjectModel
     {
         var json = JsonSerializer.Serialize(model, ModelsJsonSerializerOptions.Default);
-        json = json.Replace("\\u0027", "'").Replace("\\u003C", "<").Replace("\\u003E", ">").Replace("\\u002B", "+");
+        json = json.Replace("\\u0027", "'").Replace("\\u003C", "<").Replace("\\u003E", ">").Replace("\\u002B", "+").Trim(' ').Trim('\n').Trim('\r').Trim(' ').Trim('\n').Trim('\r');
         return json;
     }
 

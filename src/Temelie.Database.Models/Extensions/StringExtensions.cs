@@ -5,6 +5,15 @@ namespace Temelie.Database.Extensions;
 internal static class StringExtensions
 {
 
+    public static string NormalizeLineEndings(this string text, string lineEnding)
+    {
+        if (string.IsNullOrEmpty(text))
+        {
+            return text;
+        }
+        return text.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", lineEnding);
+    }
+
     public static string RemoveLeadingAndTrailingLines(this string value)
     {
         var sbDefinition = new StringBuilder();
@@ -35,7 +44,7 @@ internal static class StringExtensions
 
         var definition = sbDefinition.ToString();
 
-        definition = definition.Replace("\r\n", "\n").Replace("\r", "\n");
+        definition = definition.NormalizeLineEndings("\n");
 
         while (definition.EndsWith("\n"))
         {

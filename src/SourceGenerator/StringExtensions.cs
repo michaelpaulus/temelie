@@ -1,49 +1,7 @@
-using System.Text;
-
 namespace Temelie.Database.Extensions;
 
 internal static class StringExtensions
 {
-
-    public static string RemoveLeadingAndTrailingLines(this string value)
-    {
-        var sbDefinition = new StringBuilder();
-
-        bool foundNonEmptyLine = false;
-
-        using (var sr = new StringReader(value))
-        {
-            var line = sr.ReadLine();
-            foundNonEmptyLine = !string.IsNullOrEmpty(line);
-            if (foundNonEmptyLine)
-            {
-                sbDefinition.AppendLine(line);
-            }
-            while (line != null)
-            {
-                line = sr.ReadLine();
-                if (!foundNonEmptyLine)
-                {
-                    foundNonEmptyLine = !string.IsNullOrEmpty(line);
-                }
-                if (foundNonEmptyLine)
-                {
-                    sbDefinition.AppendLine(line);
-                }
-            }
-        }
-
-        var definition = sbDefinition.ToString();
-
-        definition = definition.Replace("\r\n", "\n").Replace("\r", "\n");
-
-        while (definition.EndsWith("\n"))
-        {
-            definition = definition.Substring(0, definition.Length - 1);
-        }
-
-        return definition;
-    }
 
     public static string RegExReplace(this string value, string pattern, string replacement)
     {
