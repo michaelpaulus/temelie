@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>6dc07bf4-5a0f-4352-9fbd-633f394535b8</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Temelie.Entities.SourceGeneratorShared</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)ColumnProperty.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EntityIncrementalGeneratorBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)File.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PropertyChangedObject.cs" />
+  </ItemGroup>
+</Project>

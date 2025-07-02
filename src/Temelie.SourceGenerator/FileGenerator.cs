@@ -3,7 +3,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.MSBuild;
 using Temelie.Entities.SourceGenerator;
 using Temelie.Repository.SourceGenerator;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Temelie.SourceGenerator;
 
@@ -15,7 +14,9 @@ public class FileGenerator
         MSBuildLocator.RegisterDefaults();
     }
 
-    public async Task GenerateEntitiesAsync(string solutionFile,
+    public async Task GenerateEntitiesAsync(
+        EntityIncrementalGeneratorBase entityGenerator,
+        string solutionFile,
         string databaseProjectName,
         string entitiesProjectName,
         string outputPath = "_Generated")
@@ -46,7 +47,7 @@ public class FileGenerator
             if (jsonFiles.Count > 0)
             {
                 var files = jsonFiles.Select(i => (i.FilePath, i.GetTextAsync().Result.ToString())).ToList();
-                pendingFiles.AddRange(EntityIncrementalGenerator.Generate(entitiesProject.DefaultNamespace!, files));
+                pendingFiles.AddRange(entityGenerator.Generate(entitiesProject.DefaultNamespace!, files));
             }
 
             await SyncFilesAsync(entitiesProject, outputPath, pendingFiles).ConfigureAwait(false);

@@ -39,4 +39,6 @@
 
   <Import Project="..\SourceGenerator\SourceGenerator.projitems" Label="Shared" />
 
+  <Import Project="..\Temelie.Entities.SourceGeneratorShared\Temelie.Entities.SourceGeneratorShared.projitems" Label="Shared" />
+
 </Project>

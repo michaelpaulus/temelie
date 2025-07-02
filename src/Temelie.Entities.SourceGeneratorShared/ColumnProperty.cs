@@ -1,6 +1,6 @@
 namespace Temelie.Entities.SourceGenerator;
 
-internal class ColumnProperty
+public class ColumnProperty
 {
     public string PropertyName { get; set; }
     public string PropertyType { get; set; }

@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.14.0" PrivateAssets="all" />
+    <PackageReference Include="System.Text.Json" Version="9.0.5" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="System.Text.Encodings.Web" Version="9.0.5" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.5" GeneratePathProperty="true" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Temelie.Database.Models\Models\*.cs" LinkBase="Models" />
+  </ItemGroup>
+
+  <Import Project="..\SourceGenerator\SourceGenerator.projitems" Label="Shared" />
+
+  <Import Project="..\Temelie.Entities.SourceGeneratorShared\Temelie.Entities.SourceGeneratorShared.projitems" Label="Shared" />
+  
+</Project>
