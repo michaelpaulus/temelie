@@ -15,6 +15,19 @@ public class FileGenerator
     }
 
     public async Task GenerateEntitiesAsync(
+       string solutionFile,
+       string databaseProjectName,
+       string entitiesProjectName,
+       string outputPath = "_Generated")
+    {
+        await GenerateEntitiesAsync(new EntityIncrementalGenerator(),
+            solutionFile,
+            databaseProjectName,
+            entitiesProjectName,
+            outputPath).ConfigureAwait(false);
+    }
+
+    public async Task GenerateEntitiesAsync(
         EntityIncrementalGeneratorBase entityGenerator,
         string solutionFile,
         string databaseProjectName,
