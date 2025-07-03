@@ -28,14 +28,12 @@ public class FileGenerator
     }
 
     public async Task GenerateEntitiesAsync(
-        EntityIncrementalGeneratorBase entityGenerator,
-        string solutionFile,
-        string databaseProjectName,
-        string entitiesProjectName,
-        string outputPath = "_Generated")
+       EntityIncrementalGeneratorBase entityGenerator,
+       string solutionFile,
+       string databaseProjectName,
+       string entitiesProjectName,
+       string outputPath = "_Generated")
     {
-        Console.WriteLine($"{DateTime.UtcNow.ToString("yyyy-MM-ddThh:mm:ss")}: GenerateEntitiesAsync Started");
-
         using var workspace = MSBuildWorkspace.Create();
 
         Console.WriteLine($"{DateTime.UtcNow.ToString("yyyy-MM-ddThh:mm:ss")}: Load Started");
@@ -43,6 +41,18 @@ public class FileGenerator
         _ = await workspace.OpenSolutionAsync(solutionFile).ConfigureAwait(false);
 
         Console.WriteLine($"{DateTime.UtcNow.ToString("yyyy-MM-ddThh:mm:ss")}: Load Finished");
+
+        await GenerateEntitiesAsync(entityGenerator, workspace, databaseProjectName, entitiesProjectName, outputPath).ConfigureAwait(false);
+    }
+
+    public async Task GenerateEntitiesAsync(
+        EntityIncrementalGeneratorBase entityGenerator,
+        MSBuildWorkspace workspace,
+        string databaseProjectName,
+        string entitiesProjectName,
+        string outputPath = "_Generated")
+    {
+        Console.WriteLine($"{DateTime.UtcNow.ToString("yyyy-MM-ddThh:mm:ss")}: GenerateEntitiesAsync Started");
 
         IEnumerable<Project> projects = workspace.CurrentSolution.Projects;
 
@@ -78,13 +88,21 @@ public class FileGenerator
     {
         using var workspace = MSBuildWorkspace.Create();
 
-        Console.WriteLine($"{DateTime.UtcNow.ToString("yyyy-MM-ddThh:mm:ss")}: GenerateEntityFrameworkCoreAsync Started");
-
         Console.WriteLine($"{DateTime.UtcNow.ToString("yyyy-MM-ddThh:mm:ss")}: Load Started");
 
         _ = await workspace.OpenSolutionAsync(solutionFile).ConfigureAwait(false);
 
         Console.WriteLine($"{DateTime.UtcNow.ToString("yyyy-MM-ddThh:mm:ss")}: Load Finished");
+
+        await GenerateEntityFrameworkCoreAsync(workspace, entitiesProjectName, entityFrameworkCoreProjectName, outputPath).ConfigureAwait(false);
+    }
+
+    public async Task GenerateEntityFrameworkCoreAsync(MSBuildWorkspace workspace,
+        string entitiesProjectName,
+        string entityFrameworkCoreProjectName,
+         string outputPath = "_Generated")
+    {
+        Console.WriteLine($"{DateTime.UtcNow.ToString("yyyy-MM-ddThh:mm:ss")}: GenerateEntityFrameworkCoreAsync Started");
 
         IEnumerable<Project> projects = workspace.CurrentSolution.Projects;
 
@@ -114,19 +132,28 @@ public class FileGenerator
     }
 
     public async Task GenerateRepositoryAsync(string solutionFile,
-      string entitiesProjectName,
-      string repositoryProjectName,
-      string outputPath = "_Generated")
+    string entitiesProjectName,
+    string repositoryProjectName,
+    string outputPath = "_Generated")
     {
         using var workspace = MSBuildWorkspace.Create();
-
-        Console.WriteLine($"{DateTime.UtcNow.ToString("yyyy-MM-ddThh:mm:ss")}: GenerateRepositoryAsync Started");
 
         Console.WriteLine($"{DateTime.UtcNow.ToString("yyyy-MM-ddThh:mm:ss")}: Load Started");
 
         _ = await workspace.OpenSolutionAsync(solutionFile).ConfigureAwait(false);
 
         Console.WriteLine($"{DateTime.UtcNow.ToString("yyyy-MM-ddThh:mm:ss")}: Load Finished");
+
+        await GenerateRepositoryAsync(workspace, entitiesProjectName, repositoryProjectName, outputPath).ConfigureAwait(false);
+    }
+
+    public async Task GenerateRepositoryAsync(MSBuildWorkspace workspace,
+      string entitiesProjectName,
+      string repositoryProjectName,
+      string outputPath = "_Generated")
+    {
+
+        Console.WriteLine($"{DateTime.UtcNow.ToString("yyyy-MM-ddThh:mm:ss")}: GenerateRepositoryAsync Started");
 
         IEnumerable<Project> projects = workspace.CurrentSolution.Projects;
 
