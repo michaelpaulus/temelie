@@ -4,7 +4,7 @@ using Temelie.DependencyInjection;
 
 namespace Temelie.Repository.UnitTests;
 
-public class TestBase
+public abstract class TestBase
 {
 
 #pragma warning disable NUnit1032 // An IDisposable field/property should be Disposed in a TearDown method

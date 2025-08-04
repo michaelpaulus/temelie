@@ -69,8 +69,14 @@ public class FileGenerator
 
             if (jsonFiles.Count > 0)
             {
+                var compilation = await entitiesProject.GetCompilationAsync().ConfigureAwait(false);
+
+                var visitor = new PartialPropertySymbolVisitor(CancellationToken.None);
+                visitor.Visit(compilation!.GlobalNamespace);
+                var partialProperties = visitor.PartialPropertyModels;
+
                 var files = jsonFiles.Select(i => (i.FilePath, i.GetTextAsync().Result.ToString())).ToList();
-                pendingFiles.AddRange(entityGenerator.Generate(entitiesProject.DefaultNamespace!, files));
+                pendingFiles.AddRange(entityGenerator.Generate(entitiesProject.DefaultNamespace!, files, partialProperties));
             }
 
             await SyncFilesAsync(entitiesProject, outputPath, pendingFiles).ConfigureAwait(false);

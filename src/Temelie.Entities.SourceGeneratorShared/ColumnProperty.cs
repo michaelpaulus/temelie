@@ -15,5 +15,6 @@ public class ColumnProperty
     public int? Scale { get; set; }
     public bool IsForeignKey { get; internal set; }
     public string SystemTypeString { get; internal set; }
+    public bool IsPartial { get; set; }
 }
 

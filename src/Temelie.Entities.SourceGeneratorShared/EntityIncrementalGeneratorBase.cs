@@ -1,7 +1,10 @@
-using System.Text;
-using Temelie.Database.Models;
-using Microsoft.CodeAnalysis;
 using System.Collections.Immutable;
+using System.Text;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Temelie.Database.Extensions;
+using Temelie.Database.Models;
+using Temelie.SourceGenerator;
 
 namespace Temelie.Entities.SourceGenerator;
 
@@ -12,22 +15,34 @@ public abstract class EntityIncrementalGeneratorBase : IIncrementalGenerator
     {
         var options = context.AnalyzerConfigOptionsProvider.Select(static (c, _) => { c.GlobalOptions.TryGetValue("build_property.RootNamespace", out string rootNamespace); return rootNamespace; });
 
+        var compliationProvider = context.CompilationProvider.Select(static (compilation, token) =>
+        {
+            var visitor = new PartialPropertySymbolVisitor(token);
+            visitor.Visit(compilation.GlobalNamespace);
+            return visitor.PartialPropertyModels;
+        });
+
         var files = context.AdditionalTextsProvider
             .Where(static a => a.Path.EndsWith(".sql.json"))
-            .Select(static (a, c) => new File(a.Path, a.GetText(c)));
+            .Select(static (a, c) => new File(a.Path, a.GetText(c))).Collect();
 
-        var result = files.Combine(options).Collect();
+        var result = files.Combine(compliationProvider).Combine(options);
 
         context.RegisterSourceOutput(result, Generate);
     }
 
-    private void Generate(SourceProductionContext context, ImmutableArray<(File File, string RootNamesapce)> result)
+   
+
+    private void Generate(SourceProductionContext context, ((ImmutableArray<File> Files, IEnumerable<PartialPropertyModel> PartialProperties) Collections, string RootNamesapce) result)
     {
         context.CancellationToken.ThrowIfCancellationRequested();
 
-        if (result.Any())
+        var files = result.Collections.Files;
+        var partialProperties = result.Collections.PartialProperties;
+
+        if (files.Any())
         {
-            var sourceFiles = Generate(result.First().RootNamesapce, result.Select(i => (i.File.FilePath, i.File.Content.ToString())).ToList());
+            var sourceFiles = Generate(result.RootNamesapce, files.Select(i => (i.FilePath, i.Content.ToString())).ToList(), partialProperties);
             foreach (var file in sourceFiles)
             {
                 context.AddSource(file.Name, file.Code);
@@ -35,7 +50,7 @@ public abstract class EntityIncrementalGeneratorBase : IIncrementalGenerator
         }
     }
 
-    public virtual IEnumerable<(string Name, string Code)> Generate(string rootNamespace, IEnumerable<(string FilePath, string FileContents)> files)
+    public virtual IEnumerable<(string Name, string Code)> Generate(string rootNamespace, IEnumerable<(string FilePath, string FileContents)> files, IEnumerable<PartialPropertyModel> partialProperties)
     {
         var sourceFiles = new List<(string Name, string Code)>();
 
@@ -49,7 +64,7 @@ public partial interface IProjectEntity
 
         foreach (var table in databaseModel.Tables)
         {
-            var props = GetColumnProperties(table);
+            var props = GetColumnProperties(table, rootNamespace, partialProperties);
             AddInterface(table, props, rootNamespace, sourceFiles);
             AddRecord(table, props, rootNamespace, sourceFiles, databaseModel);
 
@@ -57,7 +72,7 @@ public partial interface IProjectEntity
 
         foreach (var table in databaseModel.Views)
         {
-            var props = GetColumnProperties(table);
+            var props = GetColumnProperties(table, rootNamespace, partialProperties);
             AddInterface(table, props, rootNamespace, sourceFiles);
             AddRecord(table, props, rootNamespace, sourceFiles, databaseModel);
         }
@@ -116,7 +131,16 @@ public partial interface IProjectEntity
             sb.AppendLine($"    [Temelie.Entities.ColumnPrecision({column.Precision.Value}, {column.Scale.Value})]");
         }
         sb.AppendLine($"    [Column(\"{column.ColumnName}\", Order = {column.ColumnId})]");
-        sb.AppendLine($"    public {column.PropertyType} {column.PropertyName} {{ get; set; }}{column.Default}");
+
+        if (column.IsPartial)
+        {
+            sb.AppendLine($"    private {column.PropertyType} _{column.PropertyName.ToCamelCase()}{column.Default}");
+            sb.AppendLine($"    public partial {column.PropertyType} {column.PropertyName} {{ get => _{column.PropertyName.ToCamelCase()}; set => _{column.PropertyName.ToCamelCase()} = value; }}");
+        }
+        else
+        {
+            sb.AppendLine($"    public {column.PropertyType} {column.PropertyName} {{ get; set; }}{column.Default}");
+        }
 
         return sb.ToString();
     }
@@ -221,7 +245,7 @@ public partial interface I{table.ClassName} : {extends}
         sourceFiles.Add(($"{rootNamespace}.I{table.ClassName}.g", sb.ToString()));
     }
 
-    protected virtual IEnumerable<ColumnProperty> GetColumnProperties(TableModel table)
+    protected virtual IEnumerable<ColumnProperty> GetColumnProperties(TableModel table, string rootNamespace, IEnumerable<PartialPropertyModel> partialProperties)
     {
         var list = new List<ColumnProperty>();
 
@@ -271,6 +295,8 @@ public partial interface I{table.ClassName} : {extends}
                     prop.Default = $" = {GetTypeDefault(prop.PropertyType)};";
                 }
             }
+
+            prop.IsPartial = partialProperties.Any(i => i.ClassName == table.ClassName && i.PropertyName == prop.PropertyName && i.Namespace == rootNamespace);
         }
 
         return list;
