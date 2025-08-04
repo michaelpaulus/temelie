@@ -12,6 +12,7 @@ public class ColumnProperty
     public string ColumnName { get; set; }
     public int ColumnId { get; set; }
     public int? Precision { get; set; }
+    public int? MaxLength { get; set; }
     public int? Scale { get; set; }
     public bool IsForeignKey { get; internal set; }
     public string SystemTypeString { get; internal set; }

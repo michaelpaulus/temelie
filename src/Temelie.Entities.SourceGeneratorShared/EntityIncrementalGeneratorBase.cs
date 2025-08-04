@@ -130,6 +130,10 @@ public partial interface IProjectEntity
         {
             sb.AppendLine($"    [Temelie.Entities.ColumnPrecision({column.Precision.Value}, {column.Scale.Value})]");
         }
+        if (column.MaxLength.HasValue)
+        {
+            sb.AppendLine($"    [System.ComponentModel.DataAnnotations.MaxLength({column.MaxLength})]");
+        }
         sb.AppendLine($"    [Column(\"{column.ColumnName}\", Order = {column.ColumnId})]");
 
         if (column.IsPartial)
@@ -261,6 +265,11 @@ public partial interface I{table.ClassName} : {extends}
             prop.IsIdentity = column.IsIdentity;
             prop.IsComputed = column.IsComputed;
             prop.IsPrimaryKey = column.IsPrimaryKey;
+
+            if (prop.PropertyType == "string" && column.Precision > 0 && column.Precision != int.MaxValue)
+            {
+                prop.MaxLength = column.Precision;
+            }
 
             switch (column.ColumnType.ToUpper())
             {
