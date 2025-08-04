@@ -139,11 +139,11 @@ public partial interface IProjectEntity
         if (column.IsPartial)
         {
             sb.AppendLine($"    private {column.PropertyType} _{column.PropertyName.ToCamelCase()}{column.Default}");
-            sb.AppendLine($"    public partial {column.PropertyType} {column.PropertyName} {{ get => _{column.PropertyName.ToCamelCase()}; set => _{column.PropertyName.ToCamelCase()} = value; }}");
+            sb.AppendLine($"    public virtual partial {column.PropertyType} {column.PropertyName} {{ get => _{column.PropertyName.ToCamelCase()}; set => _{column.PropertyName.ToCamelCase()} = value; }}");
         }
         else
         {
-            sb.AppendLine($"    public {column.PropertyType} {column.PropertyName} {{ get; set; }}{column.Default}");
+            sb.AppendLine($"    public virtual {column.PropertyType} {column.PropertyName} {{ get; set; }}{column.Default}");
         }
 
         return sb.ToString();
