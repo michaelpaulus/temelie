@@ -138,8 +138,8 @@ public partial interface IProjectEntity
 
         if (column.IsPartial)
         {
-            sb.AppendLine($"    private {column.PropertyType} _{column.PropertyName.ToCamelCase()}{column.Default}");
             sb.AppendLine($"    public virtual partial {column.PropertyType} {column.PropertyName} {{ get => _{column.PropertyName.ToCamelCase()}; set => _{column.PropertyName.ToCamelCase()} = value; }}");
+            sb.AppendLine($"    private {column.PropertyType} _{column.PropertyName.ToCamelCase()}{column.Default}");
         }
         else
         {
