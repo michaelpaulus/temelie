@@ -253,7 +253,30 @@ ORDER BY
 
     protected override DataTable GetTriggersDataTable(DbConnection connection)
     {
-        return null;
+        var csb = new MySqlConnectionStringBuilder(connection.ConnectionString);
+        var sql = $@"
+SELECT
+    '' schema_name,
+    trigger_name,
+    event_object_table table_name,
+    CONCAT(
+            'CREATE TRIGGER `', trigger_name, '` ',
+            action_timing, ' ', event_manipulation, ' ON `', event_object_table, '` ',
+            'FOR EACH ', action_orientation, ' ',
+            action_statement
+        ) definition
+FROM
+    information_schema.triggers
+WHERE
+    event_object_schema <> 'sys' AND
+    event_object_schema = '{csb.Database}'
+ORDER BY
+    event_object_table,
+    trigger_name;
+";
+        System.Data.DataSet ds = _database.Execute(connection, sql);
+        DataTable dataTable = ds.Tables[0];
+        return dataTable;
     }
 
     protected override DataTable GetViewColumnsDataTable(DbConnection connection)
