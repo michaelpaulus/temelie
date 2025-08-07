@@ -188,7 +188,27 @@ public partial class DatabaseProvider
 
     public override IDatabaseObjectScript GetScript(TriggerModel model)
     {
-        return null;
+        if (model == null || string.IsNullOrEmpty(model.TriggerName) || string.IsNullOrEmpty(model.TableName))
+        {
+            return null;
+        }
+
+        string generateDropScript()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine($"DROP TRIGGER IF EXISTS {QuoteCharacterStart}{model.TriggerName}{QuoteCharacterEnd};");
+            return sb.ToString();
+        }
+
+        string generateCreateScript()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine($"-- {model.TriggerName} on {model.TableName}");
+            sb.AppendLine(model.Definition);
+            return sb.ToString();
+        }
+
+        return new DatabaseObjectScript(generateCreateScript, generateDropScript);
     }
 
     public override IDatabaseObjectScript GetColumnScript(ColumnModel column)
