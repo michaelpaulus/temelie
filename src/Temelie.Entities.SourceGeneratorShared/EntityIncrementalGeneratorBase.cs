@@ -31,7 +31,7 @@ public abstract class EntityIncrementalGeneratorBase : IIncrementalGenerator
         context.RegisterSourceOutput(result, Generate);
     }
 
-   
+
 
     private void Generate(SourceProductionContext context, ((ImmutableArray<File> Files, IEnumerable<PartialPropertyModel> PartialProperties) Collections, string RootNamesapce) result)
     {
@@ -139,7 +139,7 @@ public partial interface IProjectEntity
         if (column.IsPartial)
         {
             sb.AppendLine($"    public virtual partial {column.PropertyType} {column.PropertyName} {{ get => _{column.PropertyName.ToCamelCase()}; set => _{column.PropertyName.ToCamelCase()} = value; }}");
-            sb.AppendLine($"    private {column.PropertyType} _{column.PropertyName.ToCamelCase()}{column.Default}");
+            sb.AppendLine($"    private {column.PropertyType} _{column.PropertyName.ToCamelCase()}{(string.IsNullOrEmpty(column.Default) ? ";" : column.Default)}");
         }
         else
         {
