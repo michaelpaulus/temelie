@@ -174,6 +174,12 @@ public class ScriptService : IScriptService
         foreach (var pk in database.PrimaryKeys)
         {
             var fileName = MakeValidFileName($"{pk.SchemaName}.{pk.IndexName}.sql");
+
+            if (files.ContainsKey(fileName))
+            {
+                fileName = MakeValidFileName($"{pk.SchemaName}.{pk.TableName}.{pk.IndexName}.sql");
+            }
+
             if (!files.ContainsKey(fileName))
             {
                 if (string.IsNullOrEmpty(fileFilter) ||
@@ -192,6 +198,12 @@ public class ScriptService : IScriptService
         foreach (var index in database.Indexes)
         {
             var fileName = MakeValidFileName($"{index.SchemaName}.{index.IndexName}.sql");
+
+            if (files.ContainsKey(fileName))
+            {
+                fileName = MakeValidFileName($"{index.SchemaName}.{index.TableName}.{index.IndexName}.sql");
+            }
+
             if (!files.ContainsKey(fileName))
             {
                 if (string.IsNullOrEmpty(fileFilter) ||
@@ -708,7 +720,7 @@ public class ScriptService : IScriptService
                     table.Columns.Add(new ColumnModel() { IsPrimaryKey = true, ColumnName = "Id", ColumnType = "NVARCHAR(500)", ColumnId = 1, SchemaName = table.SchemaName });
                     table.Columns.Add(new ColumnModel() { ColumnName = "Date", ColumnType = "DATETIME", ColumnId = 2, SchemaName = table.SchemaName });
                     table.Columns.Add(new ColumnModel() { ColumnName = "Skipped", ColumnType = "BIT", IsNullable = true, TableName = table.TableName, ColumnId = 3, SchemaName = table.SchemaName });
- 
+
                     var pk = new IndexModel()
                     {
                         SchemaName = table.SchemaName,
@@ -780,7 +792,7 @@ public class ScriptService : IScriptService
                 foreach (var current in currentDatabaseModel.Tables)
                 {
                     var updatedTable = updatedDatabaseModel.Tables.FirstOrDefault(i => i.SchemaName == current.SchemaName && i.TableName == current.TableName);
-                    if (updatedTable is null)
+                    if (updatedTable is null && current.TableName != "Migrations")
                     {
                         var rename = provider.GetRenameScript(current, $"__{current.TableName}");
 
