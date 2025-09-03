@@ -1,4 +1,3 @@
-using System;
 using System.Text;
 using System.Text.Json;
 using Temelie.Database.Extensions;
@@ -368,7 +367,6 @@ public class ScriptService : IScriptService
             provider = createScriptsProvider;
         }
 
-
         foreach (var di in _directoryList)
         {
             if (!Directory.Exists(Path.Combine(directory.FullName, di)))
@@ -507,6 +505,8 @@ public class ScriptService : IScriptService
             return getMigrations(id).Any();
         }
 
+        var hasTableChange = false;
+
         IEnumerable<(string Name, string Contents)> getFiles(DirectoryInfo dir, DatabaseModel currentDatabaseModel, DatabaseModel updatedDatabaseModel, IDatabaseProvider provider)
         {
             if (dir.Parent.Name.EndsWith("_Migrations"))
@@ -543,6 +543,7 @@ public class ScriptService : IScriptService
                             IList<T> updatedList,
                             Func<T, string> getName,
                             Func<T, IDatabaseObjectScript> createScript,
+                            bool alwaysUpdate = false,
                             Action<T> handleDrop = null,
                             Action<T, T> handleUpdate = null) where T : DatabaseObjectModel
                         {
@@ -573,7 +574,8 @@ public class ScriptService : IScriptService
                                     var updatedScript = createScript(updated);
                                     if (currentScript is not null &&
                                         updatedScript is not null &&
-                                        currentScript.CreateScript != updatedScript.CreateScript)
+                                        (alwaysUpdate ||
+                                        currentScript.CreateScript != updatedScript.CreateScript))
                                     {
                                         if (handleUpdate is null)
                                         {
@@ -605,11 +607,11 @@ public class ScriptService : IScriptService
                                 i => provider.GetScript(i),
                                 handleDrop: (current) =>
                                 {
-                                    // handled above
+                                    hasTableChange = true;
                                 },
                                 handleUpdate: (current, updated) =>
                                 {
-                                    //needs to be handled by a migration script
+                                    hasTableChange = true;
                                 }
                              );
                         }
@@ -643,7 +645,8 @@ public class ScriptService : IScriptService
                                 currentDatabaseModel.Definitions.Where(i => i.View is null).ToList(),
                                 updatedDatabaseModel.Definitions.Where(i => i.View is null).ToList(),
                                 i => $"{i.SchemaName}.{i.DefinitionName}",
-                                i => provider.GetScript(i)
+                                i => provider.GetScript(i),
+                                alwaysUpdate: hasTableChange
                              );
                         }
                         else if (dir.Name.Contains("05_Views"))
@@ -652,7 +655,8 @@ public class ScriptService : IScriptService
                                 currentDatabaseModel.Definitions.Where(i => i.View is not null).ToList(),
                                 updatedDatabaseModel.Definitions.Where(i => i.View is not null).ToList(),
                                 i => $"{i.SchemaName}.{i.DefinitionName}",
-                                i => provider.GetScript(i)
+                                i => provider.GetScript(i),
+                                alwaysUpdate: hasTableChange
                              );
                         }
                         else if (dir.Name.Contains("06_Triggers"))
@@ -661,7 +665,8 @@ public class ScriptService : IScriptService
                                 currentDatabaseModel.Triggers.ToList(),
                                 updatedDatabaseModel.Triggers.ToList(),
                                 i => $"{i.SchemaName}.{i.TriggerName}",
-                                i => provider.GetScript(i)
+                                i => provider.GetScript(i),
+                                alwaysUpdate: hasTableChange
                              );
                         }
                         else if (dir.Name.Contains("08_ForeignKeys"))

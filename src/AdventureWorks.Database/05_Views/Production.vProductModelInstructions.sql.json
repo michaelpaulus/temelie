@@ -1,7 +1,26 @@
 ﻿{
   "definitionName": "vProductModelInstructions",
   "schemaName": "Production",
-  "definition": "CREATE VIEW [Production].[vProductModelInstructions] AS\nSELECT\n    [ProductModelID],\n    [Name],\n    [Instructions].value(N'declare default element namespace \u0022http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelManuInstructions\u0022; \n        (/root/text())[1]', 'nvarchar(max)') AS [Instructions],\n    [MfgInstructions].ref.value('@LocationID[1]', 'int') AS [LocationID],\n    [MfgInstructions].ref.value('@SetupHours[1]', 'decimal(9, 4)') AS [SetupHours],\n    [MfgInstructions].ref.value('@MachineHours[1]', 'decimal(9, 4)') AS [MachineHours],\n    [MfgInstructions].ref.value('@LaborHours[1]', 'decimal(9, 4)') AS [LaborHours],\n    [MfgInstructions].ref.value('@LotSize[1]', 'int') AS [LotSize],\n    [Steps].ref.value('string(.)[1]', 'nvarchar(1024)') AS [Step],\n    [rowguid],\n    [ModifiedDate]\nFROM  \n    [Production].[ProductModel] CROSS APPLY [Instructions].nodes(N'declare default element namespace \u0022http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelManuInstructions\u0022; \n    /root/Location') AS MfgInstructions(ref) CROSS APPLY [MfgInstructions].ref.nodes('declare default element namespace \u0022http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelManuInstructions\u0022; \n    step') AS Steps(ref);",
+  "Definition": [
+    "CREATE VIEW [Production].[vProductModelInstructions] AS",
+    "SELECT",
+    "    [ProductModelID],",
+    "    [Name],",
+    "    [Instructions].value(N'declare default element namespace \u0022http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelManuInstructions\u0022; ",
+    "        (/root/text())[1]', 'nvarchar(max)') AS [Instructions],",
+    "    [MfgInstructions].ref.value('@LocationID[1]', 'int') AS [LocationID],",
+    "    [MfgInstructions].ref.value('@SetupHours[1]', 'decimal(9, 4)') AS [SetupHours],",
+    "    [MfgInstructions].ref.value('@MachineHours[1]', 'decimal(9, 4)') AS [MachineHours],",
+    "    [MfgInstructions].ref.value('@LaborHours[1]', 'decimal(9, 4)') AS [LaborHours],",
+    "    [MfgInstructions].ref.value('@LotSize[1]', 'int') AS [LotSize],",
+    "    [Steps].ref.value('string(.)[1]', 'nvarchar(1024)') AS [Step],",
+    "    [rowguid],",
+    "    [ModifiedDate]",
+    "FROM  ",
+    "    [Production].[ProductModel] CROSS APPLY [Instructions].nodes(N'declare default element namespace \u0022http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelManuInstructions\u0022; ",
+    "    /root/Location') AS MfgInstructions(ref) CROSS APPLY [MfgInstructions].ref.nodes('declare default element namespace \u0022http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelManuInstructions\u0022; ",
+    "    step') AS Steps(ref);"
+  ],
   "xType": "V",
   "type": "VIEW",
   "view": {

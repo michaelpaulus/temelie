@@ -1,7 +1,15 @@
 ﻿{
   "definitionName": "uspPrintError",
   "schemaName": "dbo",
-  "definition": "CREATE PROCEDURE [dbo].[uspPrintError]\nAS\nBEGIN\n    SET NOCOUNT ON;\n    PRINT 'Error ' + CONVERT (VARCHAR (50), ERROR_NUMBER()) + ', Severity ' + CONVERT (VARCHAR (5), ERROR_SEVERITY()) + ', State ' + CONVERT (VARCHAR (5), ERROR_STATE()) + ', Procedure ' + ISNULL(ERROR_PROCEDURE(), '-') + ', Line ' + CONVERT (VARCHAR (5), ERROR_LINE());\n    PRINT ERROR_MESSAGE();\nEND",
+  "Definition": [
+    "CREATE PROCEDURE [dbo].[uspPrintError]",
+    "AS",
+    "BEGIN",
+    "    SET NOCOUNT ON;",
+    "    PRINT 'Error ' + CONVERT (VARCHAR (50), ERROR_NUMBER()) + ', Severity ' + CONVERT (VARCHAR (5), ERROR_SEVERITY()) + ', State ' + CONVERT (VARCHAR (5), ERROR_STATE()) + ', Procedure ' + ISNULL(ERROR_PROCEDURE(), '-') + ', Line ' + CONVERT (VARCHAR (5), ERROR_LINE());",
+    "    PRINT ERROR_MESSAGE();",
+    "END"
+  ],
   "xType": "P",
   "type": "PROCEDURE"
 }

@@ -1,7 +1,18 @@
-﻿{
+{
   "definitionName": "ufnLeadingZeros",
   "schemaName": "dbo",
-  "definition": "CREATE FUNCTION [dbo].[ufnLeadingZeros]\n(@Value INT)\nRETURNS VARCHAR (8)\nWITH SCHEMABINDING\nAS\nBEGIN\n    DECLARE @ReturnValue AS VARCHAR (8);\n    SET @ReturnValue = CONVERT (VARCHAR (8), @Value);\n    SET @ReturnValue = REPLICATE('0', 8 - DATALENGTH(@ReturnValue)) + @ReturnValue;\n    RETURN (@ReturnValue);\nEND",
+  "Definition": [
+    "CREATE FUNCTION [dbo].[ufnLeadingZeros]",
+    "(@Value INT)",
+    "RETURNS VARCHAR (8)",
+    "AS",
+    "BEGIN",
+    "    DECLARE @ReturnValue AS VARCHAR (8);",
+    "    SET @ReturnValue = CONVERT (VARCHAR (8), @Value);",
+    "    SET @ReturnValue = REPLICATE('0', 8 - DATALENGTH(@ReturnValue)) + @ReturnValue;",
+    "    RETURN (@ReturnValue);",
+    "END"
+  ],
   "xType": "FN",
   "type": "FUNCTION"
 }

@@ -1,7 +1,24 @@
 ﻿{
   "definitionName": "ufnGetProductDealerPrice",
   "schemaName": "dbo",
-  "definition": "CREATE FUNCTION [dbo].[ufnGetProductDealerPrice]\n(@ProductID INT, @OrderDate DATETIME)\nRETURNS MONEY\nAS\nBEGIN\n    DECLARE @DealerPrice AS MONEY;\n    DECLARE @DealerDiscount AS MONEY;\n    SET @DealerDiscount = 0.60;\n    SELECT\n        @DealerPrice = plph.[ListPrice] * @DealerDiscount\n    FROM  \n        [Production].[Product] AS p INNER JOIN\n        [Production].[ProductListPriceHistory] AS plph ON\n             p.[ProductID] = plph.[ProductID] AND p.[ProductID] = @ProductID AND @OrderDate BETWEEN plph.[StartDate] AND COALESCE (plph.[EndDate], CONVERT (DATETIME, '99991231', 112));\n    RETURN @DealerPrice;\nEND",
+  "Definition": [
+    "CREATE FUNCTION [dbo].[ufnGetProductDealerPrice]",
+    "(@ProductID INT, @OrderDate DATETIME)",
+    "RETURNS MONEY",
+    "AS",
+    "BEGIN",
+    "    DECLARE @DealerPrice AS MONEY;",
+    "    DECLARE @DealerDiscount AS MONEY;",
+    "    SET @DealerDiscount = 0.60;",
+    "    SELECT",
+    "        @DealerPrice = plph.[ListPrice] * @DealerDiscount",
+    "    FROM  ",
+    "        [Production].[Product] AS p INNER JOIN",
+    "        [Production].[ProductListPriceHistory] AS plph ON",
+    "             p.[ProductID] = plph.[ProductID] AND p.[ProductID] = @ProductID AND @OrderDate BETWEEN plph.[StartDate] AND COALESCE (plph.[EndDate], CONVERT (DATETIME, '99991231', 112));",
+    "    RETURN @DealerPrice;",
+    "END"
+  ],
   "xType": "FN",
   "type": "FUNCTION"
 }

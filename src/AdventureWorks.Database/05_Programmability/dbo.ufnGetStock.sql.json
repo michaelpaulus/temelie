@@ -1,7 +1,23 @@
 ﻿{
   "definitionName": "ufnGetStock",
   "schemaName": "dbo",
-  "definition": "CREATE FUNCTION [dbo].[ufnGetStock]\n(@ProductID INT)\nRETURNS INT\nAS\nBEGIN\n    DECLARE @ret AS INT;\n    SELECT\n        @ret = SUM(p.[Quantity])\n    FROM  \n        [Production].[ProductInventory] AS p WHERE\n                                                  p.[ProductID] = @ProductID AND p.[LocationID] = '6';\n    IF (@ret IS NULL)\n        SET @ret = 0;\n    RETURN @ret;\nEND",
+  "Definition": [
+    "CREATE FUNCTION [dbo].[ufnGetStock]",
+    "(@ProductID INT)",
+    "RETURNS INT",
+    "AS",
+    "BEGIN",
+    "    DECLARE @ret AS INT;",
+    "    SELECT",
+    "        @ret = SUM(p.[Quantity])",
+    "    FROM  ",
+    "        [Production].[ProductInventory] AS p WHERE",
+    "                                                  p.[ProductID] = @ProductID AND p.[LocationID] = '6';",
+    "    IF (@ret IS NULL)",
+    "        SET @ret = 0;",
+    "    RETURN @ret;",
+    "END"
+  ],
   "xType": "FN",
   "type": "FUNCTION"
 }

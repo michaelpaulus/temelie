@@ -1,7 +1,17 @@
 ﻿{
   "definitionName": "ufnGetSalesOrderStatusText",
   "schemaName": "dbo",
-  "definition": "CREATE FUNCTION [dbo].[ufnGetSalesOrderStatusText]\n(@Status TINYINT)\nRETURNS NVARCHAR (15)\nAS\nBEGIN\n    DECLARE @ret AS NVARCHAR (15);\n    SET @ret = CASE @Status WHEN 1 THEN 'In process' WHEN 2 THEN 'Approved' WHEN 3 THEN 'Backordered' WHEN 4 THEN 'Rejected' WHEN 5 THEN 'Shipped' WHEN 6 THEN 'Cancelled' ELSE '** Invalid **' END;\n    RETURN @ret;\nEND",
+  "Definition": [
+    "CREATE FUNCTION [dbo].[ufnGetSalesOrderStatusText]",
+    "(@Status TINYINT)",
+    "RETURNS NVARCHAR (15)",
+    "AS",
+    "BEGIN",
+    "    DECLARE @ret AS NVARCHAR (15);",
+    "    SET @ret = CASE @Status WHEN 1 THEN 'In process' WHEN 2 THEN 'Approved' WHEN 3 THEN 'Backordered' WHEN 4 THEN 'Rejected' WHEN 5 THEN 'Shipped' WHEN 6 THEN 'Cancelled' ELSE '** Invalid **' END;",
+    "    RETURN @ret;",
+    "END"
+  ],
   "xType": "FN",
   "type": "FUNCTION"
 }

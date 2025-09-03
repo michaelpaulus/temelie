@@ -1,5 +1,4 @@
-﻿CREATE VIEW [Person].[vStateProvinceCountryRegion]
-WITH SCHEMABINDING AS
+CREATE VIEW [Person].[vStateProvinceCountryRegion] AS
 SELECT
     sp.[StateProvinceID],
     sp.[StateProvinceCode],

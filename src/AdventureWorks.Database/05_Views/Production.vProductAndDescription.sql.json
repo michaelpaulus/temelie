@@ -1,7 +1,23 @@
-﻿{
+{
   "definitionName": "vProductAndDescription",
   "schemaName": "Production",
-  "definition": "CREATE VIEW [Production].[vProductAndDescription]\nWITH SCHEMABINDING AS\nSELECT\n    p.[ProductID],\n    p.[Name],\n    pm.[Name] AS [ProductModel],\n    pmx.[CultureID],\n    pd.[Description]\nFROM  \n    [Production].[Product] AS p INNER JOIN\n    [Production].[ProductModel] AS pm ON\n         p.[ProductModelID] = pm.[ProductModelID] INNER JOIN\n    [Production].[ProductModelProductDescriptionCulture] AS pmx ON\n         pm.[ProductModelID] = pmx.[ProductModelID] INNER JOIN\n    [Production].[ProductDescription] AS pd ON\n         pmx.[ProductDescriptionID] = pd.[ProductDescriptionID];",
+  "Definition": [
+    "CREATE VIEW [Production].[vProductAndDescription] AS",
+    "SELECT",
+    "    p.[ProductID],",
+    "    p.[Name],",
+    "    pm.[Name] AS [ProductModel],",
+    "    pmx.[CultureID],",
+    "    pd.[Description]",
+    "FROM  ",
+    "    [Production].[Product] AS p INNER JOIN",
+    "    [Production].[ProductModel] AS pm ON",
+    "         p.[ProductModelID] = pm.[ProductModelID] INNER JOIN",
+    "    [Production].[ProductModelProductDescriptionCulture] AS pmx ON",
+    "         pm.[ProductModelID] = pmx.[ProductModelID] INNER JOIN",
+    "    [Production].[ProductDescription] AS pd ON",
+    "         pmx.[ProductDescriptionID] = pd.[ProductDescriptionID];"
+  ],
   "xType": "V",
   "type": "VIEW",
   "view": {

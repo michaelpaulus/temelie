@@ -1,7 +1,6 @@
-﻿CREATE FUNCTION [dbo].[ufnLeadingZeros]
+CREATE FUNCTION [dbo].[ufnLeadingZeros]
 (@Value INT)
 RETURNS VARCHAR (8)
-WITH SCHEMABINDING
 AS
 BEGIN
     DECLARE @ReturnValue AS VARCHAR (8);
