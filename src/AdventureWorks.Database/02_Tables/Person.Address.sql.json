@@ -146,7 +146,7 @@
     },
     {
       "schemaName": "Person",
-      "columnName": "CreatedBy",
+      "columnName": "ModifiedBy",
       "columnId": 10,
       "isPrimaryKey": false,
       "precision": 250,
@@ -161,7 +161,7 @@
     },
     {
       "schemaName": "Person",
-      "columnName": "ModifiedBy",
+      "columnName": "CreatedBy",
       "columnId": 11,
       "isPrimaryKey": false,
       "precision": 250,
@@ -172,6 +172,21 @@
       "isHidden": false,
       "generatedAlwaysType": 0,
       "columnType": "NVARCHAR",
+      "extendedProperties": {}
+    },
+    {
+      "schemaName": "Person",
+      "columnName": "CreatedDate",
+      "columnId": 12,
+      "isPrimaryKey": false,
+      "precision": 23,
+      "scale": 3,
+      "isNullable": false,
+      "isIdentity": false,
+      "isComputed": false,
+      "isHidden": false,
+      "generatedAlwaysType": 0,
+      "columnType": "DATETIME",
       "extendedProperties": {}
     }
   ],

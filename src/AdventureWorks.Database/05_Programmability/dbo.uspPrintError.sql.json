@@ -1,7 +1,7 @@
 ﻿{
   "definitionName": "uspPrintError",
   "schemaName": "dbo",
-  "definition": "-- uspPrintError prints error information about the error that caused \n-- execution to jump to the CATCH block of a TRY...CATCH construct. \n-- Should be executed from within the scope of a CATCH block otherwise \n-- it will return without printing any error information.\nCREATE PROCEDURE [dbo].[uspPrintError] \nAS\nBEGIN\n    SET NOCOUNT ON;\n\n    -- Print error information. \n    PRINT 'Error ' + CONVERT(varchar(50), ERROR_NUMBER()) +\n          ', Severity ' + CONVERT(varchar(5), ERROR_SEVERITY()) +\n          ', State ' + CONVERT(varchar(5), ERROR_STATE()) + \n          ', Procedure ' + ISNULL(ERROR_PROCEDURE(), '-') + \n          ', Line ' + CONVERT(varchar(5), ERROR_LINE());\n    PRINT ERROR_MESSAGE();\nEND;",
+  "definition": "CREATE PROCEDURE [dbo].[uspPrintError]\nAS\nBEGIN\n    SET NOCOUNT ON;\n    PRINT 'Error ' + CONVERT (VARCHAR (50), ERROR_NUMBER()) + ', Severity ' + CONVERT (VARCHAR (5), ERROR_SEVERITY()) + ', State ' + CONVERT (VARCHAR (5), ERROR_STATE()) + ', Procedure ' + ISNULL(ERROR_PROCEDURE(), '-') + ', Line ' + CONVERT (VARCHAR (5), ERROR_LINE());\n    PRINT ERROR_MESSAGE();\nEND",
   "xType": "P",
   "type": "PROCEDURE"
 }

@@ -1,7 +1,7 @@
 ﻿{
   "definitionName": "ufnGetAccountingStartDate",
   "schemaName": "dbo",
-  "definition": "CREATE FUNCTION [dbo].[ufnGetAccountingStartDate]()\nRETURNS [datetime] \nAS \nBEGIN\n    RETURN CONVERT(datetime, '20030701', 112);\nEND;",
+  "definition": "CREATE FUNCTION [dbo].[ufnGetAccountingStartDate]\n( )\nRETURNS DATETIME\nAS\nBEGIN\n    RETURN CONVERT (DATETIME, '20030701', 112);\nEND",
   "xType": "FN",
   "type": "FUNCTION"
 }
