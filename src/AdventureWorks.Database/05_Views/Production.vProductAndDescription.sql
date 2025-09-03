@@ -1,5 +1,4 @@
-﻿CREATE VIEW [Production].[vProductAndDescription]
-WITH SCHEMABINDING AS
+CREATE VIEW [Production].[vProductAndDescription] AS
 SELECT
     p.[ProductID],
     p.[Name],

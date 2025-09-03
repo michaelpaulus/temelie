@@ -1,7 +1,17 @@
 ﻿{
   "definitionName": "ufnGetDocumentStatusText",
   "schemaName": "dbo",
-  "definition": "CREATE FUNCTION [dbo].[ufnGetDocumentStatusText]\n(@Status TINYINT)\nRETURNS NVARCHAR (16)\nAS\nBEGIN\n    DECLARE @ret AS NVARCHAR (16);\n    SET @ret = CASE @Status WHEN 1 THEN N'Pending approval' WHEN 2 THEN N'Approved' WHEN 3 THEN N'Obsolete' ELSE N'** Invalid **' END;\n    RETURN @ret;\nEND",
+  "Definition": [
+    "CREATE FUNCTION [dbo].[ufnGetDocumentStatusText]",
+    "(@Status TINYINT)",
+    "RETURNS NVARCHAR (16)",
+    "AS",
+    "BEGIN",
+    "    DECLARE @ret AS NVARCHAR (16);",
+    "    SET @ret = CASE @Status WHEN 1 THEN N'Pending approval' WHEN 2 THEN N'Approved' WHEN 3 THEN N'Obsolete' ELSE N'** Invalid **' END;",
+    "    RETURN @ret;",
+    "END"
+  ],
   "xType": "FN",
   "type": "FUNCTION"
 }

@@ -1,7 +1,15 @@
 ﻿{
   "definitionName": "ufnGetAccountingEndDate",
   "schemaName": "dbo",
-  "definition": "CREATE FUNCTION [dbo].[ufnGetAccountingEndDate]\n( )\nRETURNS DATETIME\nAS\nBEGIN\n    RETURN DATEADD(millisecond, -2, CONVERT (DATETIME, '20040701', 112));\nEND",
+  "Definition": [
+    "CREATE FUNCTION [dbo].[ufnGetAccountingEndDate]",
+    "( )",
+    "RETURNS DATETIME",
+    "AS",
+    "BEGIN",
+    "    RETURN DATEADD(millisecond, -2, CONVERT (DATETIME, '20040701', 112));",
+    "END"
+  ],
   "xType": "FN",
   "type": "FUNCTION"
 }

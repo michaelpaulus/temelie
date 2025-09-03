@@ -1,7 +1,22 @@
 ﻿{
   "definitionName": "ufnGetProductListPrice",
   "schemaName": "dbo",
-  "definition": "CREATE FUNCTION [dbo].[ufnGetProductListPrice]\n(@ProductID INT, @OrderDate DATETIME)\nRETURNS MONEY\nAS\nBEGIN\n    DECLARE @ListPrice AS MONEY;\n    SELECT\n        @ListPrice = plph.[ListPrice]\n    FROM  \n        [Production].[Product] AS p INNER JOIN\n        [Production].[ProductListPriceHistory] AS plph ON\n             p.[ProductID] = plph.[ProductID] AND p.[ProductID] = @ProductID AND @OrderDate BETWEEN plph.[StartDate] AND COALESCE (plph.[EndDate], CONVERT (DATETIME, '99991231', 112));\n    RETURN @ListPrice;\nEND",
+  "Definition": [
+    "CREATE FUNCTION [dbo].[ufnGetProductListPrice]",
+    "(@ProductID INT, @OrderDate DATETIME)",
+    "RETURNS MONEY",
+    "AS",
+    "BEGIN",
+    "    DECLARE @ListPrice AS MONEY;",
+    "    SELECT",
+    "        @ListPrice = plph.[ListPrice]",
+    "    FROM  ",
+    "        [Production].[Product] AS p INNER JOIN",
+    "        [Production].[ProductListPriceHistory] AS plph ON",
+    "             p.[ProductID] = plph.[ProductID] AND p.[ProductID] = @ProductID AND @OrderDate BETWEEN plph.[StartDate] AND COALESCE (plph.[EndDate], CONVERT (DATETIME, '99991231', 112));",
+    "    RETURN @ListPrice;",
+    "END"
+  ],
   "xType": "FN",
   "type": "FUNCTION"
 }

@@ -1,7 +1,26 @@
 ﻿{
   "definitionName": "uspUpdateEmployeePersonalInfo",
   "schemaName": "HumanResources",
-  "definition": "CREATE PROCEDURE [HumanResources].[uspUpdateEmployeePersonalInfo]\n@BusinessEntityID INT, @NationalIDNumber NVARCHAR (15), @BirthDate DATETIME, @MaritalStatus NCHAR (1), @Gender NCHAR (1)\nWITH EXECUTE AS CALLER\nAS\nBEGIN\n    SET NOCOUNT ON;\n    BEGIN TRY\n        UPDATE [HumanResources].[Employee]\n        SET    [NationalIDNumber] = @NationalIDNumber,\n               [BirthDate] = @BirthDate,\n               [MaritalStatus] = @MaritalStatus,\n               [Gender] = @Gender WHERE\n                                       [BusinessEntityID] = @BusinessEntityID;\n    END TRY\n    BEGIN CATCH\n        EXECUTE [dbo].[uspLogError] ;\n    END CATCH\nEND",
+  "Definition": [
+    "CREATE PROCEDURE [HumanResources].[uspUpdateEmployeePersonalInfo]",
+    "@BusinessEntityID INT, @NationalIDNumber NVARCHAR (15), @BirthDate DATETIME, @MaritalStatus NCHAR (1), @Gender NCHAR (1)",
+    "WITH EXECUTE AS CALLER",
+    "AS",
+    "BEGIN",
+    "    SET NOCOUNT ON;",
+    "    BEGIN TRY",
+    "        UPDATE [HumanResources].[Employee]",
+    "        SET    [NationalIDNumber] = @NationalIDNumber,",
+    "               [BirthDate] = @BirthDate,",
+    "               [MaritalStatus] = @MaritalStatus,",
+    "               [Gender] = @Gender WHERE",
+    "                                       [BusinessEntityID] = @BusinessEntityID;",
+    "    END TRY",
+    "    BEGIN CATCH",
+    "        EXECUTE [dbo].[uspLogError] ;",
+    "    END CATCH",
+    "END"
+  ],
   "xType": "P",
   "type": "PROCEDURE"
 }

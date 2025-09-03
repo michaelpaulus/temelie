@@ -18,7 +18,6 @@ IF NOT EXISTS
         [PersonID] INT NULL,
         [StoreID] INT NULL,
         [TerritoryID] INT NULL,
-        [AccountNumber] AS (isnull('AW'+[dbo].[ufnLeadingZeros]([CustomerID]),'')),
         [rowguid] UNIQUEIDENTIFIER NOT NULL DEFAULT (NEWID()),
         [ModifiedDate] DATETIME NOT NULL DEFAULT (GETDATE())
     )

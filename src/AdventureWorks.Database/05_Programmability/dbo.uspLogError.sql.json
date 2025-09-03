@@ -1,7 +1,32 @@
 ﻿{
   "definitionName": "uspLogError",
   "schemaName": "dbo",
-  "definition": "CREATE PROCEDURE [dbo].[uspLogError]\n@ErrorLogID INT=0 OUTPUT\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET @ErrorLogID = 0;\n    BEGIN TRY\n        IF ERROR_NUMBER() IS NULL\n            RETURN;\n        IF XACT_STATE() = -1\n            BEGIN\n                PRINT 'Cannot log error since the current transaction is in an uncommittable state. ' + 'Rollback the transaction before executing uspLogError in order to successfully log error information.';\n                RETURN;\n            END\n        INSERT  [dbo].[ErrorLog] ([UserName], [ErrorNumber], [ErrorSeverity], [ErrorState], [ErrorProcedure], [ErrorLine], [ErrorMessage])\n        VALUES                  (CONVERT (sysname, CURRENT_USER), ERROR_NUMBER(), ERROR_SEVERITY(), ERROR_STATE(), ERROR_PROCEDURE(), ERROR_LINE(), ERROR_MESSAGE());\n        SET @ErrorLogID = @@IDENTITY;\n    END TRY\n    BEGIN CATCH\n        PRINT 'An error occurred in stored procedure uspLogError: ';\n        EXECUTE [dbo].[uspPrintError] ;\n        RETURN -1;\n    END CATCH\nEND",
+  "Definition": [
+    "CREATE PROCEDURE [dbo].[uspLogError]",
+    "@ErrorLogID INT=0 OUTPUT",
+    "AS",
+    "BEGIN",
+    "    SET NOCOUNT ON;",
+    "    SET @ErrorLogID = 0;",
+    "    BEGIN TRY",
+    "        IF ERROR_NUMBER() IS NULL",
+    "            RETURN;",
+    "        IF XACT_STATE() = -1",
+    "            BEGIN",
+    "                PRINT 'Cannot log error since the current transaction is in an uncommittable state. ' + 'Rollback the transaction before executing uspLogError in order to successfully log error information.';",
+    "                RETURN;",
+    "            END",
+    "        INSERT  [dbo].[ErrorLog] ([UserName], [ErrorNumber], [ErrorSeverity], [ErrorState], [ErrorProcedure], [ErrorLine], [ErrorMessage])",
+    "        VALUES                  (CONVERT (sysname, CURRENT_USER), ERROR_NUMBER(), ERROR_SEVERITY(), ERROR_STATE(), ERROR_PROCEDURE(), ERROR_LINE(), ERROR_MESSAGE());",
+    "        SET @ErrorLogID = @@IDENTITY;",
+    "    END TRY",
+    "    BEGIN CATCH",
+    "        PRINT 'An error occurred in stored procedure uspLogError: ';",
+    "        EXECUTE [dbo].[uspPrintError] ;",
+    "        RETURN -1;",
+    "    END CATCH",
+    "END"
+  ],
   "xType": "P",
   "type": "PROCEDURE"
 }
