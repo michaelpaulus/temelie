@@ -23,7 +23,8 @@ IF NOT EXISTS
         [SpatialLocation] GEOGRAPHY NULL,
         [rowguid] UNIQUEIDENTIFIER NOT NULL DEFAULT (NEWID()),
         [ModifiedDate] DATETIME NOT NULL DEFAULT (GETDATE()),
+        [ModifiedBy] NVARCHAR(250) NOT NULL,
         [CreatedBy] NVARCHAR(250) NOT NULL,
-        [ModifiedBy] NVARCHAR(250) NOT NULL
+        [CreatedDate] DATETIME NOT NULL
     )
 GO
