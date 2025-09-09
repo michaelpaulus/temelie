@@ -477,6 +477,8 @@ public class ScriptService : IScriptService
 
     public void ExecuteScripts(ConnectionStringModel connectionString, DirectoryInfo directory, IProgress<ScriptProgress> progress, bool continueOnError = true, bool skipMigrations = false)
     {
+        IList<string> migrations = [];
+
         void addMigration(string id)
         {
             using var conn = _databaseExecutionService.CreateDbConnection(connectionString);
@@ -484,15 +486,16 @@ public class ScriptService : IScriptService
             var skipMigrationsBit = skipMigrations ? "1" : "0";
             cmd.CommandText = $"INSERT INTO Migrations (Id, Date, Skipped) VALUES {$"('{id}', '{DateTime.UtcNow:yyyy-MM-ddTHH:mm:ss}', {skipMigrationsBit})"}";
             cmd.ExecuteNonQuery();
+            migrations.Add(id);
         }
 
-        IEnumerable<string> getMigrations(string id)
+        IList<string> getMigrations()
         {
             using var conn = _databaseExecutionService.CreateDbConnection(connectionString);
             using var cmd = _databaseExecutionService.CreateDbCommand(conn);
-            cmd.CommandText = $"SELECT Id FROM Migrations WHERE Id LIKE '{id}'";
+            cmd.CommandText = $"SELECT Id FROM Migrations";
             using var reader = cmd.ExecuteReader();
-            var list = new List<string>();
+            var list = new List<string>() { "loaded" };
             while (reader.Read())
             {
                 list.Add(reader.GetString(0));
@@ -502,7 +505,11 @@ public class ScriptService : IScriptService
 
         bool checkMigration(string id)
         {
-            return getMigrations(id).Any();
+            if (migrations.Count == 0)
+            {
+                migrations = getMigrations();
+            }
+            return migrations.Contains(id);
         }
 
         var hasTableChange = false;
@@ -611,6 +618,39 @@ public class ScriptService : IScriptService
                                 },
                                 handleUpdate: (current, updated) =>
                                 {
+
+                                    var current2 = JsonSerializer.Deserialize<TableModel>(JsonSerializer.Serialize(current));
+
+                                    var updated2 = JsonSerializer.Deserialize<TableModel>(JsonSerializer.Serialize(updated));
+
+                                    foreach (var column in current2.Columns)
+                                    {
+                                        column.CollationName = "";
+                                        column.CharacterSetName = "";
+                                    }
+
+                                    foreach (var column in updated2.Columns)
+                                    {
+                                        column.CollationName = "";
+                                        column.CharacterSetName = "";
+                                    }
+
+                                    current2.CollationName = "";
+                                    current2.CharacterSetName = "";
+                                    updated2.CollationName = "";
+                                    updated2.CharacterSetName = "";
+
+                                    var currentScript = provider.GetScript(current2);
+                                    var updatedScript = provider.GetScript(updated2);
+
+                                    if (currentScript.CreateScript == updatedScript.CreateScript)
+                                    {
+                                        //ignore collation / character set diffs
+                                        return;
+                                    }
+
+                                    progress?.Report(new ScriptProgress() { ProgressPercentage = 0, ProgressStatus = "Table Change: " + current.TableName });
+
                                     hasTableChange = true;
                                 }
                              );
@@ -783,6 +823,8 @@ public class ScriptService : IScriptService
                     shouldEnsureMigrationsTable = false;
                 }
             }
+
+            migrations = getMigrations();
 
             var currentDatabaseModel = _databaseModelService.CreateModel(connectionString, new Models.DatabaseModelOptions { ExcludeDoubleUnderscoreObjects = true });
             ensureMigrationsTable(currentDatabaseModel);
