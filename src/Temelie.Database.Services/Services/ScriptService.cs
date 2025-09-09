@@ -824,10 +824,11 @@ public class ScriptService : IScriptService
                 }
             }
 
-            migrations = getMigrations();
-
             var currentDatabaseModel = _databaseModelService.CreateModel(connectionString, new Models.DatabaseModelOptions { ExcludeDoubleUnderscoreObjects = true });
             ensureMigrationsTable(currentDatabaseModel);
+
+            migrations = getMigrations();
+
             var updatedDatabaseModel = DatabaseModel.CreateFromFiles(modelList.Select(i => (i.FullName, File.ReadAllText(i.FullName))));
             var provider = _databaseFactory.GetDatabaseProvider(connectionString);
 
