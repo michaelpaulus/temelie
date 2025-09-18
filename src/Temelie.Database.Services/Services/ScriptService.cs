@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
 using Temelie.Database.Extensions;
@@ -691,9 +692,27 @@ public class ScriptService : IScriptService
                         }
                         else if (dir.Name.Contains("05_Views"))
                         {
+                            var viewsWithIndexes = new List<string>();
+
+                            viewsWithIndexes.AddRange(updatedDatabaseModel.Definitions.Where(i => i.View is not null && updatedDatabaseModel.Indexes.Any(i2 => i2.TableName == i.View.TableName && i2.SchemaName == i.View.SchemaName)).Select(i => $"{i.SchemaName}.{i.DefinitionName}"));
+                            viewsWithIndexes.AddRange(currentDatabaseModel.Definitions.Where(i => i.View is not null && currentDatabaseModel.Indexes.Any(i2 => i2.TableName == i.View.TableName && i2.SchemaName == i.View.SchemaName)).Select(i => $"{i.SchemaName}.{i.DefinitionName}"));
+
+                            var viewsWithIndexesUpdated = updatedDatabaseModel.Definitions.Where(i => i.View is not null && viewsWithIndexes.Contains($"{i.SchemaName}.{i.DefinitionName}")).ToList();
+                            var viewsWithIndexesCurrent = currentDatabaseModel.Definitions.Where(i => i.View is not null && viewsWithIndexes.Contains($"{i.SchemaName}.{i.DefinitionName}")).ToList();
+                            var viewsWithoutIndexesUpdated = updatedDatabaseModel.Definitions.Where(i => i.View is not null && !viewsWithIndexes.Contains($"{i.SchemaName}.{i.DefinitionName}")).ToList();
+                            var viewsWithoutIndexesCurrent = currentDatabaseModel.Definitions.Where(i => i.View is not null && !viewsWithIndexes.Contains($"{i.SchemaName}.{i.DefinitionName}")).ToList();
+
                             compareObjects(
-                                currentDatabaseModel.Definitions.Where(i => i.View is not null).ToList(),
-                                updatedDatabaseModel.Definitions.Where(i => i.View is not null).ToList(),
+                                viewsWithIndexesCurrent,
+                                viewsWithIndexesUpdated,
+                                i => $"{i.SchemaName}.{i.DefinitionName}",
+                                i => provider.GetScript(i),
+                                alwaysUpdate: false
+                             );
+
+                            compareObjects(
+                                viewsWithoutIndexesCurrent,
+                                viewsWithoutIndexesUpdated,
                                 i => $"{i.SchemaName}.{i.DefinitionName}",
                                 i => provider.GetScript(i),
                                 alwaysUpdate: hasTableChange
