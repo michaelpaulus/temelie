@@ -431,7 +431,8 @@ FROM
 			sys.external_data_sources ON
 				external_tables.data_source_id = external_data_sources.data_source_id
 		WHERE
-			tables.name <> 'sysdiagrams'
+			tables.name <> 'sysdiagrams' AND
+            tables.name <> 'MSchange_tracking_history'
 	) t1
 ORDER BY
 	t1.table_name
