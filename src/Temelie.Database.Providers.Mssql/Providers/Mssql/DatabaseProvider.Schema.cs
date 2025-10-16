@@ -150,7 +150,7 @@ ORDER BY
         return dataTable;
     }
 
-    protected override DataTable GetIndexeBucketCountsDataTable(DbConnection connection)
+    protected override DataTable? GetIndexeBucketCountsDataTable(DbConnection connection)
     {
         try
         {

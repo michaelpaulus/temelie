@@ -24,7 +24,7 @@ public partial class DatabaseProvider
             }
         }
 
-        void bulkCopy(SqlTransaction transaction1)
+        void bulkCopy(SqlTransaction? transaction1)
         {
             int intRowIndex = 0;
 

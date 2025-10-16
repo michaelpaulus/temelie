@@ -83,7 +83,7 @@ public partial class DatabaseProvider : DatabaseProviderBase
         return csb.ConnectionString;
     }
 
-    public override bool TryHandleColumnValueLoadException(Exception ex, ColumnModel column, out object value)
+    public override bool TryHandleColumnValueLoadException(Exception ex, ColumnModel column, out object? value)
     {
         value = null;
         return false;
@@ -138,14 +138,14 @@ FROM
 WHERE
     schemas.name = '{schemaName}' AND
 	tables.name = '{tableName}'";
-            return System.Convert.ToInt32(command.ExecuteScalar().ToString());
+            return System.Convert.ToInt32(command.ExecuteScalar()?.ToString());
         }
         catch
         {
 
         }
         command.CommandText = $"SELECT COUNT(1) FROM [{schemaName}].[{tableName}]";
-        return System.Convert.ToInt32(command.ExecuteScalar().ToString());
+        return System.Convert.ToInt32(command.ExecuteScalar()?.ToString());
     }
 
     public override string GetSelectStatement(string schemaName, string tableName, IEnumerable<string> columns)

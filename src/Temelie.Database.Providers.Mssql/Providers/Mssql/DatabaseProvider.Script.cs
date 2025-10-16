@@ -586,7 +586,7 @@ GO");
         return new DatabaseObjectScript(generateCreateScript, generateDropScript);
     }
 
-    public override IDatabaseObjectScript GetScript(TableModel model)
+    public override IDatabaseObjectScript? GetScript(TableModel model)
     {
         if (string.IsNullOrEmpty(model.TableName))
         {
