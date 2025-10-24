@@ -1,6 +1,6 @@
 namespace Temelie.Database.Models.ChangeTracking;
 
-public partial record TrackedTable
+public partial record ChangeTrackingTable
 {
 
     public virtual string SchemaName { get; set; } = "";

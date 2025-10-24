@@ -9,11 +9,11 @@ public interface IChangeTrackingProvider
 {
     string Provider { get; }
 
-    Task<IEnumerable<TrackedTable>> GetTrackedTablesAsync(ConnectionStringModel sourceConnectionString);
+    Task<IEnumerable<ChangeTrackingTable>> GetTrackedTablesAsync(ConnectionStringModel sourceConnectionString);
 
-    Task<ChangeTrackingMapping?> GetMappingAsync(ConnectionStringModel targetConnectionString, TrackedTable table);
+    Task<ChangeTrackingMapping?> GetMappingAsync(ConnectionStringModel targetConnectionString, ChangeTrackingTable table);
 
-    Task<IEnumerable<ChangeTrackingRow>> GetTrackedTablesChangesAsync(ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString, TrackedTable table, ChangeTrackingMapping mapping);
+    Task<IEnumerable<ChangeTrackingRow>> GetTrackedTableChangesAsync(ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString, ChangeTrackingTable table, long previousVersionId);
 
-    Task ApplyChangesAsync(ConnectionStringModel targetConnectionString, TrackedTable table, ChangeTrackingMapping mapping, IEnumerable<ChangeTrackingRow> changes);
+    Task ApplyChangesAsync(ConnectionStringModel targetConnectionString, ChangeTrackingTable table, ChangeTrackingMapping mapping, IEnumerable<ChangeTrackingRow> changes);
 }

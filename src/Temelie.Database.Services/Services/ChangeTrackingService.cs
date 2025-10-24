@@ -27,6 +27,11 @@ public class ChangeTrackingService : IChangeTrackingService
         return databaseProvider;
     }
 
+    public Task DetectChangesAsync(ConnectionStringModel sourceConnectionString)
+    {
+        return Task.CompletedTask;
+    }
+
     public async Task SyncChangesAsync(ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString)
     {
         var sourceDatabaseSyncProvider = GetDatabaseSyncProvider(sourceConnectionString);
@@ -37,7 +42,7 @@ public class ChangeTrackingService : IChangeTrackingService
         }
     }
 
-    public async Task SyncChangesAsync(ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString, TrackedTable table)
+    public async Task SyncChangesAsync(ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString, ChangeTrackingTable table)
     {
         var sourceDatabaseSyncProvider = GetDatabaseSyncProvider(sourceConnectionString);
         var targetDatabaseSyncProvider = GetDatabaseSyncProvider(targetConnectionString);
@@ -49,7 +54,7 @@ public class ChangeTrackingService : IChangeTrackingService
             return;
         }
 
-        var changes = await sourceDatabaseSyncProvider.GetTrackedTablesChangesAsync(sourceConnectionString, targetConnectionString, table, mapping).ConfigureAwait(false);
+        var changes = await sourceDatabaseSyncProvider.GetTrackedTableChangesAsync(sourceConnectionString, targetConnectionString, table, mapping.LastSyncedVersionId).ConfigureAwait(false);
 
         if (changes.Any())
         {

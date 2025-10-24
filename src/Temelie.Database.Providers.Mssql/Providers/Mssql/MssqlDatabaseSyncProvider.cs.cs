@@ -21,9 +21,9 @@ public class MssqlDatabaseSyncProvider : IChangeTrackingProvider
 
     public string Provider => nameof(SqlConnection);
 
-    public async Task<IEnumerable<TrackedTable>> GetTrackedTablesAsync(ConnectionStringModel sourceConnectionString)
+    public async Task<IEnumerable<ChangeTrackingTable>> GetTrackedTablesAsync(ConnectionStringModel sourceConnectionString)
     {
-        return await GetRecordsAsync<TrackedTable>(sourceConnectionString, @"
+        return await GetRecordsAsync<ChangeTrackingTable>(sourceConnectionString, @"
 SELECT
     schemas.name AS SchemaName,
     tables.name AS TableName,
@@ -67,7 +67,7 @@ FROM
 ").ConfigureAwait(false);
     }
 
-    public async Task<IEnumerable<ChangeTrackingRow>> GetTrackedTablesChangesAsync(ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString, TrackedTable table, ChangeTrackingMapping mapping)
+    public async Task<IEnumerable<ChangeTrackingRow>> GetTrackedTableChangesAsync(ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString, ChangeTrackingTable table, long previousVersionId)
     {
         var changes = new List<ChangeTrackingRow>();
         var schemaName = table.SchemaName;
@@ -88,11 +88,10 @@ SELECT
     {string.Join(", ", pkColumns)}{(nonPkColumns.Any() ? "," : "")}
     {string.Join(", ", nonPkColumns)}
 FROM
-    CHANGETABLE(CHANGES [{schemaName}].[{tableName}], {mapping.VersionId}) AS CT LEFT JOIN
+    CHANGETABLE(CHANGES [{schemaName}].[{tableName}], {previousVersionId}) AS CT LEFT JOIN
     [{schemaName}].[{tableName}] AS T ON {string.Join(" AND ", primaryKeyColumns.Select(c => $"CT.[{c}] = T.[{c}]"))}
 ;
 ";
-            await conn.OpenAsync().ConfigureAwait(false);
             using (var reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false))
             {
                 while (await reader.ReadAsync().ConfigureAwait(false))
@@ -113,13 +112,22 @@ FROM
         return changes;
     }
 
-    public async Task<ChangeTrackingMapping?> GetMappingAsync(ConnectionStringModel targetConnectionString, TrackedTable table)
+    public async Task<ChangeTrackingMapping?> GetMappingAsync(ConnectionStringModel targetConnectionString, ChangeTrackingTable table)
     {
         return (await GetRecordsAsync<ChangeTrackingMapping>(targetConnectionString, @"
 SELECT
-    *
+    ChangeTrackingMappingId,
+    SourceSchemaName,
+    SourceTableName,
+    TargetSchemaName,
+    TargetTableName,
+    LastSyncedVersionId,
+    CreatedDate,
+    CreatedBy,
+    ModifiedDate,
+    ModifiedBy
 FROM
-    ChangeTrackingMapping
+    ChangeTrackingMappings
 WHERE
     SourceSchemaName = @SourceSchemaName AND
     SourceTableName = @SourceTableName 
@@ -128,7 +136,7 @@ WHERE
     new SqlParameter("@SourceTableName", table.TableName)).ConfigureAwait(false)).FirstOrDefault();
     }
 
-    public async Task ApplyChangesAsync(ConnectionStringModel targetConnectionString, TrackedTable table, ChangeTrackingMapping mapping, IEnumerable<ChangeTrackingRow> changes)
+    public async Task ApplyChangesAsync(ConnectionStringModel targetConnectionString, ChangeTrackingTable table, ChangeTrackingMapping mapping, IEnumerable<ChangeTrackingRow> changes)
     {
         using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
         {
@@ -211,13 +219,12 @@ WHERE {string.Join(" AND ", GetPkColumns(table.PkColumnsJSON).Select(c => $"[{c.
                         _ => throw new InvalidOperationException($"Unknown change operation: {change.ChangeOperation}")
                     }}
 ";
-                    await conn.OpenAsync().ConfigureAwait(false);
                     await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }
 
             }
 
-            mapping.VersionId = changes.Max(i => i.ChangeVersion);
+            mapping.LastSyncedVersionId = changes.Max(i => i.ChangeVersion);
 
             using (var conn = _databaseExecutionService.CreateDbConnection(targetConnectionString))
             using (var cmd = conn.CreateCommand())
@@ -226,14 +233,13 @@ WHERE {string.Join(" AND ", GetPkColumns(table.PkColumnsJSON).Select(c => $"[{c.
 UPDATE
     ChangeTrackingMapping
 SET
-    VersionId = @VersionId,
+    LastSyncedVersionId = @LastSyncedVersionId,
     ModifiedDate = GETUTCDATE()
 WHERE
     ChangeTrackingMappingId = @ChangeTrackingMappingId
 ";
-                cmd.Parameters.Add(new SqlParameter("@VersionId", mapping.VersionId));
+                cmd.Parameters.Add(new SqlParameter("@LastSyncedVersionId", mapping.LastSyncedVersionId));
                 cmd.Parameters.Add(new SqlParameter("@ChangeTrackingMappingId", mapping.ChangeTrackingMappingId));
-                await conn.OpenAsync().ConfigureAwait(false);
                 await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
 
