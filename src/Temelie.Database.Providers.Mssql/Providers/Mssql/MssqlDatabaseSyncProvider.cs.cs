@@ -67,9 +67,8 @@ FROM
 ").ConfigureAwait(false);
     }
 
-    public async Task<IEnumerable<ChangeTrackingRow>> GetTrackedTableChangesAsync(ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString, ChangeTrackingTable table, long previousVersionId)
+    public async IAsyncEnumerable<ChangeTrackingRow> GetTrackedTableChangesAsync(ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString, ChangeTrackingTable table, long previousVersionId)
     {
-        var changes = new List<ChangeTrackingRow>();
         var schemaName = table.SchemaName;
         var tableName = table.TableName;
         var columns = GetColumns(table.ColumnsJSON).OrderBy(i => i.ColumnId).Select(i => i.Name).ToArray();
@@ -79,7 +78,7 @@ FROM
         var nonPkColumns = columns.Where(i => !primaryKeyColumns.Any(i2 => i2 == i)).Select(c => $"T.[{c}]").ToList();
 
         using (var conn = _databaseExecutionService.CreateDbConnection(sourceConnectionString))
-        using (var cmd = conn.CreateCommand())
+        using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
         {
             cmd.CommandText = $@"
 SELECT
@@ -90,6 +89,8 @@ SELECT
 FROM
     CHANGETABLE(CHANGES [{schemaName}].[{tableName}], {previousVersionId}) AS CT LEFT JOIN
     [{schemaName}].[{tableName}] AS T ON {string.Join(" AND ", primaryKeyColumns.Select(c => $"CT.[{c}] = T.[{c}]"))}
+ORDER BY
+    CT.SYS_CHANGE_VERSION
 ;
 ";
             using (var reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false))
@@ -104,12 +105,10 @@ FROM
                         ChangeOperation = reader.GetString(1),
                         ColumnValues = columns.ToDictionary(c => c, c => reader[c] == DBNull.Value ? null : reader[c])
                     };
-                    changes.Add(row);
+                    yield return row;
                 }
             }
         }
-
-        return changes;
     }
 
     public async Task<ChangeTrackingMapping?> GetMappingAsync(ConnectionStringModel targetConnectionString, ChangeTrackingTable table)
@@ -121,7 +120,7 @@ SELECT
     SourceTableName,
     TargetSchemaName,
     TargetTableName,
-    LastSyncedVersionId,
+    LastSyncedVersion,
     CreatedDate,
     CreatedBy,
     ModifiedDate,
@@ -163,14 +162,19 @@ WHERE
                 {
                     return $"'{stringValue.Replace("'", "''")}'";
                 }
+                if (value is Guid guidValue)
+                {
+                    return $"'{guidValue}'";
+                }
                 if (value is DateTime dateValue)
                 {
-                    return $"'{dateValue.ToString("yyyyMMddTHH:mm:ss")}'";
+                    return $"'{dateValue.ToString("yyyy-MM-ddTHH:mm:ss")}'";
                 }
                 if (value is bool boolValue)
                 {
                     return $"{(boolValue ? "1" : "0")}";
                 }
+
                 return value.ToString()!;
             }
 
@@ -208,7 +212,7 @@ WHERE {string.Join(" AND ", GetPkColumns(table.PkColumnsJSON).Select(c => $"[{c.
             foreach (var change in changes)
             {
                 using (var conn = _databaseExecutionService.CreateDbConnection(targetConnectionString))
-                using (var cmd = conn.CreateCommand())
+                using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
                 {
                     cmd.CommandText = $@"
 {change.ChangeOperation switch
@@ -222,25 +226,6 @@ WHERE {string.Join(" AND ", GetPkColumns(table.PkColumnsJSON).Select(c => $"[{c.
                     await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }
 
-            }
-
-            mapping.LastSyncedVersionId = changes.Max(i => i.ChangeVersion);
-
-            using (var conn = _databaseExecutionService.CreateDbConnection(targetConnectionString))
-            using (var cmd = conn.CreateCommand())
-            {
-                cmd.CommandText = @"
-UPDATE
-    ChangeTrackingMapping
-SET
-    LastSyncedVersionId = @LastSyncedVersionId,
-    ModifiedDate = GETUTCDATE()
-WHERE
-    ChangeTrackingMappingId = @ChangeTrackingMappingId
-";
-                cmd.Parameters.Add(new SqlParameter("@LastSyncedVersionId", mapping.LastSyncedVersionId));
-                cmd.Parameters.Add(new SqlParameter("@ChangeTrackingMappingId", mapping.ChangeTrackingMappingId));
-                await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
 
             ts.Complete();
@@ -260,32 +245,58 @@ WHERE
     private async Task<IEnumerable<T>> GetRecordsAsync<T>(ConnectionStringModel connectionString, string query, params SqlParameter[] parameters)
     {
         var results = new List<T>();
-        using (var connection = _databaseExecutionService.CreateDbConnection(connectionString))
+        using (var conn = _databaseExecutionService.CreateDbConnection(connectionString))
+        using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
         {
-            using (var command = connection.CreateCommand())
+            cmd.CommandText = query;
+            cmd.Parameters.AddRange(parameters);
+            using (var reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false))
             {
-                command.CommandText = query;
-                command.Parameters.AddRange(parameters);
-                using (var reader = await command.ExecuteReaderAsync().ConfigureAwait(false))
+
+                while (await reader.ReadAsync().ConfigureAwait(false))
                 {
-
-                    while (await reader.ReadAsync().ConfigureAwait(false))
+                    var item = Activator.CreateInstance<T>();
+                    foreach (var prop in typeof(T).GetProperties())
                     {
-                        var item = Activator.CreateInstance<T>();
-                        foreach (var prop in typeof(T).GetProperties())
+                        if (!await reader.IsDBNullAsync(reader.GetOrdinal(prop.Name)).ConfigureAwait(false))
                         {
-                            if (!await reader.IsDBNullAsync(reader.GetOrdinal(prop.Name)).ConfigureAwait(false))
-                            {
-                                prop.SetValue(item, await reader.GetFieldValueAsync<object>(reader.GetOrdinal(prop.Name)).ConfigureAwait(false));
-                            }
+                            prop.SetValue(item, await reader.GetFieldValueAsync<object>(reader.GetOrdinal(prop.Name)).ConfigureAwait(false));
                         }
-                        results.Add(item);
                     }
-
+                    results.Add(item);
                 }
+
             }
         }
+
         return results;
+    }
+
+    public async Task UpdateSyncedVersionAsync(ConnectionStringModel targetConnectionString, ChangeTrackingTable table, long version)
+    {
+        var mapping = await GetMappingAsync(targetConnectionString, table).ConfigureAwait(false);
+        if (mapping is null)
+        {
+            throw new InvalidOperationException("Mapping not found when updating synced version.");
+        }
+        using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+        using (var conn = _databaseExecutionService.CreateDbConnection(targetConnectionString))
+        using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
+        {
+            cmd.CommandText = @"
+UPDATE
+    ChangeTrackingMappings
+SET
+    LastSyncedVersion = @LastSyncedVersion,
+    ModifiedDate = GETUTCDATE()
+WHERE
+    ChangeTrackingMappingId = @ChangeTrackingMappingId
+";
+            cmd.Parameters.Add(new SqlParameter("@LastSyncedVersion", version));
+            cmd.Parameters.Add(new SqlParameter("@ChangeTrackingMappingId", mapping.ChangeTrackingMappingId));
+            await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+            ts.Complete();
+        }
     }
 
 }

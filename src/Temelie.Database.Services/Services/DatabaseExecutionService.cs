@@ -39,7 +39,7 @@ public class DatabaseExecutionService : IDatabaseExecutionService
 
         if (connection.State != ConnectionState.Open)
         {
-            connection.Open();
+          connection.Open();
         }
 
         return connection;

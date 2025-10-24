@@ -1,4 +1,3 @@
-using System.Data;
 using System.Data.Common;
 using System.Text;
 using Temelie.Database.Models;
@@ -75,7 +74,6 @@ public partial class DatabaseProvider : DatabaseProviderBase
         return targetColumnType;
 
     }
-
 
     public override string TransformConnectionString(string connectionString)
     {

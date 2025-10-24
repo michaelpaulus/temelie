@@ -560,7 +560,6 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
                 list.Add(table);
             }
 
-
             foreach (var databaseModelProvider in _databaseModelProviders)
             {
                 databaseModelProvider.Initialize(table);

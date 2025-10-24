@@ -1,4 +1,3 @@
-using System.Transactions;
 using Temelie.Database.Extensions;
 using Temelie.Database.Models;
 using Temelie.Database.Models.ChangeTracking;
@@ -54,16 +53,20 @@ public class ChangeTrackingService : IChangeTrackingService
             return;
         }
 
-        var changes = await sourceDatabaseSyncProvider.GetTrackedTableChangesAsync(sourceConnectionString, targetConnectionString, table, mapping.LastSyncedVersionId).ConfigureAwait(false);
-
-        if (changes.Any())
+        var largestVersionId = 0L;
+        var changes = sourceDatabaseSyncProvider.GetTrackedTableChangesAsync(sourceConnectionString, targetConnectionString, table, mapping.LastSyncedVersion);
+        await foreach (var change in changes.ConfigureAwait(false))
         {
-            changes = changes.OrderBy(i => i.ChangeVersion).ToList();
-            using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            if (change.ChangeVersion > largestVersionId)
             {
-                await targetDatabaseSyncProvider.ApplyChangesAsync(targetConnectionString, table, mapping, changes).ConfigureAwait(false);
-                ts.Complete();
+                largestVersionId = change.ChangeVersion;
             }
+            await targetDatabaseSyncProvider.ApplyChangesAsync(targetConnectionString, table, mapping, [change]).ConfigureAwait(false);
+        }
+
+        if (largestVersionId > 0)
+        {
+            await targetDatabaseSyncProvider.UpdateSyncedVersionAsync(targetConnectionString, table, largestVersionId).ConfigureAwait(false);
         }
 
     }
