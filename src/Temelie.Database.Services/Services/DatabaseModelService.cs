@@ -146,7 +146,7 @@ public class DatabaseModelService : IDatabaseModelService
         return (from i in provider.GetIndexes(connection) orderby i.TableName, i.IndexName select i).ToList();
     }
 
-    private IEnumerable<Models.TableModel> GetTables(DbConnection connection, DatabaseModelOptions options, IEnumerable<ColumnModel> columns)
+    public IEnumerable<Models.TableModel> GetTables(DbConnection connection, DatabaseModelOptions options, IEnumerable<ColumnModel> columns)
     {
         var provider = _databaseFactory.GetDatabaseProvider(connection);
 
@@ -167,7 +167,7 @@ public class DatabaseModelService : IDatabaseModelService
         return tables;
     }
 
-    private IEnumerable<ColumnModel> GetTableColumns(DbConnection connection)
+    public IEnumerable<ColumnModel> GetTableColumns(DbConnection connection)
     {
         var provider = _databaseFactory.GetDatabaseProvider(connection);
 

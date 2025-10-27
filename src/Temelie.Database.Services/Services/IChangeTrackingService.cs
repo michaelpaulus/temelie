@@ -6,5 +6,5 @@ public interface IChangeTrackingService
 {
     Task DetectChangesAsync(ConnectionStringModel sourceConnectionString);
     Task SyncChangesAsync(ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString);
-    Task SyncChangesAsync(ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString, ChangeTrackingTable table);
+    Task SyncChangesAsync(ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString, ChangeTrackingTable table, ChangeTrackingMapping mapping);
 }

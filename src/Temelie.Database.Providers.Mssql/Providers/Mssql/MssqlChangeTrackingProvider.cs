@@ -1,9 +1,12 @@
 using System.Data;
+using System.Data.Common;
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using System.Text.Json;
 using System.Transactions;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using Temelie.Database.Extensions;
 using Temelie.Database.Models;
 using Temelie.Database.Models.ChangeTracking;
 using Temelie.Database.Services;
@@ -17,15 +20,18 @@ public class MssqlChangeTrackingProvider : IChangeTrackingProvider
     private readonly IDatabaseExecutionService _databaseExecutionService;
     private readonly IDatabaseFactory _databaseFactory;
     private readonly ITableConverterService _tableConverterService;
+    private readonly IDatabaseModelService _databaseModelService;
 
     public MssqlChangeTrackingProvider(IConfiguration configuration,
         IDatabaseExecutionService databaseExecutionService,
         IDatabaseFactory databaseFactory,
-        ITableConverterService tableConverterService)
+        ITableConverterService tableConverterService,
+        IDatabaseModelService databaseModelService)
     {
         _databaseExecutionService = databaseExecutionService;
         _databaseFactory = databaseFactory;
         _tableConverterService = tableConverterService;
+        _databaseModelService = databaseModelService;
     }
 
     public string Provider => nameof(SqlConnection);
@@ -43,6 +49,25 @@ FROM
         change_tracking_tables.object_id = tables.object_id INNER JOIN
     sys.schemas ON
         tables.schema_id = schemas.schema_id;
+").ConfigureAwait(false);
+    }
+
+    public async Task<IEnumerable<ChangeTrackingMapping>> GetMappingsAsync(ConnectionStringModel targetConnectionString)
+    {
+        return await GetRecordsAsync<ChangeTrackingMapping>(targetConnectionString, @"
+SELECT
+    ChangeTrackingMappingId,
+    SourceSchemaName,
+    SourceTableName,
+    TargetSchemaName,
+    TargetTableName,
+    LastSyncedVersion,
+    CreatedDate,
+    CreatedBy,
+    ModifiedDate,
+    ModifiedBy
+FROM
+    ChangeTrackingMappings
 ").ConfigureAwait(false);
     }
 
@@ -116,54 +141,21 @@ ORDER BY
                 }
             }
         }
-        
-    }
 
-    public async Task<ChangeTrackingMapping?> GetMappingAsync(ConnectionStringModel targetConnectionString, ChangeTrackingTable table)
-    {
-        return (await GetRecordsAsync<ChangeTrackingMapping>(targetConnectionString, @"
-SELECT
-    ChangeTrackingMappingId,
-    SourceSchemaName,
-    SourceTableName,
-    TargetSchemaName,
-    TargetTableName,
-    LastSyncedVersion,
-    CreatedDate,
-    CreatedBy,
-    ModifiedDate,
-    ModifiedBy
-FROM
-    ChangeTrackingMappings
-WHERE
-    SourceSchemaName = @SourceSchemaName AND
-    SourceTableName = @SourceTableName 
-",
-    new SqlParameter("@SourceSchemaName", table.SchemaName),
-    new SqlParameter("@SourceTableName", table.TableName)).ConfigureAwait(false)).FirstOrDefault();
     }
 
     public async Task ApplyChangesAsync(ConnectionStringModel targetConnectionString, ChangeTrackingTable table, TableModel tableModel, ChangeTrackingMapping mapping, IAsyncEnumerable<ChangeTrackingRow> changes, int count)
     {
-
-        var provider = _databaseFactory.GetDatabaseProvider(targetConnectionString);
-
         var tempTable = CreateTargetTempTable(tableModel, mapping);
         var targetTable = CreateTargetTable(tableModel, mapping);
-
-        var script = provider.GetScript(tempTable);
-
-        if (string.IsNullOrEmpty(script.CreateScript))
-        {
-            throw new Exception("Create table script is null");
-        }
 
         var columns = targetTable.Columns.Select(i => i.ColumnName).ToArray();
         var pkColumns = targetTable.Columns.Where(i => i.IsPrimaryKey).Select(i => i.ColumnName).ToArray();
 
         using (var conn = _databaseExecutionService.CreateDbConnection(targetConnectionString))
         {
-            _databaseExecutionService.ExecuteFile(conn, script.CreateScript);
+            await CreateTableAsync(tempTable, conn).ConfigureAwait(false);
+            await CreateTableAsync(targetTable, conn).ConfigureAwait(false);
 
             _tableConverterService.ConvertBulk(null,
                tempTable,
@@ -224,6 +216,57 @@ WHERE
         }
     }
 
+    private Task CreateTableAsync(TableModel tableModel, DbConnection dbConnection)
+    {
+        var provider = _databaseFactory.GetDatabaseProvider(dbConnection);
+
+        var script = provider.GetScript(tableModel);
+
+        if (string.IsNullOrEmpty(script.CreateScript))
+        {
+            throw new Exception("Create table script is null");
+        }
+
+        _databaseExecutionService.ExecuteFile(dbConnection, script.CreateScript);
+
+        var columns = _databaseModelService.GetTableColumns(dbConnection);
+        var tables = _databaseModelService.GetTables(dbConnection, new DatabaseModelOptions() { ExcludeDoubleUnderscoreObjects = false }, columns);
+        var currentTable = tables.Where(i => i.TableName.EqualsIgnoreCase(tableModel.TableName) && i.SchemaName.EqualsIgnoreCase(tableModel.SchemaName)).FirstOrDefault();
+
+        if (currentTable is not null)
+        {
+            var newColumns = tableModel.Columns.Where(i => !currentTable.Columns.Any(i2 => i.ColumnName == i2.ColumnName)).ToList();
+            var removedColumns = currentTable.Columns.Where(i => !tableModel.Columns.Any(i2 => i.ColumnName == i2.ColumnName)).ToList();
+
+            if (newColumns.Count > 0 || removedColumns.Count > 0)
+            {
+                var sb = new StringBuilder();
+
+                foreach (var newColumn in newColumns)
+                {
+                    var columnScript = provider.GetColumnScript(newColumn);
+                    if (columnScript is not null && !string.IsNullOrEmpty(columnScript.CreateScript))
+                    {
+                        sb.AppendLine(columnScript.CreateScript);
+                    }
+                }
+
+                foreach (var removedColumn in removedColumns)
+                {
+                    var columnScript = provider.GetColumnScript(removedColumn);
+                    if (columnScript is not null && !string.IsNullOrEmpty(columnScript.DropScript))
+                    {
+                        sb.AppendLine(columnScript.DropScript);
+                    }
+                }
+
+                _databaseExecutionService.ExecuteFile(dbConnection, sb.ToString());
+            }
+        }
+
+        return Task.CompletedTask;
+    }
+
     private async Task<IEnumerable<T>> GetRecordsAsync<T>(ConnectionStringModel connectionString, string query, params SqlParameter[] parameters)
     {
         var results = new List<T>();
@@ -254,13 +297,8 @@ WHERE
         return results;
     }
 
-    public async Task UpdateSyncedVersionAsync(ConnectionStringModel targetConnectionString, ChangeTrackingTable table, long version)
+    public async Task UpdateSyncedVersionAsync(ConnectionStringModel targetConnectionString, ChangeTrackingTable table, ChangeTrackingMapping mapping, long version)
     {
-        var mapping = await GetMappingAsync(targetConnectionString, table).ConfigureAwait(false);
-        if (mapping is null)
-        {
-            throw new InvalidOperationException("Mapping not found when updating synced version.");
-        }
         using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
         using (var conn = _databaseExecutionService.CreateDbConnection(targetConnectionString))
         using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
@@ -308,6 +346,8 @@ WHERE
 
         foreach (var column in tempTable.Columns)
         {
+            column.SchemaName = tempTable.SchemaName;
+            column.TableName = tempTable.TableName;
             column.IsNullable = true;
             column.ColumnDefault = null;
             column.ExtendedProperties = new Dictionary<string, string>();
@@ -328,8 +368,8 @@ WHERE
 
         foreach (var column in tempTable.Columns)
         {
-            column.IsNullable = true;
-            column.ColumnDefault = null;
+            column.SchemaName = tempTable.SchemaName;
+            column.TableName = tempTable.TableName;
             column.ExtendedProperties = new Dictionary<string, string>();
         }
 

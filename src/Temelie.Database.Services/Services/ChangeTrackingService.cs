@@ -11,12 +11,15 @@ public class ChangeTrackingService : IChangeTrackingService
 {
     private readonly IEnumerable<IChangeTrackingProvider> _changeTrackingProviders;
     private readonly IDatabaseModelService _databaseModelService;
+    private readonly IDatabaseExecutionService _databaseExecutionService;
 
     public ChangeTrackingService(IEnumerable<IChangeTrackingProvider> changeTrackingProviders,
-        IDatabaseModelService databaseModelService)
+        IDatabaseModelService databaseModelService,
+        IDatabaseExecutionService databaseExecutionService)
     {
         _changeTrackingProviders = changeTrackingProviders;
         _databaseModelService = databaseModelService;
+        _databaseExecutionService = databaseExecutionService;
     }
 
     private IChangeTrackingProvider GetDatabaseSyncProvider(ConnectionStringModel connectionString)
@@ -38,27 +41,30 @@ public class ChangeTrackingService : IChangeTrackingService
     {
         var sourceDatabaseSyncProvider = GetDatabaseSyncProvider(sourceConnectionString);
         var tables = await sourceDatabaseSyncProvider.GetTrackedTablesAsync(sourceConnectionString).ConfigureAwait(false);
+        var mappings = await sourceDatabaseSyncProvider.GetMappingsAsync(sourceConnectionString).ConfigureAwait(false);
         foreach (var table in tables)
         {
-            await SyncChangesAsync(sourceConnectionString, targetConnectionString, table).ConfigureAwait(false);
+            var mapping = mappings.Where(i => i.SourceTableName == table.TableName && i.SourceSchemaName == table.SchemaName).FirstOrDefault();
+            if (mapping is not null)
+            {
+                await SyncChangesAsync(sourceConnectionString, targetConnectionString, table, mapping).ConfigureAwait(false);
+            }
         }
     }
 
-    public async Task SyncChangesAsync(ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString, ChangeTrackingTable table)
+    public async Task SyncChangesAsync(ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString, ChangeTrackingTable table, ChangeTrackingMapping mapping)
     {
         var sourceDatabaseSyncProvider = GetDatabaseSyncProvider(sourceConnectionString);
         var targetDatabaseSyncProvider = GetDatabaseSyncProvider(targetConnectionString);
 
-        var mapping = await targetDatabaseSyncProvider.GetMappingAsync(targetConnectionString, table).ConfigureAwait(false);
+        TableModel? sourceTable = null;
 
-        if (mapping is null)
+        using (var conn = _databaseExecutionService.CreateDbConnection(sourceConnectionString))
         {
-            return;
+            var columns = _databaseModelService.GetTableColumns(conn);
+            var tables = _databaseModelService.GetTables(conn, new DatabaseModelOptions(), columns);
+            sourceTable = tables.Where(i => i.TableName.EqualsIgnoreCase(table.TableName) && i.SchemaName.EqualsIgnoreCase(table.SchemaName)).FirstOrDefault();
         }
-
-        var databaseModel = _databaseModelService.CreateModel(sourceConnectionString);
-
-        var sourceTable = databaseModel.Tables.Where(i => i.TableName == table.TableName && i.SchemaName == table.SchemaName).FirstOrDefault();
 
         if (sourceTable is null)
         {
@@ -73,7 +79,7 @@ public class ChangeTrackingService : IChangeTrackingService
 
             await targetDatabaseSyncProvider.ApplyChangesAsync(targetConnectionString, table, sourceTable, mapping, changes, changeCount).ConfigureAwait(false);
 
-            await targetDatabaseSyncProvider.UpdateSyncedVersionAsync(targetConnectionString, table, table.CurrentVersion.GetValueOrDefault()).ConfigureAwait(false);
+            await targetDatabaseSyncProvider.UpdateSyncedVersionAsync(targetConnectionString, table, mapping, table.CurrentVersion.GetValueOrDefault()).ConfigureAwait(false);
         }
 
     }
