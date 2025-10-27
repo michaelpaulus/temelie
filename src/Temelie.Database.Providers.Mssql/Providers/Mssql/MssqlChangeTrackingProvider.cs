@@ -12,13 +12,13 @@ using Temelie.DependencyInjection;
 namespace Temelie.Database.Providers;
 
 [ExportProvider(typeof(IChangeTrackingProvider))]
-public class MssqlDatabaseSyncProvider : IChangeTrackingProvider
+public class MssqlChangeTrackingProvider : IChangeTrackingProvider
 {
     private readonly IDatabaseExecutionService _databaseExecutionService;
     private readonly IDatabaseFactory _databaseFactory;
     private readonly ITableConverterService _tableConverterService;
 
-    public MssqlDatabaseSyncProvider(IConfiguration configuration,
+    public MssqlChangeTrackingProvider(IConfiguration configuration,
         IDatabaseExecutionService databaseExecutionService,
         IDatabaseFactory databaseFactory,
         ITableConverterService tableConverterService)
