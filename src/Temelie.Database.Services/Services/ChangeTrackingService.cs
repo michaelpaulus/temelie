@@ -10,10 +10,13 @@ namespace Temelie.Database.Services;
 public class ChangeTrackingService : IChangeTrackingService
 {
     private readonly IEnumerable<IChangeTrackingProvider> _changeTrackingProviders;
+    private readonly IDatabaseModelService _databaseModelService;
 
-    public ChangeTrackingService(IEnumerable<IChangeTrackingProvider> changeTrackingProviders)
+    public ChangeTrackingService(IEnumerable<IChangeTrackingProvider> changeTrackingProviders,
+        IDatabaseModelService databaseModelService)
     {
         _changeTrackingProviders = changeTrackingProviders;
+        _databaseModelService = databaseModelService;
     }
 
     private IChangeTrackingProvider GetDatabaseSyncProvider(ConnectionStringModel connectionString)
@@ -53,20 +56,24 @@ public class ChangeTrackingService : IChangeTrackingService
             return;
         }
 
-        var largestVersionId = 0L;
-        var changes = sourceDatabaseSyncProvider.GetTrackedTableChangesAsync(sourceConnectionString, targetConnectionString, table, mapping.LastSyncedVersion);
-        await foreach (var change in changes.ConfigureAwait(false))
+        var databaseModel = _databaseModelService.CreateModel(sourceConnectionString);
+
+        var sourceTable = databaseModel.Tables.Where(i => i.TableName == table.TableName && i.SchemaName == table.SchemaName).FirstOrDefault();
+
+        if (sourceTable is null)
         {
-            if (change.ChangeVersion > largestVersionId)
-            {
-                largestVersionId = change.ChangeVersion;
-            }
-            await targetDatabaseSyncProvider.ApplyChangesAsync(targetConnectionString, table, mapping, [change]).ConfigureAwait(false);
+            throw new Exception("Source table not found in database model.");
         }
 
-        if (largestVersionId > 0)
+        var changeCount = await sourceDatabaseSyncProvider.GetTrackedTableChangesCountAsync(sourceConnectionString, targetConnectionString, table, sourceTable, mapping.LastSyncedVersion).ConfigureAwait(false);
+
+        if (changeCount > 0)
         {
-            await targetDatabaseSyncProvider.UpdateSyncedVersionAsync(targetConnectionString, table, largestVersionId).ConfigureAwait(false);
+            var changes = sourceDatabaseSyncProvider.GetTrackedTableChangesAsync(sourceConnectionString, targetConnectionString, table, sourceTable, mapping.LastSyncedVersion);
+
+            await targetDatabaseSyncProvider.ApplyChangesAsync(targetConnectionString, table, sourceTable, mapping, changes, changeCount).ConfigureAwait(false);
+
+            await targetDatabaseSyncProvider.UpdateSyncedVersionAsync(targetConnectionString, table, table.CurrentVersion.GetValueOrDefault()).ConfigureAwait(false);
         }
 
     }

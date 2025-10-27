@@ -116,6 +116,21 @@ public class TableConverterService : ITableConverterService
         }
     }
 
+    public void ConvertBulk(IProgress<TableProgress> progress,
+     Models.TableModel sourceTable,
+     IDataReader sourceReader,
+     int sourceRowCount,
+     Models.TableModel targetTable,
+     DbConnection targetConnection,
+     bool trimStrings,
+     int batchSize,
+     bool useTransaction = true,
+     bool validateTargetTable = true)
+    {
+        var targetDatabaseProvider = _databaseFactory.GetDatabaseProvider(targetConnection);
+        targetDatabaseProvider.ConvertBulk(this, progress, sourceTable, sourceReader, sourceRowCount, targetTable, targetConnection, trimStrings, batchSize, useTransaction, validateTargetTable);
+    }
+
     private DbCommand CreateSourceCommand(Models.TableModel sourceTable, Models.TableModel targetTable, System.Data.Common.DbConnection sourceConnection)
     {
         var sourceDatabaseProvider = _databaseFactory.GetDatabaseProvider(sourceConnection);

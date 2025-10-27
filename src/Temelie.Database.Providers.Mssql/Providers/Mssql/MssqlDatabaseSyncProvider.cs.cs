@@ -1,3 +1,5 @@
+using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Transactions;
 using Microsoft.Data.SqlClient;
@@ -13,10 +15,17 @@ namespace Temelie.Database.Providers;
 public class MssqlDatabaseSyncProvider : IChangeTrackingProvider
 {
     private readonly IDatabaseExecutionService _databaseExecutionService;
+    private readonly IDatabaseFactory _databaseFactory;
+    private readonly ITableConverterService _tableConverterService;
 
-    public MssqlDatabaseSyncProvider(IConfiguration configuration, IDatabaseExecutionService databaseExecutionService)
+    public MssqlDatabaseSyncProvider(IConfiguration configuration,
+        IDatabaseExecutionService databaseExecutionService,
+        IDatabaseFactory databaseFactory,
+        ITableConverterService tableConverterService)
     {
         _databaseExecutionService = databaseExecutionService;
+        _databaseFactory = databaseFactory;
+        _tableConverterService = tableConverterService;
     }
 
     public string Provider => nameof(SqlConnection);
@@ -27,37 +36,7 @@ public class MssqlDatabaseSyncProvider : IChangeTrackingProvider
 SELECT
     schemas.name AS SchemaName,
     tables.name AS TableName,
-    (SELECT
-         name AS Name,
-         system_type_id AS SystemTypeId,
-         column_id AS ColumnId,
-         max_length AS MaxLength,
-         precision AS Precision,
-         scale AS Scale,
-         is_nullable AS IsNullable,
-         is_computed AS IsComputed
-     FROM
-         sys.columns
-     WHERE
-          columns.object_id = tables.object_id
-     FOR JSON AUTO) AS ColumnsJSON,
-    (SELECT
-         columns.name AS Name,
-         index_columns.column_id AS ColumnId,
-         index_columns.key_ordinal AS KeyOrdinal
-     FROM
-         sys.indexes INNER JOIN
-         sys.index_columns ON
-             indexes.object_id = index_columns.object_id AND
-             indexes.index_id = index_columns.index_id INNER JOIN
-         sys.columns ON
-             index_columns.object_id = columns.object_id AND
-             index_columns.column_id = columns.column_id
-     WHERE
-          indexes.object_id = tables.object_id AND
-          indexes.is_primary_key = 1
-     FOR JSON AUTO) AS PkColumnsJSON,
-    CHANGE_TRACKING_CURRENT_VERSION() AS CurrentVersionId
+    CHANGE_TRACKING_CURRENT_VERSION() AS CurrentVersion
 FROM
     sys.change_tracking_tables INNER JOIN
     sys.tables ON
@@ -67,20 +46,50 @@ FROM
 ").ConfigureAwait(false);
     }
 
-    public async IAsyncEnumerable<ChangeTrackingRow> GetTrackedTableChangesAsync(ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString, ChangeTrackingTable table, long previousVersionId)
+    public async Task<int> GetTrackedTableChangesCountAsync(ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString, ChangeTrackingTable table, TableModel tableModel, long previousVersionId)
     {
         var schemaName = table.SchemaName;
         var tableName = table.TableName;
-        var columns = GetColumns(table.ColumnsJSON).OrderBy(i => i.ColumnId).Select(i => i.Name).ToArray();
-        var primaryKeyColumns = GetPkColumns(table.PkColumnsJSON).OrderBy(i => i.KeyOrdinal).Select(i => i.Name).ToArray();
+        var columns = tableModel.Columns.OrderBy(i => i.ColumnId).Select(i => i.ColumnName).ToArray();
+        var primaryKeyColumns = tableModel.Columns.Where(i => i.IsPrimaryKey).OrderBy(i => i.ColumnId).Select(i => i.ColumnName).ToArray();
 
         var pkColumns = primaryKeyColumns.Select(c => $"CT.[{c}]").ToList();
         var nonPkColumns = columns.Where(i => !primaryKeyColumns.Any(i2 => i2 == i)).Select(c => $"T.[{c}]").ToList();
 
         using (var conn = _databaseExecutionService.CreateDbConnection(sourceConnectionString))
-        using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
         {
-            cmd.CommandText = $@"
+            using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
+            {
+                cmd.CommandText = $@"
+SELECT
+    COUNT(*)
+FROM
+    CHANGETABLE(CHANGES [{schemaName}].[{tableName}], {previousVersionId}) AS CT LEFT JOIN
+    [{schemaName}].[{tableName}] AS T ON {string.Join(" AND ", primaryKeyColumns.Select(c => $"CT.[{c}] = T.[{c}]"))}
+;
+";
+                var count = Convert.ToInt32(await cmd.ExecuteScalarAsync().ConfigureAwait(false));
+                return count;
+            }
+        }
+
+    }
+
+    public async IAsyncEnumerable<ChangeTrackingRow> GetTrackedTableChangesAsync(ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString, ChangeTrackingTable table, TableModel tableModel, long previousVersionId)
+    {
+        var schemaName = table.SchemaName;
+        var tableName = table.TableName;
+        var columns = tableModel.Columns.OrderBy(i => i.ColumnId).Select(i => i.ColumnName).ToArray();
+        var primaryKeyColumns = tableModel.Columns.Where(i => i.IsPrimaryKey).OrderBy(i => i.ColumnId).Select(i => i.ColumnName).ToArray();
+
+        var pkColumns = primaryKeyColumns.Select(c => $"CT.[{c}]").ToList();
+        var nonPkColumns = columns.Where(i => !primaryKeyColumns.Any(i2 => i2 == i)).Select(c => $"T.[{c}]").ToList();
+
+        using (var conn = _databaseExecutionService.CreateDbConnection(sourceConnectionString))
+        {
+            using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
+            {
+                cmd.CommandText = $@"
 SELECT
     CT.SYS_CHANGE_VERSION,
     CT.SYS_CHANGE_OPERATION,
@@ -93,22 +102,24 @@ ORDER BY
     CT.SYS_CHANGE_VERSION
 ;
 ";
-            using (var reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false))
-            {
-                while (await reader.ReadAsync().ConfigureAwait(false))
+                using (var reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false))
                 {
-                    var row = new ChangeTrackingRow
+                    while (await reader.ReadAsync().ConfigureAwait(false))
                     {
-                        SchemaName = schemaName,
-                        TableName = tableName,
-                        ChangeVersion = reader.GetInt64(0),
-                        ChangeOperation = reader.GetString(1),
-                        ColumnValues = columns.ToDictionary(c => c, c => reader[c] == DBNull.Value ? null : reader[c])
-                    };
-                    yield return row;
+                        var row = new ChangeTrackingRow
+                        {
+                            SchemaName = schemaName,
+                            TableName = tableName,
+                            ChangeVersion = reader.GetInt64(0),
+                            ChangeOperation = reader.GetString(1),
+                            ColumnValues = columns.ToDictionary(c => c, c => reader[c] == DBNull.Value ? null : reader[c])
+                        };
+                        yield return row;
+                    }
                 }
             }
         }
+        
     }
 
     public async Task<ChangeTrackingMapping?> GetMappingAsync(ConnectionStringModel targetConnectionString, ChangeTrackingTable table)
@@ -135,111 +146,85 @@ WHERE
     new SqlParameter("@SourceTableName", table.TableName)).ConfigureAwait(false)).FirstOrDefault();
     }
 
-    public async Task ApplyChangesAsync(ConnectionStringModel targetConnectionString, ChangeTrackingTable table, ChangeTrackingMapping mapping, IEnumerable<ChangeTrackingRow> changes)
+    public async Task ApplyChangesAsync(ConnectionStringModel targetConnectionString, ChangeTrackingTable table, TableModel tableModel, ChangeTrackingMapping mapping, IAsyncEnumerable<ChangeTrackingRow> changes, int count)
     {
-        using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+
+        var provider = _databaseFactory.GetDatabaseProvider(targetConnectionString);
+
+        var tempTable = CreateTargetTempTable(tableModel, mapping);
+        var targetTable = CreateTargetTable(tableModel, mapping);
+
+        var script = provider.GetScript(tempTable);
+
+        if (string.IsNullOrEmpty(script.CreateScript))
         {
-            string getColumnValue(object? value)
-            {
-                if (value is JsonElement jsonElement)
-                {
-                    value = jsonElement.ValueKind switch
-                    {
-                        JsonValueKind.String => jsonElement.GetString(),
-                        JsonValueKind.Number => jsonElement.GetDecimal(),
-                        JsonValueKind.True => true,
-                        JsonValueKind.False => false,
-                        JsonValueKind.Null => null,
-                        _ => throw new InvalidOperationException($"Unsupported JSON value kind: {jsonElement.ValueKind}")
-                    };
-                }
-
-                if (value == null)
-                {
-                    return "NULL";
-                }
-                if (value is string stringValue)
-                {
-                    return $"'{stringValue.Replace("'", "''")}'";
-                }
-                if (value is Guid guidValue)
-                {
-                    return $"'{guidValue}'";
-                }
-                if (value is DateTime dateValue)
-                {
-                    return $"'{dateValue.ToString("yyyy-MM-ddTHH:mm:ss")}'";
-                }
-                if (value is bool boolValue)
-                {
-                    return $"{(boolValue ? "1" : "0")}";
-                }
-
-                return value.ToString()!;
-            }
-
-            string generateUpsert(ChangeTrackingRow change)
-            {
-                var data = change.ColumnValues;
-                var columns = GetColumns(table.ColumnsJSON).Select(i => i.Name).ToArray();
-                var pkColumns = GetPkColumns(table.PkColumnsJSON).Select(i => i.Name).ToArray();
-
-                return @$"
-MERGE INTO [{mapping.TargetSchemaName}].[{mapping.TargetTableName}]
-USING (VALUES (
-{string.Join(", ", columns.Select(c => getColumnValue(data[c])))}
-)) AS source ({string.Join(", ", data.Keys)})
-ON {string.Join(" AND ", pkColumns.Select(c => $"[{mapping.TargetTableName}].[{c}] = source.{c}"))}
-WHEN MATCHED THEN
- UPDATE
-SET
-    {string.Join(", ", data.Where(i => !pkColumns.Any(i2 => i2 == i.Key)).Select(i2 => string.Join(", ", $"{i2.Key} = {getColumnValue(i2.Value)}")))}
-WHEN NOT MATCHED THEN
- INSERT ({string.Join(", ", data.Keys)})
- VALUES ({string.Join(", ", data.Select(i => getColumnValue(i.Value)))});
-";
-            }
-
-            string generateDelete(ChangeTrackingRow change)
-            {
-                var data = change.ColumnValues;
-                return @$"
-DELETE FROM [{mapping.TargetSchemaName}].[{mapping.TargetTableName}]
-WHERE {string.Join(" AND ", GetPkColumns(table.PkColumnsJSON).Select(c => $"[{c.Name}] = {getColumnValue(data[c.Name])}"))}
-";
-            }
-
-            foreach (var change in changes)
-            {
-                using (var conn = _databaseExecutionService.CreateDbConnection(targetConnectionString))
-                using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
-                {
-                    cmd.CommandText = $@"
-{change.ChangeOperation switch
-                    {
-                        "I" => generateUpsert(change),
-                        "U" => generateUpsert(change),
-                        "D" => generateDelete(change),
-                        _ => throw new InvalidOperationException($"Unknown change operation: {change.ChangeOperation}")
-                    }}
-";
-                    await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
-                }
-
-            }
-
-            ts.Complete();
+            throw new Exception("Create table script is null");
         }
-    }
 
-    private static ChangeTrackingColumn[] GetColumns(string columnsJSON)
-    {
-        return string.IsNullOrWhiteSpace(columnsJSON) ? Array.Empty<ChangeTrackingColumn>() : JsonSerializer.Deserialize<ChangeTrackingColumn[]>(columnsJSON)!;
-    }
+        var columns = targetTable.Columns.Select(i => i.ColumnName).ToArray();
+        var pkColumns = targetTable.Columns.Where(i => i.IsPrimaryKey).Select(i => i.ColumnName).ToArray();
 
-    private static ChangeTrackingPkColumn[] GetPkColumns(string pkColumnsJSON)
-    {
-        return string.IsNullOrWhiteSpace(pkColumnsJSON) ? Array.Empty<ChangeTrackingPkColumn>() : JsonSerializer.Deserialize<ChangeTrackingPkColumn[]>(pkColumnsJSON)!;
+        using (var conn = _databaseExecutionService.CreateDbConnection(targetConnectionString))
+        {
+            _databaseExecutionService.ExecuteFile(conn, script.CreateScript);
+
+            _tableConverterService.ConvertBulk(null,
+               tempTable,
+               new SourceDataReader(tempTable, changes),
+               count,
+               tempTable,
+               conn,
+               false,
+               10000,
+               false,
+               true
+               );
+
+            using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
+            {
+                cmd.CommandText = @$"
+MERGE INTO [{targetTable.SchemaName}].[{targetTable.TableName}]
+USING (
+    SELECT
+        {string.Join(", ", columns.Select(i => $"[{i}]"))}
+    FROM
+        [{tempTable.SchemaName}].[{tempTable.TableName}] as source
+    WHERE
+        source.SYS_CHANGE_OPERATION <> 'D'
+) AS source
+ON {string.Join(" AND ", pkColumns.Select(c => $"[{targetTable.TableName}].[{c}] = source.[{c}]"))}
+WHEN MATCHED THEN
+    UPDATE
+SET
+    {string.Join(", ", columns.Select(c => $"[{targetTable.TableName}].[{c}] = source.[{c}]"))}
+WHEN NOT MATCHED THEN
+    INSERT ({string.Join(", ", columns)})
+    VALUES ({string.Join(", ", columns.Select(c => $"source.[{c}]"))});
+";
+                await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+            }
+
+            using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
+            {
+                cmd.CommandText = @$"
+DELETE FROM
+    [{targetTable.SchemaName}].[{targetTable.TableName}]
+WHERE
+    EXISTS
+    (
+        SELECT
+            1
+        FROM
+            [{tempTable.SchemaName}].[{tempTable.TableName}] AS source
+        WHERE
+            source.SYS_CHANGE_OPERATION = 'D' AND
+            {string.Join(" AND ", pkColumns.Select(c => $"[{targetTable.TableName}].[{c}] = source.[{c}]"))}
+    );
+";
+                await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+            }
+
+        }
     }
 
     private async Task<IEnumerable<T>> GetRecordsAsync<T>(ConnectionStringModel connectionString, string query, params SqlParameter[] parameters)
@@ -296,6 +281,228 @@ WHERE
             cmd.Parameters.Add(new SqlParameter("@ChangeTrackingMappingId", mapping.ChangeTrackingMappingId));
             await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
             ts.Complete();
+        }
+    }
+
+    private TableModel CreateTargetTempTable(TableModel tableModel, ChangeTrackingMapping mapping)
+    {
+        var tempTable = JsonSerializer.Deserialize<TableModel>(JsonSerializer.Serialize(tableModel))!;
+
+        tempTable.TableName = "#" + mapping.TargetTableName;
+        tempTable.SchemaName = mapping.TargetSchemaName;
+
+        tempTable.Columns.Add(new ColumnModel()
+        {
+            ColumnName = "SYS_CHANGE_VERSION",
+            ColumnType = "BIGINT",
+            IsNullable = false
+        });
+        tempTable.Columns.Add(new ColumnModel()
+        {
+            ColumnName = "SYS_CHANGE_OPERATION",
+            ColumnType = "CHAR",
+            Precision = 1,
+            IsNullable = false
+        });
+
+        tempTable.ExtendedProperties = new Dictionary<string, string>();
+
+        var index = 0;
+
+        foreach (var column in tempTable.Columns)
+        {
+            column.IsNullable = true;
+            column.ColumnDefault = null;
+            column.ExtendedProperties = new Dictionary<string, string>();
+            column.ColumnId = ++index;
+        }
+
+        return tempTable;
+    }
+
+    private TableModel CreateTargetTable(TableModel tableModel, ChangeTrackingMapping mapping)
+    {
+        var tempTable = JsonSerializer.Deserialize<TableModel>(JsonSerializer.Serialize(tableModel))!;
+
+        tempTable.TableName = mapping.TargetTableName;
+        tempTable.SchemaName = mapping.TargetSchemaName;
+
+        tempTable.ExtendedProperties = new Dictionary<string, string>();
+
+        foreach (var column in tempTable.Columns)
+        {
+            column.IsNullable = true;
+            column.ColumnDefault = null;
+            column.ExtendedProperties = new Dictionary<string, string>();
+        }
+
+        return tempTable;
+    }
+
+    private class SourceDataReader : IDataReader
+    {
+        private readonly TableModel _tableModel;
+        private readonly IEnumerator<ChangeTrackingRow> _changes;
+
+        public SourceDataReader(TableModel tableModel, IAsyncEnumerable<ChangeTrackingRow> changes)
+        {
+            _tableModel = tableModel;
+            _changes = changes.ToBlockingEnumerable().GetEnumerator();
+
+        }
+
+        public object this[int i] => GetValue(i);
+        public object this[string name] => GetValue(GetOrdinal(name));
+
+        public int Depth { get; }
+        public bool IsClosed { get; }
+        public int RecordsAffected { get; }
+        public int FieldCount => _tableModel.Columns.Count + 2;
+
+        public void Close()
+        {
+
+        }
+
+        public void Dispose()
+        {
+
+        }
+
+        public bool GetBoolean(int i)
+        {
+            throw new NotImplementedException();
+        }
+
+        public byte GetByte(int i)
+        {
+            throw new NotImplementedException();
+        }
+
+        public long GetBytes(int i, long fieldOffset, byte[]? buffer, int bufferoffset, int length)
+        {
+            throw new NotImplementedException();
+        }
+
+        public char GetChar(int i)
+        {
+            throw new NotImplementedException();
+        }
+
+        public long GetChars(int i, long fieldoffset, char[]? buffer, int bufferoffset, int length)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDataReader GetData(int i)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetDataTypeName(int i)
+        {
+            throw new NotImplementedException();
+        }
+
+        public DateTime GetDateTime(int i)
+        {
+            throw new NotImplementedException();
+        }
+
+        public decimal GetDecimal(int i)
+        {
+            throw new NotImplementedException();
+        }
+
+        public double GetDouble(int i)
+        {
+            throw new NotImplementedException();
+        }
+
+        [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.PublicProperties)]
+        public Type GetFieldType(int i)
+        {
+            throw new NotImplementedException();
+        }
+
+        public float GetFloat(int i)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Guid GetGuid(int i)
+        {
+            throw new NotImplementedException();
+        }
+
+        public short GetInt16(int i)
+        {
+            throw new NotImplementedException();
+        }
+
+        public int GetInt32(int i)
+        {
+            throw new NotImplementedException();
+        }
+
+        public long GetInt64(int i)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetName(int i)
+        {
+            throw new NotImplementedException();
+        }
+
+        public int GetOrdinal(string name)
+        {
+            var column = _tableModel.Columns.FirstOrDefault(c => c.ColumnName == name);
+            return _tableModel.Columns.IndexOf(column);
+        }
+
+        public DataTable? GetSchemaTable()
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetString(int i)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object GetValue(int i)
+        {
+            var column = _tableModel.Columns[i];
+            if (column.ColumnName == "SYS_CHANGE_VERSION")
+            {
+                return _changes.Current.ChangeVersion;
+            }
+            else if (column.ColumnName == "SYS_CHANGE_OPERATION")
+            {
+                return _changes.Current.ChangeOperation;
+            }
+            return _changes.Current.ColumnValues[column.ColumnName] ?? DBNull.Value;
+        }
+
+        public int GetValues(object[] values)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsDBNull(int i)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool NextResult()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Read()
+        {
+            return _changes.MoveNext();
         }
     }
 

@@ -7,10 +7,6 @@ public partial record ChangeTrackingTable
 
     public virtual string TableName { get; set; } = "";
 
-    public virtual string ColumnsJSON { get; set; }
-
-    public virtual string PkColumnsJSON { get; set; }
-
-    public virtual long? CurrentVersionId { get; set; }
+    public virtual long? CurrentVersion { get; set; }
 
 }
