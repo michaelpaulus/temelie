@@ -46,7 +46,7 @@ FROM
 ").ConfigureAwait(false);
     }
 
-    public async Task<int> GetTrackedTableChangesCountAsync(ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString, ChangeTrackingTable table, TableModel tableModel, long previousVersionId)
+    public async Task<int> GetTrackedTableChangesCountAsync(ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString, ChangeTrackingTable table, TableModel tableModel, long previousVersion)
     {
         var schemaName = table.SchemaName;
         var tableName = table.TableName;
@@ -64,7 +64,7 @@ FROM
 SELECT
     COUNT(*)
 FROM
-    CHANGETABLE(CHANGES [{schemaName}].[{tableName}], {previousVersionId}) AS CT LEFT JOIN
+    CHANGETABLE(CHANGES [{schemaName}].[{tableName}], {previousVersion}) AS CT LEFT JOIN
     [{schemaName}].[{tableName}] AS T ON {string.Join(" AND ", primaryKeyColumns.Select(c => $"CT.[{c}] = T.[{c}]"))}
 ;
 ";
@@ -75,7 +75,7 @@ FROM
 
     }
 
-    public async IAsyncEnumerable<ChangeTrackingRow> GetTrackedTableChangesAsync(ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString, ChangeTrackingTable table, TableModel tableModel, long previousVersionId)
+    public async IAsyncEnumerable<ChangeTrackingRow> GetTrackedTableChangesAsync(ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString, ChangeTrackingTable table, TableModel tableModel, long previousVersion)
     {
         var schemaName = table.SchemaName;
         var tableName = table.TableName;
@@ -83,7 +83,6 @@ FROM
         var primaryKeyColumns = tableModel.Columns.Where(i => i.IsPrimaryKey).OrderBy(i => i.ColumnId).Select(i => i.ColumnName).ToArray();
 
         var pkColumns = primaryKeyColumns.Select(c => $"CT.[{c}]").ToList();
-        var nonPkColumns = columns.Where(i => !primaryKeyColumns.Any(i2 => i2 == i)).Select(c => $"T.[{c}]").ToList();
 
         using (var conn = _databaseExecutionService.CreateDbConnection(sourceConnectionString))
         {
@@ -93,10 +92,9 @@ FROM
 SELECT
     CT.SYS_CHANGE_VERSION,
     CT.SYS_CHANGE_OPERATION,
-    {string.Join(", ", pkColumns)}{(nonPkColumns.Any() ? "," : "")}
-    {string.Join(", ", nonPkColumns)}
+    {string.Join(", ", columns)}
 FROM
-    CHANGETABLE(CHANGES [{schemaName}].[{tableName}], {previousVersionId}) AS CT LEFT JOIN
+    CHANGETABLE(CHANGES [{schemaName}].[{tableName}], {previousVersion}) AS CT LEFT JOIN
     [{schemaName}].[{tableName}] AS T ON {string.Join(" AND ", primaryKeyColumns.Select(c => $"CT.[{c}] = T.[{c}]"))}
 ORDER BY
     CT.SYS_CHANGE_VERSION
