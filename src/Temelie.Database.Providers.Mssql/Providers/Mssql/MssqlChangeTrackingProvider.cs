@@ -82,8 +82,6 @@ FROM
         var columns = tableModel.Columns.OrderBy(i => i.ColumnId).Select(i => i.ColumnName).ToArray();
         var primaryKeyColumns = tableModel.Columns.Where(i => i.IsPrimaryKey).OrderBy(i => i.ColumnId).Select(i => i.ColumnName).ToArray();
 
-        var pkColumns = primaryKeyColumns.Select(c => $"CT.[{c}]").ToList();
-
         using (var conn = _databaseExecutionService.CreateDbConnection(sourceConnectionString))
         {
             using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
@@ -92,7 +90,8 @@ FROM
 SELECT
     CT.SYS_CHANGE_VERSION,
     CT.SYS_CHANGE_OPERATION,
-    {string.Join(", ", columns)}
+    {string.Join(", ", primaryKeyColumns.Select(i => $"CT.[{i}]"))},
+    {string.Join(", ", columns.Where(i => !primaryKeyColumns.Contains(i)).Select(i => $"T.[{i}]"))}
 FROM
     CHANGETABLE(CHANGES [{schemaName}].[{tableName}], {previousVersion}) AS CT LEFT JOIN
     [{schemaName}].[{tableName}] AS T ON {string.Join(" AND ", primaryKeyColumns.Select(c => $"CT.[{c}] = T.[{c}]"))}
