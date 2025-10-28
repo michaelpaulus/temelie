@@ -57,7 +57,7 @@ public class ChangeTrackingService : IChangeTrackingService
         var sourceDatabaseSyncProvider = GetDatabaseSyncProvider(sourceConnectionString);
         var targetDatabaseSyncProvider = GetDatabaseSyncProvider(targetConnectionString);
 
-        TableModel? sourceTable = null;
+        TableModel sourceTable = null;
 
         using (var conn = _databaseExecutionService.CreateDbConnection(sourceConnectionString))
         {
