@@ -33,27 +33,28 @@ public partial class DatabaseProvider
     protected override DataTable GetDefinitionsDataTable(DbConnection connection)
     {
         string sql = @"
-                        SELECT 
-                            sysobjects.name, 
-                            sysobjects.xtype, 
-                            sys.schemas.name schema_name,
-                            ISNULL(sys.sql_modules.definition, sys.system_sql_modules.definition) AS definition
-                        FROM 
-                            sysobjects INNER JOIN 
-                            sys.schemas ON 
-                                sysobjects.uid = sys.schemas.schema_id LEFT OUTER JOIN 
-                            sys.sql_modules ON 
-                                sys.sql_modules.object_id = sysobjects.id LEFT OUTER JOIN 
-                            sys.system_sql_modules ON 
-                                sys.system_sql_modules.object_id = sysobjects.id 
-                        WHERE 
-                            sysobjects.xtype IN ('P', 'V', 'FN', 'IF', 'TF') AND 
-                            sysobjects.category = 0 AND 
-                            sysobjects.name NOT LIKE '%diagram%' 
-                        ORDER BY 
-                            sysobjects.xtype, 
-                            sysobjects.name
-                        ";
+SELECT 
+    sysobjects.name, 
+    sysobjects.xtype, 
+    sys.schemas.name schema_name,
+    ISNULL(sys.sql_modules.definition, sys.system_sql_modules.definition) AS definition
+FROM 
+    sysobjects INNER JOIN 
+    sys.schemas ON 
+        sysobjects.uid = sys.schemas.schema_id LEFT OUTER JOIN 
+    sys.sql_modules ON 
+        sys.sql_modules.object_id = sysobjects.id LEFT OUTER JOIN 
+    sys.system_sql_modules ON 
+        sys.system_sql_modules.object_id = sysobjects.id 
+WHERE 
+    sysobjects.xtype IN ('P', 'V', 'FN', 'IF', 'TF') AND 
+    sysobjects.category = 0 AND 
+    sysobjects.name NOT LIKE '%diagram%'  AND
+    schemas.name <> 'cdc'
+ORDER BY 
+    sysobjects.xtype, 
+    sysobjects.name
+";
         System.Data.DataSet ds = _databaseService.Execute(connection, sql);
         DataTable dataTable = ds.Tables[0];
         return dataTable;
@@ -323,9 +324,6 @@ FROM
     sys.default_constraints ON
         sys.columns.object_id = sys.default_constraints.parent_object_id AND
         sys.columns.column_id = sys.default_constraints.parent_column_id
-
-WHERE
-    sys.tables.name <> 'sysdiagrams'
 ORDER BY
     sys.tables.name,
     sys.columns.column_id
@@ -430,13 +428,15 @@ FROM
 				tables.object_id = external_tables.object_id LEFT JOIN
 			sys.external_data_sources ON
 				external_tables.data_source_id = external_data_sources.data_source_id
-		WHERE
-			tables.name <> 'sysdiagrams' AND
+        WHERE
+            tables.name <> 'sysdiagrams' AND
+            tables.name <> 'systranschemas' AND
+            schemas.name <> 'cdc' AND
             tables.name <> 'MSchange_tracking_history'
 	) t1
 ORDER BY
 	t1.table_name
-                        ";
+";
         DataSet ds = _databaseService.Execute(connection, sql);
         DataTable dataTable = ds.Tables[0];
         return dataTable;
@@ -445,50 +445,50 @@ ORDER BY
     protected override DataTable GetTriggersDataTable(DbConnection connection)
     {
         string sql = @"
-                    SELECT
-                        *
-                    FROM
-                        (
-                        SELECT 
-                            sys.tables.name AS table_name, 
-                            sys.schemas.name schema_name,
-                            sys.triggers.name AS trigger_name, 
-                            ISNULL(sys.sql_modules.definition, sys.system_sql_modules.definition) AS definition 
-                        FROM 
-                            sys.triggers INNER JOIN 
-                            sys.tables ON 
-                                sys.triggers.parent_id = sys.tables.object_id INNER JOIN 
-                            sys.schemas ON 
-                                sys.tables.schema_id = sys.schemas.schema_id LEFT OUTER JOIN 
-                            sys.sql_modules ON 
-                                sys.sql_modules.object_id = sys.triggers.object_id LEFT OUTER JOIN 
-                            sys.system_sql_modules ON 
-                                sys.system_sql_modules.object_id = sys.triggers.object_id 
-                        WHERE 
-                            sys.tables.name <> 'sysdiagrams'
-                        UNION ALL
-                        SELECT 
-                            sys.views.name AS table_name, 
-                            sys.schemas.name schema_name,
-                            sys.triggers.name AS trigger_name, 
-                            ISNULL(sys.sql_modules.definition, sys.system_sql_modules.definition) AS definition 
-                        FROM 
-                            sys.triggers INNER JOIN 
-                            sys.views ON 
-                                sys.triggers.parent_id = sys.views.object_id INNER JOIN 
-                            sys.schemas ON 
-                                sys.views.schema_id = sys.schemas.schema_id LEFT OUTER JOIN 
-                            sys.sql_modules ON 
-                                sys.sql_modules.object_id = sys.triggers.object_id LEFT OUTER JOIN 
-                            sys.system_sql_modules ON 
-                                sys.system_sql_modules.object_id = sys.triggers.object_id 
-                        WHERE 
-                            sys.views.name <> 'sysdiagrams'
-                    ) t1 
-                    ORDER BY
-                        t1.table_name,
-                        t1.trigger_name
-                        ";
+ SELECT
+     *
+ FROM
+     (
+     SELECT 
+         sys.tables.name AS table_name, 
+         sys.schemas.name schema_name,
+         sys.triggers.name AS trigger_name, 
+         ISNULL(sys.sql_modules.definition, sys.system_sql_modules.definition) AS definition 
+     FROM 
+         sys.triggers INNER JOIN 
+         sys.tables ON 
+             sys.triggers.parent_id = sys.tables.object_id INNER JOIN 
+         sys.schemas ON 
+             sys.tables.schema_id = sys.schemas.schema_id LEFT OUTER JOIN 
+         sys.sql_modules ON 
+             sys.sql_modules.object_id = sys.triggers.object_id LEFT OUTER JOIN 
+         sys.system_sql_modules ON 
+             sys.system_sql_modules.object_id = sys.triggers.object_id 
+     WHERE 
+         sys.tables.name <> 'sysdiagrams'
+     UNION ALL
+     SELECT 
+         sys.views.name AS table_name, 
+         sys.schemas.name schema_name,
+         sys.triggers.name AS trigger_name, 
+         ISNULL(sys.sql_modules.definition, sys.system_sql_modules.definition) AS definition 
+     FROM 
+         sys.triggers INNER JOIN 
+         sys.views ON 
+             sys.triggers.parent_id = sys.views.object_id INNER JOIN 
+         sys.schemas ON 
+             sys.views.schema_id = sys.schemas.schema_id LEFT OUTER JOIN 
+         sys.sql_modules ON 
+             sys.sql_modules.object_id = sys.triggers.object_id LEFT OUTER JOIN 
+         sys.system_sql_modules ON 
+             sys.system_sql_modules.object_id = sys.triggers.object_id 
+     WHERE 
+         sys.views.name <> 'sysdiagrams'
+ ) t1 
+ ORDER BY
+     t1.table_name,
+     t1.trigger_name
+";
 
         System.Data.DataSet ds = _databaseService.Execute(connection, sql);
         DataTable dataTable = ds.Tables[0];
