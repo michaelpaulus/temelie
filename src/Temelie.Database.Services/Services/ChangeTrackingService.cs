@@ -44,7 +44,7 @@ public class ChangeTrackingService : IChangeTrackingService
         var mappings = await sourceDatabaseSyncProvider.GetMappingsAsync(sourceConnectionString).ConfigureAwait(false);
         foreach (var table in tables)
         {
-            var mapping = mappings.Where(i => i.SourceTableName == table.TableName && i.SourceSchemaName == table.SchemaName).FirstOrDefault();
+            var mapping = mappings.Where(i => i.SourceTableName.EqualsIgnoreCase(table.TableName) && i.SourceSchemaName.EqualsIgnoreCase(table.SchemaName)).FirstOrDefault();
             if (mapping is not null)
             {
                 await SyncChangesAsync(sourceConnectionString, targetConnectionString, table, mapping).ConfigureAwait(false);
