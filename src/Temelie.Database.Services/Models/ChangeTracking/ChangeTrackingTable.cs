@@ -7,6 +7,6 @@ public partial record ChangeTrackingTable
 
     public virtual string TableName { get; set; } = "";
 
-    public virtual long? CurrentVersion { get; set; }
+    public virtual byte[] CurrentVersion { get; set; }
 
 }

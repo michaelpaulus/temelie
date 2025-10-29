@@ -42,7 +42,7 @@ public class MssqlChangeTrackingProvider : IChangeTrackingProvider
 SELECT
     schemas.name AS SchemaName,
     tables.name AS TableName,
-    CHANGE_TRACKING_CURRENT_VERSION() AS CurrentVersion
+    CONVERT(BINARY(10), CHANGE_TRACKING_CURRENT_VERSION()) AS CurrentVersion
 FROM
     sys.change_tracking_tables INNER JOIN
     sys.tables ON
@@ -71,7 +71,7 @@ FROM
 ").ConfigureAwait(false);
     }
 
-    public async Task<int> GetTrackedTableChangesCountAsync(ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString, ChangeTrackingTable table, TableModel tableModel, long previousVersion)
+    public async Task<int> GetTrackedTableChangesCountAsync(ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString, ChangeTrackingTable table, TableModel tableModel, byte[] previousVersion)
     {
         var schemaName = table.SchemaName;
         var tableName = table.TableName;
@@ -89,7 +89,7 @@ FROM
 SELECT
     COUNT(*)
 FROM
-    CHANGETABLE(CHANGES [{schemaName}].[{tableName}], {previousVersion}) AS CT LEFT JOIN
+    CHANGETABLE(CHANGES [{schemaName}].[{tableName}], {ConvertVersion(previousVersion)}) AS CT LEFT JOIN
     [{schemaName}].[{tableName}] AS T ON {string.Join(" AND ", primaryKeyColumns.Select(c => $"CT.[{c}] = T.[{c}]"))}
 ;
 ";
@@ -100,7 +100,7 @@ FROM
 
     }
 
-    public async IAsyncEnumerable<ChangeTrackingRow> GetTrackedTableChangesAsync(ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString, ChangeTrackingTable table, TableModel tableModel, long previousVersion)
+    public async IAsyncEnumerable<ChangeTrackingRow> GetTrackedTableChangesAsync(ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString, ChangeTrackingTable table, TableModel tableModel, byte[] previousVersion)
     {
         var schemaName = table.SchemaName;
         var tableName = table.TableName;
@@ -118,7 +118,7 @@ SELECT
     {string.Join(", ", primaryKeyColumns.Select(i => $"CT.[{i}]"))},
     {string.Join(", ", columns.Where(i => !primaryKeyColumns.Contains(i)).Select(i => $"T.[{i}]"))}
 FROM
-    CHANGETABLE(CHANGES [{schemaName}].[{tableName}], {previousVersion}) AS CT LEFT JOIN
+    CHANGETABLE(CHANGES [{schemaName}].[{tableName}], {ConvertVersion(previousVersion)}) AS CT LEFT JOIN
     [{schemaName}].[{tableName}] AS T ON {string.Join(" AND ", primaryKeyColumns.Select(c => $"CT.[{c}] = T.[{c}]"))}
 ORDER BY
     CT.SYS_CHANGE_VERSION
@@ -297,7 +297,7 @@ WHERE
         return results;
     }
 
-    public async Task UpdateSyncedVersionAsync(ConnectionStringModel targetConnectionString, ChangeTrackingTable table, ChangeTrackingMapping mapping, long version)
+    public async Task UpdateSyncedVersionAsync(ConnectionStringModel targetConnectionString, ChangeTrackingTable table, ChangeTrackingMapping mapping, byte[] version)
     {
         using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
         using (var conn = _databaseExecutionService.CreateDbConnection(targetConnectionString))
@@ -541,6 +541,15 @@ WHERE
         {
             return _changes.MoveNext();
         }
+    }
+
+    private long ConvertVersion(byte[] version)
+    {
+        if (version.Length != 10)
+        {
+            throw new ArgumentException("Version must be 10 bytes long", nameof(version));
+        }
+        return BitConverter.ToInt64(version, 0);
     }
 
 }

@@ -79,7 +79,7 @@ public class ChangeTrackingService : IChangeTrackingService
 
             await targetDatabaseSyncProvider.ApplyChangesAsync(targetConnectionString, table, sourceTable, mapping, changes, changeCount).ConfigureAwait(false);
 
-            await targetDatabaseSyncProvider.UpdateSyncedVersionAsync(targetConnectionString, table, mapping, table.CurrentVersion.GetValueOrDefault()).ConfigureAwait(false);
+            await targetDatabaseSyncProvider.UpdateSyncedVersionAsync(targetConnectionString, table, mapping, table.CurrentVersion).ConfigureAwait(false);
         }
 
     }

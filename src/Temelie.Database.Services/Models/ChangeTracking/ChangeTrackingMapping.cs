@@ -11,7 +11,7 @@ public partial record ChangeTrackingMapping
     public virtual string TargetSchemaName { get; set; } = "";
     public virtual string TargetTableName { get; set; } = "";
 
-    public virtual long LastSyncedVersion { get; set; }
+    public virtual required byte[] LastSyncedVersion { get; set; }
 
     public virtual System.DateTime CreatedDate { get; set; }
 
