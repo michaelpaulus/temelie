@@ -71,7 +71,7 @@ FROM
 ").ConfigureAwait(false);
     }
 
-    public async Task<int> GetTrackedTableChangesCountAsync(ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString, ChangeTrackingTable table, TableModel tableModel, byte[] previousVersion)
+    public async Task<int> GetTrackedTableChangesCountAsync(ConnectionStringModel sourceConnectionString, ChangeTrackingTable table, TableModel tableModel, byte[] previousVersion)
     {
         var schemaName = table.SchemaName;
         var tableName = table.TableName;
@@ -100,7 +100,7 @@ FROM
 
     }
 
-    public async IAsyncEnumerable<ChangeTrackingRow> GetTrackedTableChangesAsync(ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString, ChangeTrackingTable table, TableModel tableModel, byte[] previousVersion)
+    public async IAsyncEnumerable<ChangeTrackingRow> GetTrackedTableChangesAsync(ConnectionStringModel sourceConnectionString, ChangeTrackingTable table, TableModel tableModel, byte[] previousVersion)
     {
         var schemaName = table.SchemaName;
         var tableName = table.TableName;

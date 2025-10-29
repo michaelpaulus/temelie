@@ -71,11 +71,11 @@ public class ChangeTrackingService : IChangeTrackingService
             throw new Exception("Source table not found in database model.");
         }
 
-        var changeCount = await sourceDatabaseSyncProvider.GetTrackedTableChangesCountAsync(sourceConnectionString, targetConnectionString, table, sourceTable, mapping.LastSyncedVersion).ConfigureAwait(false);
+        var changeCount = await sourceDatabaseSyncProvider.GetTrackedTableChangesCountAsync(sourceConnectionString, table, sourceTable, mapping.LastSyncedVersion).ConfigureAwait(false);
 
         if (changeCount > 0)
         {
-            var changes = sourceDatabaseSyncProvider.GetTrackedTableChangesAsync(sourceConnectionString, targetConnectionString, table, sourceTable, mapping.LastSyncedVersion);
+            var changes = sourceDatabaseSyncProvider.GetTrackedTableChangesAsync(sourceConnectionString, table, sourceTable, mapping.LastSyncedVersion);
 
             await targetDatabaseSyncProvider.ApplyChangesAsync(targetConnectionString, table, sourceTable, mapping, changes, changeCount).ConfigureAwait(false);
 
