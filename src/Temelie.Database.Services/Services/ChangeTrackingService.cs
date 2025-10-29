@@ -37,18 +37,31 @@ public class ChangeTrackingService : IChangeTrackingService
         return Task.CompletedTask;
     }
 
-    public async Task SyncChangesAsync(ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString)
+    public async Task<IEnumerable<(ChangeTrackingTable Table, ChangeTrackingMapping Mapping)>> GetTrackedTablesAndMappingsAsync(ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString)
     {
+        var list = new List<(ChangeTrackingTable Table, ChangeTrackingMapping Mapping)>();
+
         var sourceDatabaseSyncProvider = GetDatabaseSyncProvider(sourceConnectionString);
+        var targetDatabaseSyncProvider = GetDatabaseSyncProvider(targetConnectionString);
         var tables = await sourceDatabaseSyncProvider.GetTrackedTablesAsync(sourceConnectionString).ConfigureAwait(false);
-        var mappings = await sourceDatabaseSyncProvider.GetMappingsAsync(sourceConnectionString).ConfigureAwait(false);
+        var mappings = await targetDatabaseSyncProvider.GetMappingsAsync(targetConnectionString).ConfigureAwait(false);
         foreach (var table in tables)
         {
             var mapping = mappings.Where(i => i.SourceTableName.EqualsIgnoreCase(table.TableName) && i.SourceSchemaName.EqualsIgnoreCase(table.SchemaName)).FirstOrDefault();
             if (mapping is not null)
             {
-                await SyncChangesAsync(sourceConnectionString, targetConnectionString, table, mapping).ConfigureAwait(false);
+                list.Add((table, mapping));
             }
+        }
+        return list;
+    }
+
+    public async Task SyncChangesAsync(ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString)
+    {
+        var mappings = await GetTrackedTablesAndMappingsAsync(sourceConnectionString, targetConnectionString).ConfigureAwait(false);
+        foreach (var mapping in mappings)
+        {
+            await SyncChangesAsync(sourceConnectionString, targetConnectionString, mapping.Table, mapping.Mapping).ConfigureAwait(false);
         }
     }
 
