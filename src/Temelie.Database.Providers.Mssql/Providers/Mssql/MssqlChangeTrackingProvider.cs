@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics.CodeAnalysis;
@@ -36,6 +38,11 @@ public class MssqlChangeTrackingProvider : IChangeTrackingProvider
 
     public string Provider => nameof(SqlConnection);
 
+    public Task DetectChangesAsync(ConnectionStringModel sourceConnectionString)
+    {
+        return Task.CompletedTask;
+    }
+
     public async Task<IEnumerable<ChangeTrackingTable>> GetTrackedTablesAsync(ConnectionStringModel sourceConnectionString)
     {
         return await GetRecordsAsync<ChangeTrackingTable>(sourceConnectionString, @"
@@ -62,6 +69,7 @@ SELECT
     TargetSchemaName,
     TargetTableName,
     LastSyncedVersion,
+    IsSyncing,
     CreatedDate,
     CreatedBy,
     ModifiedDate,
@@ -297,7 +305,7 @@ WHERE
         return results;
     }
 
-    public async Task UpdateSyncedVersionAsync(ConnectionStringModel targetConnectionString, ChangeTrackingTable table, ChangeTrackingMapping mapping, byte[] version)
+    public async Task UpdateSyncedVersionAsync(ConnectionStringModel targetConnectionString, int changeTrackingMappingId, byte[] version)
     {
         using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
         using (var conn = _databaseExecutionService.CreateDbConnection(targetConnectionString))
@@ -313,7 +321,29 @@ WHERE
     ChangeTrackingMappingId = @ChangeTrackingMappingId
 ";
             cmd.Parameters.Add(new SqlParameter("@LastSyncedVersion", version));
-            cmd.Parameters.Add(new SqlParameter("@ChangeTrackingMappingId", mapping.ChangeTrackingMappingId));
+            cmd.Parameters.Add(new SqlParameter("@ChangeTrackingMappingId", changeTrackingMappingId));
+            await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+            ts.Complete();
+        }
+    }
+
+    public async Task FlagSyncingAsync(ConnectionStringModel targetConnectionString, int changeTrackingMappingId, bool isSyncing)
+    {
+        using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+        using (var conn = _databaseExecutionService.CreateDbConnection(targetConnectionString))
+        using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
+        {
+            cmd.CommandText = @"
+UPDATE
+    ChangeTrackingMappings
+SET
+    IsSyncing = @IsSyncing,
+    ModifiedDate = GETUTCDATE()
+WHERE
+    ChangeTrackingMappingId = @ChangeTrackingMappingId
+";
+            cmd.Parameters.Add(new SqlParameter("@IsSyncing", isSyncing));
+            cmd.Parameters.Add(new SqlParameter("@ChangeTrackingMappingId", changeTrackingMappingId));
             await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
             ts.Complete();
         }
@@ -545,11 +575,8 @@ WHERE
 
     private long ConvertVersion(byte[] version)
     {
-        if (version.Length != 10)
-        {
-            throw new ArgumentException("Version must be 10 bytes long", nameof(version));
-        }
-        return BitConverter.ToInt64(version, 0);
+        var testArray = version.Reverse().ToArray();
+        return BitConverter.ToInt64(testArray);
     }
 
 }

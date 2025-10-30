@@ -9,6 +9,7 @@ public interface IChangeTrackingProvider
 {
     string Provider { get; }
 
+    Task DetectChangesAsync(ConnectionStringModel sourceConnectionString);
     Task<IEnumerable<ChangeTrackingTable>> GetTrackedTablesAsync(ConnectionStringModel sourceConnectionString);
     Task<IEnumerable<ChangeTrackingMapping>> GetMappingsAsync(ConnectionStringModel targetConnectionString);
 
@@ -16,5 +17,6 @@ public interface IChangeTrackingProvider
     IAsyncEnumerable<ChangeTrackingRow> GetTrackedTableChangesAsync(ConnectionStringModel sourceConnectionString, ChangeTrackingTable table, TableModel tableModel, byte[] previousVersion);
 
     Task ApplyChangesAsync(ConnectionStringModel targetConnectionString, ChangeTrackingTable table, TableModel tableModel, ChangeTrackingMapping mapping, IAsyncEnumerable<ChangeTrackingRow> changes, int count);
-    Task UpdateSyncedVersionAsync(ConnectionStringModel targetConnectionString, ChangeTrackingTable table, ChangeTrackingMapping mapping, byte[] version);
+    Task UpdateSyncedVersionAsync(ConnectionStringModel targetConnectionString, int changeTrackingMappingId, byte[] version);
+    Task FlagSyncingAsync(ConnectionStringModel targetConnectionString, int changeTrackingMappingId, bool isSyncing);
 }

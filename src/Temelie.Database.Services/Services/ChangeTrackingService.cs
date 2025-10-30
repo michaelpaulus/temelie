@@ -32,14 +32,15 @@ public class ChangeTrackingService : IChangeTrackingService
         return databaseProvider;
     }
 
-    public Task DetectChangesAsync(ConnectionStringModel sourceConnectionString)
+    public async Task DetectChangesAsync(ConnectionStringModel sourceConnectionString)
     {
-        return Task.CompletedTask;
+        var sourceDatabaseSyncProvider = GetDatabaseSyncProvider(sourceConnectionString);
+        await sourceDatabaseSyncProvider.DetectChangesAsync(sourceConnectionString).ConfigureAwait(false);
     }
 
-    public async Task<IEnumerable<(ChangeTrackingTable Table, ChangeTrackingMapping Mapping)>> GetTrackedTablesAndMappingsAsync(ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString)
+    public async Task<IEnumerable<ChangeTrackingTableAndMapping>> GetTrackedTablesAndMappingsAsync(ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString)
     {
-        var list = new List<(ChangeTrackingTable Table, ChangeTrackingMapping Mapping)>();
+        var list = new List<ChangeTrackingTableAndMapping>();
 
         var sourceDatabaseSyncProvider = GetDatabaseSyncProvider(sourceConnectionString);
         var targetDatabaseSyncProvider = GetDatabaseSyncProvider(targetConnectionString);
@@ -50,7 +51,7 @@ public class ChangeTrackingService : IChangeTrackingService
             var mapping = mappings.Where(i => i.SourceTableName.EqualsIgnoreCase(table.TableName) && i.SourceSchemaName.EqualsIgnoreCase(table.SchemaName)).FirstOrDefault();
             if (mapping is not null)
             {
-                list.Add((table, mapping));
+                list.Add(new ChangeTrackingTableAndMapping { Table = table, Mapping = mapping });
             }
         }
         return list;
@@ -92,9 +93,16 @@ public class ChangeTrackingService : IChangeTrackingService
 
             await targetDatabaseSyncProvider.ApplyChangesAsync(targetConnectionString, table, sourceTable, mapping, changes, changeCount).ConfigureAwait(false);
 
-            await targetDatabaseSyncProvider.UpdateSyncedVersionAsync(targetConnectionString, table, mapping, table.CurrentVersion).ConfigureAwait(false);
+            await targetDatabaseSyncProvider.UpdateSyncedVersionAsync(targetConnectionString, mapping.ChangeTrackingMappingId, table.CurrentVersion).ConfigureAwait(false);
         }
 
+        await FlagSyncingAsync(targetConnectionString, mapping.ChangeTrackingMappingId, false).ConfigureAwait(false);
+    }
+
+    public async Task FlagSyncingAsync(ConnectionStringModel targetConnectionString, int changeTrackingMappingId, bool isSyncing)
+    {
+        var targetDatabaseSyncProvider = GetDatabaseSyncProvider(targetConnectionString);
+        await targetDatabaseSyncProvider.FlagSyncingAsync(targetConnectionString, changeTrackingMappingId, isSyncing).ConfigureAwait(false);
     }
 
 }
