@@ -713,7 +713,7 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
 
     public abstract bool TryHandleColumnValueLoadException(Exception ex, ColumnModel column, out object value);
 
-    public virtual void ConvertBulk(TableConverterService service, IProgress<TableProgress> progress, TableModel sourceTable, IDataReader sourceReader, int sourceRowCount, TableModel targetTable, DbConnection targetConnection, bool trimStrings, int batchSize, bool useTransaction = true, bool validateTargetTable = true)
+    public virtual void ConvertBulk(TableConverterService service, Action<TableProgress> progress, TableModel sourceTable, IDataReader sourceReader, int sourceRowCount, TableModel targetTable, DbConnection targetConnection, bool trimStrings, int batchSize, bool useTransaction = true, bool validateTargetTable = true)
     {
         throw new NotImplementedException();
     }

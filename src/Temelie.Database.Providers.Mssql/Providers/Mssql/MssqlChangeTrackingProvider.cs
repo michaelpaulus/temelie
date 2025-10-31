@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics.CodeAnalysis;
@@ -8,6 +6,7 @@ using System.Text.Json;
 using System.Transactions;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Temelie.Database.Extensions;
 using Temelie.Database.Models;
 using Temelie.Database.Models.ChangeTracking;
@@ -23,17 +22,20 @@ public class MssqlChangeTrackingProvider : IChangeTrackingProvider
     private readonly IDatabaseFactory _databaseFactory;
     private readonly ITableConverterService _tableConverterService;
     private readonly IDatabaseModelService _databaseModelService;
+    private readonly ILogger<MssqlChangeTrackingProvider> _logger;
 
     public MssqlChangeTrackingProvider(IConfiguration configuration,
         IDatabaseExecutionService databaseExecutionService,
         IDatabaseFactory databaseFactory,
         ITableConverterService tableConverterService,
-        IDatabaseModelService databaseModelService)
+        IDatabaseModelService databaseModelService,
+        ILogger<MssqlChangeTrackingProvider> logger)
     {
         _databaseExecutionService = databaseExecutionService;
         _databaseFactory = databaseFactory;
         _tableConverterService = tableConverterService;
         _databaseModelService = databaseModelService;
+        _logger = logger;
     }
 
     public string Provider => nameof(SqlConnection);
@@ -89,18 +91,34 @@ FROM
         var pkColumns = primaryKeyColumns.Select(c => $"CT.[{c}]").ToList();
         var nonPkColumns = columns.Where(i => !primaryKeyColumns.Any(i2 => i2 == i)).Select(c => $"T.[{c}]").ToList();
 
+        var version = ConvertVersion(previousVersion);
+
         using (var conn = _databaseExecutionService.CreateDbConnection(sourceConnectionString))
         {
             using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
             {
-                cmd.CommandText = $@"
+                if (version == 0)
+                {
+                    cmd.CommandText = $@"
 SELECT
     COUNT(*)
 FROM
-    CHANGETABLE(CHANGES [{schemaName}].[{tableName}], {ConvertVersion(previousVersion)}) AS CT LEFT JOIN
+    [{schemaName}].[{tableName}] AS T
+;
+";
+                }
+                else
+                {
+                    cmd.CommandText = $@"
+SELECT
+    COUNT(*)
+FROM
+    CHANGETABLE(CHANGES [{schemaName}].[{tableName}], {version}) AS CT LEFT JOIN
     [{schemaName}].[{tableName}] AS T ON {string.Join(" AND ", primaryKeyColumns.Select(c => $"CT.[{c}] = T.[{c}]"))}
 ;
 ";
+                }
+
                 var count = Convert.ToInt32(await cmd.ExecuteScalarAsync().ConfigureAwait(false));
                 return count;
             }
@@ -115,23 +133,42 @@ FROM
         var columns = tableModel.Columns.OrderBy(i => i.ColumnId).Select(i => i.ColumnName).ToArray();
         var primaryKeyColumns = tableModel.Columns.Where(i => i.IsPrimaryKey).OrderBy(i => i.ColumnId).Select(i => i.ColumnName).ToArray();
 
+        var version = ConvertVersion(previousVersion);
+
         using (var conn = _databaseExecutionService.CreateDbConnection(sourceConnectionString))
         {
             using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
             {
-                cmd.CommandText = $@"
+                if (version == 0)
+                {
+                    cmd.CommandText = $@"
+SELECT
+    CONVERT(BIGINT, 0) SYS_CHANGE_VERSION,
+    'I' SYS_CHANGE_OPERATION,
+    {string.Join(", ", primaryKeyColumns.Select(i => $"T.[{i}]"))},
+    {string.Join(", ", columns.Where(i => !primaryKeyColumns.Contains(i)).Select(i => $"T.[{i}]"))}
+FROM
+    [{schemaName}].[{tableName}] AS T
+;
+";
+                }
+                else
+                {
+                    cmd.CommandText = $@"
 SELECT
     CT.SYS_CHANGE_VERSION,
     CT.SYS_CHANGE_OPERATION,
     {string.Join(", ", primaryKeyColumns.Select(i => $"CT.[{i}]"))},
     {string.Join(", ", columns.Where(i => !primaryKeyColumns.Contains(i)).Select(i => $"T.[{i}]"))}
 FROM
-    CHANGETABLE(CHANGES [{schemaName}].[{tableName}], {ConvertVersion(previousVersion)}) AS CT LEFT JOIN
+    CHANGETABLE(CHANGES [{schemaName}].[{tableName}], {version}) AS CT LEFT JOIN
     [{schemaName}].[{tableName}] AS T ON {string.Join(" AND ", primaryKeyColumns.Select(c => $"CT.[{c}] = T.[{c}]"))}
 ORDER BY
     CT.SYS_CHANGE_VERSION
 ;
 ";
+                }
+
                 using (var reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false))
                 {
                     while (await reader.ReadAsync().ConfigureAwait(false))
@@ -149,7 +186,6 @@ ORDER BY
                 }
             }
         }
-
     }
 
     public async Task ApplyChangesAsync(ConnectionStringModel targetConnectionString, ChangeTrackingTable table, TableModel tableModel, ChangeTrackingMapping mapping, IAsyncEnumerable<ChangeTrackingRow> changes, int count)
@@ -159,13 +195,24 @@ ORDER BY
 
         var columns = targetTable.Columns.Select(i => i.ColumnName).ToArray();
         var pkColumns = targetTable.Columns.Where(i => i.IsPrimaryKey).Select(i => i.ColumnName).ToArray();
+        var version = ConvertVersion(mapping.LastSyncedVersion);
 
         using (var conn = _databaseExecutionService.CreateDbConnection(targetConnectionString))
         {
+            _logger.LogInformation($"Creating temporary table {tempTable.SchemaName}.{tempTable.TableName}");
+
             await CreateTableAsync(tempTable, conn).ConfigureAwait(false);
+
+            _logger.LogInformation($"Creating target table {targetTable.SchemaName}.{targetTable.TableName}");
+
             await CreateTableAsync(targetTable, conn).ConfigureAwait(false);
 
-            _tableConverterService.ConvertBulk(null,
+            _logger.LogInformation($"Inserting {count} temp rows");
+
+            _tableConverterService.ConvertBulk((progress) =>
+                {
+                    _logger.LogInformation($"Inserting {progress.ProgressPercentage}% temp rows");
+                },
                tempTable,
                new SourceDataReader(tempTable, changes),
                count,
@@ -176,6 +223,8 @@ ORDER BY
                false,
                true
                );
+
+            _logger.LogInformation($"Merging into target table {targetTable.SchemaName}.{targetTable.TableName}");
 
             using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
             {
@@ -201,9 +250,30 @@ WHEN NOT MATCHED THEN
                 await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
 
+            _logger.LogInformation($"Deleting from target table {targetTable.SchemaName}.{targetTable.TableName}");
+
             using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
             {
-                cmd.CommandText = @$"
+                if (version == 0)
+                {
+                    cmd.CommandText = @$"
+DELETE FROM
+    [{targetTable.SchemaName}].[{targetTable.TableName}]
+WHERE
+    NOT EXISTS
+    (
+        SELECT
+            1
+        FROM
+            [{tempTable.SchemaName}].[{tempTable.TableName}] AS source
+        WHERE
+            {string.Join(" AND ", pkColumns.Select(c => $"[{targetTable.TableName}].[{c}] = source.[{c}]"))}
+    );
+";
+                }
+                else
+                {
+                    cmd.CommandText = @$"
 DELETE FROM
     [{targetTable.SchemaName}].[{targetTable.TableName}]
 WHERE
@@ -218,6 +288,8 @@ WHERE
             {string.Join(" AND ", pkColumns.Select(c => $"[{targetTable.TableName}].[{c}] = source.[{c}]"))}
     );
 ";
+                }
+
                 await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
 
@@ -371,6 +443,8 @@ WHERE
         });
 
         tempTable.ExtendedProperties = new Dictionary<string, string>();
+        tempTable.PartitionSchemeName = null;
+        tempTable.PartitionSchemeColumns = null;
 
         var index = 0;
 

@@ -8,9 +8,9 @@ namespace Temelie.Database.Providers.Mssql;
 public partial class DatabaseProvider
 {
 
-    public override void ConvertBulk(TableConverterService service, IProgress<TableProgress> progress, TableModel sourceTable, IDataReader sourceReader, int sourceRowCount, TableModel targetTable, DbConnection targetConnection, bool trimStrings, int batchSize, bool useTransaction = true, bool validateTargetTable = true)
+    public override void ConvertBulk(TableConverterService service, Action<TableProgress> progress, TableModel sourceTable, IDataReader sourceReader, int sourceRowCount, TableModel targetTable, DbConnection targetConnection, bool trimStrings, int batchSize, bool useTransaction = true, bool validateTargetTable = true)
     {
-        progress?.Report(new TableProgress() { ProgressPercentage = 0, Table = sourceTable });
+        progress?.Invoke(new TableProgress() { ProgressPercentage = 0, Table = sourceTable });
 
         int intProgress = 0;
 
@@ -19,7 +19,7 @@ public partial class DatabaseProvider
             var targetRowCount = service.GetRowCount(targetTable, targetConnection);
             if (targetRowCount != 0)
             {
-                progress?.Report(new TableProgress() { ProgressPercentage = 100, Table = sourceTable });
+                progress?.Invoke(new TableProgress() { ProgressPercentage = 100, Table = sourceTable });
                 return;
             }
         }
@@ -61,7 +61,7 @@ public partial class DatabaseProvider
                             intNewProgress < 100)
                         {
                             intProgress = intNewProgress;
-                            progress.Report(new TableProgress() { ProgressPercentage = intProgress, Table = sourceTable });
+                            progress.Invoke(new TableProgress() { ProgressPercentage = intProgress, Table = sourceTable });
                         }
                     }
                 };
@@ -88,7 +88,7 @@ public partial class DatabaseProvider
         if (progress != null &&
             intProgress != 100)
         {
-            progress.Report(new TableProgress() { ProgressPercentage = 100, Table = sourceTable });
+            progress.Invoke(new TableProgress() { ProgressPercentage = 100, Table = sourceTable });
         }
     }
 

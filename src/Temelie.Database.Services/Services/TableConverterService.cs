@@ -24,7 +24,7 @@ public class TableConverterService : ITableConverterService
     }
 
     public void ConvertTables(TableConverterSettings settings,
-        IProgress<TableProgress> progress,
+        Action<TableProgress> progress,
         int maxDegreeOfParallelism)
     {
 
@@ -39,7 +39,7 @@ public class TableConverterService : ITableConverterService
         });
     }
 
-    public void ConvertTable(TableConverterSettings settings, Models.TableModel sourceTable, IProgress<TableProgress> progress)
+    public void ConvertTable(TableConverterSettings settings, Models.TableModel sourceTable, Action<TableProgress> progress)
     {
 
         var targetTable = (
@@ -61,7 +61,7 @@ public class TableConverterService : ITableConverterService
         ConvertTable(settings, sourceTable, targetTable, progress);
     }
 
-    public void ConvertTable(TableConverterSettings settings, Models.TableModel sourceTable, Models.TableModel targetTable, IProgress<TableProgress> progress, bool throwOnFailure = false)
+    public void ConvertTable(TableConverterSettings settings, Models.TableModel sourceTable, Models.TableModel targetTable, Action<TableProgress> progress, bool throwOnFailure = false)
     {
         if (targetTable != null)
         {
@@ -90,14 +90,14 @@ public class TableConverterService : ITableConverterService
                 }
                 else
                 {
-                    progress.Report(new TableProgress() { ProgressPercentage = 100, Table = sourceTable, ErrorMessage = strException, Exception = ex });
+                    progress?.Invoke(new TableProgress() { ProgressPercentage = 100, Table = sourceTable, ErrorMessage = strException, Exception = ex });
                 }
 
             }
         }
     }
 
-    public void ConvertBulk(IProgress<TableProgress> progress,
+    public void ConvertBulk(Action<TableProgress> progress,
       Models.TableModel sourceTable,
       IDataReader sourceReader,
       int sourceRowCount,
@@ -116,7 +116,7 @@ public class TableConverterService : ITableConverterService
         }
     }
 
-    public void ConvertBulk(IProgress<TableProgress> progress,
+    public void ConvertBulk(Action<TableProgress> progress,
      Models.TableModel sourceTable,
      IDataReader sourceReader,
      int sourceRowCount,
@@ -144,7 +144,7 @@ public class TableConverterService : ITableConverterService
         return command;
     }
 
-    public void ConvertBulk(IProgress<TableProgress> progress,
+    public void ConvertBulk(Action<TableProgress> progress,
         Models.TableModel sourceTable,
         ConnectionStringModel sourceConnectionString,
         Models.TableModel targetTable,
@@ -153,7 +153,7 @@ public class TableConverterService : ITableConverterService
         int batchSize,
         bool useTransaction = true)
     {
-        progress?.Report(new TableProgress() { ProgressPercentage = 0, Table = sourceTable });
+        progress?.Invoke(new TableProgress() { ProgressPercentage = 0, Table = sourceTable });
 
         var sourceDatabaseProvider = _databaseFactory.GetDatabaseProvider(sourceConnectionString);
 
@@ -162,7 +162,7 @@ public class TableConverterService : ITableConverterService
             var targetRowCount = GetRowCount(targetTable, targetConnection);
             if (targetRowCount != 0)
             {
-                progress?.Report(new TableProgress() { ProgressPercentage = 100, Table = sourceTable });
+                progress?.Invoke(new TableProgress() { ProgressPercentage = 100, Table = sourceTable });
                 return;
             }
         }

@@ -48,7 +48,7 @@ public interface IDatabaseProvider
 
     void ConvertBulk(
        TableConverterService service,
-       IProgress<TableProgress> progress,
+       Action<TableProgress> progress,
        Models.TableModel sourceTable,
        IDataReader sourceReader,
        int sourceRowCount,
