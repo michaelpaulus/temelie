@@ -61,16 +61,18 @@ FROM
 ").ConfigureAwait(false);
     }
 
-    public async Task<IEnumerable<ChangeTrackingMapping>> GetMappingsAsync(ConnectionStringModel targetConnectionString)
+    public async Task<IEnumerable<ChangeTrackingMapping>> GetMappingsAsync(string source, ConnectionStringModel targetConnectionString)
     {
         return await GetRecordsAsync<ChangeTrackingMapping>(targetConnectionString, @"
 SELECT
     ChangeTrackingMappingId,
+    Source,
     SourceSchemaName,
     SourceTableName,
     TargetSchemaName,
     TargetTableName,
     LastSyncedVersion,
+    IsNextSyncFull,
     IsSyncing,
     CreatedDate,
     CreatedBy,
@@ -78,10 +80,12 @@ SELECT
     ModifiedBy
 FROM
     ChangeTrackingMappings
-").ConfigureAwait(false);
+WHERE
+    Source = @Source
+", new SqlParameter("Source", source)).ConfigureAwait(false);
     }
 
-    public async Task<int> GetTrackedTableChangesCountAsync(ConnectionStringModel sourceConnectionString, ChangeTrackingTable table, TableModel tableModel, byte[] previousVersion)
+    public async Task<int> GetTrackedTableChangesCountAsync(ConnectionStringModel sourceConnectionString, ChangeTrackingTable table, TableModel tableModel, ChangeTrackingMapping mapping)
     {
         var schemaName = table.SchemaName;
         var tableName = table.TableName;
@@ -91,13 +95,11 @@ FROM
         var pkColumns = primaryKeyColumns.Select(c => $"CT.[{c}]").ToList();
         var nonPkColumns = columns.Where(i => !primaryKeyColumns.Any(i2 => i2 == i)).Select(c => $"T.[{c}]").ToList();
 
-        var version = ConvertVersion(previousVersion);
-
         using (var conn = _databaseExecutionService.CreateDbConnection(sourceConnectionString))
         {
             using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
             {
-                if (version == 0)
+                if (mapping.IsNextSyncFull)
                 {
                     cmd.CommandText = $@"
 SELECT
@@ -113,7 +115,7 @@ FROM
 SELECT
     COUNT(*)
 FROM
-    CHANGETABLE(CHANGES [{schemaName}].[{tableName}], {version}) AS CT LEFT JOIN
+    CHANGETABLE(CHANGES [{schemaName}].[{tableName}], {ConvertVersion(mapping.LastSyncedVersion)}) AS CT LEFT JOIN
     [{schemaName}].[{tableName}] AS T ON {string.Join(" AND ", primaryKeyColumns.Select(c => $"CT.[{c}] = T.[{c}]"))}
 ;
 ";
@@ -126,20 +128,18 @@ FROM
 
     }
 
-    public async IAsyncEnumerable<ChangeTrackingRow> GetTrackedTableChangesAsync(ConnectionStringModel sourceConnectionString, ChangeTrackingTable table, TableModel tableModel, byte[] previousVersion)
+    public async IAsyncEnumerable<ChangeTrackingRow> GetTrackedTableChangesAsync(ConnectionStringModel sourceConnectionString, ChangeTrackingTable table, TableModel tableModel, ChangeTrackingMapping mapping)
     {
         var schemaName = table.SchemaName;
         var tableName = table.TableName;
         var columns = tableModel.Columns.OrderBy(i => i.ColumnId).Select(i => i.ColumnName).ToArray();
         var primaryKeyColumns = tableModel.Columns.Where(i => i.IsPrimaryKey).OrderBy(i => i.ColumnId).Select(i => i.ColumnName).ToArray();
 
-        var version = ConvertVersion(previousVersion);
-
         using (var conn = _databaseExecutionService.CreateDbConnection(sourceConnectionString))
         {
             using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
             {
-                if (version == 0)
+                if (mapping.IsNextSyncFull)
                 {
                     cmd.CommandText = $@"
 SELECT
@@ -161,7 +161,7 @@ SELECT
     {string.Join(", ", primaryKeyColumns.Select(i => $"CT.[{i}]"))},
     {string.Join(", ", columns.Where(i => !primaryKeyColumns.Contains(i)).Select(i => $"T.[{i}]"))}
 FROM
-    CHANGETABLE(CHANGES [{schemaName}].[{tableName}], {version}) AS CT LEFT JOIN
+    CHANGETABLE(CHANGES [{schemaName}].[{tableName}], {ConvertVersion(mapping.LastSyncedVersion)}) AS CT LEFT JOIN
     [{schemaName}].[{tableName}] AS T ON {string.Join(" AND ", primaryKeyColumns.Select(c => $"CT.[{c}] = T.[{c}]"))}
 ORDER BY
     CT.SYS_CHANGE_VERSION
@@ -190,12 +190,24 @@ ORDER BY
 
     public async Task ApplyChangesAsync(ConnectionStringModel targetConnectionString, ChangeTrackingTable table, TableModel tableModel, ChangeTrackingMapping mapping, IAsyncEnumerable<ChangeTrackingRow> changes, int count)
     {
-        var tempTable = CreateTargetTempTable(tableModel, mapping);
-        var targetTable = CreateTargetTable(tableModel, mapping);
-
-        var columns = targetTable.Columns.Select(i => i.ColumnName).ToArray();
-        var pkColumns = targetTable.Columns.Where(i => i.IsPrimaryKey).Select(i => i.ColumnName).ToArray();
         var version = ConvertVersion(mapping.LastSyncedVersion);
+        if (mapping.IsNextSyncFull)
+        {
+            await ApplyChangesFullAsync(targetConnectionString, table, tableModel, mapping, changes, count).ConfigureAwait(false);
+        }
+        else
+        {
+            await ApplyChangesPartialAsync(targetConnectionString, table, tableModel, mapping, changes, count).ConfigureAwait(false);
+        }
+    }
+
+    public async Task ApplyChangesFullAsync(ConnectionStringModel targetConnectionString, ChangeTrackingTable table, TableModel tableModel, ChangeTrackingMapping mapping, IAsyncEnumerable<ChangeTrackingRow> changes, int count)
+    {
+        var tempTable = CreateTargetTableModel(tableModel, mapping, $"__{mapping.TargetTableName}");
+        var targetTable = CreateTargetTableModel(tableModel, mapping);
+
+        var columns = targetTable.Columns.Where(i => !i.IsComputed).Select(i => i.ColumnName).ToArray();
+        var pkColumns = targetTable.Columns.Where(i => i.IsPrimaryKey).Select(i => i.ColumnName).ToArray();
 
         using (var conn = _databaseExecutionService.CreateDbConnection(targetConnectionString))
         {
@@ -213,6 +225,62 @@ ORDER BY
                 {
                     _logger.LogInformation($"Inserting {progress.ProgressPercentage}% temp rows");
                 },
+               tempTable,
+               new SourceDataReader(tempTable, changes),
+               count,
+               tempTable,
+               conn,
+               false,
+               10000,
+               false,
+               true
+               );
+
+            _logger.LogInformation($"Merging into target table {targetTable.SchemaName}.{targetTable.TableName}");
+
+            using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
+            {
+                cmd.CommandText = @$"
+DROP TABLE IF EXISTS [{targetTable.SchemaName}].[{targetTable.TableName}]
+";
+                await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+            }
+
+            using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
+            {
+                cmd.CommandText = @$"
+EXEC sp_rename '{tempTable.SchemaName}.{tempTable.TableName}', '{targetTable.TableName}'
+";
+                await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+            }
+
+        }
+    }
+
+    public async Task ApplyChangesPartialAsync(ConnectionStringModel targetConnectionString, ChangeTrackingTable table, TableModel tableModel, ChangeTrackingMapping mapping, IAsyncEnumerable<ChangeTrackingRow> changes, int count)
+    {
+        var tempTable = CreateTargetTempTableModel(tableModel, mapping);
+        var targetTable = CreateTargetTableModel(tableModel, mapping);
+
+        var columns = targetTable.Columns.Where(i => !i.IsComputed).Select(i => i.ColumnName).ToArray();
+        var pkColumns = targetTable.Columns.Where(i => i.IsPrimaryKey).Select(i => i.ColumnName).ToArray();
+
+        using (var conn = _databaseExecutionService.CreateDbConnection(targetConnectionString))
+        {
+            _logger.LogInformation($"Creating temporary table {tempTable.SchemaName}.{tempTable.TableName}");
+
+            await CreateTableAsync(tempTable, conn).ConfigureAwait(false);
+
+            _logger.LogInformation($"Creating target table {targetTable.SchemaName}.{targetTable.TableName}");
+
+            await CreateTableAsync(targetTable, conn).ConfigureAwait(false);
+
+            _logger.LogInformation($"Inserting {count} temp rows");
+
+            _tableConverterService.ConvertBulk((progress) =>
+            {
+                _logger.LogInformation($"Inserting {progress.ProgressPercentage}% temp rows");
+            },
                tempTable,
                new SourceDataReader(tempTable, changes),
                count,
@@ -254,26 +322,7 @@ WHEN NOT MATCHED THEN
 
             using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
             {
-                if (version == 0)
-                {
-                    cmd.CommandText = @$"
-DELETE FROM
-    [{targetTable.SchemaName}].[{targetTable.TableName}]
-WHERE
-    NOT EXISTS
-    (
-        SELECT
-            1
-        FROM
-            [{tempTable.SchemaName}].[{tempTable.TableName}] AS source
-        WHERE
-            {string.Join(" AND ", pkColumns.Select(c => $"[{targetTable.TableName}].[{c}] = source.[{c}]"))}
-    );
-";
-                }
-                else
-                {
-                    cmd.CommandText = @$"
+                cmd.CommandText = @$"
 DELETE FROM
     [{targetTable.SchemaName}].[{targetTable.TableName}]
 WHERE
@@ -288,8 +337,6 @@ WHERE
             {string.Join(" AND ", pkColumns.Select(c => $"[{targetTable.TableName}].[{c}] = source.[{c}]"))}
     );
 ";
-                }
-
                 await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
 
@@ -403,9 +450,30 @@ WHERE
     {
         using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
         using (var conn = _databaseExecutionService.CreateDbConnection(targetConnectionString))
-        using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
         {
-            cmd.CommandText = @"
+
+            if (!isSyncing)
+            {
+                using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
+                {
+                    cmd.CommandText = @"
+UPDATE
+    ChangeTrackingMappings
+SET
+    IsNextSyncFull = @IsNextSyncFull,
+    ModifiedDate = GETUTCDATE()
+WHERE
+    ChangeTrackingMappingId = @ChangeTrackingMappingId
+";
+                    cmd.Parameters.Add(new SqlParameter("@IsNextSyncFull", false));
+                    cmd.Parameters.Add(new SqlParameter("@ChangeTrackingMappingId", changeTrackingMappingId));
+                    await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+                }
+            }
+
+            using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
+            {
+                cmd.CommandText = @"
 UPDATE
     ChangeTrackingMappings
 SET
@@ -414,14 +482,16 @@ SET
 WHERE
     ChangeTrackingMappingId = @ChangeTrackingMappingId
 ";
-            cmd.Parameters.Add(new SqlParameter("@IsSyncing", isSyncing));
-            cmd.Parameters.Add(new SqlParameter("@ChangeTrackingMappingId", changeTrackingMappingId));
-            await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+                cmd.Parameters.Add(new SqlParameter("@IsSyncing", isSyncing));
+                cmd.Parameters.Add(new SqlParameter("@ChangeTrackingMappingId", changeTrackingMappingId));
+                await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+            }
+
             ts.Complete();
         }
     }
 
-    private TableModel CreateTargetTempTable(TableModel tableModel, ChangeTrackingMapping mapping)
+    private TableModel CreateTargetTempTableModel(TableModel tableModel, ChangeTrackingMapping mapping)
     {
         var tempTable = JsonSerializer.Deserialize<TableModel>(JsonSerializer.Serialize(tableModel))!;
 
@@ -461,11 +531,11 @@ WHERE
         return tempTable;
     }
 
-    private TableModel CreateTargetTable(TableModel tableModel, ChangeTrackingMapping mapping)
+    private TableModel CreateTargetTableModel(TableModel tableModel, ChangeTrackingMapping mapping, string tableName = null)
     {
         var tempTable = JsonSerializer.Deserialize<TableModel>(JsonSerializer.Serialize(tableModel))!;
 
-        tempTable.TableName = mapping.TargetTableName;
+        tempTable.TableName = string.IsNullOrEmpty(tableName) ? mapping.TargetTableName : tableName;
         tempTable.SchemaName = mapping.TargetSchemaName;
 
         tempTable.ExtendedProperties = new Dictionary<string, string>();

@@ -22,6 +22,7 @@ public partial record ChangeTrackingMapping
     public virtual string ModifiedBy { get; set; } = "";
 
     public virtual bool IsSyncing { get; set; }
+    public virtual bool IsNextSyncFull { get; set; }
 
 }
 

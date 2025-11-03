@@ -38,14 +38,14 @@ public class ChangeTrackingService : IChangeTrackingService
         await sourceDatabaseSyncProvider.DetectChangesAsync(sourceConnectionString).ConfigureAwait(false);
     }
 
-    public async Task<IEnumerable<ChangeTrackingTableAndMapping>> GetTrackedTablesAndMappingsAsync(ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString)
+    public async Task<IEnumerable<ChangeTrackingTableAndMapping>> GetTrackedTablesAndMappingsAsync(string source, ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString)
     {
         var list = new List<ChangeTrackingTableAndMapping>();
 
         var sourceDatabaseSyncProvider = GetDatabaseSyncProvider(sourceConnectionString);
         var targetDatabaseSyncProvider = GetDatabaseSyncProvider(targetConnectionString);
         var tables = await sourceDatabaseSyncProvider.GetTrackedTablesAsync(sourceConnectionString).ConfigureAwait(false);
-        var mappings = await targetDatabaseSyncProvider.GetMappingsAsync(targetConnectionString).ConfigureAwait(false);
+        var mappings = await targetDatabaseSyncProvider.GetMappingsAsync(source, targetConnectionString).ConfigureAwait(false);
         foreach (var table in tables)
         {
             var mapping = mappings.Where(i => i.SourceTableName.EqualsIgnoreCase(table.TableName) && i.SourceSchemaName.EqualsIgnoreCase(table.SchemaName)).FirstOrDefault();
@@ -57,9 +57,9 @@ public class ChangeTrackingService : IChangeTrackingService
         return list;
     }
 
-    public async Task SyncChangesAsync(ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString)
+    public async Task SyncChangesAsync(string source, ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString)
     {
-        var mappings = await GetTrackedTablesAndMappingsAsync(sourceConnectionString, targetConnectionString).ConfigureAwait(false);
+        var mappings = await GetTrackedTablesAndMappingsAsync(source, sourceConnectionString, targetConnectionString).ConfigureAwait(false);
         foreach (var mapping in mappings)
         {
             await SyncChangesAsync(sourceConnectionString, targetConnectionString, mapping.Table, mapping.Mapping).ConfigureAwait(false);
@@ -85,11 +85,11 @@ public class ChangeTrackingService : IChangeTrackingService
             throw new Exception("Source table not found in database model.");
         }
 
-        var changeCount = await sourceDatabaseSyncProvider.GetTrackedTableChangesCountAsync(sourceConnectionString, table, sourceTable, mapping.LastSyncedVersion).ConfigureAwait(false);
+        var changeCount = await sourceDatabaseSyncProvider.GetTrackedTableChangesCountAsync(sourceConnectionString, table, sourceTable, mapping).ConfigureAwait(false);
 
         if (changeCount > 0)
         {
-            var changes = sourceDatabaseSyncProvider.GetTrackedTableChangesAsync(sourceConnectionString, table, sourceTable, mapping.LastSyncedVersion);
+            var changes = sourceDatabaseSyncProvider.GetTrackedTableChangesAsync(sourceConnectionString, table, sourceTable, mapping);
 
             await targetDatabaseSyncProvider.ApplyChangesAsync(targetConnectionString, table, sourceTable, mapping, changes, changeCount).ConfigureAwait(false);
 
