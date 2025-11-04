@@ -10,11 +10,11 @@ using Temelie.DependencyInjection;
 namespace Temelie.Database.Providers;
 
 [ExportProvider(typeof(IChangeTrackingProvider))]
-public class MssqlChangeTrackingProvider : MssqlChangeTrackingProviderBase
+public class MssqlChangeDataCaptureProvider : MssqlChangeTrackingProviderBase
 {
     private readonly IDatabaseExecutionService _databaseExecutionService;
 
-    public MssqlChangeTrackingProvider(IConfiguration configuration,
+    public MssqlChangeDataCaptureProvider(IConfiguration configuration,
         IDatabaseExecutionService databaseExecutionService,
         IDatabaseFactory databaseFactory,
         ITableConverterService tableConverterService,
@@ -32,15 +32,16 @@ public class MssqlChangeTrackingProvider : MssqlChangeTrackingProviderBase
     public override async Task<IEnumerable<ChangeTrackingTable>> GetTrackedTablesAsync(ConnectionStringModel sourceConnectionString)
     {
         return await GetRecordsAsync<ChangeTrackingTable>(sourceConnectionString, @"
-SELECT
-    schemas.name AS SchemaName,
-    tables.name AS TableName
-FROM
-    sys.change_tracking_tables INNER JOIN
-    sys.tables ON
-        change_tracking_tables.object_id = tables.object_id INNER JOIN
-    sys.schemas ON
-        tables.schema_id = schemas.schema_id;
+SELECT 
+	schemas.name SchemaName,
+	tables.name TableName,
+	change_tables.capture_instance Instance
+FROM 
+	cdc.change_tables INNER JOIN
+	sys.tables ON
+		change_tables.source_object_id = tables.object_id INNER JOIN
+	sys.schemas ON
+		tables.schema_id = schemas.schema_id
 ").ConfigureAwait(false);
     }
 
@@ -73,14 +74,15 @@ WHERE
 
         using (var conn = _databaseExecutionService.CreateDbConnection(sourceConnectionString))
         {
+            
             using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
             {
-                cmd.CommandText = @"
-SELECT CONVERT(BINARY(10), CHANGE_TRACKING_CURRENT_VERSION())
-";
+                cmd.CommandText = $@"SELECT sys.fn_cdc_get_max_lsn()";
 
                 return (await cmd.ExecuteScalarAsync().ConfigureAwait(false)) as byte[] ?? Array.Empty<byte>();
+
             }
+
         }
 
     }
@@ -115,10 +117,11 @@ FROM
 SELECT
     COUNT(*)
 FROM
-    CHANGETABLE(CHANGES [{schemaName}].[{tableName}], {ConvertVersion(mapping.LastSyncedVersion)}) AS CT LEFT JOIN
-    [{schemaName}].[{tableName}] AS T ON {string.Join(" AND ", primaryKeyColumns.Select(c => $"CT.[{c}] = T.[{c}]"))}
+    cdc.fn_cdc_get_all_changes_{table.Instance}(@from_lsn , @to_lsn, 'all')
 ;
 ";
+                    cmd.Parameters.Add(new SqlParameter("@from_lsn", mapping.LastSyncedVersion));
+                    cmd.Parameters.Add(new SqlParameter("@to_lsn", currentVersion));
                 }
 
                 var count = Convert.ToInt32(await cmd.ExecuteScalarAsync().ConfigureAwait(false));
@@ -155,12 +158,15 @@ FROM
                 {
                     cmd.CommandText = $@"
 SELECT
-    CT.SYS_CHANGE_OPERATION,
+    CASE WHEN CT.__$operation = 1 THEN 'D'
+         WHEN CT.__$operation = 2 THEN 'I'
+         WHEN CT.__$operation = 3 THEN 'U'
+         WHEN CT.__$operation = 4 THEN 'U'
+    END AS SYS_CHANGE_OPERATION,
     {string.Join(", ", primaryKeyColumns.Select(i => $"CT.[{i}]"))},
-    {string.Join(", ", columns.Where(i => !primaryKeyColumns.Contains(i)).Select(i => $"T.[{i}]"))}
+    {string.Join(", ", columns.Where(i => !primaryKeyColumns.Contains(i)).Select(i => $"CT.[{i}]"))}
 FROM
-    CHANGETABLE(CHANGES [{schemaName}].[{tableName}], {ConvertVersion(mapping.LastSyncedVersion)}) AS CT LEFT JOIN
-    [{schemaName}].[{tableName}] AS T ON {string.Join(" AND ", primaryKeyColumns.Select(c => $"CT.[{c}] = T.[{c}]"))}
+    cdc.fn_cdc_get_all_changes_{table.Instance}(@from_lsn , @to_lsn, 'all') AS CT
 ORDER BY
     CT.SYS_CHANGE_VERSION
 ;
@@ -184,12 +190,6 @@ ORDER BY
                 }
             }
         }
-    }
-
-    private long ConvertVersion(byte[] version)
-    {
-        var testArray = version.Reverse().ToArray();
-        return BitConverter.ToInt64(testArray);
     }
 
 }
