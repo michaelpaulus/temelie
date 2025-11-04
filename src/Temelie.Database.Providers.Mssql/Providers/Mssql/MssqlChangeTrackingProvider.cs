@@ -190,7 +190,6 @@ ORDER BY
 
     public async Task ApplyChangesAsync(ConnectionStringModel targetConnectionString, ChangeTrackingTable table, TableModel tableModel, ChangeTrackingMapping mapping, IAsyncEnumerable<ChangeTrackingRow> changes, int count)
     {
-        var version = ConvertVersion(mapping.LastSyncedVersion);
         if (mapping.IsNextSyncFull)
         {
             await ApplyChangesFullAsync(targetConnectionString, table, tableModel, mapping, changes, count).ConfigureAwait(false);
@@ -211,6 +210,14 @@ ORDER BY
 
         using (var conn = _databaseExecutionService.CreateDbConnection(targetConnectionString))
         {
+            using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
+            {
+                cmd.CommandText = @$"
+DROP TABLE IF EXISTS [{tempTable.SchemaName}].[{tempTable.TableName}]
+";
+                await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+            }
+
             _logger.LogInformation($"Creating temporary table {tempTable.SchemaName}.{tempTable.TableName}");
 
             await CreateTableAsync(tempTable, conn).ConfigureAwait(false);
