@@ -9,22 +9,26 @@ namespace Temelie.Database.Services;
 [ExportTransient(typeof(IChangeTrackingService))]
 public class ChangeTrackingService : IChangeTrackingService
 {
-    private readonly IEnumerable<IChangeTrackingProvider> _changeTrackingProviders;
     private readonly IDatabaseModelService _databaseModelService;
     private readonly IDatabaseExecutionService _databaseExecutionService;
+    private readonly IEnumerable<IChangeTrackingSourceProvider> _changeTrackingSourceProviders;
+    private readonly IEnumerable<IChangeTrackingTargetProvider> _changeTrackingTargetProviders;
 
-    public ChangeTrackingService(IEnumerable<IChangeTrackingProvider> changeTrackingProviders,
+    public ChangeTrackingService(
         IDatabaseModelService databaseModelService,
-        IDatabaseExecutionService databaseExecutionService)
+        IDatabaseExecutionService databaseExecutionService,
+        IEnumerable<IChangeTrackingSourceProvider> changeTrackingSourceProviders,
+        IEnumerable<IChangeTrackingTargetProvider> changeTrackingTargetProviders)
     {
-        _changeTrackingProviders = changeTrackingProviders;
         _databaseModelService = databaseModelService;
         _databaseExecutionService = databaseExecutionService;
+        _changeTrackingSourceProviders = changeTrackingSourceProviders;
+        _changeTrackingTargetProviders = changeTrackingTargetProviders;
     }
-
-    private IChangeTrackingProvider GetDatabaseSyncProvider(ConnectionStringModel connectionString)
+    
+    private IChangeTrackingSourceProvider GetSourceDatabaseSyncProvider(ChangeTrackingMapping mapping)
     {
-        var databaseProvider = _changeTrackingProviders.FirstOrDefault(i => i.Provider.EqualsIgnoreCase(connectionString.DatabaseProviderName));
+        var databaseProvider = _changeTrackingSourceProviders.FirstOrDefault(i => i.Provider.EqualsIgnoreCase(mapping.SourceProvider));
         if (databaseProvider is null)
         {
             throw new InvalidOperationException("No database provider found for the configured database.");
@@ -32,34 +36,50 @@ public class ChangeTrackingService : IChangeTrackingService
         return databaseProvider;
     }
 
-    public async Task DetectChangesAsync(ConnectionStringModel sourceConnectionString)
+    private IChangeTrackingTargetProvider GetTargetDatabaseSyncProvider(ConnectionStringModel connectionString)
     {
-        var sourceDatabaseSyncProvider = GetDatabaseSyncProvider(sourceConnectionString);
+        var databaseProvider = _changeTrackingTargetProviders.FirstOrDefault(i => i.Provider.EqualsIgnoreCase(connectionString.DatabaseProviderName));
+        if (databaseProvider is null)
+        {
+            throw new InvalidOperationException("No database provider found for the configured database.");
+        }
+        return databaseProvider;
+    }
+
+    public async Task DetectChangesAsync(ConnectionStringModel sourceConnectionString, ChangeTrackingTable table, ChangeTrackingMapping mapping)
+    {
+        var sourceDatabaseSyncProvider = GetSourceDatabaseSyncProvider(mapping);
         await sourceDatabaseSyncProvider.DetectChangesAsync(sourceConnectionString).ConfigureAwait(false);
     }
 
-    public async Task<IEnumerable<ChangeTrackingTableAndMapping>> GetTrackedTablesAndMappingsAsync(string source, ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString)
+    public async Task<IEnumerable<ChangeTrackingTableAndMapping>> GetTrackedTablesAndMappingsAsync(int sourceId, ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString)
     {
         var list = new List<ChangeTrackingTableAndMapping>();
 
-        var sourceDatabaseSyncProvider = GetDatabaseSyncProvider(sourceConnectionString);
-        var targetDatabaseSyncProvider = GetDatabaseSyncProvider(targetConnectionString);
-        var tables = await sourceDatabaseSyncProvider.GetTrackedTablesAsync(sourceConnectionString).ConfigureAwait(false);
-        var mappings = await targetDatabaseSyncProvider.GetMappingsAsync(source, targetConnectionString).ConfigureAwait(false);
-        foreach (var table in tables)
+        var targetDatabaseSyncProvider = GetTargetDatabaseSyncProvider(targetConnectionString);
+
+        var mappings = await targetDatabaseSyncProvider.GetMappingsAsync(sourceId, targetConnectionString).ConfigureAwait(false);
+
+        foreach (var group in mappings.GroupBy(i => new { i.SourceProvider }))
         {
-            var mapping = mappings.Where(i => i.SourceTableName.EqualsIgnoreCase(table.TableName) && i.SourceSchemaName.EqualsIgnoreCase(table.SchemaName)).FirstOrDefault();
-            if (mapping is not null)
+            var sourceDatabaseSyncProvider = GetSourceDatabaseSyncProvider(group.First());
+            var tables = await sourceDatabaseSyncProvider.GetTrackedTablesAsync(sourceConnectionString).ConfigureAwait(false);
+            foreach (var table in tables)
             {
-                list.Add(new ChangeTrackingTableAndMapping { Table = table, Mapping = mapping });
+                var mapping = mappings.Where(i => i.SourceTableName.EqualsIgnoreCase(table.TableName) && i.SourceSchemaName.EqualsIgnoreCase(table.SchemaName)).FirstOrDefault();
+                if (mapping is not null)
+                {
+                    list.Add(new ChangeTrackingTableAndMapping { Table = table, Mapping = mapping });
+                }
             }
         }
+
         return list;
     }
 
-    public async Task SyncChangesAsync(string source, ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString)
+    public async Task SyncChangesAsync(int sourceId, ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString)
     {
-        var mappings = await GetTrackedTablesAndMappingsAsync(source, sourceConnectionString, targetConnectionString).ConfigureAwait(false);
+        var mappings = await GetTrackedTablesAndMappingsAsync(sourceId, sourceConnectionString, targetConnectionString).ConfigureAwait(false);
         foreach (var mapping in mappings)
         {
             await SyncChangesAsync(sourceConnectionString, targetConnectionString, mapping.Table, mapping.Mapping).ConfigureAwait(false);
@@ -68,8 +88,8 @@ public class ChangeTrackingService : IChangeTrackingService
 
     public async Task SyncChangesAsync(ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString, ChangeTrackingTable table, ChangeTrackingMapping mapping)
     {
-        var sourceDatabaseSyncProvider = GetDatabaseSyncProvider(sourceConnectionString);
-        var targetDatabaseSyncProvider = GetDatabaseSyncProvider(targetConnectionString);
+        var sourceDatabaseSyncProvider = GetSourceDatabaseSyncProvider(mapping);
+        var targetDatabaseSyncProvider = GetTargetDatabaseSyncProvider(targetConnectionString);
 
         TableModel sourceTable = null;
 
@@ -103,7 +123,7 @@ public class ChangeTrackingService : IChangeTrackingService
 
     public async Task FlagSyncingAsync(ConnectionStringModel targetConnectionString, int changeTrackingMappingId, bool isSyncing)
     {
-        var targetDatabaseSyncProvider = GetDatabaseSyncProvider(targetConnectionString);
+        var targetDatabaseSyncProvider = GetTargetDatabaseSyncProvider(targetConnectionString);
         await targetDatabaseSyncProvider.FlagSyncingAsync(targetConnectionString, changeTrackingMappingId, isSyncing).ConfigureAwait(false);
     }
 

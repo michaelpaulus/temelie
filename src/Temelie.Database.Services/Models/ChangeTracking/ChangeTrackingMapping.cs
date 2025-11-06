@@ -6,6 +6,9 @@ public partial record ChangeTrackingMapping
 
     public virtual int ChangeTrackingMappingId { get; set; }
 
+    public virtual int SourceId { get; set; }
+    public virtual string SourceProvider { get; set; } = "";
+
     public virtual string SourceSchemaName { get; set; } = "";
     public virtual string SourceTableName { get; set; } = "";
     public virtual string TargetSchemaName { get; set; } = "";

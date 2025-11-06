@@ -11,23 +11,25 @@ using Temelie.Database.Extensions;
 using Temelie.Database.Models;
 using Temelie.Database.Models.ChangeTracking;
 using Temelie.Database.Services;
+using Temelie.DependencyInjection;
 
 namespace Temelie.Database.Providers;
 
-public abstract class MssqlChangeTrackingProviderBase : IChangeTrackingProvider
+[ExportTransient(typeof(IChangeTrackingTargetProvider))]
+public class MssqlChangeTrackingTargetProvider : IChangeTrackingTargetProvider
 {
     private readonly IDatabaseExecutionService _databaseExecutionService;
     private readonly IDatabaseFactory _databaseFactory;
     private readonly ITableConverterService _tableConverterService;
     private readonly IDatabaseModelService _databaseModelService;
-    private readonly ILogger<MssqlChangeTrackingProviderBase> _logger;
+    private readonly ILogger<MssqlChangeTrackingTargetProvider> _logger;
 
-    public MssqlChangeTrackingProviderBase(IConfiguration configuration,
+    public MssqlChangeTrackingTargetProvider(IConfiguration configuration,
         IDatabaseExecutionService databaseExecutionService,
         IDatabaseFactory databaseFactory,
         ITableConverterService tableConverterService,
         IDatabaseModelService databaseModelService,
-        ILogger<MssqlChangeTrackingProviderBase> logger)
+        ILogger<MssqlChangeTrackingTargetProvider> logger)
     {
         _databaseExecutionService = databaseExecutionService;
         _databaseFactory = databaseFactory;
@@ -38,20 +40,30 @@ public abstract class MssqlChangeTrackingProviderBase : IChangeTrackingProvider
 
     public string Provider => nameof(SqlConnection);
 
-    public virtual Task DetectChangesAsync(ConnectionStringModel sourceConnectionString)
+    public async Task<IEnumerable<ChangeTrackingMapping>> GetMappingsAsync(int sourceId, ConnectionStringModel targetConnectionString)
     {
-        return Task.CompletedTask;
+        return await _databaseExecutionService.GetRecordsAsync<ChangeTrackingMapping>(targetConnectionString, @"
+SELECT
+    ChangeTrackingMappingId,
+    SourceId,
+    SourceProvider,
+    SourceSchemaName,
+    SourceTableName,
+    TargetSchemaName,
+    TargetTableName,
+    LastSyncedVersion,
+    IsNextSyncFull,
+    IsSyncing,
+    CreatedDate,
+    CreatedBy,
+    ModifiedDate,
+    ModifiedBy
+FROM
+    ChangeTrackingMappings
+WHERE
+    SourceId = @SourceId
+", new SqlParameter("SourceId", sourceId)).ConfigureAwait(false);
     }
-
-    public abstract Task<IEnumerable<ChangeTrackingTable>> GetTrackedTablesAsync(ConnectionStringModel sourceConnectionString);
-
-    public abstract Task<IEnumerable<ChangeTrackingMapping>> GetMappingsAsync(string source, ConnectionStringModel targetConnectionString);
-
-    public abstract Task<byte[]> GetCurrentVersionAsync(ConnectionStringModel sourceConnectionString, ChangeTrackingTable table);
-
-    public abstract Task<int> GetTrackedTableChangesCountAsync(ConnectionStringModel sourceConnectionString, ChangeTrackingTable table, TableModel tableModel, byte[] currentVersion, ChangeTrackingMapping mapping);
-
-    public abstract IAsyncEnumerable<ChangeTrackingRow> GetTrackedTableChangesAsync(ConnectionStringModel sourceConnectionString, ChangeTrackingTable table, TableModel tableModel, byte[] currentVersion, ChangeTrackingMapping mapping);
 
     public async Task ApplyChangesAsync(ConnectionStringModel targetConnectionString, ChangeTrackingTable table, TableModel tableModel, ChangeTrackingMapping mapping, IAsyncEnumerable<ChangeTrackingRow> changes, int count)
     {
@@ -264,36 +276,6 @@ WHERE
         }
 
         return Task.CompletedTask;
-    }
-
-    protected async Task<IEnumerable<T>> GetRecordsAsync<T>(ConnectionStringModel connectionString, string query, params SqlParameter[] parameters)
-    {
-        var results = new List<T>();
-        using (var conn = _databaseExecutionService.CreateDbConnection(connectionString))
-        using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
-        {
-            cmd.CommandText = query;
-            cmd.Parameters.AddRange(parameters);
-            using (var reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false))
-            {
-
-                while (await reader.ReadAsync().ConfigureAwait(false))
-                {
-                    var item = Activator.CreateInstance<T>();
-                    foreach (var prop in typeof(T).GetProperties())
-                    {
-                        if (!await reader.IsDBNullAsync(reader.GetOrdinal(prop.Name)).ConfigureAwait(false))
-                        {
-                            prop.SetValue(item, await reader.GetFieldValueAsync<object>(reader.GetOrdinal(prop.Name)).ConfigureAwait(false));
-                        }
-                    }
-                    results.Add(item);
-                }
-
-            }
-        }
-
-        return results;
     }
 
     public async Task UpdateSyncedVersionAsync(ConnectionStringModel targetConnectionString, int changeTrackingMappingId, byte[] version)

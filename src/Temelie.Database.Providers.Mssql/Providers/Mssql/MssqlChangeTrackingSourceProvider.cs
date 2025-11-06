@@ -1,7 +1,4 @@
 using System.Data;
-using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Temelie.Database.Models;
 using Temelie.Database.Models.ChangeTracking;
 using Temelie.Database.Services;
@@ -9,29 +6,26 @@ using Temelie.DependencyInjection;
 
 namespace Temelie.Database.Providers;
 
-[ExportProvider(typeof(IChangeTrackingProvider))]
-public class MssqlChangeTrackingProvider : MssqlChangeTrackingProviderBase
+[ExportProvider(typeof(IChangeTrackingSourceProvider))]
+public class MssqlChangeTrackingSourceProvider : IChangeTrackingSourceProvider
 {
     private readonly IDatabaseExecutionService _databaseExecutionService;
 
-    public MssqlChangeTrackingProvider(IConfiguration configuration,
-        IDatabaseExecutionService databaseExecutionService,
-        IDatabaseFactory databaseFactory,
-        ITableConverterService tableConverterService,
-        IDatabaseModelService databaseModelService,
-        ILogger<MssqlChangeTrackingProviderBase> logger) : base(configuration, databaseExecutionService, databaseFactory, tableConverterService, databaseModelService, logger)
+    public MssqlChangeTrackingSourceProvider(IDatabaseExecutionService databaseExecutionService)
     {
         _databaseExecutionService = databaseExecutionService;
     }
 
-    public override Task DetectChangesAsync(ConnectionStringModel sourceConnectionString)
+    public string Provider => "mssql_ct";
+
+    public Task DetectChangesAsync(ConnectionStringModel sourceConnectionString)
     {
         return Task.CompletedTask;
     }
 
-    public override async Task<IEnumerable<ChangeTrackingTable>> GetTrackedTablesAsync(ConnectionStringModel sourceConnectionString)
+    public async Task<IEnumerable<ChangeTrackingTable>> GetTrackedTablesAsync(ConnectionStringModel sourceConnectionString)
     {
-        return await GetRecordsAsync<ChangeTrackingTable>(sourceConnectionString, @"
+        return await _databaseExecutionService.GetRecordsAsync<ChangeTrackingTable>(sourceConnectionString, @"
 SELECT
     schemas.name AS SchemaName,
     tables.name AS TableName
@@ -44,31 +38,7 @@ FROM
 ").ConfigureAwait(false);
     }
 
-    public override async Task<IEnumerable<ChangeTrackingMapping>> GetMappingsAsync(string source, ConnectionStringModel targetConnectionString)
-    {
-        return await GetRecordsAsync<ChangeTrackingMapping>(targetConnectionString, @"
-SELECT
-    ChangeTrackingMappingId,
-    Source,
-    SourceSchemaName,
-    SourceTableName,
-    TargetSchemaName,
-    TargetTableName,
-    LastSyncedVersion,
-    IsNextSyncFull,
-    IsSyncing,
-    CreatedDate,
-    CreatedBy,
-    ModifiedDate,
-    ModifiedBy
-FROM
-    ChangeTrackingMappings
-WHERE
-    Source = @Source
-", new SqlParameter("Source", source)).ConfigureAwait(false);
-    }
-
-    public override async Task<byte[]> GetCurrentVersionAsync(ConnectionStringModel sourceConnectionString, ChangeTrackingTable table)
+     public async Task<byte[]> GetCurrentVersionAsync(ConnectionStringModel sourceConnectionString, ChangeTrackingTable table)
     {
 
         using (var conn = _databaseExecutionService.CreateDbConnection(sourceConnectionString))
@@ -85,7 +55,7 @@ SELECT CONVERT(BINARY(10), CHANGE_TRACKING_CURRENT_VERSION())
 
     }
 
-    public override async Task<int> GetTrackedTableChangesCountAsync(ConnectionStringModel sourceConnectionString, ChangeTrackingTable table, TableModel tableModel, byte[] currentVersion, ChangeTrackingMapping mapping)
+    public async Task<int> GetTrackedTableChangesCountAsync(ConnectionStringModel sourceConnectionString, ChangeTrackingTable table, TableModel tableModel, byte[] currentVersion, ChangeTrackingMapping mapping)
     {
         var schemaName = table.SchemaName;
         var tableName = table.TableName;
@@ -128,7 +98,7 @@ FROM
 
     }
 
-    public override async IAsyncEnumerable<ChangeTrackingRow> GetTrackedTableChangesAsync(ConnectionStringModel sourceConnectionString, ChangeTrackingTable table, TableModel tableModel, byte[] currentVersion, ChangeTrackingMapping mapping)
+    public async IAsyncEnumerable<ChangeTrackingRow> GetTrackedTableChangesAsync(ConnectionStringModel sourceConnectionString, ChangeTrackingTable table, TableModel tableModel, byte[] currentVersion, ChangeTrackingMapping mapping)
     {
         var schemaName = table.SchemaName;
         var tableName = table.TableName;
