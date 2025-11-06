@@ -122,13 +122,7 @@ DROP TABLE IF EXISTS [{tempTable.SchemaName}].[{tempTable.TableName}]
 
             _logger.LogInformation($"Merging into target table {targetTable.SchemaName}.{targetTable.TableName}");
 
-            using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
-            {
-                cmd.CommandText = @$"
-DROP TABLE IF EXISTS [{targetTable.SchemaName}].[{targetTable.TableName}]
-";
-                await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
-            }
+            await DropTableAsync(targetTable, conn).ConfigureAwait(false);
 
             using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
             {
@@ -224,6 +218,10 @@ WHERE
                 await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
 
+            _logger.LogInformation($"Dropping temporary table {tempTable.SchemaName}.{tempTable.TableName}");
+
+            await DropTableAsync(tempTable, conn).ConfigureAwait(false);
+
         }
     }
 
@@ -276,6 +274,17 @@ WHERE
         }
 
         return Task.CompletedTask;
+    }
+
+    private async Task DropTableAsync(TableModel tableModel, DbConnection dbConnection)
+    {
+        using (var cmd = _databaseExecutionService.CreateDbCommand(dbConnection))
+        {
+            cmd.CommandText = @$"
+DROP TABLE IF EXISTS [{tableModel.SchemaName}].[{tableModel.TableName}]
+";
+            await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+        }
     }
 
     public async Task UpdateSyncedVersionAsync(ConnectionStringModel targetConnectionString, int changeTrackingMappingId, byte[] version)
@@ -533,11 +542,7 @@ WHERE
         public object GetValue(int i)
         {
             var column = _tableModel.Columns[i];
-            if (column.ColumnName == "SYS_CHANGE_VERSION")
-            {
-                return _changes.Current.ChangeVersion;
-            }
-            else if (column.ColumnName == "SYS_CHANGE_OPERATION")
+            if (column.ColumnName == "SYS_CHANGE_OPERATION")
             {
                 return _changes.Current.ChangeOperation;
             }

@@ -145,8 +145,7 @@ ORDER BY
                         {
                             SchemaName = schemaName,
                             TableName = tableName,
-                            ChangeVersion = reader.GetInt64(0),
-                            ChangeOperation = reader.GetString(1),
+                            ChangeOperation = reader.GetString(0),
                             ColumnValues = columns.ToDictionary(c => c, c => reader[c] == DBNull.Value ? null : reader[c])
                         };
                         yield return row;

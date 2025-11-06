@@ -42,7 +42,6 @@ FROM
 
     public async Task<byte[]> GetCurrentVersionAsync(ConnectionStringModel sourceConnectionString, ChangeTrackingTable table)
     {
-
         using (var conn = _databaseExecutionService.CreateDbConnection(sourceConnectionString))
         {
             
@@ -53,9 +52,7 @@ FROM
                 return (await cmd.ExecuteScalarAsync().ConfigureAwait(false)) as byte[] ?? Array.Empty<byte>();
 
             }
-
         }
-
     }
 
     public async Task<int> GetTrackedTableChangesCountAsync(ConnectionStringModel sourceConnectionString, ChangeTrackingTable table, TableModel tableModel, byte[] currentVersion, ChangeTrackingMapping mapping)
@@ -88,10 +85,18 @@ FROM
 SELECT
     COUNT(*)
 FROM
-    cdc.fn_cdc_get_all_changes_{table.Instance}(@from_lsn , @to_lsn, 'all')
+    cdc.fn_cdc_get_net_changes_{table.Instance}(@from_lsn , @to_lsn, 'all')
 ;
 ";
-                    cmd.Parameters.Add(new SqlParameter("@from_lsn", mapping.LastSyncedVersion));
+
+                    var lastSyncedVersion = mapping.LastSyncedVersion;
+
+                    if (!lastSyncedVersion.Any(i => i != 0))
+                    {
+                        lastSyncedVersion = await GetMinVersionAsync(sourceConnectionString, table).ConfigureAwait(false);
+                    }
+
+                    cmd.Parameters.Add(new SqlParameter("@from_lsn", lastSyncedVersion));
                     cmd.Parameters.Add(new SqlParameter("@to_lsn", currentVersion));
                 }
 
@@ -100,6 +105,18 @@ FROM
             }
         }
 
+    }
+
+    private async Task<byte[]> GetMinVersionAsync(ConnectionStringModel sourceConnectionString, ChangeTrackingTable table)
+    {
+        using (var conn = _databaseExecutionService.CreateDbConnection(sourceConnectionString))
+        {
+            using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
+            {
+                cmd.CommandText = $@"SELECT sys.fn_cdc_get_min_lsn('{table.Instance}');";
+                return (await cmd.ExecuteScalarAsync().ConfigureAwait(false)) as byte[] ?? Array.Empty<byte>();
+            }
+        }
     }
 
     public async IAsyncEnumerable<ChangeTrackingRow> GetTrackedTableChangesAsync(ConnectionStringModel sourceConnectionString, ChangeTrackingTable table, TableModel tableModel, byte[] currentVersion, ChangeTrackingMapping mapping)
@@ -137,11 +154,20 @@ SELECT
     {string.Join(", ", primaryKeyColumns.Select(i => $"CT.[{i}]"))},
     {string.Join(", ", columns.Where(i => !primaryKeyColumns.Contains(i)).Select(i => $"CT.[{i}]"))}
 FROM
-    cdc.fn_cdc_get_all_changes_{table.Instance}(@from_lsn , @to_lsn, 'all') AS CT
-ORDER BY
-    CT.SYS_CHANGE_VERSION
+    cdc.fn_cdc_get_net_changes_{table.Instance}(@from_lsn , @to_lsn, 'all') AS CT
 ;
 ";
+
+                    var lastSyncedVersion = mapping.LastSyncedVersion;
+
+                    if (!lastSyncedVersion.Any(i => i != 0))
+                    {
+                        lastSyncedVersion = await GetMinVersionAsync(sourceConnectionString, table).ConfigureAwait(false);
+                    }
+
+                    cmd.Parameters.Add(new SqlParameter("@from_lsn", lastSyncedVersion));
+                    cmd.Parameters.Add(new SqlParameter("@to_lsn", currentVersion));
+
                 }
 
                 using (var reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false))
@@ -152,8 +178,7 @@ ORDER BY
                         {
                             SchemaName = schemaName,
                             TableName = tableName,
-                            ChangeVersion = reader.GetInt64(0),
-                            ChangeOperation = reader.GetString(1),
+                            ChangeOperation = reader.GetString(0),
                             ColumnValues = columns.ToDictionary(c => c, c => reader[c] == DBNull.Value ? null : reader[c])
                         };
                         yield return row;
