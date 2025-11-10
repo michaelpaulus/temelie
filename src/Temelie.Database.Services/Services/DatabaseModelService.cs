@@ -94,6 +94,11 @@ public class DatabaseModelService : IDatabaseModelService
             views = views.Where(i => !i.TableName.StartsWith("__")).ToList();
         }
 
+        if (options.ExcludeCdcObjects)
+        {
+            views = views.Where(i => !i.SchemaName.EqualsIgnoreCase("cdc")).ToList();
+        }
+
         return views.ToList();
     }
 
@@ -121,6 +126,11 @@ public class DatabaseModelService : IDatabaseModelService
         if (options.ExcludeDoubleUnderscoreObjects)
         {
             filteredList = filteredList.Where(i => !i.DefinitionName.StartsWith("__")).ToList();
+        }
+
+        if (options.ExcludeCdcObjects)
+        {
+            views = views.Where(i => !i.SchemaName.EqualsIgnoreCase("cdc")).ToList();
         }
 
         return filteredList.ToList();
@@ -164,6 +174,12 @@ public class DatabaseModelService : IDatabaseModelService
         {
             tables = tables.Where(i => !i.TableName.StartsWith("__")).ToList();
         }
+
+        if (options.ExcludeCdcObjects)
+        {
+            tables = tables.Where(i => !i.SchemaName.EqualsIgnoreCase("cdc")).ToList();
+        }
+
         return tables;
     }
 
@@ -191,6 +207,11 @@ public class DatabaseModelService : IDatabaseModelService
         if (options.ExcludeDoubleUnderscoreObjects)
         {
             triggers = triggers.Where(i => !i.TriggerName.StartsWith("__")).ToList();
+        }
+
+        if (options.ExcludeCdcObjects)
+        {
+            triggers = triggers.Where(i => !i.SchemaName.EqualsIgnoreCase("cdc")).ToList();
         }
 
         return triggers.ToList();

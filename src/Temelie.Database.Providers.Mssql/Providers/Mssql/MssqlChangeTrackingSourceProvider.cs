@@ -16,9 +16,16 @@ public class MssqlChangeTrackingSourceProvider : IChangeTrackingSourceProvider
         _databaseExecutionService = databaseExecutionService;
     }
 
-    public string Provider => "mssql_ct";
+    public static string ProviderName => "mssql_ct";
 
-    public Task DetectChangesAsync(ConnectionStringModel sourceConnectionString)
+    public string Provider => ProviderName;
+
+    public Task UpdateSchemaAsync(ConnectionStringModel sourceConnectionString, ChangeTrackingTable table)
+    {
+        return Task.CompletedTask;
+    }
+
+    public Task DetectChangesAsync(ConnectionStringModel sourceConnectionString, ChangeTrackingTable table, ChangeTrackingMapping mapping)
     {
         return Task.CompletedTask;
     }

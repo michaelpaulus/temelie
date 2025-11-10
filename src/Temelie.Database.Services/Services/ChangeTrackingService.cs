@@ -25,7 +25,7 @@ public class ChangeTrackingService : IChangeTrackingService
         _changeTrackingSourceProviders = changeTrackingSourceProviders;
         _changeTrackingTargetProviders = changeTrackingTargetProviders;
     }
-    
+
     private IChangeTrackingSourceProvider GetSourceDatabaseSyncProvider(ChangeTrackingMapping mapping)
     {
         var databaseProvider = _changeTrackingSourceProviders.FirstOrDefault(i => i.Provider.EqualsIgnoreCase(mapping.SourceProvider));
@@ -46,10 +46,27 @@ public class ChangeTrackingService : IChangeTrackingService
         return databaseProvider;
     }
 
+    public async Task UpdateSchemaAsync(ConnectionStringModel sourceConnectionString, string sourceProvider)
+    {
+        var provider = _changeTrackingSourceProviders.FirstOrDefault(i => i.Provider.EqualsIgnoreCase(sourceProvider));
+
+        if (provider is null)
+        {
+            throw new InvalidOperationException($"No database provider found for {sourceProvider}.");
+        }
+
+        var tables = await provider.GetTrackedTablesAsync(sourceConnectionString).ConfigureAwait(false);
+        foreach (var table in tables)
+        {
+            await provider.UpdateSchemaAsync(sourceConnectionString, table).ConfigureAwait(false);
+        }
+
+    }
+
     public async Task DetectChangesAsync(ConnectionStringModel sourceConnectionString, ChangeTrackingTable table, ChangeTrackingMapping mapping)
     {
         var sourceDatabaseSyncProvider = GetSourceDatabaseSyncProvider(mapping);
-        await sourceDatabaseSyncProvider.DetectChangesAsync(sourceConnectionString).ConfigureAwait(false);
+        await sourceDatabaseSyncProvider.DetectChangesAsync(sourceConnectionString, table, mapping).ConfigureAwait(false);
     }
 
     public async Task<IEnumerable<ChangeTrackingTableAndMapping>> GetTrackedTablesAndMappingsAsync(int sourceId, ConnectionStringModel sourceConnectionString, ConnectionStringModel targetConnectionString)

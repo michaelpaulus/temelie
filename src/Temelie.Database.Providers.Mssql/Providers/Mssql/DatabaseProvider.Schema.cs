@@ -50,7 +50,6 @@ WHERE
     sysobjects.xtype IN ('P', 'V', 'FN', 'IF', 'TF') AND 
     sysobjects.category = 0 AND 
     sysobjects.name NOT LIKE '%diagram%'  AND
-    schemas.name <> 'cdc'
 ORDER BY 
     sysobjects.xtype, 
     sysobjects.name
@@ -417,7 +416,7 @@ FROM
 			), '[]') extended_properties,
 			(
 				SELECT
-				TOP 1
+				    TOP 1
 					indexes.index_id
 				FROM
 					sys.indexes INNER JOIN
@@ -437,7 +436,6 @@ FROM
         WHERE
             tables.name <> 'sysdiagrams' AND
             tables.name <> 'systranschemas' AND
-            schemas.name <> 'cdc' AND
             tables.name <> 'MSchange_tracking_history'
 	) t1
 ORDER BY

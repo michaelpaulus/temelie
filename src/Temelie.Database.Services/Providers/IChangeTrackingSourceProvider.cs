@@ -9,7 +9,8 @@ public interface IChangeTrackingSourceProvider
 {
     string Provider { get; }
 
-    Task DetectChangesAsync(ConnectionStringModel sourceConnectionString);
+    Task UpdateSchemaAsync(ConnectionStringModel sourceConnectionString, ChangeTrackingTable table);
+    Task DetectChangesAsync(ConnectionStringModel sourceConnectionString, ChangeTrackingTable table, ChangeTrackingMapping mapping);
     Task<IEnumerable<ChangeTrackingTable>> GetTrackedTablesAsync(ConnectionStringModel sourceConnectionString);
     Task<byte[]> GetCurrentVersionAsync(ConnectionStringModel sourceConnectionString, ChangeTrackingTable table);
     Task<int> GetTrackedTableChangesCountAsync(ConnectionStringModel sourceConnectionString, ChangeTrackingTable table, TableModel tableModel, byte[] currentVersion, ChangeTrackingMapping mapping);
