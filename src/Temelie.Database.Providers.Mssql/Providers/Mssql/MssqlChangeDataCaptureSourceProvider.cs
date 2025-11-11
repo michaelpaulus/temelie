@@ -50,6 +50,15 @@ public class MssqlChangeDataCaptureSourceProvider : IChangeTrackingSourceProvide
 
             foreach (var cdcColumn in cdcTable.Columns)
             {
+                if (cdcColumn.ColumnName == "__$start_lsn" ||
+                    cdcColumn.ColumnName == "__$end_lsn" ||
+                    cdcColumn.ColumnName == "__$seqval" ||
+                    cdcColumn.ColumnName == "__$operation" ||
+                    cdcColumn.ColumnName == "__$update_mask" ||
+                    cdcColumn.ColumnName == "__$command_id")
+                {
+                    continue;
+                }
                 var sourceColumn = sourceColumns.Where(i => i.ColumnName.EqualsIgnoreCase(cdcColumn.ColumnName)).FirstOrDefault();
                 if (sourceColumn is null)
                 {
@@ -108,14 +117,14 @@ EXEC sys.sp_cdc_enable_table
                 columns = _databaseModelService.GetTableColumns(conn);
                 tables = _databaseModelService.GetTables(conn, new DatabaseModelOptions() { ExcludeDoubleUnderscoreObjects = false, ExcludeCdcObjects = false }, columns);
                 cdcTable = tables.Where(i => i.TableName.EqualsIgnoreCase($"{table.Instance}_CT") && i.SchemaName.EqualsIgnoreCase("cdc")).FirstOrDefault();
-                var newCdcTable = tables.Where(i => i.TableName.EqualsIgnoreCase($"__{table.Instance}_CT") && i.SchemaName.EqualsIgnoreCase("dbo")).FirstOrDefault();
+                var backupCdcTable = tables.Where(i => i.TableName.EqualsIgnoreCase($"__{table.Instance}_CT") && i.SchemaName.EqualsIgnoreCase("dbo")).FirstOrDefault();
 
-                if (cdcTable is null || newCdcTable is null)
+                if (cdcTable is null || backupCdcTable is null)
                 {
                     return;
                 }
 
-                await UpgradeTableAsync(cdcTable, newCdcTable, conn).ConfigureAwait(false);
+                await UpgradeTableAsync(cdcTable, backupCdcTable, conn).ConfigureAwait(false);
 
                 using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
                 {
@@ -123,11 +132,11 @@ EXEC sys.sp_cdc_enable_table
 INSERT INTO 
     cdc.{table.Instance}_CT
     (
-        {string.Join(", ", newCdcTable.Columns.Select(i => $"[{i.ColumnName}]"))}
+        {string.Join(", ", cdcTable.Columns.Select(i => $"[{i.ColumnName}]"))}
     )
     (
     SELECT
-        {string.Join(", ", newCdcTable.Columns.Select(i => $"[{i.ColumnName}]"))}
+        {string.Join(", ", cdcTable.Columns.Select(i => $"[{i.ColumnName}]"))}
     FROM
         dbo.__{table.Instance}_CT
     )
@@ -146,10 +155,16 @@ SET
 	             FROM
 		            cdc.{table.Instance}_CT
                 )
-where
+WHERE
     capture_instance = '{table.Instance}_CT'
-)
 ";
+                    await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+                }
+
+                using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
+                {
+                    cmd.CommandText = $@"
+DROP TABLE IF EXISTS dbo.[__{table.Instance}_CT]";
                     await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }
 

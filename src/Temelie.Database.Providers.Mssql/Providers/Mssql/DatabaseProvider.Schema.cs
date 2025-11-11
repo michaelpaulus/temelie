@@ -49,7 +49,7 @@ FROM
 WHERE 
     sysobjects.xtype IN ('P', 'V', 'FN', 'IF', 'TF') AND 
     sysobjects.category = 0 AND 
-    sysobjects.name NOT LIKE '%diagram%'  AND
+    sysobjects.name NOT LIKE '%diagram%'
 ORDER BY 
     sysobjects.xtype, 
     sysobjects.name

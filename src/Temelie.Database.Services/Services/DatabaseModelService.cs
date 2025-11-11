@@ -130,7 +130,7 @@ public class DatabaseModelService : IDatabaseModelService
 
         if (options.ExcludeCdcObjects)
         {
-            views = views.Where(i => !i.SchemaName.EqualsIgnoreCase("cdc")).ToList();
+            filteredList = filteredList.Where(i => !i.SchemaName.EqualsIgnoreCase("cdc")).ToList();
         }
 
         return filteredList.ToList();
