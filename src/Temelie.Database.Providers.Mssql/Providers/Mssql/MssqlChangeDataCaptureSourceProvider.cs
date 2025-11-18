@@ -2,6 +2,7 @@ using System.Data;
 using System.Data.Common;
 using System.Text;
 using Microsoft.Data.SqlClient;
+using Microsoft.VisualBasic;
 using Temelie.Database.Extensions;
 using Temelie.Database.Models;
 using Temelie.Database.Models.ChangeTracking;
@@ -245,12 +246,7 @@ FROM
 ;
 ";
 
-                    var lastSyncedVersion = mapping.LastSyncedVersion;
-
-                    if (!lastSyncedVersion.Any(i => i != 0))
-                    {
-                        lastSyncedVersion = await GetMinVersionAsync(sourceConnectionString, table).ConfigureAwait(false);
-                    }
+                    var lastSyncedVersion = await GetLastSyncedVersionAsync(sourceConnectionString, table, mapping.LastSyncedVersion).ConfigureAwait(false);
 
                     cmd.Parameters.Add(new SqlParameter("@from_lsn", lastSyncedVersion));
                     cmd.Parameters.Add(new SqlParameter("@to_lsn", currentVersion));
@@ -263,16 +259,30 @@ FROM
 
     }
 
-    private async Task<byte[]> GetMinVersionAsync(ConnectionStringModel sourceConnectionString, ChangeTrackingTable table)
+    private async Task<byte[]> GetLastSyncedVersionAsync(ConnectionStringModel sourceConnectionString, ChangeTrackingTable table, byte[] lastSyncedVersion)
     {
         using (var conn = _databaseExecutionService.CreateDbConnection(sourceConnectionString))
         {
             using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
             {
                 cmd.CommandText = $@"SELECT sys.fn_cdc_get_min_lsn('{table.Instance}');";
-                return (await cmd.ExecuteScalarAsync().ConfigureAwait(false)) as byte[] ?? Array.Empty<byte>();
+                var minVersion =  (await cmd.ExecuteScalarAsync().ConfigureAwait(false)) as byte[] ?? Array.Empty<byte>();
+                for (var index = 0; index < minVersion.Length; index++)
+                {
+                    if (lastSyncedVersion[index] < minVersion[index])
+                    {
+                        lastSyncedVersion = minVersion;
+                        break;
+                    }
+                    else if (lastSyncedVersion[index] > minVersion[index])
+                    {
+                        break;
+                    }
+                }
             }
         }
+
+        return lastSyncedVersion;
     }
 
     public async IAsyncEnumerable<ChangeTrackingRow> GetTrackedTableChangesAsync(ConnectionStringModel sourceConnectionString, ChangeTrackingTable table, TableModel tableModel, byte[] currentVersion, ChangeTrackingMapping mapping)
@@ -314,12 +324,7 @@ FROM
 ;
 ";
 
-                    var lastSyncedVersion = mapping.LastSyncedVersion;
-
-                    if (!lastSyncedVersion.Any(i => i != 0))
-                    {
-                        lastSyncedVersion = await GetMinVersionAsync(sourceConnectionString, table).ConfigureAwait(false);
-                    }
+                     var lastSyncedVersion = await GetLastSyncedVersionAsync(sourceConnectionString, table, mapping.LastSyncedVersion).ConfigureAwait(false);
 
                     cmd.Parameters.Add(new SqlParameter("@from_lsn", lastSyncedVersion));
                     cmd.Parameters.Add(new SqlParameter("@to_lsn", currentVersion));
