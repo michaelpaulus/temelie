@@ -16,6 +16,13 @@ public class MssqlChangeDataCaptureSourceProvider : IChangeTrackingSourceProvide
     private readonly IDatabaseExecutionService _databaseExecutionService;
     private readonly IDatabaseModelService _databaseModelService;
     private readonly IDatabaseFactory _databaseFactory;
+    private static readonly List<string> _cdcColumns = [ "__$start_lsn" ,
+                                                          "__$end_lsn" ,
+                                                          "__$seqval" ,
+                                                          "__$operation" ,
+                                                          "__$update_mask" ,
+                                                          "__$command_id" ];
+
 
     public MssqlChangeDataCaptureSourceProvider(IDatabaseExecutionService databaseExecutionService,
         IDatabaseModelService databaseModelService,
@@ -50,12 +57,7 @@ public class MssqlChangeDataCaptureSourceProvider : IChangeTrackingSourceProvide
 
             foreach (var cdcColumn in cdcTable.Columns)
             {
-                if (cdcColumn.ColumnName == "__$start_lsn" ||
-                    cdcColumn.ColumnName == "__$end_lsn" ||
-                    cdcColumn.ColumnName == "__$seqval" ||
-                    cdcColumn.ColumnName == "__$operation" ||
-                    cdcColumn.ColumnName == "__$update_mask" ||
-                    cdcColumn.ColumnName == "__$command_id")
+                if (_cdcColumns.Contains(cdcColumn.ColumnName))
                 {
                     continue;
                 }
@@ -124,7 +126,7 @@ EXEC sys.sp_cdc_enable_table
                     return;
                 }
 
-                await UpgradeTableAsync(cdcTable, backupCdcTable, conn).ConfigureAwait(false);
+                await UpgradeTableAsync(sourceTable, backupCdcTable, conn).ConfigureAwait(false);
 
                 using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
                 {
@@ -347,7 +349,7 @@ FROM
         var provider = _databaseFactory.GetDatabaseProvider(dbConnection);
 
         var newColumns = sourceTable.Columns.Where(i => !currentTable.Columns.Any(i2 => i.ColumnName == i2.ColumnName)).ToList();
-        var removedColumns = currentTable.Columns.Where(i => !sourceTable.Columns.Any(i2 => i.ColumnName == i2.ColumnName)).ToList();
+        var removedColumns = currentTable.Columns.Where(i => !_cdcColumns.Contains(i.ColumnName) && !sourceTable.Columns.Any(i2 => i.ColumnName == i2.ColumnName)).ToList();
 
         if (newColumns.Count > 0 || removedColumns.Count > 0)
         {
@@ -355,7 +357,11 @@ FROM
 
             foreach (var newColumn in newColumns)
             {
+                newColumn.SchemaName = currentTable.SchemaName;
+                newColumn.TableName = currentTable.TableName;
                 var columnScript = provider.GetColumnScript(newColumn);
+                newColumn.SchemaName = sourceTable.SchemaName;
+                newColumn.TableName = sourceTable.TableName;
                 if (columnScript is not null && !string.IsNullOrEmpty(columnScript.CreateScript))
                 {
                     sb.AppendLine(columnScript.CreateScript);
