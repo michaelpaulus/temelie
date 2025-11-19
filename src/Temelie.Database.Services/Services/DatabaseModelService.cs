@@ -94,6 +94,11 @@ public class DatabaseModelService : IDatabaseModelService
             views = views.Where(i => !i.TableName.StartsWith("__")).ToList();
         }
 
+        if (options.ExcludeCdcObjects)
+        {
+            views = views.Where(i => !i.SchemaName.EqualsIgnoreCase("cdc")).ToList();
+        }
+
         return views.ToList();
     }
 
@@ -123,6 +128,11 @@ public class DatabaseModelService : IDatabaseModelService
             filteredList = filteredList.Where(i => !i.DefinitionName.StartsWith("__")).ToList();
         }
 
+        if (options.ExcludeCdcObjects)
+        {
+            filteredList = filteredList.Where(i => !i.SchemaName.EqualsIgnoreCase("cdc")).ToList();
+        }
+
         return filteredList.ToList();
     }
 
@@ -146,7 +156,7 @@ public class DatabaseModelService : IDatabaseModelService
         return (from i in provider.GetIndexes(connection) orderby i.TableName, i.IndexName select i).ToList();
     }
 
-    private IEnumerable<Models.TableModel> GetTables(DbConnection connection, DatabaseModelOptions options, IEnumerable<ColumnModel> columns)
+    public IEnumerable<Models.TableModel> GetTables(DbConnection connection, DatabaseModelOptions options, IEnumerable<ColumnModel> columns)
     {
         var provider = _databaseFactory.GetDatabaseProvider(connection);
 
@@ -164,10 +174,16 @@ public class DatabaseModelService : IDatabaseModelService
         {
             tables = tables.Where(i => !i.TableName.StartsWith("__")).ToList();
         }
+
+        if (options.ExcludeCdcObjects)
+        {
+            tables = tables.Where(i => !i.SchemaName.EqualsIgnoreCase("cdc")).ToList();
+        }
+
         return tables;
     }
 
-    private IEnumerable<ColumnModel> GetTableColumns(DbConnection connection)
+    public IEnumerable<ColumnModel> GetTableColumns(DbConnection connection)
     {
         var provider = _databaseFactory.GetDatabaseProvider(connection);
 
@@ -191,6 +207,11 @@ public class DatabaseModelService : IDatabaseModelService
         if (options.ExcludeDoubleUnderscoreObjects)
         {
             triggers = triggers.Where(i => !i.TriggerName.StartsWith("__")).ToList();
+        }
+
+        if (options.ExcludeCdcObjects)
+        {
+            triggers = triggers.Where(i => !i.SchemaName.EqualsIgnoreCase("cdc")).ToList();
         }
 
         return triggers.ToList();

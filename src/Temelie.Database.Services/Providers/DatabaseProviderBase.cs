@@ -560,7 +560,6 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
                 list.Add(table);
             }
 
-
             foreach (var databaseModelProvider in _databaseModelProviders)
             {
                 databaseModelProvider.Initialize(table);
@@ -714,7 +713,7 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
 
     public abstract bool TryHandleColumnValueLoadException(Exception ex, ColumnModel column, out object value);
 
-    public virtual void ConvertBulk(TableConverterService service, IProgress<TableProgress> progress, TableModel sourceTable, IDataReader sourceReader, int sourceRowCount, TableModel targetTable, DbConnection targetConnection, bool trimStrings, int batchSize, bool useTransaction = true, bool validateTargetTable = true)
+    public virtual void ConvertBulk(TableConverterService service, Action<TableProgress> progress, TableModel sourceTable, IDataReader sourceReader, int sourceRowCount, TableModel targetTable, DbConnection targetConnection, bool trimStrings, int batchSize, bool useTransaction = true, bool validateTargetTable = true)
     {
         throw new NotImplementedException();
     }
@@ -726,6 +725,11 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
     public abstract int GetRowCount(DbCommand command, string schemaName, string tableName);
     public abstract string GetSelectStatement(string schemaName, string tableName, IEnumerable<string> columns);
     public abstract IDatabaseObjectScript GetColumnScript(ColumnModel column);
+
+    public virtual Task UpgradeTableAsync(TableModel sourceTable, TableModel currentTable, DbConnection dbConnection, ICollection<string> ignoreColumns)
+    {
+        throw new NotImplementedException();
+    }
 
     #endregion
 

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
 using Temelie.Database.Extensions;
@@ -358,7 +357,7 @@ public class ScriptService : IScriptService
         return json;
     }
 
-    public void CreateScripts(ConnectionStringModel connectionString, System.IO.DirectoryInfo directory, IProgress<ScriptProgress> progress, string objectFilter = "", IDatabaseProvider createScriptsProvider = null)
+    public void CreateScripts(ConnectionStringModel connectionString, System.IO.DirectoryInfo directory, Action<ScriptProgress> progress, string objectFilter = "", IDatabaseProvider createScriptsProvider = null)
     {
         var provider = _databaseFactory.GetDatabaseProvider(connectionString);
         Models.DatabaseModel database = _databaseModelService.CreateModel(connectionString, new Models.DatabaseModelOptions { ObjectFilter = objectFilter, ExcludeDoubleUnderscoreObjects = true });
@@ -410,7 +409,7 @@ public class ScriptService : IScriptService
 
             var subDirectory = new System.IO.DirectoryInfo(subDirectoryPath);
 
-            progress?.Report(new ScriptProgress() { ProgressPercentage = intProgress, ProgressStatus = subDirectory.Name });
+            progress?.Invoke(new ScriptProgress() { ProgressPercentage = intProgress, ProgressStatus = subDirectory.Name });
 
             if (subDirectory.Name.StartsWith("02_Tables", StringComparison.InvariantCultureIgnoreCase))
             {
@@ -459,7 +458,7 @@ public class ScriptService : IScriptService
 
         }
 
-        progress?.Report(new ScriptProgress() { ProgressPercentage = 100, ProgressStatus = "Complete" });
+        progress?.Invoke(new ScriptProgress() { ProgressPercentage = 100, ProgressStatus = "Complete" });
 
     }
 
@@ -476,7 +475,7 @@ public class ScriptService : IScriptService
         return System.Text.RegularExpressions.Regex.Replace(name, invalidRegStr, "_");
     }
 
-    public void ExecuteScripts(ConnectionStringModel connectionString, DirectoryInfo directory, IProgress<ScriptProgress> progress, bool continueOnError = true, bool skipMigrations = false)
+    public void ExecuteScripts(ConnectionStringModel connectionString, DirectoryInfo directory, Action<ScriptProgress> progress, bool continueOnError = true, bool skipMigrations = false)
     {
         IList<string> migrations = [];
 
@@ -650,7 +649,7 @@ public class ScriptService : IScriptService
                                         return;
                                     }
 
-                                    progress?.Report(new ScriptProgress() { ProgressPercentage = 0, ProgressStatus = "Table Change: " + current.TableName });
+                                    progress?.Invoke(new ScriptProgress() { ProgressPercentage = 0, ProgressStatus = "Table Change: " + current.TableName });
 
                                     hasTableChange = true;
                                 }
@@ -863,7 +862,7 @@ public class ScriptService : IScriptService
                     {
                         var rename = provider.GetRenameScript(current, $"__{current.TableName}");
 
-                        progress?.Report(new ScriptProgress() { ProgressPercentage = 0, ProgressStatus = $"__{current.TableName}" });
+                        progress?.Invoke(new ScriptProgress() { ProgressPercentage = 0, ProgressStatus = $"__{current.TableName}" });
 
                         _databaseExecutionService.ExecuteFile(connectionString, rename);
 
@@ -914,7 +913,7 @@ public class ScriptService : IScriptService
                 {
                     int percent = Convert.ToInt32((index / total) * 100);
 
-                    progress?.Report(new ScriptProgress() { ProgressPercentage = percent, ProgressStatus = $"{file.Name}" });
+                    progress?.Invoke(new ScriptProgress() { ProgressPercentage = percent, ProgressStatus = $"{file.Name}" });
 
                     try
                     {
@@ -930,7 +929,7 @@ public class ScriptService : IScriptService
                     catch (Exception ex)
                     {
                         errors.Add($"{file.Name} ErrorMessage: {ex.Message}");
-                        progress?.Report(new ScriptProgress() { ProgressPercentage = percent, ProgressStatus = $"{file.Name}", ErrorMessage = ex.Message });
+                        progress?.Invoke(new ScriptProgress() { ProgressPercentage = percent, ProgressStatus = $"{file.Name}", ErrorMessage = ex.Message });
                         if (!continueOnError || dir.IsMigration)
                         {
                             throw new Exception(string.Join(Environment.NewLine, errors));
@@ -970,11 +969,11 @@ public class ScriptService : IScriptService
                     throw;
                 }
                 retryIndex += 1;
-                progress?.Report(new ScriptProgress() { ProgressPercentage = 0, ProgressStatus = $"Retry {retryIndex} of {retryCount}" });
+                progress?.Invoke(new ScriptProgress() { ProgressPercentage = 0, ProgressStatus = $"Retry {retryIndex} of {retryCount}" });
             }
         }
 
-        progress?.Report(new ScriptProgress() { ProgressPercentage = 100, ProgressStatus = "Complete" });
+        progress?.Invoke(new ScriptProgress() { ProgressPercentage = 100, ProgressStatus = "Complete" });
     }
 
     public string MergeScripts(IEnumerable<string> scripts)
