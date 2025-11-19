@@ -2,7 +2,6 @@ using System.Data;
 using System.Data.Common;
 using System.Text;
 using Microsoft.Data.SqlClient;
-using Microsoft.VisualBasic;
 using Temelie.Database.Extensions;
 using Temelie.Database.Models;
 using Temelie.Database.Models.ChangeTracking;
@@ -46,6 +45,7 @@ public class MssqlChangeDataCaptureSourceProvider : IChangeTrackingSourceProvide
             var tables = _databaseModelService.GetTables(conn, new DatabaseModelOptions() { ExcludeCdcObjects = false }, columns);
             var sourceTable = tables.Where(i => i.TableName.EqualsIgnoreCase(table.TableName) && i.SchemaName.EqualsIgnoreCase(table.SchemaName)).FirstOrDefault();
             var cdcTable = tables.Where(i => i.TableName.EqualsIgnoreCase($"{table.Instance}_CT") && i.SchemaName.EqualsIgnoreCase("cdc")).FirstOrDefault();
+            var provider = _databaseFactory.GetDatabaseProvider(conn);
 
             if (sourceTable is null || cdcTable is null)
             {
@@ -127,7 +127,9 @@ EXEC sys.sp_cdc_enable_table
                     return;
                 }
 
-                await UpgradeTableAsync(sourceTable, backupCdcTable, conn).ConfigureAwait(false);
+              
+
+                await provider.UpgradeTableAsync(sourceTable, backupCdcTable, conn, _cdcColumns).ConfigureAwait(false);
 
                 using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
                 {
@@ -349,43 +351,5 @@ FROM
         }
     }
 
-    private Task UpgradeTableAsync(TableModel sourceTable, TableModel currentTable, DbConnection dbConnection)
-    {
-        var provider = _databaseFactory.GetDatabaseProvider(dbConnection);
-
-        var newColumns = sourceTable.Columns.Where(i => !currentTable.Columns.Any(i2 => i.ColumnName == i2.ColumnName)).ToList();
-        var removedColumns = currentTable.Columns.Where(i => !_cdcColumns.Contains(i.ColumnName) && !sourceTable.Columns.Any(i2 => i.ColumnName == i2.ColumnName)).ToList();
-
-        if (newColumns.Count > 0 || removedColumns.Count > 0)
-        {
-            var sb = new StringBuilder();
-
-            foreach (var newColumn in newColumns)
-            {
-                newColumn.SchemaName = currentTable.SchemaName;
-                newColumn.TableName = currentTable.TableName;
-                var columnScript = provider.GetColumnScript(newColumn);
-                newColumn.SchemaName = sourceTable.SchemaName;
-                newColumn.TableName = sourceTable.TableName;
-                if (columnScript is not null && !string.IsNullOrEmpty(columnScript.CreateScript))
-                {
-                    sb.AppendLine(columnScript.CreateScript);
-                }
-            }
-
-            foreach (var removedColumn in removedColumns)
-            {
-                var columnScript = provider.GetColumnScript(removedColumn);
-                if (columnScript is not null && !string.IsNullOrEmpty(columnScript.DropScript))
-                {
-                    sb.AppendLine(columnScript.DropScript);
-                }
-            }
-
-            _databaseExecutionService.ExecuteFile(dbConnection, sb.ToString());
-        }
-
-        return Task.CompletedTask;
-    }
-
+   
 }

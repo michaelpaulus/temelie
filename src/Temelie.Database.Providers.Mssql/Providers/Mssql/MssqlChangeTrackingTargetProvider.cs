@@ -87,13 +87,7 @@ WHERE
 
         using (var conn = _databaseExecutionService.CreateDbConnection(targetConnectionString))
         {
-            using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
-            {
-                cmd.CommandText = @$"
-DROP TABLE IF EXISTS [{tempTable.SchemaName}].[{tempTable.TableName}]
-";
-                await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
-            }
+            await DropTableAsync(tempTable, conn).ConfigureAwait(false);
 
             _logger.LogInformation($"Creating temporary table {tempTable.SchemaName}.{tempTable.TableName}");
 
@@ -145,6 +139,8 @@ EXEC sp_rename '{tempTable.SchemaName}.{tempTable.TableName}', '{targetTable.Tab
 
         using (var conn = _databaseExecutionService.CreateDbConnection(targetConnectionString))
         {
+            await DropTableAsync(tempTable, conn).ConfigureAwait(false);
+
             _logger.LogInformation($"Creating temporary table {tempTable.SchemaName}.{tempTable.TableName}");
 
             await CreateTableAsync(tempTable, conn).ConfigureAwait(false);
@@ -225,7 +221,7 @@ WHERE
         }
     }
 
-    private Task CreateTableAsync(TableModel tableModel, DbConnection dbConnection)
+    private async Task CreateTableAsync(TableModel tableModel, DbConnection dbConnection)
     {
         var provider = _databaseFactory.GetDatabaseProvider(dbConnection);
 
@@ -244,36 +240,9 @@ WHERE
 
         if (currentTable is not null)
         {
-            var newColumns = tableModel.Columns.Where(i => !currentTable.Columns.Any(i2 => i.ColumnName == i2.ColumnName)).ToList();
-            var removedColumns = currentTable.Columns.Where(i => !tableModel.Columns.Any(i2 => i.ColumnName == i2.ColumnName)).ToList();
-
-            if (newColumns.Count > 0 || removedColumns.Count > 0)
-            {
-                var sb = new StringBuilder();
-
-                foreach (var newColumn in newColumns)
-                {
-                    var columnScript = provider.GetColumnScript(newColumn);
-                    if (columnScript is not null && !string.IsNullOrEmpty(columnScript.CreateScript))
-                    {
-                        sb.AppendLine(columnScript.CreateScript);
-                    }
-                }
-
-                foreach (var removedColumn in removedColumns)
-                {
-                    var columnScript = provider.GetColumnScript(removedColumn);
-                    if (columnScript is not null && !string.IsNullOrEmpty(columnScript.DropScript))
-                    {
-                        sb.AppendLine(columnScript.DropScript);
-                    }
-                }
-
-                _databaseExecutionService.ExecuteFile(dbConnection, sb.ToString());
-            }
+            await provider.UpgradeTableAsync(tableModel, currentTable, dbConnection, new List<string>()).ConfigureAwait(false);
         }
 
-        return Task.CompletedTask;
     }
 
     private async Task DropTableAsync(TableModel tableModel, DbConnection dbConnection)
@@ -358,7 +327,7 @@ WHERE
     {
         var tempTable = JsonSerializer.Deserialize<TableModel>(JsonSerializer.Serialize(tableModel))!;
 
-        tempTable.TableName = "#" + mapping.TargetTableName;
+        tempTable.TableName = "__" + mapping.TargetTableName;
         tempTable.SchemaName = mapping.TargetSchemaName;
 
         tempTable.Columns.Add(new ColumnModel()

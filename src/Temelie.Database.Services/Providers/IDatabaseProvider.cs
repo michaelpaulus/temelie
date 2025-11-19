@@ -64,4 +64,6 @@ public interface IDatabaseProvider
     int GetRowCount(DbCommand connection, string schemaName, string tableName);
     string GetSelectStatement(string schemaName, string tableName, IEnumerable<string> columns);
 
+    Task UpgradeTableAsync(TableModel sourceTable, TableModel currentTable, DbConnection dbConnection, ICollection<string> ignoreColumns);
+
 }

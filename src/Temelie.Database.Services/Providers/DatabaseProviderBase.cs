@@ -726,6 +726,11 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
     public abstract string GetSelectStatement(string schemaName, string tableName, IEnumerable<string> columns);
     public abstract IDatabaseObjectScript GetColumnScript(ColumnModel column);
 
+    public virtual Task UpgradeTableAsync(TableModel sourceTable, TableModel currentTable, DbConnection dbConnection, ICollection<string> ignoreColumns)
+    {
+        throw new NotImplementedException();
+    }
+
     #endregion
 
     #region Nested Types
