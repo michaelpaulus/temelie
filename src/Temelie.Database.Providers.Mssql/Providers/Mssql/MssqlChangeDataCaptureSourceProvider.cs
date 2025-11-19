@@ -186,16 +186,38 @@ DROP TABLE IF EXISTS dbo.[__{table.Instance}_CT]";
     public async Task<IEnumerable<ChangeTrackingTable>> GetTrackedTablesAsync(ConnectionStringModel sourceConnectionString)
     {
         return await _databaseExecutionService.GetRecordsAsync<ChangeTrackingTable>(sourceConnectionString, @"
-SELECT 
-    schemas.name SchemaName,
-    tables.name TableName,
-    change_tables.capture_instance Instance
-FROM 
-    cdc.change_tables INNER JOIN
-    sys.tables ON
-        change_tables.source_object_id = tables.object_id INNER JOIN
-    sys.schemas ON
-        tables.schema_id = schemas.schema_id
+IF EXISTS (SELECT 1 FROM sys.tables WHERE name = 'change_tables')
+BEGIN
+    DECLARE @sql NVARCHAR(MAX)
+
+    SET @sql = N'
+    SELECT 
+        schemas.name SchemaName,
+        tables.name TableName,
+        change_tables.capture_instance Instance
+    FROM 
+        cdc.change_tables INNER JOIN
+        sys.tables ON
+            change_tables.source_object_id = tables.object_id INNER JOIN
+        sys.schemas ON
+            tables.schema_id = schemas.schema_id
+    '
+
+    EXEC sp_executesql @sql
+END
+ELSE 
+BEGIN
+    SELECT 
+        schemas.name SchemaName,
+        tables.name TableName,
+        NULL Instance
+    FROM 
+        sys.tables INNER JOIN
+        sys.schemas ON
+            tables.schema_id = schemas.schema_id
+    WHERE
+        1=0
+END
 ").ConfigureAwait(false);
     }
 
