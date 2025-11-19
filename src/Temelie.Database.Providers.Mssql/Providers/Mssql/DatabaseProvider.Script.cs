@@ -1,4 +1,5 @@
 using System.Data;
+using System.Data.Common;
 using System.Text;
 using Temelie.Database.Extensions;
 using Temelie.Database.Models;
@@ -586,7 +587,7 @@ GO");
         return new DatabaseObjectScript(generateCreateScript, generateDropScript);
     }
 
-    public override IDatabaseObjectScript GetScript(TableModel model)
+    public override IDatabaseObjectScript? GetScript(TableModel model)
     {
         if (string.IsNullOrEmpty(model.TableName))
         {
@@ -1016,7 +1017,57 @@ GO
 ALTER TABLE [{column.SchemaName}].[{column.TableName}] ADD {GetScript(column)}
 GO";
 
-        script.DropScript = $@"IF EXISTS
+        var dropScript = new StringBuilder();
+
+        if (!string.IsNullOrEmpty(column.ColumnDefault))
+        {
+            dropScript.AppendLine($@"IF EXISTS 
+(
+	SELECT
+		1
+	FROM
+		sys.tables INNER JOIN
+		sys.columns on
+			tables.object_id = columns.object_id INNER JOIN
+		sys.schemas ON
+			tables.schema_id = schemas.schema_id INNER JOIN
+		sys.default_constraints ON
+			columns.object_id = default_constraints.parent_object_id AND
+			columns.column_id = default_constraints.parent_column_id
+	WHERE
+		schemas.name = '{column.SchemaName}' AND
+		tables.name = '{column.TableName}' AND
+		columns.name = '{column.ColumnName}'
+)
+BEGIN
+
+	DECLARE @sql NVARCHAR(MAX); 
+
+	SET @sql = (SELECT
+					N'ALTER TABLE [' + sys.schemas.name + '].[' + sys.tables.name + '] DROP CONSTRAINT [' + sys.default_constraints.name + ']'
+				FROM
+					sys.tables INNER JOIN
+					sys.columns on
+						tables.object_id = columns.object_id INNER JOIN
+					sys.schemas ON
+						tables.schema_id = schemas.schema_id INNER JOIN
+					sys.default_constraints ON
+						columns.object_id = default_constraints.parent_object_id AND
+						columns.column_id = default_constraints.parent_column_id
+				WHERE
+					schemas.name = '{column.SchemaName}' AND
+					tables.name = '{column.TableName}' AND
+					columns.name = '{column.ColumnName}'
+				)
+
+	EXEC sp_executesql @sql
+
+END
+GO
+");
+        }
+
+        dropScript.AppendLine($@"IF EXISTS
 (
 	SELECT
 		1
@@ -1032,7 +1083,9 @@ GO";
 		columns.name = '{column.ColumnName}'
 )
 ALTER TABLE [{column.SchemaName}].[{column.TableName}] DROP COLUMN [{column.ColumnName}]
-GO";
+GO");
+
+        script.DropScript = dropScript.ToString();
 
         return script;
 
@@ -1159,6 +1212,43 @@ GO";
         }
 
         return strDataType;
+    }
+
+    public override Task UpgradeTableAsync(TableModel sourceTable, TableModel currentTable, DbConnection dbConnection, ICollection<string> ignoreColumns)
+    {
+        var newColumns = sourceTable.Columns.Where(i => !currentTable.Columns.Any(i2 => i.ColumnName == i2.ColumnName)).ToList();
+        var removedColumns = currentTable.Columns.Where(i => !ignoreColumns.Contains(i.ColumnName) && !sourceTable.Columns.Any(i2 => i.ColumnName == i2.ColumnName)).ToList();
+
+        if (newColumns.Count > 0 || removedColumns.Count > 0)
+        {
+            var sb = new StringBuilder();
+
+            foreach (var newColumn in newColumns)
+            {
+                newColumn.SchemaName = currentTable.SchemaName;
+                newColumn.TableName = currentTable.TableName;
+                var columnScript = GetColumnScript(newColumn);
+                newColumn.SchemaName = sourceTable.SchemaName;
+                newColumn.TableName = sourceTable.TableName;
+                if (columnScript is not null && !string.IsNullOrEmpty(columnScript.CreateScript))
+                {
+                    sb.AppendLine(columnScript.CreateScript);
+                }
+            }
+
+            foreach (var removedColumn in removedColumns)
+            {
+                var columnScript = GetColumnScript(removedColumn);
+                if (columnScript is not null && !string.IsNullOrEmpty(columnScript.DropScript))
+                {
+                    sb.AppendLine(columnScript.DropScript);
+                }
+            }
+
+            _databaseService.ExecuteFile(dbConnection, sb.ToString());
+        }
+
+        return Task.CompletedTask;
     }
 
 }

@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.Data.Common;
 using Temelie.Database.Models;
 
@@ -11,4 +11,5 @@ public interface IDatabaseExecutionService
     void ExecuteFile(ConnectionStringModel connectionString, string sqlCommand);
     void ExecuteFile(DbConnection connection, string sqlCommand);
     void ExecuteNonQuery(DbConnection connection, string sqlCommand);
+    Task<IEnumerable<T>> GetRecordsAsync<T>(ConnectionStringModel connectionString, string query, params DbParameter[] parameters);
 }

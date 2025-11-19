@@ -39,7 +39,7 @@ public class DatabaseExecutionService : IDatabaseExecutionService
 
         if (connection.State != ConnectionState.Open)
         {
-            connection.Open();
+          connection.Open();
         }
 
         return connection;
@@ -112,6 +112,36 @@ public class DatabaseExecutionService : IDatabaseExecutionService
                 command.ExecuteNonQuery();
             }
         }
+    }
+
+    public async Task<IEnumerable<T>> GetRecordsAsync<T>(ConnectionStringModel connectionString, string query, params DbParameter[] parameters)
+    {
+        var results = new List<T>();
+        using (var conn = CreateDbConnection(connectionString))
+        using (var cmd = CreateDbCommand(conn))
+        {
+            cmd.CommandText = query;
+            cmd.Parameters.AddRange(parameters);
+            using (var reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false))
+            {
+
+                while (await reader.ReadAsync().ConfigureAwait(false))
+                {
+                    var item = Activator.CreateInstance<T>();
+                    foreach (var prop in typeof(T).GetProperties())
+                    {
+                        if (!await reader.IsDBNullAsync(reader.GetOrdinal(prop.Name)).ConfigureAwait(false))
+                        {
+                            prop.SetValue(item, await reader.GetFieldValueAsync<object>(reader.GetOrdinal(prop.Name)).ConfigureAwait(false));
+                        }
+                    }
+                    results.Add(item);
+                }
+
+            }
+        }
+
+        return results;
     }
 
 }

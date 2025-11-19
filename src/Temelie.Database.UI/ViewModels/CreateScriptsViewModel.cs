@@ -76,12 +76,10 @@ public class CreateScriptsViewModel : ViewModel
         this.ProgressStatus = "";
         this.CreateScriptsCommand.IsEnabled = false;
 
-        var progress = new Progress<ScriptProgress>(this.ReportProgress);
-
 #pragma warning disable CA2008 // Do not create tasks without passing a TaskScheduler
         _ = Task.Factory.StartNew(() =>
         {
-            this.CreateScriptsInternal(progress);
+            this.CreateScriptsInternal(ReportProgress);
         }).ContinueWith((task) =>
         {
             this.ProgressPercentage = 0;
@@ -91,7 +89,7 @@ public class CreateScriptsViewModel : ViewModel
 #pragma warning restore CA2008 // Do not create tasks without passing a TaskScheduler
     }
 
-    private void CreateScriptsInternal(IProgress<ScriptProgress> progress)
+    private void CreateScriptsInternal(Action<ScriptProgress> progress)
     {
         System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(this.ScriptPath);
         _scriptService.CreateScripts(this.DatabaseConnectionString, di, progress, this.ObjectFilter, SelectedProvider);

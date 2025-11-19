@@ -8,23 +8,23 @@ public partial class DatabaseProvider
     protected override DataTable GetDefinitionDependenciesDataTable(DbConnection connection)
     {
         string sql = @"
-                        SELECT 
-                            sysobjects.name, 
-                            sys.schemas.name schema_name,
-                            r.referencing_entity_name 
-                        FROM 
-                            sysobjects INNER JOIN 
-                            sys.schemas ON 
-                                sysobjects.uid = sys.schemas.schema_id CROSS APPLY 
-                            sys.dm_sql_referencing_entities(sys.schemas.name + '.' + sysobjects.name, 'OBJECT') r 
-                        WHERE 
-                            sysobjects.xtype IN ('P', 'V', 'FN', 'IF') AND 
-                            sysobjects.category = 0 AND 
-                            sysobjects.name NOT LIKE '%diagram%' 
-                        ORDER BY 
-                            sysobjects.name, 
-                            r.referencing_entity_name
-                        ";
+ SELECT 
+     sysobjects.name, 
+     sys.schemas.name schema_name,
+     r.referencing_entity_name 
+ FROM 
+     sysobjects INNER JOIN 
+     sys.schemas ON 
+         sysobjects.uid = sys.schemas.schema_id CROSS APPLY 
+     sys.dm_sql_referencing_entities(sys.schemas.name + '.' + sysobjects.name, 'OBJECT') r 
+ WHERE 
+     sysobjects.xtype IN ('P', 'V', 'FN', 'IF') AND 
+     sysobjects.category = 0 AND 
+     sysobjects.name NOT LIKE '%diagram%' 
+ ORDER BY 
+     sysobjects.name, 
+     r.referencing_entity_name
+ ";
         System.Data.DataSet ds = _databaseService.Execute(connection, sql);
         DataTable dataTable = ds.Tables[0];
         return dataTable;
@@ -33,27 +33,27 @@ public partial class DatabaseProvider
     protected override DataTable GetDefinitionsDataTable(DbConnection connection)
     {
         string sql = @"
-                        SELECT 
-                            sysobjects.name, 
-                            sysobjects.xtype, 
-                            sys.schemas.name schema_name,
-                            ISNULL(sys.sql_modules.definition, sys.system_sql_modules.definition) AS definition
-                        FROM 
-                            sysobjects INNER JOIN 
-                            sys.schemas ON 
-                                sysobjects.uid = sys.schemas.schema_id LEFT OUTER JOIN 
-                            sys.sql_modules ON 
-                                sys.sql_modules.object_id = sysobjects.id LEFT OUTER JOIN 
-                            sys.system_sql_modules ON 
-                                sys.system_sql_modules.object_id = sysobjects.id 
-                        WHERE 
-                            sysobjects.xtype IN ('P', 'V', 'FN', 'IF', 'TF') AND 
-                            sysobjects.category = 0 AND 
-                            sysobjects.name NOT LIKE '%diagram%' 
-                        ORDER BY 
-                            sysobjects.xtype, 
-                            sysobjects.name
-                        ";
+SELECT 
+    sysobjects.name, 
+    sysobjects.xtype, 
+    sys.schemas.name schema_name,
+    ISNULL(sys.sql_modules.definition, sys.system_sql_modules.definition) AS definition
+FROM 
+    sysobjects INNER JOIN 
+    sys.schemas ON 
+        sysobjects.uid = sys.schemas.schema_id LEFT OUTER JOIN 
+    sys.sql_modules ON 
+        sys.sql_modules.object_id = sysobjects.id LEFT OUTER JOIN 
+    sys.system_sql_modules ON 
+        sys.system_sql_modules.object_id = sysobjects.id 
+WHERE 
+    sysobjects.xtype IN ('P', 'V', 'FN', 'IF', 'TF') AND 
+    sysobjects.category = 0 AND 
+    sysobjects.name NOT LIKE '%diagram%'
+ORDER BY 
+    sysobjects.xtype, 
+    sysobjects.name
+";
         System.Data.DataSet ds = _databaseService.Execute(connection, sql);
         DataTable dataTable = ds.Tables[0];
         return dataTable;
@@ -61,21 +61,27 @@ public partial class DatabaseProvider
     protected override DataTable GetSecurityPoliciesDataTable(DbConnection connection)
     {
         string sql = @"
-       SELECT policySchema.name PolicySchema,
-       sys.security_policies.name PolicyName,
-       predicate_type_desc PredicateType,
-       predicate_definition PredicateDefinition,
-       targetSchema.name TargetSchema,
-       [target].name TargetName,
-       is_enabled IsEnabled,
-       operation_desc Operation,
-       is_schema_bound IsSchemaBound
-FROM sys.security_policies
-     INNER JOIN sys.schemas policySchema ON policySchema.schema_id = sys.security_policies.schema_id
-     INNER JOIN sys.security_predicates ON sys.security_policies.object_id = sys.security_predicates.object_id
-     INNER JOIN sys.sysobjects [target] ON [target].id = target_object_id
-     INNER JOIN sys.schemas targetSchema ON targetSchema.schema_id = [target].uid
-                        ";
+SELECT
+    policySchema.name PolicySchema,
+    sys.security_policies.name PolicyName,
+    predicate_type_desc PredicateType,
+    predicate_definition PredicateDefinition,
+    targetSchema.name TargetSchema,
+    [target].name TargetName,
+    is_enabled IsEnabled,
+    operation_desc Operation,
+    is_schema_bound IsSchemaBound
+FROM
+    sys.security_policies INNER JOIN
+    sys.schemas policySchema ON
+        policySchema.schema_id = sys.security_policies.schema_id INNER JOIN
+    sys.security_predicates ON
+        sys.security_policies.object_id = sys.security_predicates.object_id INNER JOIN
+    sys.sysobjects [target] ON
+        [target].id = target_object_id INNER JOIN
+    sys.schemas targetSchema ON
+    targetSchema.schema_id = [target].uid
+ ";
         System.Data.DataSet ds = _databaseService.Execute(connection, sql);
         DataTable dataTable = ds.Tables[0];
         return dataTable;
@@ -119,7 +125,7 @@ ORDER BY
     sys.tables.name, 
     sys.foreign_keys.name, 
     sys.foreign_key_columns.constraint_column_id
-                        ";
+";
 
         System.Data.DataSet ds = _databaseService.Execute(connection, sql);
         DataTable dataTable = ds.Tables[0];
@@ -143,14 +149,14 @@ FROM
 ORDER BY 
     sys.tables.name, 
     sys.check_constraints.name
-                        ";
+";
 
         System.Data.DataSet ds = _databaseService.Execute(connection, sql);
         DataTable dataTable = ds.Tables[0];
         return dataTable;
     }
 
-    protected override DataTable GetIndexeBucketCountsDataTable(DbConnection connection)
+    protected override DataTable? GetIndexeBucketCountsDataTable(DbConnection connection)
     {
         try
         {
@@ -323,9 +329,6 @@ FROM
     sys.default_constraints ON
         sys.columns.object_id = sys.default_constraints.parent_object_id AND
         sys.columns.column_id = sys.default_constraints.parent_column_id
-
-WHERE
-    sys.tables.name <> 'sysdiagrams'
 ORDER BY
     sys.tables.name,
     sys.columns.column_id
@@ -413,7 +416,7 @@ FROM
 			), '[]') extended_properties,
 			(
 				SELECT
-				TOP 1
+				    TOP 1
 					indexes.index_id
 				FROM
 					sys.indexes INNER JOIN
@@ -430,13 +433,14 @@ FROM
 				tables.object_id = external_tables.object_id LEFT JOIN
 			sys.external_data_sources ON
 				external_tables.data_source_id = external_data_sources.data_source_id
-		WHERE
-			tables.name <> 'sysdiagrams' AND
+        WHERE
+            tables.name <> 'sysdiagrams' AND
+            tables.name <> 'systranschemas' AND
             tables.name <> 'MSchange_tracking_history'
 	) t1
 ORDER BY
 	t1.table_name
-                        ";
+";
         DataSet ds = _databaseService.Execute(connection, sql);
         DataTable dataTable = ds.Tables[0];
         return dataTable;
@@ -445,50 +449,50 @@ ORDER BY
     protected override DataTable GetTriggersDataTable(DbConnection connection)
     {
         string sql = @"
-                    SELECT
-                        *
-                    FROM
-                        (
-                        SELECT 
-                            sys.tables.name AS table_name, 
-                            sys.schemas.name schema_name,
-                            sys.triggers.name AS trigger_name, 
-                            ISNULL(sys.sql_modules.definition, sys.system_sql_modules.definition) AS definition 
-                        FROM 
-                            sys.triggers INNER JOIN 
-                            sys.tables ON 
-                                sys.triggers.parent_id = sys.tables.object_id INNER JOIN 
-                            sys.schemas ON 
-                                sys.tables.schema_id = sys.schemas.schema_id LEFT OUTER JOIN 
-                            sys.sql_modules ON 
-                                sys.sql_modules.object_id = sys.triggers.object_id LEFT OUTER JOIN 
-                            sys.system_sql_modules ON 
-                                sys.system_sql_modules.object_id = sys.triggers.object_id 
-                        WHERE 
-                            sys.tables.name <> 'sysdiagrams'
-                        UNION ALL
-                        SELECT 
-                            sys.views.name AS table_name, 
-                            sys.schemas.name schema_name,
-                            sys.triggers.name AS trigger_name, 
-                            ISNULL(sys.sql_modules.definition, sys.system_sql_modules.definition) AS definition 
-                        FROM 
-                            sys.triggers INNER JOIN 
-                            sys.views ON 
-                                sys.triggers.parent_id = sys.views.object_id INNER JOIN 
-                            sys.schemas ON 
-                                sys.views.schema_id = sys.schemas.schema_id LEFT OUTER JOIN 
-                            sys.sql_modules ON 
-                                sys.sql_modules.object_id = sys.triggers.object_id LEFT OUTER JOIN 
-                            sys.system_sql_modules ON 
-                                sys.system_sql_modules.object_id = sys.triggers.object_id 
-                        WHERE 
-                            sys.views.name <> 'sysdiagrams'
-                    ) t1 
-                    ORDER BY
-                        t1.table_name,
-                        t1.trigger_name
-                        ";
+ SELECT
+     *
+ FROM
+     (
+     SELECT 
+         sys.tables.name AS table_name, 
+         sys.schemas.name schema_name,
+         sys.triggers.name AS trigger_name, 
+         ISNULL(sys.sql_modules.definition, sys.system_sql_modules.definition) AS definition 
+     FROM 
+         sys.triggers INNER JOIN 
+         sys.tables ON 
+             sys.triggers.parent_id = sys.tables.object_id INNER JOIN 
+         sys.schemas ON 
+             sys.tables.schema_id = sys.schemas.schema_id LEFT OUTER JOIN 
+         sys.sql_modules ON 
+             sys.sql_modules.object_id = sys.triggers.object_id LEFT OUTER JOIN 
+         sys.system_sql_modules ON 
+             sys.system_sql_modules.object_id = sys.triggers.object_id 
+     WHERE 
+         sys.tables.name <> 'sysdiagrams'
+     UNION ALL
+     SELECT 
+         sys.views.name AS table_name, 
+         sys.schemas.name schema_name,
+         sys.triggers.name AS trigger_name, 
+         ISNULL(sys.sql_modules.definition, sys.system_sql_modules.definition) AS definition 
+     FROM 
+         sys.triggers INNER JOIN 
+         sys.views ON 
+             sys.triggers.parent_id = sys.views.object_id INNER JOIN 
+         sys.schemas ON 
+             sys.views.schema_id = sys.schemas.schema_id LEFT OUTER JOIN 
+         sys.sql_modules ON 
+             sys.sql_modules.object_id = sys.triggers.object_id LEFT OUTER JOIN 
+         sys.system_sql_modules ON 
+             sys.system_sql_modules.object_id = sys.triggers.object_id 
+     WHERE 
+         sys.views.name <> 'sysdiagrams'
+ ) t1 
+ ORDER BY
+     t1.table_name,
+     t1.trigger_name
+";
 
         System.Data.DataSet ds = _databaseService.Execute(connection, sql);
         DataTable dataTable = ds.Tables[0];
@@ -569,7 +573,7 @@ WHERE
 ORDER BY
     sys.views.name,
     sys.columns.column_id
-                        ";
+";
         DataSet ds = _databaseService.Execute(connection, sql);
         DataTable dataTable = ds.Tables[0];
         return dataTable;
@@ -599,7 +603,7 @@ WHERE
     sys.views.name <> 'sysdiagrams'
 ORDER BY
     sys.views.name
-                        ";
+";
         DataSet ds = _databaseService.Execute(connection, sql);
         DataTable dataTable = ds.Tables[0];
         return dataTable;

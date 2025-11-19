@@ -105,15 +105,13 @@ public class ConvertViewModel : ViewModel
         this.Stopwatch = new Stopwatch();
         this.Stopwatch.Start();
 
-        var progress = new Progress<TableProgress>(this.ReportProgress);
-
         var settings = this.GetTableConverterSettings();
 
 #pragma warning disable CA2008 // Do not create tasks without passing a TaskScheduler
         _ = Task.Factory.StartNew(() =>
         {
             _tableConverterService.ConvertTables(settings,
-                progress,
+                ReportProgress,
                 this.ThreadCount);
 
         }).ContinueWith((task) =>

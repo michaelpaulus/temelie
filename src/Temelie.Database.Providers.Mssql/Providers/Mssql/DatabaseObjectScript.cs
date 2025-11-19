@@ -13,6 +13,6 @@ internal class DatabaseObjectScript : IDatabaseObjectScript
     {
     }
 
-    public string CreateScript { get; set; }
-    public string DropScript { get; set; }
+    public string CreateScript { get; set; } = "";
+    public string DropScript { get; set; } = "";
 }

@@ -48,7 +48,7 @@ public interface IDatabaseProvider
 
     void ConvertBulk(
        TableConverterService service,
-       IProgress<TableProgress> progress,
+       Action<TableProgress> progress,
        Models.TableModel sourceTable,
        IDataReader sourceReader,
        int sourceRowCount,
@@ -63,5 +63,7 @@ public interface IDatabaseProvider
     bool SupportsConnection(DbConnection connection);
     int GetRowCount(DbCommand connection, string schemaName, string tableName);
     string GetSelectStatement(string schemaName, string tableName, IEnumerable<string> columns);
+
+    Task UpgradeTableAsync(TableModel sourceTable, TableModel currentTable, DbConnection dbConnection, ICollection<string> ignoreColumns);
 
 }

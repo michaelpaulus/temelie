@@ -50,12 +50,10 @@ public class ExecuteScriptsViewModel : ViewModel
         this.Message = $"Started: {DateTime.Now:yyyy-MM-ddTHH:mm:ss}";
         this.ExecuteScriptsCommand.IsEnabled = false;
 
-        var progress = new Progress<ScriptProgress>(this.ReportProgress);
-
 #pragma warning disable CA2008 // Do not create tasks without passing a TaskScheduler
         _ = Task.Factory.StartNew(() =>
         {
-            this.ExecuteScriptsInternal(progress);
+            this.ExecuteScriptsInternal(ReportProgress);
         }).ContinueWith((task) =>
         {
             if (task.IsFaulted)
@@ -88,7 +86,7 @@ public class ExecuteScriptsViewModel : ViewModel
 #pragma warning restore CA2008 // Do not create tasks without passing a TaskScheduler
     }
 
-    private void ExecuteScriptsInternal(IProgress<ScriptProgress> progress)
+    private void ExecuteScriptsInternal(Action<ScriptProgress> progress)
     {
         try
         {
