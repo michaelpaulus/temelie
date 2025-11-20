@@ -1,6 +1,8 @@
-using Temelie.Entities;
-using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
+using Temelie.Entities;
+
 namespace Temelie.Repository;
 
 public abstract partial class RepositoryBase
@@ -166,6 +168,64 @@ public abstract partial class RepositoryBase
         {
             await OnDeletedAsync(context, entity).ConfigureAwait(false);
         }
+    }
+
+    protected virtual async Task DeleteFromQueryInternalAsync<Entity>(IQuerySpec<Entity> spec) where Entity : EntityBase, IEntity<Entity>
+    {
+        using var context = CreateContext();
+        var query = context.DbContext.Set<Entity>().AsNoTracking();
+        query = await OnQueryAsync(context, query, spec.Apply).ConfigureAwait(false);
+        await query.ExecuteDeleteAsync().ConfigureAwait(false);
+    }
+
+    protected async Task DeleteFromQueryInternalAsync<Entity>(Expression<Func<Entity, bool>>? filter = null, Func<IQueryable<Entity>, IQueryable<Entity>>? query = null) where Entity : EntityBase, IEntity<Entity>
+    {
+        using var context = CreateContext();
+        var query1 = context.DbContext.Set<Entity>().AsNoTracking();
+        query1 = await OnQueryAsync(context, query1,
+            (context, i) =>
+            {
+                if (filter is not null)
+                {
+                    i = i.Where(filter);
+                }
+                if (query is not null)
+                {
+                    i = query.Invoke(i);
+                }
+                return i;
+            }
+            ).ConfigureAwait(false);
+        await query1.ExecuteDeleteAsync().ConfigureAwait(false);
+    }
+
+    protected virtual async Task UpdateFromQueryInternalAsync<Entity>(IQuerySpec<Entity> spec, Expression<Func<SetPropertyCalls<Entity>, SetPropertyCalls<Entity>>> setPropertyCalls) where Entity : EntityBase, IEntity<Entity>
+    {
+        using var context = CreateContext();
+        var query = context.DbContext.Set<Entity>().AsNoTracking();
+        query = await OnQueryAsync(context, query, spec.Apply).ConfigureAwait(false);
+        await query.ExecuteUpdateAsync(setPropertyCalls).ConfigureAwait(false);
+    }
+
+    protected async Task UpdateFromQueryInternalAsync<Entity>(Expression<Func<SetPropertyCalls<Entity>, SetPropertyCalls<Entity>>> setPropertyCalls, Expression<Func<Entity, bool>>? filter = null, Func<IQueryable<Entity>, IQueryable<Entity>>? query = null) where Entity : EntityBase, IEntity<Entity>
+    {
+        using var context = CreateContext();
+        var query1 = context.DbContext.Set<Entity>().AsNoTracking();
+        query1 = await OnQueryAsync(context, query1,
+            (context, i) =>
+            {
+                if (filter is not null)
+                {
+                    i = i.Where(filter);
+                }
+                if (query is not null)
+                {
+                    i = query.Invoke(i);
+                }
+                return i;
+            }
+            ).ConfigureAwait(false);
+        await query1.ExecuteUpdateAsync(setPropertyCalls).ConfigureAwait(false);
     }
 
     protected virtual async Task UpdateInternalAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
