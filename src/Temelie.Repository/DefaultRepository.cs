@@ -1,5 +1,6 @@
 
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query;
 using Temelie.Entities;
 
 namespace Temelie.Repository;
@@ -23,6 +24,16 @@ public abstract class DefaultRepository : RepositoryBase, IDefaultRepository
     public Task DeleteAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
     {
         return DeleteInternalAsync(entity);
+    }
+
+    public Task DeleteFromQueryAsync<Entity>(IQuerySpec<Entity> spec) where Entity : EntityBase, IEntity<Entity>
+    {
+        return DeleteFromQueryInternalAsync(spec);
+    }
+
+    public Task DeleteFromQueryAsync<Entity>(Expression<Func<Entity, bool>>? filter = null, Func<IQueryable<Entity>, IQueryable<Entity>>? query = null) where Entity : EntityBase, IEntity<Entity>
+    {
+        return DeleteFromQueryInternalAsync(filter, query);
     }
 
     public Task DeleteRangeAsync<Entity>(IEnumerable<Entity> entities) where Entity : EntityBase, IEntity<Entity>
@@ -73,6 +84,16 @@ public abstract class DefaultRepository : RepositoryBase, IDefaultRepository
     public Task UpdateAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
     {
         return UpdateInternalAsync(entity);
+    }
+
+    public Task UpdateFromQueryAsync<Entity>(IQuerySpec<Entity> spec, Expression<Func<SetPropertyCalls<Entity>, SetPropertyCalls<Entity>>> setPropertyCalls) where Entity : EntityBase, IEntity<Entity>
+    {
+        return UpdateFromQueryInternalAsync(spec, setPropertyCalls);
+    }
+
+    public Task UpdateFromQueryAsync<Entity>(Expression<Func<SetPropertyCalls<Entity>, SetPropertyCalls<Entity>>> setPropertyCalls, Expression<Func<Entity, bool>>? filter = null, Func<IQueryable<Entity>, IQueryable<Entity>>? query = null) where Entity : EntityBase, IEntity<Entity>
+    {
+        return UpdateFromQueryInternalAsync(setPropertyCalls, filter, query);
     }
 
     public Task UpdateRangeAsync<Entity>(IEnumerable<Entity> entities) where Entity : EntityBase, IEntity<Entity>
