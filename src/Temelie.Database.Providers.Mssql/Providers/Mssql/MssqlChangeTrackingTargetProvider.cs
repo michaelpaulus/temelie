@@ -224,20 +224,47 @@ WHERE
     {
         var provider = _databaseFactory.GetDatabaseProvider(dbConnection);
 
-        var script = provider.GetScript(tableModel);
-
-        if (string.IsNullOrEmpty(script.CreateScript))
-        {
-            throw new Exception("Create table script is null");
-        }
-
-        _databaseExecutionService.ExecuteFile(dbConnection, script.CreateScript);
-
         var columns = _databaseModelService.GetTableColumns(dbConnection);
         var tables = _databaseModelService.GetTables(dbConnection, new DatabaseModelOptions() { ExcludeDoubleUnderscoreObjects = false }, columns);
         var currentTable = tables.Where(i => i.TableName.EqualsIgnoreCase(tableModel.TableName) && i.SchemaName.EqualsIgnoreCase(tableModel.SchemaName)).FirstOrDefault();
 
-        if (currentTable is not null)
+        if (currentTable is null)
+        {
+            var script = provider.GetScript(tableModel);
+
+            if (string.IsNullOrEmpty(script.CreateScript))
+            {
+                throw new Exception("Create table script is null");
+            }
+
+            _databaseExecutionService.ExecuteFile(dbConnection, script.CreateScript);
+
+            if (tableModel.Columns.Any(i => i.IsPrimaryKey))
+            {
+                var pk = new Temelie.Database.Models.IndexModel()
+                {
+                    IndexName = $"PK_{Guid.NewGuid().ToString()}",
+                    IsPrimaryKey = true,
+                    IndexType = "CLUSTERED",
+                    SchemaName = tableModel.SchemaName,
+                    TableName = tableModel.TableName,
+                    Columns = tableModel.Columns.Where(i => i.IsPrimaryKey).OrderBy(i => i.ColumnId).Select(i => new IndexColumnModel()
+                    {
+                        ColumnName = i.ColumnName
+                    }).ToList()
+                };
+
+                var pkScript = provider.GetScript(pk, false);
+
+                if (!string.IsNullOrEmpty(pkScript.CreateScript))
+                {
+                    _databaseExecutionService.ExecuteFile(dbConnection, pkScript.CreateScript);
+                }
+
+            }
+
+        }
+        else
         {
             await provider.UpgradeTableAsync(tableModel, currentTable, dbConnection, new List<string>()).ConfigureAwait(false);
         }
@@ -277,7 +304,7 @@ WHERE
         }
     }
 
-    public async Task FlagSyncingAsync(ConnectionStringModel targetConnectionString, int changeTrackingMappingId, bool isSyncing)
+    public async Task FlagSyncingAsync(ConnectionStringModel targetConnectionString, ChangeTrackingMapping mapping, bool isSyncing)
     {
         using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
         using (var conn = _databaseExecutionService.CreateDbConnection(targetConnectionString))
@@ -285,9 +312,11 @@ WHERE
 
             if (!isSyncing)
             {
-                using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
+                if (mapping.IsNextSyncFull)
                 {
-                    cmd.CommandText = @"
+                    using (var cmd = _databaseExecutionService.CreateDbCommand(conn))
+                    {
+                        cmd.CommandText = @"
 UPDATE
     ChangeTrackingMappings
 SET
@@ -296,9 +325,12 @@ SET
 WHERE
     ChangeTrackingMappingId = @ChangeTrackingMappingId
 ";
-                    cmd.Parameters.Add(new SqlParameter("@IsNextSyncFull", false));
-                    cmd.Parameters.Add(new SqlParameter("@ChangeTrackingMappingId", changeTrackingMappingId));
-                    await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+                        cmd.Parameters.Add(new SqlParameter("@IsNextSyncFull", false));
+                        cmd.Parameters.Add(new SqlParameter("@ChangeTrackingMappingId", mapping.ChangeTrackingMappingId));
+                        await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+                    }
+
+                    mapping.IsNextSyncFull = false;
                 }
             }
 
@@ -314,9 +346,11 @@ WHERE
     ChangeTrackingMappingId = @ChangeTrackingMappingId
 ";
                 cmd.Parameters.Add(new SqlParameter("@IsSyncing", isSyncing));
-                cmd.Parameters.Add(new SqlParameter("@ChangeTrackingMappingId", changeTrackingMappingId));
+                cmd.Parameters.Add(new SqlParameter("@ChangeTrackingMappingId", mapping.ChangeTrackingMappingId));
                 await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
+
+            mapping.IsSyncing = isSyncing;
 
             ts.Complete();
         }
@@ -326,7 +360,7 @@ WHERE
     {
         var tempTable = JsonSerializer.Deserialize<TableModel>(JsonSerializer.Serialize(tableModel))!;
 
-        tempTable.TableName = "__" + mapping.TargetTableName;
+        tempTable.TableName = "#" + mapping.TargetTableName;
         tempTable.SchemaName = mapping.TargetSchemaName;
 
         tempTable.Columns.Add(new ColumnModel()
@@ -351,6 +385,7 @@ WHERE
             column.ColumnDefault = null;
             column.ExtendedProperties = new Dictionary<string, string>();
             column.ColumnId = ++index;
+            column.IsPrimaryKey = false;
         }
 
         return tempTable;
