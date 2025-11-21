@@ -135,13 +135,13 @@ public class ChangeTrackingService : IChangeTrackingService
             await targetDatabaseSyncProvider.UpdateSyncedVersionAsync(targetConnectionString, mapping.ChangeTrackingMappingId, currentVersion).ConfigureAwait(false);
         }
 
-        await FlagSyncingAsync(targetConnectionString, mapping.ChangeTrackingMappingId, false).ConfigureAwait(false);
+        await FlagSyncingAsync(targetConnectionString, mapping, false).ConfigureAwait(false);
     }
 
-    public async Task FlagSyncingAsync(ConnectionStringModel targetConnectionString, int changeTrackingMappingId, bool isSyncing)
+    public async Task FlagSyncingAsync(ConnectionStringModel targetConnectionString, ChangeTrackingMapping mapping, bool isSyncing)
     {
         var targetDatabaseSyncProvider = GetTargetDatabaseSyncProvider(targetConnectionString);
-        await targetDatabaseSyncProvider.FlagSyncingAsync(targetConnectionString, changeTrackingMappingId, isSyncing).ConfigureAwait(false);
+        await targetDatabaseSyncProvider.FlagSyncingAsync(targetConnectionString, mapping, isSyncing).ConfigureAwait(false);
     }
 
 }

@@ -1,6 +1,4 @@
 using System.Data;
-using System.Data.Common;
-using System.Text;
 using Microsoft.Data.SqlClient;
 using Temelie.Database.Extensions;
 using Temelie.Database.Models;
@@ -22,7 +20,6 @@ public class MssqlChangeDataCaptureSourceProvider : IChangeTrackingSourceProvide
                                                           "__$operation" ,
                                                           "__$update_mask" ,
                                                           "__$command_id" ];
-
 
     public MssqlChangeDataCaptureSourceProvider(IDatabaseExecutionService databaseExecutionService,
         IDatabaseModelService databaseModelService,

@@ -11,5 +11,5 @@ public interface IChangeTrackingTargetProvider
     Task<IEnumerable<ChangeTrackingMapping>> GetMappingsAsync(int sourceId, ConnectionStringModel targetConnectionString);
     Task ApplyChangesAsync(ConnectionStringModel targetConnectionString, ChangeTrackingTable table, TableModel tableModel, ChangeTrackingMapping mapping, IAsyncEnumerable<ChangeTrackingRow> changes, int count);
     Task UpdateSyncedVersionAsync(ConnectionStringModel targetConnectionString, int changeTrackingMappingId, byte[] version);
-    Task FlagSyncingAsync(ConnectionStringModel targetConnectionString, int changeTrackingMappingId, bool isSyncing);
+    Task FlagSyncingAsync(ConnectionStringModel targetConnectionString, ChangeTrackingMapping mapping, bool isSyncing);
 }
