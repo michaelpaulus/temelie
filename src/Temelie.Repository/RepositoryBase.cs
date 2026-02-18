@@ -199,7 +199,7 @@ public abstract partial class RepositoryBase
         await query1.ExecuteDeleteAsync().ConfigureAwait(false);
     }
 
-    protected virtual async Task UpdateFromQueryInternalAsync<Entity>(IQuerySpec<Entity> spec, Action<UpdateSettersBuilder<Entity>> setPropertyCalls) where Entity : EntityBase, IEntity<Entity>
+    protected virtual async Task UpdateFromQueryInternalAsync<Entity>(IQuerySpec<Entity> spec, Expression<Func<SetPropertyCalls<Entity>, SetPropertyCalls<Entity>>> setPropertyCalls) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = CreateContext();
         var query = context.DbContext.Set<Entity>().AsNoTracking();
@@ -207,7 +207,7 @@ public abstract partial class RepositoryBase
         await query.ExecuteUpdateAsync(setPropertyCalls).ConfigureAwait(false);
     }
 
-    protected async Task UpdateFromQueryInternalAsync<Entity>(Action<UpdateSettersBuilder<Entity>> setPropertyCalls, Expression<Func<Entity, bool>>? filter = null, Func<IQueryable<Entity>, IQueryable<Entity>>? query = null) where Entity : EntityBase, IEntity<Entity>
+    protected async Task UpdateFromQueryInternalAsync<Entity>(Expression<Func<SetPropertyCalls<Entity>, SetPropertyCalls<Entity>>> setPropertyCalls, Expression<Func<Entity, bool>>? filter = null, Func<IQueryable<Entity>, IQueryable<Entity>>? query = null) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = CreateContext();
         var query1 = context.DbContext.Set<Entity>().AsNoTracking();
