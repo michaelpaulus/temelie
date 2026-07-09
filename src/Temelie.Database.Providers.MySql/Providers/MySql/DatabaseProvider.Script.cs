@@ -178,7 +178,51 @@ public partial class DatabaseProvider
     }
     public override IDatabaseObjectScript GetScript(ForeignKeyModel model)
     {
-        return null;
+        if (model == null ||
+            string.IsNullOrEmpty(model.ForeignKeyName) ||
+            string.IsNullOrEmpty(model.TableName) ||
+            string.IsNullOrEmpty(model.ReferencedTableName) ||
+            model.Detail == null ||
+            !model.Detail.Any())
+        {
+            return null;
+        }
+
+        string generateDropScript()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine($"ALTER TABLE {QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd} DROP FOREIGN KEY {QuoteCharacterStart}{model.ForeignKeyName}{QuoteCharacterEnd};");
+            return sb.ToString();
+        }
+
+        string generateCreateScript()
+        {
+            var strColumnNames = string.Join(", ", model.Detail.Select(i => $"{QuoteCharacterStart}{i.Column}{QuoteCharacterEnd}"));
+            var strReferencedColumnNames = string.Join(", ", model.Detail.Select(i => $"{QuoteCharacterStart}{i.ReferencedColumn}{QuoteCharacterEnd}"));
+
+            var sb = new StringBuilder();
+            sb.AppendLine();
+            sb.AppendLine($"ALTER TABLE {QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd} ADD CONSTRAINT {QuoteCharacterStart}{model.ForeignKeyName}{QuoteCharacterEnd} FOREIGN KEY ({strColumnNames})");
+            sb.Append($"    REFERENCES {QuoteCharacterStart}{model.ReferencedTableName}{QuoteCharacterEnd} ({strReferencedColumnNames})");
+
+            if (!string.IsNullOrEmpty(model.UpdateAction) && model.UpdateAction != "NO ACTION")
+            {
+                sb.AppendLine();
+                sb.Append("    " + string.Format("ON UPDATE {0}", model.UpdateAction));
+            }
+
+            if (!string.IsNullOrEmpty(model.DeleteAction) && model.DeleteAction != "NO ACTION")
+            {
+                sb.AppendLine();
+                sb.Append("    " + string.Format("ON DELETE {0}", model.DeleteAction));
+            }
+
+            sb.AppendLine(";");
+
+            return sb.ToString();
+        }
+
+        return new DatabaseObjectScript(generateCreateScript, generateDropScript);
     }
 
     public override IDatabaseObjectScript GetScript(SecurityPolicyModel model)
