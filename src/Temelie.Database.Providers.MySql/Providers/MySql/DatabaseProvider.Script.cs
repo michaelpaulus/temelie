@@ -205,10 +205,11 @@ public partial class DatabaseProvider
             sb.AppendLine($"ALTER TABLE {QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd} ADD CONSTRAINT {QuoteCharacterStart}{model.ForeignKeyName}{QuoteCharacterEnd} FOREIGN KEY ({strColumnNames})");
             sb.Append($"    REFERENCES {QuoteCharacterStart}{model.ReferencedTableName}{QuoteCharacterEnd} ({strReferencedColumnNames})");
 
-            if (!string.IsNullOrEmpty(model.UpdateAction) && model.UpdateAction != "NO ACTION")
+            var updateAction = model.UpdateAction?.Replace("_", " ").Trim();
+            if (!string.IsNullOrEmpty(updateAction) && !updateAction.Equals("NO ACTION", StringComparison.OrdinalIgnoreCase))
             {
                 sb.AppendLine();
-                sb.Append("    " + string.Format("ON UPDATE {0}", model.UpdateAction));
+                sb.Append($"    ON UPDATE {updateAction}");
             }
 
             if (!string.IsNullOrEmpty(model.DeleteAction) && model.DeleteAction != "NO ACTION")
