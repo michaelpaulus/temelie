@@ -212,10 +212,11 @@ public partial class DatabaseProvider
                 sb.Append($"    ON UPDATE {updateAction}");
             }
 
-            if (!string.IsNullOrEmpty(model.DeleteAction) && model.DeleteAction != "NO ACTION")
+            var deleteAction = model.DeleteAction?.Replace("_", " ").Trim();
+            if (!string.IsNullOrEmpty(deleteAction) && !deleteAction.Equals("NO ACTION", StringComparison.OrdinalIgnoreCase))
             {
                 sb.AppendLine();
-                sb.Append("    " + string.Format("ON DELETE {0}", model.DeleteAction));
+                sb.Append($"    ON DELETE {deleteAction}");
             }
 
             sb.AppendLine(";");
