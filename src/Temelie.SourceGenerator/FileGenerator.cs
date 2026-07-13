@@ -206,6 +206,8 @@ public class FileGenerator
         {
             var csName = name + ".cs";
 
+            var newFile = code.Replace("\r\n", "\n").Replace("\n", Environment.NewLine);
+
             var file = existingFiles.FirstOrDefault(i => i.Name.Equals(csName));
             var filePath = Path.Combine(outDirectory.FullName, csName);
 
@@ -215,14 +217,14 @@ public class FileGenerator
 #pragma warning disable RS1035 // Do not use APIs banned for analyzers
                 var existingFile = System.IO.File.ReadAllText(filePath);
 #pragma warning restore RS1035 // Do not use APIs banned for analyzers
-                if (existingFile.Equals(code))
+                if (existingFile.Equals(newFile))
                 {
                     continue;
                 }
             }
 
 #pragma warning disable RS1035 // Do not use APIs banned for analyzers
-            await System.IO.File.WriteAllTextAsync(filePath, code, System.Text.Encoding.UTF8).ConfigureAwait(false);
+            await System.IO.File.WriteAllTextAsync(filePath, newFile, System.Text.Encoding.UTF8).ConfigureAwait(false);
 #pragma warning restore RS1035 // Do not use APIs banned for analyzers
         }
 
