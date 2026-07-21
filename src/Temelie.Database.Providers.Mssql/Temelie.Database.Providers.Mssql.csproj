@@ -12,6 +12,6 @@
     <ProjectReference Include="..\Temelie.Database.Services\Temelie.Database.Services.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.4" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.2" />
   </ItemGroup>
 </Project>

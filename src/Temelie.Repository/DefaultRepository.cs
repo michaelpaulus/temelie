@@ -86,12 +86,12 @@ public abstract class DefaultRepository : RepositoryBase, IDefaultRepository
         return UpdateInternalAsync(entity);
     }
 
-    public Task UpdateFromQueryAsync<Entity>(IQuerySpec<Entity> spec, Expression<Func<SetPropertyCalls<Entity>, SetPropertyCalls<Entity>>> setPropertyCalls) where Entity : EntityBase, IEntity<Entity>
+    public Task UpdateFromQueryAsync<Entity>(IQuerySpec<Entity> spec, Action<UpdateSettersBuilder<Entity>> setPropertyCalls) where Entity : EntityBase, IEntity<Entity>
     {
         return UpdateFromQueryInternalAsync(spec, setPropertyCalls);
     }
 
-    public Task UpdateFromQueryAsync<Entity>(Expression<Func<SetPropertyCalls<Entity>, SetPropertyCalls<Entity>>> setPropertyCalls, Expression<Func<Entity, bool>>? filter = null, Func<IQueryable<Entity>, IQueryable<Entity>>? query = null) where Entity : EntityBase, IEntity<Entity>
+    public Task UpdateFromQueryAsync<Entity>(Action<UpdateSettersBuilder<Entity>> setPropertyCalls, Expression<Func<Entity, bool>>? filter = null, Func<IQueryable<Entity>, IQueryable<Entity>>? query = null) where Entity : EntityBase, IEntity<Entity>
     {
         return UpdateFromQueryInternalAsync(setPropertyCalls, filter, query);
     }
