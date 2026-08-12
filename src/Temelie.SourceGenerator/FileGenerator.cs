@@ -11,7 +11,10 @@ public class FileGenerator
 
     static FileGenerator()
     {
-        MSBuildLocator.RegisterDefaults();
+        if (!MSBuildLocator.IsRegistered)
+        {
+            MSBuildLocator.RegisterDefaults();
+        }
     }
 
     public async Task GenerateEntitiesAsync(
