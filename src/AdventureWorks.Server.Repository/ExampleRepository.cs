@@ -55,6 +55,21 @@ public class ExampleRepository : RepositoryBase, IExampleRepository
         return GetCountInternalAsync(filter, query);
     }
 
+    public Task<bool> GetAnyAsync<Entity>(IQuerySpec<Entity> spec) where Entity : EntityBase, IEntity<Entity>, IProjectEntity
+    {
+        return GetAnyInternalAsync(spec);
+    }
+
+    public Task<bool> GetAnyAsync<Entity, TReturn>(IQueryAndTransformSpec<Entity, TReturn> spec) where Entity : EntityBase, IEntity<Entity>, IProjectEntity
+    {
+        return GetAnyInternalAsync(spec);
+    }
+
+    public Task<bool> GetAnyAsync<Entity>(Expression<Func<Entity, bool>>? filter = null, Func<IQueryable<Entity>, IQueryable<Entity>>? query = null) where Entity : EntityBase, IEntity<Entity>, IProjectEntity
+    {
+        return GetAnyInternalAsync(filter, query);
+    }
+
     public Task<IEnumerable<Entity>> GetListAsync<Entity>(IQuerySpec<Entity> spec) where Entity : EntityBase, IEntity<Entity>, IProjectEntity
     {
         return GetListInternalAsync(spec);

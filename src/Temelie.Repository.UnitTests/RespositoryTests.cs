@@ -298,4 +298,38 @@ public class RespositoryTests : TestBase
 
     }
 
+    [Test]
+    public async Task GetAnyAsync()
+    {
+        var repository = ServiceProvider.GetRequiredService<IExampleRepository>();
+
+        // Test when no records exist
+        var anyResult = await repository.GetAnyAsync<Person>(i => i.FirstName == "NonExistent").ConfigureAwait(true);
+        anyResult.Should().BeFalse();
+
+        // Add test data
+        var count = 5;
+        foreach (var i in Enumerable.Range(1, count))
+        {
+            var person = new Person() { BusinessEntityId = i, FirstName = $"Test{i}" };
+            await repository.AddAsync(person).ConfigureAwait(true);
+        }
+
+        // Test with filter - should find records
+        anyResult = await repository.GetAnyAsync<Person>(i => i.FirstName == "Test1").ConfigureAwait(true);
+        anyResult.Should().BeTrue();
+
+        // Test with filter - should not find records
+        anyResult = await repository.GetAnyAsync<Person>(i => i.FirstName == "NotFound").ConfigureAwait(true);
+        anyResult.Should().BeFalse();
+
+        // Test with filter and query
+        anyResult = await repository.GetAnyAsync<Person>(i => i.FirstName.StartsWith("Test"), i => i.OrderBy(i2 => i2.BusinessEntityId)).ConfigureAwait(true);
+        anyResult.Should().BeTrue();
+
+        // Test with null filter (should find any records)
+        anyResult = await repository.GetAnyAsync<Person>(null, null).ConfigureAwait(true);
+        anyResult.Should().BeTrue();
+    }
+
 }
