@@ -122,6 +122,44 @@ public abstract partial class RepositoryBase
         return await query1.CountAsync().ConfigureAwait(false);
     }
 
+    protected virtual async Task<bool> GetAnyInternalAsync<Entity>(IQuerySpec<Entity> spec) where Entity : EntityBase, IEntity<Entity>
+    {
+        using var context = CreateContext();
+        var query = context.DbContext.Set<Entity>().AsNoTracking();
+        query = await OnQueryAsync(context, query, spec.Apply).ConfigureAwait(false);
+        return await query.AnyAsync().ConfigureAwait(false);
+    }
+
+    protected virtual async Task<bool> GetAnyInternalAsync<Entity, TReturn>(IQueryAndTransformSpec<Entity, TReturn> spec) where Entity : EntityBase, IEntity<Entity>
+    {
+        using var context = CreateContext();
+        var query = context.DbContext.Set<Entity>().AsNoTracking();
+        query = await OnQueryAsync(context, query, spec.Apply).ConfigureAwait(false);
+        var query1 = spec.Transform(context, query);
+        return await query1.AnyAsync().ConfigureAwait(false);
+    }
+
+    protected async Task<bool> GetAnyInternalAsync<Entity>(Expression<Func<Entity, bool>>? filter = null, Func<IQueryable<Entity>, IQueryable<Entity>>? query = null) where Entity : EntityBase, IEntity<Entity>
+    {
+        using var context = CreateContext();
+        var query1 = context.DbContext.Set<Entity>().AsNoTracking();
+        query1 = await OnQueryAsync(context, query1,
+            (context, i) =>
+            {
+                if (filter is not null)
+                {
+                    i = i.Where(filter);
+                }
+                if (query is not null)
+                {
+                    i = query.Invoke(i);
+                }
+                return i;
+            }
+            ).ConfigureAwait(false);
+        return await query1.AnyAsync().ConfigureAwait(false);
+    }
+
     protected virtual async Task AddInternalAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = CreateContext();
