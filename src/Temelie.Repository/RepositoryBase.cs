@@ -550,24 +550,24 @@ public abstract partial class RepositoryBase
         var sourceParameter = match.Parameters[0];
         var targetParameter = match.Parameters[1];
 
-        var updated = 0;
-        if (updateSetters is not null)
-        {
-            var matchedTargets = BuildExistsPredicate<TTarget, TSource>(dbContext, targetParameter, sourceParameter, match.Body, negate: false);
-            updated = await dbContext.Set<TTarget>().AsNoTracking().Where(matchedTargets)
-                .ExecuteUpdateAsync(StampUpdateSetters(updateSetters)).ConfigureAwait(false);
-        }
-
-        var unmatchedSource = BuildExistsPredicate<TSource, TTarget>(dbContext, sourceParameter, targetParameter, match.Body, negate: true);
-        var source = dbContext.Set<TSource>().Where(unmatchedSource);
-        var inserted = await InsertFromQueryCoreAsync(context, source, insertSelector).ConfigureAwait(false);
-
         var deleted = 0;
         if (deleteMissing)
         {
             var unmatchedTargets = BuildExistsPredicate<TTarget, TSource>(dbContext, targetParameter, sourceParameter, match.Body, negate: true);
             deleted = await dbContext.Set<TTarget>().AsNoTracking().Where(unmatchedTargets)
                 .ExecuteDeleteAsync().ConfigureAwait(false);
+        }
+
+        var unmatchedSource = BuildExistsPredicate<TSource, TTarget>(dbContext, sourceParameter, targetParameter, match.Body, negate: true);
+        var source = dbContext.Set<TSource>().Where(unmatchedSource);
+        var inserted = await InsertFromQueryCoreAsync(context, source, insertSelector).ConfigureAwait(false);
+
+        var updated = 0;
+        if (updateSetters is not null)
+        {
+            var matchedTargets = BuildExistsPredicate<TTarget, TSource>(dbContext, targetParameter, sourceParameter, match.Body, negate: false);
+            updated = await dbContext.Set<TTarget>().AsNoTracking().Where(matchedTargets)
+                .ExecuteUpdateAsync(StampUpdateSetters(updateSetters)).ConfigureAwait(false);
         }
 
         return new MergeResult(inserted, updated, deleted);
