@@ -34,5 +34,20 @@ public partial interface IExampleRepository
     Task<int> InsertFromQueryAsync<TSource, TTarget>(IQuerySpec<TSource> spec, Expression<Func<TSource, TTarget>> selector)
         where TSource : EntityBase, IEntity<TSource>, IProjectEntity
         where TTarget : EntityBase, IEntity<TTarget>, IProjectEntity;
+    Task<MergeResult> MergeFromQueryAsync<TSource, TTarget>(
+        Expression<Func<TSource, TTarget, bool>> match,
+        Expression<Func<TSource, TTarget>> insertSelector,
+        Action<UpdateSettersBuilder<TTarget>>? updateSetters = null,
+        bool deleteMissing = false)
+        where TSource : EntityBase, IEntity<TSource>, IProjectEntity
+        where TTarget : EntityBase, IEntity<TTarget>, IProjectEntity;
+    Task<MergeResult> MergeFromQueryAsync<TSource, TTarget, TKey>(
+        Expression<Func<TSource, TKey>> sourceKey,
+        Expression<Func<TTarget, TKey>> targetKey,
+        Expression<Func<TSource, TTarget>> insertSelector,
+        Action<UpdateSettersBuilder<TTarget>>? updateSetters = null,
+        bool deleteMissing = false)
+        where TSource : EntityBase, IEntity<TSource>, IProjectEntity
+        where TTarget : EntityBase, IEntity<TTarget>, IProjectEntity;
 
 }

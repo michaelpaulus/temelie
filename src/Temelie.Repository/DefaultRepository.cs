@@ -129,4 +129,27 @@ public abstract class DefaultRepository : RepositoryBase, IDefaultRepository
     {
         return InsertFromQueryInternalAsync(spec, selector);
     }
+
+    public Task<MergeResult> MergeFromQueryAsync<TSource, TTarget>(
+        Expression<Func<TSource, TTarget, bool>> match,
+        Expression<Func<TSource, TTarget>> insertSelector,
+        Action<UpdateSettersBuilder<TTarget>>? updateSetters = null,
+        bool deleteMissing = false)
+        where TSource : EntityBase, IEntity<TSource>
+        where TTarget : EntityBase, IEntity<TTarget>
+    {
+        return MergeFromQueryInternalAsync(match, insertSelector, updateSetters, deleteMissing);
+    }
+
+    public Task<MergeResult> MergeFromQueryAsync<TSource, TTarget, TKey>(
+        Expression<Func<TSource, TKey>> sourceKey,
+        Expression<Func<TTarget, TKey>> targetKey,
+        Expression<Func<TSource, TTarget>> insertSelector,
+        Action<UpdateSettersBuilder<TTarget>>? updateSetters = null,
+        bool deleteMissing = false)
+        where TSource : EntityBase, IEntity<TSource>
+        where TTarget : EntityBase, IEntity<TTarget>
+    {
+        return MergeFromQueryInternalAsync(sourceKey, targetKey, insertSelector, updateSetters, deleteMissing);
+    }
 }

@@ -2,6 +2,7 @@ using AdventureWorks.Entities;
 using AdventureWorks.Server;
 using AdventureWorks.Server.Repository;
 using AwesomeAssertions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq.Expressions;
 
@@ -555,6 +556,355 @@ public class RespositoryTests : TestBase
 
         var total = await repository.GetCountAsync<BusinessEntityAddress>().ConfigureAwait(true);
         total.Should().Be(5);
+    }
+
+    [Test]
+    public async Task MergeFromQueryInsertUpdateDeleteAsync()
+    {
+        var repository = ServiceProvider.GetRequiredService<IExampleRepository>();
+
+        // Persons 1..5 exist. Addresses exist for 1 and 2 (matched) plus 99 (orphan, no person).
+        foreach (var i in Enumerable.Range(1, 5))
+        {
+            await repository.AddAsync(new Person() { BusinessEntityId = i, FirstName = "Test" }).ConfigureAwait(true);
+        }
+
+        foreach (var i in new[] { 1, 2, 99 })
+        {
+            await repository.AddAsync(new BusinessEntityAddress()
+            {
+                BusinessEntityId = i,
+                AddressId = 1,
+                AddressTypeId = 1,
+                rowguid = Guid.Empty,
+                ModifiedDate = DateTime.UtcNow
+            }).ConfigureAwait(true);
+        }
+
+        var rowguid = Guid.NewGuid();
+        var updatedGuid = Guid.NewGuid();
+        var modifiedDate = DateTime.UtcNow;
+
+        var result = await repository.MergeFromQueryAsync<Person, BusinessEntityAddress>(
+            (p, a) => a.BusinessEntityId == p.BusinessEntityId,
+            p => new BusinessEntityAddress
+            {
+                BusinessEntityId = p.BusinessEntityId,
+                AddressId = 1,
+                AddressTypeId = 1,
+                rowguid = rowguid,
+                ModifiedDate = modifiedDate
+            },
+            b => b.SetProperty(a => a.rowguid, updatedGuid),
+            deleteMissing: true).ConfigureAwait(true);
+
+        result.Inserted.Should().Be(3);
+        result.Updated.Should().Be(2);
+        result.Deleted.Should().Be(1);
+
+        var total = await repository.GetCountAsync<BusinessEntityAddress>().ConfigureAwait(true);
+        total.Should().Be(5);
+
+        // Orphan removed.
+        var orphan = await repository.GetSingleAsync<BusinessEntityAddress>(i => i.BusinessEntityId == 99).ConfigureAwait(true);
+        orphan.Should().BeNull();
+
+        // Matched row updated.
+        var matched = await repository.GetSingleAsync<BusinessEntityAddress>(i => i.BusinessEntityId == 1).ConfigureAwait(true);
+        matched.Should().NotBeNull();
+        matched!.rowguid.Should().Be(updatedGuid);
+
+        // New row inserted with the insert selector's value.
+        var insertedRow = await repository.GetSingleAsync<BusinessEntityAddress>(i => i.BusinessEntityId == 5).ConfigureAwait(true);
+        insertedRow.Should().NotBeNull();
+        insertedRow!.rowguid.Should().Be(rowguid);
+    }
+
+    [Test]
+    public async Task InsertFromQueryStampsModifiedDateAsync()
+    {
+        var repository = ServiceProvider.GetRequiredService<IExampleRepository>();
+
+        await repository.AddAsync(new Person() { BusinessEntityId = 1, FirstName = "Test" }).ConfigureAwait(true);
+
+        var rowguid = Guid.NewGuid();
+        var staleDate = new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        var before = DateTime.UtcNow;
+
+        // The selector supplies a stale ModifiedDate; the insert should overwrite it with the server time.
+        await repository.InsertFromQueryAsync<Person, BusinessEntityAddress>(
+            (Expression<Func<Person, bool>>?)null,
+            p => new BusinessEntityAddress
+            {
+                BusinessEntityId = p.BusinessEntityId,
+                AddressId = 1,
+                AddressTypeId = 1,
+                rowguid = rowguid,
+                ModifiedDate = staleDate
+            }).ConfigureAwait(true);
+
+        var row = await repository.GetSingleAsync<BusinessEntityAddress>(i => i.BusinessEntityId == 1).ConfigureAwait(true);
+        row.Should().NotBeNull();
+        row!.ModifiedDate.Should().BeOnOrAfter(before);
+    }
+
+    [Test]
+    public async Task UpdateFromQueryStampsModifiedDateAsync()
+    {
+        var repository = ServiceProvider.GetRequiredService<IExampleRepository>();
+
+        await repository.AddAsync(new Person() { BusinessEntityId = 1, FirstName = "Test" }).ConfigureAwait(true);
+        await repository.AddAsync(new BusinessEntityAddress()
+        {
+            BusinessEntityId = 1,
+            AddressId = 1,
+            AddressTypeId = 1,
+            ModifiedDate = DateTime.UtcNow
+        }).ConfigureAwait(true);
+
+        // Force a stale ModifiedDate directly in the database (bypassing the repository's stamping).
+        var staleDate = new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        using (var db = ServiceProvider.GetRequiredService<IDbContextFactory<ExampleDbContext>>().CreateDbContext())
+        {
+            await db.Set<BusinessEntityAddress>()
+                .ExecuteUpdateAsync(b => b.SetProperty(a => a.ModifiedDate, staleDate)).ConfigureAwait(true);
+        }
+
+        var before = DateTime.UtcNow;
+
+        // The update only sets rowguid; ModifiedDate should still be stamped automatically.
+        await repository.UpdateFromQueryAsync(
+            new ExistingBusinessEntityAddressQuery(),
+            b => b.SetProperty(a => a.rowguid, Guid.NewGuid())).ConfigureAwait(true);
+
+        var row = await repository.GetSingleAsync<BusinessEntityAddress>(i => i.BusinessEntityId == 1).ConfigureAwait(true);
+        row.Should().NotBeNull();
+        row!.ModifiedDate.Should().BeOnOrAfter(before);
+    }
+
+    [Test]
+    public async Task AddAsyncStampsAllAuditFieldsAsync()
+    {
+        var repository = ServiceProvider.GetRequiredService<IExampleRepository>();
+
+        var before = DateTime.UtcNow;
+
+        await repository.AddAsync(new AuditTest() { AuditTestId = 1 }).ConfigureAwait(true);
+
+        var row = await repository.GetSingleAsync<AuditTest>(i => i.AuditTestId == 1).ConfigureAwait(true);
+        row.Should().NotBeNull();
+        row!.CreatedDate.Should().BeOnOrAfter(before);
+        row.ModifiedDate.Should().BeOnOrAfter(before);
+        row.CreatedBy.Should().Be(ExampleRepository.CreatedModifiedBy);
+        row.ModifiedBy.Should().Be(ExampleRepository.CreatedModifiedBy);
+    }
+
+    [Test]
+    public async Task AddRangeAsyncStampsAllAuditFieldsAsync()
+    {
+        var repository = ServiceProvider.GetRequiredService<IExampleRepository>();
+
+        var before = DateTime.UtcNow;
+
+        var list = Enumerable.Range(1, 3).Select(i => new AuditTest() { AuditTestId = i }).ToList();
+        await repository.AddRangeAsync(list).ConfigureAwait(true);
+
+        var rows = await repository.GetListAsync<AuditTest>().ConfigureAwait(true);
+        rows.Should().HaveCount(3);
+        foreach (var row in rows)
+        {
+            row.CreatedDate.Should().BeOnOrAfter(before);
+            row.ModifiedDate.Should().BeOnOrAfter(before);
+            row.CreatedBy.Should().Be(ExampleRepository.CreatedModifiedBy);
+            row.ModifiedBy.Should().Be(ExampleRepository.CreatedModifiedBy);
+        }
+    }
+
+    [Test]
+    public async Task UpdateAsyncStampsModifiedAuditFieldsAsync()
+    {
+        var repository = ServiceProvider.GetRequiredService<IExampleRepository>();
+
+        await repository.AddAsync(new AuditTest() { AuditTestId = 1 }).ConfigureAwait(true);
+        var added = await repository.GetSingleAsync<AuditTest>(i => i.AuditTestId == 1).ConfigureAwait(true);
+        var createdDate = added!.CreatedDate;
+
+        var before = DateTime.UtcNow;
+        // Blank the modified fields to prove the update repopulates them.
+        added.ModifiedBy = "";
+        await repository.UpdateAsync(added).ConfigureAwait(true);
+
+        var row = await repository.GetSingleAsync<AuditTest>(i => i.AuditTestId == 1).ConfigureAwait(true);
+        row.Should().NotBeNull();
+        row!.ModifiedDate.Should().BeOnOrAfter(before);
+        row.ModifiedBy.Should().Be(ExampleRepository.CreatedModifiedBy);
+        // Created audit is preserved on update.
+        row.CreatedDate.Should().Be(createdDate);
+        row.CreatedBy.Should().Be(ExampleRepository.CreatedModifiedBy);
+    }
+
+    [Test]
+    public async Task UpdateRangeAsyncStampsModifiedAuditFieldsAsync()
+    {
+        var repository = ServiceProvider.GetRequiredService<IExampleRepository>();
+
+        var list = Enumerable.Range(1, 3).Select(i => new AuditTest() { AuditTestId = i }).ToList();
+        await repository.AddRangeAsync(list).ConfigureAwait(true);
+
+        var before = DateTime.UtcNow;
+        await repository.UpdateRangeAsync(list).ConfigureAwait(true);
+
+        var rows = await repository.GetListAsync<AuditTest>().ConfigureAwait(true);
+        foreach (var row in rows)
+        {
+            row.ModifiedDate.Should().BeOnOrAfter(before);
+            row.ModifiedBy.Should().Be(ExampleRepository.CreatedModifiedBy);
+        }
+    }
+
+    [Test]
+    public async Task InsertFromQueryStampsAllAuditFieldsAsync()
+    {
+        var repository = ServiceProvider.GetRequiredService<IExampleRepository>();
+
+        await repository.AddAsync(new Person() { BusinessEntityId = 1, FirstName = "Test" }).ConfigureAwait(true);
+
+        var before = DateTime.UtcNow;
+
+        // Selector sets only the key; every audit column should be stamped automatically.
+        await repository.InsertFromQueryAsync<Person, AuditTest>(
+            (Expression<Func<Person, bool>>?)null,
+            p => new AuditTest { AuditTestId = p.BusinessEntityId }).ConfigureAwait(true);
+
+        var row = await repository.GetSingleAsync<AuditTest>(i => i.AuditTestId == 1).ConfigureAwait(true);
+        row.Should().NotBeNull();
+        row!.CreatedDate.Should().BeOnOrAfter(before);
+        row.ModifiedDate.Should().BeOnOrAfter(before);
+        row.CreatedBy.Should().Be(ExampleRepository.CreatedModifiedBy);
+        row.ModifiedBy.Should().Be(ExampleRepository.CreatedModifiedBy);
+    }
+
+    [Test]
+    public async Task UpdateFromQueryStampsModifiedAuditFieldsAsync()
+    {
+        var repository = ServiceProvider.GetRequiredService<IExampleRepository>();
+
+        await repository.AddAsync(new AuditTest() { AuditTestId = 1 }).ConfigureAwait(true);
+
+        // Force stale modified audit directly in the database (bypassing the repository's stamping).
+        var staleDate = new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        using (var db = ServiceProvider.GetRequiredService<IDbContextFactory<ExampleDbContext>>().CreateDbContext())
+        {
+            await db.Set<AuditTest>().ExecuteUpdateAsync(b =>
+            {
+                b.SetProperty(a => a.ModifiedDate, staleDate);
+                b.SetProperty(a => a.ModifiedBy, "stale");
+            }).ConfigureAwait(true);
+        }
+
+        var before = DateTime.UtcNow;
+
+        // The caller changes an unrelated column; modified audit should still be stamped.
+        await repository.UpdateFromQueryAsync(
+            new AllRowsQuery<AuditTest>(),
+            b => b.SetProperty(a => a.CreatedBy, a => a.CreatedBy)).ConfigureAwait(true);
+
+        var row = await repository.GetSingleAsync<AuditTest>(i => i.AuditTestId == 1).ConfigureAwait(true);
+        row.Should().NotBeNull();
+        row!.ModifiedDate.Should().BeOnOrAfter(before);
+        row.ModifiedBy.Should().Be(ExampleRepository.CreatedModifiedBy);
+    }
+
+    [Test]
+    public async Task MergeFromQueryStampsAuditFieldsAsync()
+    {
+        var repository = ServiceProvider.GetRequiredService<IExampleRepository>();
+
+        // Person 1 already has an audit row (matched -> update); Person 2 has none (insert).
+        await repository.AddAsync(new Person() { BusinessEntityId = 1, FirstName = "Test" }).ConfigureAwait(true);
+        await repository.AddAsync(new Person() { BusinessEntityId = 2, FirstName = "Test" }).ConfigureAwait(true);
+        await repository.AddAsync(new AuditTest() { AuditTestId = 1 }).ConfigureAwait(true);
+
+        // Force stale modified audit on the matched row.
+        var staleDate = new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        using (var db = ServiceProvider.GetRequiredService<IDbContextFactory<ExampleDbContext>>().CreateDbContext())
+        {
+            await db.Set<AuditTest>().ExecuteUpdateAsync(b =>
+            {
+                b.SetProperty(a => a.ModifiedDate, staleDate);
+                b.SetProperty(a => a.ModifiedBy, "stale");
+            }).ConfigureAwait(true);
+        }
+
+        var before = DateTime.UtcNow;
+
+        var result = await repository.MergeFromQueryAsync<Person, AuditTest>(
+            (p, a) => a.AuditTestId == p.BusinessEntityId,
+            p => new AuditTest { AuditTestId = p.BusinessEntityId },
+            b => b.SetProperty(a => a.CreatedBy, a => a.CreatedBy)).ConfigureAwait(true);
+
+        result.Inserted.Should().Be(1);
+        result.Updated.Should().Be(1);
+
+        // Inserted row gets all four audit fields.
+        var inserted = await repository.GetSingleAsync<AuditTest>(i => i.AuditTestId == 2).ConfigureAwait(true);
+        inserted.Should().NotBeNull();
+        inserted!.CreatedDate.Should().BeOnOrAfter(before);
+        inserted.ModifiedDate.Should().BeOnOrAfter(before);
+        inserted.CreatedBy.Should().Be(ExampleRepository.CreatedModifiedBy);
+        inserted.ModifiedBy.Should().Be(ExampleRepository.CreatedModifiedBy);
+
+        // Matched row gets modified audit stamped.
+        var updated = await repository.GetSingleAsync<AuditTest>(i => i.AuditTestId == 1).ConfigureAwait(true);
+        updated.Should().NotBeNull();
+        updated!.ModifiedDate.Should().BeOnOrAfter(before);
+        updated.ModifiedBy.Should().Be(ExampleRepository.CreatedModifiedBy);
+    }
+
+    [Test]
+    public async Task MergeFromQueryWithKeySelectorAsync()
+    {
+        var repository = ServiceProvider.GetRequiredService<IExampleRepository>();
+
+        await repository.AddAsync(new Person() { BusinessEntityId = 1, FirstName = "Test" }).ConfigureAwait(true);
+        await repository.AddAsync(new Person() { BusinessEntityId = 2, FirstName = "Test" }).ConfigureAwait(true);
+        await repository.AddAsync(new AuditTest() { AuditTestId = 1 }).ConfigureAwait(true);
+
+        var result = await repository.MergeFromQueryAsync<Person, AuditTest, int>(
+            p => p.BusinessEntityId,
+            a => a.AuditTestId,
+            p => new AuditTest { AuditTestId = p.BusinessEntityId },
+            b => b.SetProperty(a => a.CreatedBy, a => a.CreatedBy),
+            deleteMissing: true).ConfigureAwait(true);
+
+        result.Inserted.Should().Be(1);
+        result.Updated.Should().Be(1);
+        result.Deleted.Should().Be(0);
+
+        var total = await repository.GetCountAsync<AuditTest>().ConfigureAwait(true);
+        total.Should().Be(2);
+    }
+
+    [Test]
+    public async Task MergeFromQueryWithCompositeKeySelectorAsync()
+    {
+        var repository = ServiceProvider.GetRequiredService<IExampleRepository>();
+
+        await repository.AddAsync(new Person() { BusinessEntityId = 1, FirstName = "Test" }).ConfigureAwait(true);
+        await repository.AddAsync(new Person() { BusinessEntityId = 2, FirstName = "Test" }).ConfigureAwait(true);
+        await repository.AddAsync(new AuditTest() { AuditTestId = 1 }).ConfigureAwait(true);
+
+        // Composite key selectors compare each member.
+        var result = await repository.MergeFromQueryAsync(
+            (Person p) => new { A = p.BusinessEntityId, B = p.BusinessEntityId },
+            (AuditTest a) => new { A = a.AuditTestId, B = a.AuditTestId },
+            p => new AuditTest { AuditTestId = p.BusinessEntityId }).ConfigureAwait(true);
+
+        result.Inserted.Should().Be(1);
+        result.Updated.Should().Be(0);
+
+        var total = await repository.GetCountAsync<AuditTest>().ConfigureAwait(true);
+        total.Should().Be(2);
     }
 
 }

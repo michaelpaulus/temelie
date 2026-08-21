@@ -130,14 +130,39 @@ public class ExampleRepository : RepositoryBase, IExampleRepository
         return InsertFromQueryInternalAsync(spec, selector);
     }
 
+    public Task<MergeResult> MergeFromQueryAsync<TSource, TTarget>(
+        Expression<Func<TSource, TTarget, bool>> match,
+        Expression<Func<TSource, TTarget>> insertSelector,
+        Action<UpdateSettersBuilder<TTarget>>? updateSetters = null,
+        bool deleteMissing = false)
+        where TSource : EntityBase, IEntity<TSource>, IProjectEntity
+        where TTarget : EntityBase, IEntity<TTarget>, IProjectEntity
+    {
+        return MergeFromQueryInternalAsync(match, insertSelector, updateSetters, deleteMissing);
+    }
+
+    public Task<MergeResult> MergeFromQueryAsync<TSource, TTarget, TKey>(
+        Expression<Func<TSource, TKey>> sourceKey,
+        Expression<Func<TTarget, TKey>> targetKey,
+        Expression<Func<TSource, TTarget>> insertSelector,
+        Action<UpdateSettersBuilder<TTarget>>? updateSetters = null,
+        bool deleteMissing = false)
+        where TSource : EntityBase, IEntity<TSource>, IProjectEntity
+        where TTarget : EntityBase, IEntity<TTarget>, IProjectEntity
+    {
+        return MergeFromQueryInternalAsync(sourceKey, targetKey, insertSelector, updateSetters, deleteMissing);
+    }
+
     protected override IRepositoryContext CreateContext()
     {
         return _dbContextFactory.CreateDbContext();
     }
 
+    public const string CreatedModifiedBy = "TestUser";
+
     protected override string GetCreatedModifiedBy()
     {
-        return "";
+        return CreatedModifiedBy;
     }
 
 }

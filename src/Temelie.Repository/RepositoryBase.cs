@@ -246,7 +246,7 @@ public abstract partial class RepositoryBase
         using var context = CreateContext();
         var query = context.DbContext.Set<Entity>().AsNoTracking();
         query = await OnQueryAsync(context, query, spec.Apply).ConfigureAwait(false);
-        await query.ExecuteUpdateAsync(setPropertyCalls).ConfigureAwait(false);
+        await query.ExecuteUpdateAsync(StampUpdateSetters(setPropertyCalls)).ConfigureAwait(false);
     }
 
     protected async Task UpdateFromQueryInternalAsync<Entity>(Action<UpdateSettersBuilder<Entity>> setPropertyCalls, Expression<Func<Entity, bool>>? filter = null, Func<IQueryable<Entity>, IQueryable<Entity>>? query = null) where Entity : EntityBase, IEntity<Entity>
@@ -267,7 +267,26 @@ public abstract partial class RepositoryBase
                 return i;
             }
             ).ConfigureAwait(false);
-        await query1.ExecuteUpdateAsync(setPropertyCalls).ConfigureAwait(false);
+        await query1.ExecuteUpdateAsync(StampUpdateSetters(setPropertyCalls)).ConfigureAwait(false);
+    }
+
+    // Appends the modified audit setters after the caller's, mirroring OnUpdating for bulk updates.
+    private Action<UpdateSettersBuilder<Entity>> StampUpdateSetters<Entity>(Action<UpdateSettersBuilder<Entity>> setPropertyCalls) where Entity : EntityBase, IEntity<Entity>
+    {
+        var stampDate = DateTime.UtcNow;
+        var stampBy = GetCreatedModifiedBy();
+        return builder =>
+        {
+            setPropertyCalls(builder);
+            if (typeof(IModifiedDateEntity).IsAssignableFrom(typeof(Entity)))
+            {
+                builder.SetProperty(e => ((IModifiedDateEntity)e).ModifiedDate, stampDate);
+            }
+            if (typeof(IModifiedByEntity).IsAssignableFrom(typeof(Entity)))
+            {
+                builder.SetProperty(e => ((IModifiedByEntity)e).ModifiedBy, stampBy);
+            }
+        };
     }
 
     protected virtual async Task UpdateInternalAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>
@@ -424,6 +443,14 @@ public abstract partial class RepositoryBase
             ?? throw new InvalidOperationException($"{typeof(TTarget).Name} is not mapped to a table.");
         var storeObject = StoreObjectIdentifier.Table(tableName, entityType.GetSchema());
 
+        // Stamp audit columns the same way AddAsync does, since the raw INSERT bypasses OnAdding.
+        var stampDate = DateTime.UtcNow;
+        var stampBy = GetCreatedModifiedBy();
+        StampInsertBinding<TTarget>(bindings, entityType, storeObject, typeof(ICreatedDateEntity), nameof(ICreatedDateEntity.CreatedDate), stampDate);
+        StampInsertBinding<TTarget>(bindings, entityType, storeObject, typeof(IModifiedDateEntity), nameof(IModifiedDateEntity.ModifiedDate), stampDate);
+        StampInsertBinding<TTarget>(bindings, entityType, storeObject, typeof(ICreatedByEntity), nameof(ICreatedByEntity.CreatedBy), stampBy);
+        StampInsertBinding<TTarget>(bindings, entityType, storeObject, typeof(IModifiedByEntity), nameof(IModifiedByEntity.ModifiedBy), stampBy);
+
         // Translate each binding as its own single-column query so that identical constant values are
         // not collapsed by EF Core's projection de-duplication, which would emit fewer SELECT columns
         // than the INSERT column list.
@@ -465,6 +492,132 @@ public abstract partial class RepositoryBase
         .Single(m => m.Name == nameof(Queryable.Select)
             && m.GetParameters().Length == 2
             && m.GetParameters()[1].ParameterType.GetGenericArguments()[0].GetGenericArguments().Length == 2);
+
+    private static readonly MethodInfo AnyMethod = typeof(Queryable).GetMethods()
+        .Single(m => m.Name == nameof(Queryable.Any) && m.GetParameters().Length == 2);
+
+    private static readonly MethodInfo SetMethod = typeof(DbContext).GetMethods()
+        .Single(m => m.Name == nameof(DbContext.Set) && m.IsGenericMethodDefinition && m.GetParameters().Length == 0);
+
+    protected Task<MergeResult> MergeFromQueryInternalAsync<TSource, TTarget, TKey>(
+        Expression<Func<TSource, TKey>> sourceKey,
+        Expression<Func<TTarget, TKey>> targetKey,
+        Expression<Func<TSource, TTarget>> insertSelector,
+        Action<UpdateSettersBuilder<TTarget>>? updateSetters,
+        bool deleteMissing)
+        where TSource : EntityBase, IEntity<TSource>
+        where TTarget : EntityBase, IEntity<TTarget>
+    {
+        return MergeFromQueryInternalAsync(BuildKeyMatch<TSource, TTarget, TKey>(sourceKey, targetKey), insertSelector, updateSetters, deleteMissing);
+    }
+
+    // Builds a source/target match predicate from key selectors, comparing each member for composite keys.
+    private static Expression<Func<TSource, TTarget, bool>> BuildKeyMatch<TSource, TTarget, TKey>(
+        Expression<Func<TSource, TKey>> sourceKey,
+        Expression<Func<TTarget, TKey>> targetKey)
+    {
+        var sourceBody = Unwrap(sourceKey.Body);
+        var targetBody = Unwrap(targetKey.Body);
+
+        Expression body;
+        if (sourceBody is NewExpression sourceNew && targetBody is NewExpression targetNew)
+        {
+            body = sourceNew.Arguments
+                .Zip(targetNew.Arguments, (s, t) => (Expression)Expression.Equal(s, t))
+                .Aggregate(Expression.AndAlso);
+        }
+        else
+        {
+            body = Expression.Equal(sourceBody, targetBody);
+        }
+
+        return Expression.Lambda<Func<TSource, TTarget, bool>>(body, sourceKey.Parameters[0], targetKey.Parameters[0]);
+
+        static Expression Unwrap(Expression expression) =>
+            expression is UnaryExpression { NodeType: ExpressionType.Convert } convert ? convert.Operand : expression;
+    }
+
+    protected virtual async Task<MergeResult> MergeFromQueryInternalAsync<TSource, TTarget>(
+        Expression<Func<TSource, TTarget, bool>> match,
+        Expression<Func<TSource, TTarget>> insertSelector,
+        Action<UpdateSettersBuilder<TTarget>>? updateSetters,
+        bool deleteMissing)
+        where TSource : EntityBase, IEntity<TSource>
+        where TTarget : EntityBase, IEntity<TTarget>
+    {
+        using var context = CreateContext();
+        var dbContext = context.DbContext;
+        var sourceParameter = match.Parameters[0];
+        var targetParameter = match.Parameters[1];
+
+        await using var transaction = await dbContext.Database.BeginTransactionAsync().ConfigureAwait(false);
+
+        var updated = 0;
+        if (updateSetters is not null)
+        {
+            var matchedTargets = BuildExistsPredicate<TTarget, TSource>(dbContext, targetParameter, sourceParameter, match.Body, negate: false);
+            updated = await dbContext.Set<TTarget>().AsNoTracking().Where(matchedTargets)
+                .ExecuteUpdateAsync(StampUpdateSetters(updateSetters)).ConfigureAwait(false);
+        }
+
+        var unmatchedSource = BuildExistsPredicate<TSource, TTarget>(dbContext, sourceParameter, targetParameter, match.Body, negate: true);
+        var source = dbContext.Set<TSource>().Where(unmatchedSource);
+        var inserted = await InsertFromQueryCoreAsync(context, source, insertSelector).ConfigureAwait(false);
+
+        var deleted = 0;
+        if (deleteMissing)
+        {
+            var unmatchedTargets = BuildExistsPredicate<TTarget, TSource>(dbContext, targetParameter, sourceParameter, match.Body, negate: true);
+            deleted = await dbContext.Set<TTarget>().AsNoTracking().Where(unmatchedTargets)
+                .ExecuteDeleteAsync().ConfigureAwait(false);
+        }
+
+        await transaction.CommitAsync().ConfigureAwait(false);
+        return new MergeResult(inserted, updated, deleted);
+    }
+
+    // Overrides the given audit binding with a server-stamped value when the target implements the interface.
+    private static void StampInsertBinding<TTarget>(
+        List<MemberAssignment> bindings,
+        IEntityType entityType,
+        StoreObjectIdentifier storeObject,
+        Type auditInterface,
+        string propertyName,
+        object value)
+    {
+        if (!auditInterface.IsAssignableFrom(typeof(TTarget)))
+        {
+            return;
+        }
+
+        var property = typeof(TTarget).GetProperty(propertyName);
+        if (property is null || entityType.FindProperty(propertyName)?.GetColumnName(storeObject) is null)
+        {
+            return;
+        }
+
+        bindings.RemoveAll(b => b.Member.Name == propertyName);
+        bindings.Add(Expression.Bind(property, Expression.Constant(value, property.PropertyType)));
+    }
+
+    // Turns a two-parameter match predicate into a correlated (NOT) EXISTS predicate on the outer entity.
+    private static Expression<Func<TOuter, bool>> BuildExistsPredicate<TOuter, TInner>(
+        DbContext dbContext,
+        ParameterExpression outerParameter,
+        ParameterExpression innerParameter,
+        Expression matchBody,
+        bool negate)
+        where TInner : class
+    {
+        var innerPredicate = Expression.Lambda<Func<TInner, bool>>(matchBody, innerParameter);
+        var innerSet = Expression.Call(Expression.Constant(dbContext), SetMethod.MakeGenericMethod(typeof(TInner)));
+        var anyCall = Expression.Call(
+            AnyMethod.MakeGenericMethod(typeof(TInner)),
+            innerSet,
+            Expression.Quote(innerPredicate));
+        Expression body = negate ? Expression.Not(anyCall) : anyCall;
+        return Expression.Lambda<Func<TOuter, bool>>(body, outerParameter);
+    }
 
     private static (string Projection, string From) SplitSelect(string sql)
     {
