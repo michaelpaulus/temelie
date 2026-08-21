@@ -558,10 +558,6 @@ public abstract partial class RepositoryBase
                 .ExecuteDeleteAsync().ConfigureAwait(false);
         }
 
-        var unmatchedSource = BuildExistsPredicate<TSource, TTarget>(dbContext, sourceParameter, targetParameter, match.Body, negate: true);
-        var source = dbContext.Set<TSource>().Where(unmatchedSource);
-        var inserted = await InsertFromQueryCoreAsync(context, source, insertSelector).ConfigureAwait(false);
-
         var updated = 0;
         if (updateSetters is not null)
         {
@@ -569,6 +565,10 @@ public abstract partial class RepositoryBase
             updated = await dbContext.Set<TTarget>().AsNoTracking().Where(matchedTargets)
                 .ExecuteUpdateAsync(StampUpdateSetters(updateSetters)).ConfigureAwait(false);
         }
+
+        var unmatchedSource = BuildExistsPredicate<TSource, TTarget>(dbContext, sourceParameter, targetParameter, match.Body, negate: true);
+        var source = dbContext.Set<TSource>().Where(unmatchedSource);
+        var inserted = await InsertFromQueryCoreAsync(context, source, insertSelector).ConfigureAwait(false);
 
         return new MergeResult(inserted, updated, deleted);
     }
