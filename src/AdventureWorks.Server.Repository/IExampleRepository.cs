@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query;
 using Temelie.Entities;
 using Temelie.Repository;
 using AdventureWorks.Entities;
@@ -23,9 +24,14 @@ public partial interface IExampleRepository
     Task AddRangeAsync<Entity>(IEnumerable<Entity> entities) where Entity : EntityBase, IEntity<Entity>, IProjectEntity;
     Task UpdateAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>, IProjectEntity;
     Task UpdateRangeAsync<Entity>(IEnumerable<Entity> entities) where Entity : EntityBase, IEntity<Entity>, IProjectEntity;
+    Task UpdateFromQueryAsync<Entity>(IQuerySpec<Entity> spec, Action<UpdateSettersBuilder<Entity>> setPropertyCalls) where Entity : EntityBase, IEntity<Entity>, IProjectEntity;
     Task DeleteAsync<Entity>(Entity entity) where Entity : EntityBase, IEntity<Entity>, IProjectEntity;
     Task DeleteRangeAsync<Entity>(IEnumerable<Entity> entities) where Entity : EntityBase, IEntity<Entity>, IProjectEntity;
+    Task DeleteFromQueryAsync<Entity>(IQuerySpec<Entity> spec) where Entity : EntityBase, IEntity<Entity>, IProjectEntity;
     Task<int> InsertFromQueryAsync<TSource, TTarget>(Expression<Func<TSource, bool>>? filter, Expression<Func<TSource, TTarget>> selector)
+        where TSource : EntityBase, IEntity<TSource>, IProjectEntity
+        where TTarget : EntityBase, IEntity<TTarget>, IProjectEntity;
+    Task<int> InsertFromQueryAsync<TSource, TTarget>(IQuerySpec<TSource> spec, Expression<Func<TSource, TTarget>> selector)
         where TSource : EntityBase, IEntity<TSource>, IProjectEntity
         where TTarget : EntityBase, IEntity<TTarget>, IProjectEntity;
 

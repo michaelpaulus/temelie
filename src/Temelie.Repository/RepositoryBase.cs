@@ -391,6 +391,25 @@ public abstract partial class RepositoryBase
             source = source.Where((Expression<Func<TSource, bool>>)QueryConstantInliner.Inline(filter));
         }
 
+        return await InsertFromQueryCoreAsync(context, source, selector).ConfigureAwait(false);
+    }
+
+    protected virtual async Task<int> InsertFromQueryInternalAsync<TSource, TTarget>(IQuerySpec<TSource> spec, Expression<Func<TSource, TTarget>> selector)
+       where TSource : EntityBase, IEntity<TSource>
+       where TTarget : EntityBase, IEntity<TTarget>
+    {
+        using var context = CreateContext();
+
+        IQueryable<TSource> source = context.DbContext.Set<TSource>();
+        source = await OnQueryAsync(context, source, spec.Apply).ConfigureAwait(false);
+
+        return await InsertFromQueryCoreAsync(context, source, selector).ConfigureAwait(false);
+    }
+
+    private async Task<int> InsertFromQueryCoreAsync<TSource, TTarget>(IRepositoryContext context, IQueryable<TSource> source, Expression<Func<TSource, TTarget>> selector)
+       where TSource : EntityBase, IEntity<TSource>
+       where TTarget : EntityBase, IEntity<TTarget>
+    {
         // Inline captured values to constants so the translated SELECT has no parameters and can be
         // embedded after the INSERT prefix.
         var inlinedSelector = (Expression<Func<TSource, TTarget>>)QueryConstantInliner.Inline(selector);

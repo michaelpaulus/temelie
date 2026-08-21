@@ -122,4 +122,11 @@ public abstract class DefaultRepository : RepositoryBase, IDefaultRepository
     {
         return InsertFromQueryInternalAsync(filter, selector);
     }
+
+    public Task<int> InsertFromQueryAsync<TSource, TTarget>(IQuerySpec<TSource> spec, Expression<Func<TSource, TTarget>> selector)
+        where TSource : EntityBase, IEntity<TSource>
+        where TTarget : EntityBase, IEntity<TTarget>
+    {
+        return InsertFromQueryInternalAsync(spec, selector);
+    }
 }

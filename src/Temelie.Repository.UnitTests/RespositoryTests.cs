@@ -3,6 +3,7 @@ using AdventureWorks.Server;
 using AdventureWorks.Server.Repository;
 using AwesomeAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using System.Linq.Expressions;
 
 namespace Temelie.Repository.UnitTests;
 
@@ -390,7 +391,7 @@ public class RespositoryTests : TestBase
         var modifiedDate = DateTime.UtcNow;
 
         var inserted = await repository.InsertFromQueryAsync<Person, BusinessEntityAddress>(
-            null,
+            (Expression<Func<Person, bool>>?)null,
             p => new BusinessEntityAddress
             {
                 BusinessEntityId = p.BusinessEntityId,
@@ -424,7 +425,7 @@ public class RespositoryTests : TestBase
         // AddressId and AddressTypeId project the same constant value; EF Core would otherwise
         // collapse the duplicate literal into a single column and break the INSERT column mapping.
         var inserted = await repository.InsertFromQueryAsync<Person, BusinessEntityAddress>(
-            null,
+            (Expression<Func<Person, bool>>?)null,
             p => new BusinessEntityAddress
             {
                 BusinessEntityId = p.BusinessEntityId,
@@ -440,6 +441,120 @@ public class RespositoryTests : TestBase
         single.Should().NotBeNull();
         single!.AddressId.Should().Be(1);
         single.AddressTypeId.Should().Be(1);
+    }
+
+    [Test]
+    public async Task DeleteFromQueryNotExistsInOtherTableAsync()
+    {
+        var repository = ServiceProvider.GetRequiredService<IExampleRepository>();
+
+        // Persons 1..3 exist; addresses reference 1..5, so 4 and 5 are orphaned.
+        foreach (var i in Enumerable.Range(1, 3))
+        {
+            await repository.AddAsync(new Person() { BusinessEntityId = i, FirstName = "Test" }).ConfigureAwait(true);
+        }
+
+        foreach (var i in Enumerable.Range(1, 5))
+        {
+            await repository.AddAsync(new BusinessEntityAddress()
+            {
+                BusinessEntityId = i,
+                AddressId = 1,
+                AddressTypeId = 1,
+                ModifiedDate = DateTime.UtcNow
+            }).ConfigureAwait(true);
+        }
+
+        await repository.DeleteFromQueryAsync(new OrphanedBusinessEntityAddressQuery()).ConfigureAwait(true);
+
+        var remaining = await repository.GetCountAsync<BusinessEntityAddress>().ConfigureAwait(true);
+        remaining.Should().Be(3);
+
+        var orphan = await repository.GetSingleAsync<BusinessEntityAddress>(i => i.BusinessEntityId == 4).ConfigureAwait(true);
+        orphan.Should().BeNull();
+
+        var kept = await repository.GetSingleAsync<BusinessEntityAddress>(i => i.BusinessEntityId == 1).ConfigureAwait(true);
+        kept.Should().NotBeNull();
+    }
+
+    [Test]
+    public async Task UpdateFromQueryExistsInOtherTableAsync()
+    {
+        var repository = ServiceProvider.GetRequiredService<IExampleRepository>();
+
+        // Persons 1..3 exist; addresses reference 1..5, so 4 and 5 have no matching Person.
+        foreach (var i in Enumerable.Range(1, 3))
+        {
+            await repository.AddAsync(new Person() { BusinessEntityId = i, FirstName = "Test" }).ConfigureAwait(true);
+        }
+
+        foreach (var i in Enumerable.Range(1, 5))
+        {
+            await repository.AddAsync(new BusinessEntityAddress()
+            {
+                BusinessEntityId = i,
+                AddressId = 1,
+                AddressTypeId = 1,
+                rowguid = Guid.Empty,
+                ModifiedDate = DateTime.UtcNow
+            }).ConfigureAwait(true);
+        }
+
+        var updatedGuid = Guid.NewGuid();
+
+        await repository.UpdateFromQueryAsync(
+            new ExistingBusinessEntityAddressQuery(),
+            b => b.SetProperty(a => a.rowguid, updatedGuid)).ConfigureAwait(true);
+
+        var updated = await repository.GetSingleAsync<BusinessEntityAddress>(i => i.BusinessEntityId == 1).ConfigureAwait(true);
+        updated.Should().NotBeNull();
+        updated!.rowguid.Should().Be(updatedGuid);
+
+        var untouched = await repository.GetSingleAsync<BusinessEntityAddress>(i => i.BusinessEntityId == 4).ConfigureAwait(true);
+        untouched.Should().NotBeNull();
+        untouched!.rowguid.Should().Be(Guid.Empty);
+    }
+
+    [Test]
+    public async Task InsertFromQueryNotExistsInTargetAsync()
+    {
+        var repository = ServiceProvider.GetRequiredService<IExampleRepository>();
+
+        // Persons 1..5 exist; addresses already exist for 1..2, so only 3..5 should be inserted.
+        foreach (var i in Enumerable.Range(1, 5))
+        {
+            await repository.AddAsync(new Person() { BusinessEntityId = i, FirstName = "Test" }).ConfigureAwait(true);
+        }
+
+        foreach (var i in Enumerable.Range(1, 2))
+        {
+            await repository.AddAsync(new BusinessEntityAddress()
+            {
+                BusinessEntityId = i,
+                AddressId = 1,
+                AddressTypeId = 1,
+                ModifiedDate = DateTime.UtcNow
+            }).ConfigureAwait(true);
+        }
+
+        var rowguid = Guid.NewGuid();
+        var modifiedDate = DateTime.UtcNow;
+
+        var inserted = await repository.InsertFromQueryAsync<Person, BusinessEntityAddress>(
+            new PersonWithoutAddressQuery(),
+            p => new BusinessEntityAddress
+            {
+                BusinessEntityId = p.BusinessEntityId,
+                AddressId = 1,
+                AddressTypeId = 1,
+                rowguid = rowguid,
+                ModifiedDate = modifiedDate
+            }).ConfigureAwait(true);
+
+        inserted.Should().Be(3);
+
+        var total = await repository.GetCountAsync<BusinessEntityAddress>().ConfigureAwait(true);
+        total.Should().Be(5);
     }
 
 }

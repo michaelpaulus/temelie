@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using AdventureWorks.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using Temelie.DependencyInjection;
 using Temelie.Entities;
 using Temelie.Repository;
@@ -38,6 +39,11 @@ public class ExampleRepository : RepositoryBase, IExampleRepository
     public Task DeleteRangeAsync<Entity>(IEnumerable<Entity> entities) where Entity : EntityBase, IEntity<Entity>, IProjectEntity
     {
         return DeleteRangeInternalAsync(entities);
+    }
+
+    public Task DeleteFromQueryAsync<Entity>(IQuerySpec<Entity> spec) where Entity : EntityBase, IEntity<Entity>, IProjectEntity
+    {
+        return DeleteFromQueryInternalAsync(spec);
     }
 
     public Task<int> GetCountAsync<Entity>(IQuerySpec<Entity> spec) where Entity : EntityBase, IEntity<Entity>, IProjectEntity
@@ -105,11 +111,23 @@ public class ExampleRepository : RepositoryBase, IExampleRepository
         return UpdateRangeInternalAsync(entities);
     }
 
+    public Task UpdateFromQueryAsync<Entity>(IQuerySpec<Entity> spec, Action<UpdateSettersBuilder<Entity>> setPropertyCalls) where Entity : EntityBase, IEntity<Entity>, IProjectEntity
+    {
+        return UpdateFromQueryInternalAsync(spec, setPropertyCalls);
+    }
+
     public Task<int> InsertFromQueryAsync<TSource, TTarget>(Expression<Func<TSource, bool>>? filter, Expression<Func<TSource, TTarget>> selector)
         where TSource : EntityBase, IEntity<TSource>, IProjectEntity
         where TTarget : EntityBase, IEntity<TTarget>, IProjectEntity
     {
         return InsertFromQueryInternalAsync(filter, selector);
+    }
+
+    public Task<int> InsertFromQueryAsync<TSource, TTarget>(IQuerySpec<TSource> spec, Expression<Func<TSource, TTarget>> selector)
+        where TSource : EntityBase, IEntity<TSource>, IProjectEntity
+        where TTarget : EntityBase, IEntity<TTarget>, IProjectEntity
+    {
+        return InsertFromQueryInternalAsync(spec, selector);
     }
 
     protected override IRepositoryContext CreateContext()

@@ -31,5 +31,8 @@ public partial interface IDefaultRepository
     Task<int> InsertFromQueryAsync<TSource, TTarget>(Expression<Func<TSource, bool>>? filter, Expression<Func<TSource, TTarget>> selector)
         where TSource : EntityBase, IEntity<TSource>
         where TTarget : EntityBase, IEntity<TTarget>;
+    Task<int> InsertFromQueryAsync<TSource, TTarget>(IQuerySpec<TSource> spec, Expression<Func<TSource, TTarget>> selector)
+        where TSource : EntityBase, IEntity<TSource>
+        where TTarget : EntityBase, IEntity<TTarget>;
 
 }
