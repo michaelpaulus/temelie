@@ -550,8 +550,6 @@ public abstract partial class RepositoryBase
         var sourceParameter = match.Parameters[0];
         var targetParameter = match.Parameters[1];
 
-        await using var transaction = await dbContext.Database.BeginTransactionAsync().ConfigureAwait(false);
-
         var updated = 0;
         if (updateSetters is not null)
         {
@@ -572,7 +570,6 @@ public abstract partial class RepositoryBase
                 .ExecuteDeleteAsync().ConfigureAwait(false);
         }
 
-        await transaction.CommitAsync().ConfigureAwait(false);
         return new MergeResult(inserted, updated, deleted);
     }
 
