@@ -116,4 +116,10 @@ public abstract class DefaultRepository : RepositoryBase, IDefaultRepository
         return UpdateRangeInternalAsync(entities);
     }
 
+    public Task<int> InsertFromQueryAsync<TSource, TTarget>(Expression<Func<TSource, bool>>? filter, Expression<Func<TSource, TTarget>> selector)
+        where TSource : EntityBase, IEntity<TSource>
+        where TTarget : EntityBase, IEntity<TTarget>
+    {
+        return InsertFromQueryInternalAsync(filter, selector);
+    }
 }

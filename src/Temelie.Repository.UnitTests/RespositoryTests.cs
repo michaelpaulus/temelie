@@ -332,4 +332,114 @@ public class RespositoryTests : TestBase
         anyResult.Should().BeTrue();
     }
 
+    [Test]
+    public async Task InsertFromQueryWithFilterAsync()
+    {
+        var repository = ServiceProvider.GetRequiredService<IExampleRepository>();
+
+        var count = 5;
+
+        foreach (var i in Enumerable.Range(1, count))
+        {
+            await repository.AddAsync(new Person() { BusinessEntityId = i, FirstName = "Match" }).ConfigureAwait(true);
+        }
+
+        await repository.AddAsync(new Person() { BusinessEntityId = 100, FirstName = "NoMatch" }).ConfigureAwait(true);
+
+        var rowguid = Guid.NewGuid();
+        var modifiedDate = DateTime.UtcNow;
+
+        var inserted = await repository.InsertFromQueryAsync<Person, BusinessEntityAddress>(
+            p => p.FirstName == "Match",
+            p => new BusinessEntityAddress
+            {
+                BusinessEntityId = p.BusinessEntityId,
+                AddressId = 1,
+                AddressTypeId = 2,
+                rowguid = rowguid,
+                ModifiedDate = modifiedDate
+            }).ConfigureAwait(true);
+
+        inserted.Should().Be(count);
+
+        var total = await repository.GetCountAsync<BusinessEntityAddress>().ConfigureAwait(true);
+        total.Should().Be(count);
+
+        var single = await repository.GetSingleAsync<BusinessEntityAddress>(i => i.BusinessEntityId == 1).ConfigureAwait(true);
+        single.Should().NotBeNull();
+        single!.AddressId.Should().Be(1);
+        single.AddressTypeId.Should().Be(2);
+
+        var excluded = await repository.GetSingleAsync<BusinessEntityAddress>(i => i.BusinessEntityId == 100).ConfigureAwait(true);
+        excluded.Should().BeNull();
+    }
+
+    [Test]
+    public async Task InsertFromQueryNullFilterAsync()
+    {
+        var repository = ServiceProvider.GetRequiredService<IExampleRepository>();
+
+        var count = 5;
+
+        foreach (var i in Enumerable.Range(1, count))
+        {
+            await repository.AddAsync(new Person() { BusinessEntityId = i, FirstName = "Test" }).ConfigureAwait(true);
+        }
+
+        var rowguid = Guid.NewGuid();
+        var modifiedDate = DateTime.UtcNow;
+
+        var inserted = await repository.InsertFromQueryAsync<Person, BusinessEntityAddress>(
+            null,
+            p => new BusinessEntityAddress
+            {
+                BusinessEntityId = p.BusinessEntityId,
+                AddressId = 2,
+                AddressTypeId = 3,
+                rowguid = rowguid,
+                ModifiedDate = modifiedDate
+            }).ConfigureAwait(true);
+
+        inserted.Should().Be(count);
+
+        var total = await repository.GetCountAsync<BusinessEntityAddress>().ConfigureAwait(true);
+        total.Should().Be(count);
+    }
+
+    [Test]
+    public async Task InsertFromQueryDuplicateConstantColumnsAsync()
+    {
+        var repository = ServiceProvider.GetRequiredService<IExampleRepository>();
+
+        var count = 5;
+
+        foreach (var i in Enumerable.Range(1, count))
+        {
+            await repository.AddAsync(new Person() { BusinessEntityId = i, FirstName = "Test" }).ConfigureAwait(true);
+        }
+
+        var rowguid = Guid.NewGuid();
+        var modifiedDate = DateTime.UtcNow;
+
+        // AddressId and AddressTypeId project the same constant value; EF Core would otherwise
+        // collapse the duplicate literal into a single column and break the INSERT column mapping.
+        var inserted = await repository.InsertFromQueryAsync<Person, BusinessEntityAddress>(
+            null,
+            p => new BusinessEntityAddress
+            {
+                BusinessEntityId = p.BusinessEntityId,
+                AddressId = 1,
+                AddressTypeId = 1,
+                rowguid = rowguid,
+                ModifiedDate = modifiedDate
+            }).ConfigureAwait(true);
+
+        inserted.Should().Be(count);
+
+        var single = await repository.GetSingleAsync<BusinessEntityAddress>(i => i.BusinessEntityId == 1).ConfigureAwait(true);
+        single.Should().NotBeNull();
+        single!.AddressId.Should().Be(1);
+        single.AddressTypeId.Should().Be(1);
+    }
+
 }

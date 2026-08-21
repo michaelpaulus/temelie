@@ -1,5 +1,9 @@
 using System.Linq.Expressions;
+using System.Reflection;
+using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Temelie.Entities;
 
@@ -290,6 +294,8 @@ public abstract partial class RepositoryBase
         }
     }
 
+
+
     protected virtual async Task<IQueryable<Entity>> OnQueryAsync<Entity>(IRepositoryContext context, IQueryable<Entity> query, Func<IRepositoryContext, IQueryable<Entity>, IQueryable<Entity>> apply) where Entity : EntityBase, IEntity<Entity>
     {
         query = apply.Invoke(context, query);
@@ -371,6 +377,84 @@ public abstract partial class RepositoryBase
         {
             await provider.OnUpdatedAsync(context, entity).ConfigureAwait(false);
         }
+    }
+
+    protected async Task<int> InsertFromQueryInternalAsync<TSource, TTarget>(Expression<Func<TSource, bool>>? filter, Expression<Func<TSource, TTarget>> selector)
+       where TSource : EntityBase, IEntity<TSource>
+       where TTarget : EntityBase, IEntity<TTarget>
+    {
+        using var context = CreateContext();
+
+        IQueryable<TSource> source = context.DbContext.Set<TSource>();
+        if (filter is not null)
+        {
+            source = source.Where((Expression<Func<TSource, bool>>)QueryConstantInliner.Inline(filter));
+        }
+
+        // Inline captured values to constants so the translated SELECT has no parameters and can be
+        // embedded after the INSERT prefix.
+        var inlinedSelector = (Expression<Func<TSource, TTarget>>)QueryConstantInliner.Inline(selector);
+        var parameter = inlinedSelector.Parameters[0];
+        var bindings = ((MemberInitExpression)inlinedSelector.Body).Bindings
+            .OfType<MemberAssignment>()
+            .ToList();
+
+        var entityType = context.DbContext.Model.FindEntityType(typeof(TTarget))
+            ?? throw new InvalidOperationException($"No entity type mapped for {typeof(TTarget).Name}.");
+        var tableName = entityType.GetTableName()
+            ?? throw new InvalidOperationException($"{typeof(TTarget).Name} is not mapped to a table.");
+        var storeObject = StoreObjectIdentifier.Table(tableName, entityType.GetSchema());
+
+        // Translate each binding as its own single-column query so that identical constant values are
+        // not collapsed by EF Core's projection de-duplication, which would emit fewer SELECT columns
+        // than the INSERT column list.
+        var columns = new List<string>();
+        var projections = new List<string>();
+        string? fromClause = null;
+
+        foreach (var binding in bindings)
+        {
+            var column = entityType.FindProperty(binding.Member.Name)?.GetColumnName(storeObject)
+                ?? throw new InvalidOperationException($"No column mapped for {typeof(TTarget).Name}.{binding.Member.Name}.");
+            columns.Add($"`{column}`");
+
+            var valueLambda = Expression.Lambda(binding.Expression, parameter);
+            var valueQuery = (IQueryable)SelectMethod
+                .MakeGenericMethod(typeof(TSource), binding.Expression.Type)
+                .Invoke(null, [source, valueLambda])!;
+
+            var (projection, from) = SplitSelect(valueQuery.ToQueryString());
+            projections.Add(projection);
+
+            if (fromClause is null)
+            {
+                fromClause = from;
+            }
+            else if (!string.Equals(fromClause, from, StringComparison.Ordinal))
+            {
+                throw new NotSupportedException(
+                    "InsertFromQuery does not support selector projections that introduce joins or subqueries.");
+            }
+        }
+
+        var selectSql = $"SELECT {string.Join(", ", projections)}\n{fromClause}";
+        var insertSql = $"INSERT INTO `{tableName}` ({string.Join(", ", columns)})\n{selectSql}";
+        return await context.DbContext.Database.ExecuteSqlRawAsync(insertSql).ConfigureAwait(false);
+    }
+
+    private static readonly MethodInfo SelectMethod = typeof(Queryable).GetMethods()
+        .Single(m => m.Name == nameof(Queryable.Select)
+            && m.GetParameters().Length == 2
+            && m.GetParameters()[1].ParameterType.GetGenericArguments()[0].GetGenericArguments().Length == 2);
+
+    private static (string Projection, string From) SplitSelect(string sql)
+    {
+        var match = Regex.Match(sql, @"^SELECT (?<projection>.+?)\r?\n(?<from>FROM .*)$", RegexOptions.Singleline);
+        if (!match.Success)
+        {
+            throw new NotSupportedException($"Unable to build INSERT from the generated query:\n{sql}");
+        }
+        return (match.Groups["projection"].Value, match.Groups["from"].Value);
     }
 
 }

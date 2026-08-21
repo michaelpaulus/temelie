@@ -105,6 +105,13 @@ public class ExampleRepository : RepositoryBase, IExampleRepository
         return UpdateRangeInternalAsync(entities);
     }
 
+    public Task<int> InsertFromQueryAsync<TSource, TTarget>(Expression<Func<TSource, bool>>? filter, Expression<Func<TSource, TTarget>> selector)
+        where TSource : EntityBase, IEntity<TSource>, IProjectEntity
+        where TTarget : EntityBase, IEntity<TTarget>, IProjectEntity
+    {
+        return InsertFromQueryInternalAsync(filter, selector);
+    }
+
     protected override IRepositoryContext CreateContext()
     {
         return _dbContextFactory.CreateDbContext();
