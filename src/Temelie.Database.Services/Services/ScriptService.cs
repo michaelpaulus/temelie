@@ -866,7 +866,7 @@ public class ScriptService : IScriptService
 
                         // a remnant from a previous soft drop makes the rename fail (MySql error 1050, sp_rename error),
                         // so drop it first and keep the most recent copy of the table
-                        var dropRemnant = provider.GetScript(new TableModel { SchemaName = current.SchemaName, TableName = renamedTableName })?.DropScript;
+                        var dropRemnant = provider.GetScript(new TableModel { SchemaName = current.SchemaName, TableName = renamedTableName, IsExternal = current.IsExternal })?.DropScript;
                         if (!string.IsNullOrEmpty(dropRemnant))
                         {
                             _databaseExecutionService.ExecuteFile(connectionString, dropRemnant);
