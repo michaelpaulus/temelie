@@ -758,12 +758,13 @@ GO");
         return new DatabaseObjectScript(generateCreateScript, generateDropScript);
     }
 
-    public override string GetRenameScript(TableModel model, string newTableName)
+    public override string GetRenameScript(TableModel model, string newTableName, bool dropNewTableIfExists = false)
     {
         var schema = string.IsNullOrEmpty(model.SchemaName) ? "dbo" : model.SchemaName;
         var sb = new StringBuilder();
-        // a remnant from a previous rename makes sp_rename fail
-        sb.AppendLine($@"IF EXISTS
+        if (dropNewTableIfExists)
+        {
+            sb.AppendLine($@"IF EXISTS
     (
         SELECT
             1
@@ -775,8 +776,9 @@ GO");
             tables.name = '{newTableName}' AND
             schemas.name = '{schema}'
     )");
-        sb.AppendLine($"    DROP{(model.IsExternal ? " EXTERNAL " : " ")}TABLE {QuoteCharacterStart}{schema}{QuoteCharacterEnd}.{QuoteCharacterStart}{newTableName}{QuoteCharacterEnd}");
-        sb.AppendLine("GO");
+            sb.AppendLine($"    DROP{(model.IsExternal ? " EXTERNAL " : " ")}TABLE {QuoteCharacterStart}{schema}{QuoteCharacterEnd}.{QuoteCharacterStart}{newTableName}{QuoteCharacterEnd}");
+            sb.AppendLine("GO");
+        }
         sb.AppendLine($"EXEC sp_rename '{schema}.{model.TableName}', '{newTableName}'");
         return sb.ToString();
     }

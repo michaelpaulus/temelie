@@ -33,7 +33,7 @@ public interface IDatabaseProvider
     IDatabaseObjectScript GetScript(SecurityPolicyModel model);
     IDatabaseObjectScript GetScript(TableModel model);
     IDatabaseObjectScript GetScript(TriggerModel model);
-    string GetRenameScript(TableModel model, string newTableName);
+    string GetRenameScript(TableModel model, string newTableName, bool dropNewTableIfExists = false);
     IDatabaseObjectScript GetColumnScript(ColumnModel column);
 
     void SetReadTimeout(System.Data.Common.DbCommand sourceCommand);

@@ -860,7 +860,7 @@ public class ScriptService : IScriptService
                     var updatedTable = updatedDatabaseModel.Tables.FirstOrDefault(i => i.SchemaName == current.SchemaName && i.TableName == current.TableName);
                     if (updatedTable is null && current.TableName != "Migrations")
                     {
-                        var rename = provider.GetRenameScript(current, $"__{current.TableName}");
+                        var rename = provider.GetRenameScript(current, $"__{current.TableName}", dropNewTableIfExists: true);
 
                         progress?.Invoke(new ScriptProgress() { ProgressPercentage = 0, ProgressStatus = $"__{current.TableName}" });
 
