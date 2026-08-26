@@ -147,7 +147,12 @@ public partial class DatabaseProvider
 
     public override string GetRenameScript(TableModel model, string newTableName)
     {
-        return $"RENAME TABLE {QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd} TO {QuoteCharacterStart}{newTableName}{QuoteCharacterEnd};";
+        var sb = new StringBuilder();
+        // a remnant from a previous rename makes RENAME TABLE fail with error 1050
+        sb.AppendLine($"DROP TABLE IF EXISTS {QuoteCharacterStart}{newTableName}{QuoteCharacterEnd};");
+        sb.AppendLine("GO");
+        sb.AppendLine($"RENAME TABLE {QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd} TO {QuoteCharacterStart}{newTableName}{QuoteCharacterEnd};");
+        return sb.ToString();
     }
 
     public override IDatabaseObjectScript GetScript(CheckConstraintModel model)
