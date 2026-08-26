@@ -860,9 +860,19 @@ public class ScriptService : IScriptService
                     var updatedTable = updatedDatabaseModel.Tables.FirstOrDefault(i => i.SchemaName == current.SchemaName && i.TableName == current.TableName);
                     if (updatedTable is null && current.TableName != "Migrations")
                     {
-                        var rename = provider.GetRenameScript(current, $"__{current.TableName}");
+                        var renamedTableName = $"__{current.TableName}";
 
-                        progress?.Invoke(new ScriptProgress() { ProgressPercentage = 0, ProgressStatus = $"__{current.TableName}" });
+                        progress?.Invoke(new ScriptProgress() { ProgressPercentage = 0, ProgressStatus = renamedTableName });
+
+                        // a remnant from a previous soft drop makes the rename fail (MySql error 1050, sp_rename error),
+                        // so drop it first and keep the most recent copy of the table
+                        var dropRemnant = provider.GetScript(new TableModel { SchemaName = current.SchemaName, TableName = renamedTableName })?.DropScript;
+                        if (!string.IsNullOrEmpty(dropRemnant))
+                        {
+                            _databaseExecutionService.ExecuteFile(connectionString, dropRemnant);
+                        }
+
+                        var rename = provider.GetRenameScript(current, renamedTableName);
 
                         _databaseExecutionService.ExecuteFile(connectionString, rename);
 
