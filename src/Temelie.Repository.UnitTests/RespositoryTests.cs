@@ -466,7 +466,9 @@ public class RespositoryTests : TestBase
             }).ConfigureAwait(true);
         }
 
-        await repository.DeleteFromQueryAsync(new OrphanedBusinessEntityAddressQuery()).ConfigureAwait(true);
+        var deleted = await repository.DeleteFromQueryAsync(new OrphanedBusinessEntityAddressQuery()).ConfigureAwait(true);
+
+        deleted.Should().Be(2);
 
         var remaining = await repository.GetCountAsync<BusinessEntityAddress>().ConfigureAwait(true);
         remaining.Should().Be(3);

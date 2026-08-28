@@ -26,12 +26,12 @@ public abstract class DefaultRepository : RepositoryBase, IDefaultRepository
         return DeleteInternalAsync(entity);
     }
 
-    public Task DeleteFromQueryAsync<Entity>(IQuerySpec<Entity> spec) where Entity : EntityBase, IEntity<Entity>
+    public Task<int> DeleteFromQueryAsync<Entity>(IQuerySpec<Entity> spec) where Entity : EntityBase, IEntity<Entity>
     {
         return DeleteFromQueryInternalAsync(spec);
     }
 
-    public Task DeleteFromQueryAsync<Entity>(Expression<Func<Entity, bool>>? filter = null, Func<IQueryable<Entity>, IQueryable<Entity>>? query = null) where Entity : EntityBase, IEntity<Entity>
+    public Task<int> DeleteFromQueryAsync<Entity>(Expression<Func<Entity, bool>>? filter = null, Func<IQueryable<Entity>, IQueryable<Entity>>? query = null) where Entity : EntityBase, IEntity<Entity>
     {
         return DeleteFromQueryInternalAsync(filter, query);
     }

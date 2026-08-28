@@ -212,15 +212,15 @@ public abstract partial class RepositoryBase
         }
     }
 
-    protected virtual async Task DeleteFromQueryInternalAsync<Entity>(IQuerySpec<Entity> spec) where Entity : EntityBase, IEntity<Entity>
+    protected virtual async Task<int> DeleteFromQueryInternalAsync<Entity>(IQuerySpec<Entity> spec) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = CreateContext();
         var query = context.DbContext.Set<Entity>().AsNoTracking();
         query = await OnQueryAsync(context, query, spec.Apply).ConfigureAwait(false);
-        await query.ExecuteDeleteAsync().ConfigureAwait(false);
+        return await query.ExecuteDeleteAsync().ConfigureAwait(false);
     }
 
-    protected async Task DeleteFromQueryInternalAsync<Entity>(Expression<Func<Entity, bool>>? filter = null, Func<IQueryable<Entity>, IQueryable<Entity>>? query = null) where Entity : EntityBase, IEntity<Entity>
+    protected async Task<int> DeleteFromQueryInternalAsync<Entity>(Expression<Func<Entity, bool>>? filter = null, Func<IQueryable<Entity>, IQueryable<Entity>>? query = null) where Entity : EntityBase, IEntity<Entity>
     {
         using var context = CreateContext();
         var query1 = context.DbContext.Set<Entity>().AsNoTracking();
@@ -238,7 +238,7 @@ public abstract partial class RepositoryBase
                 return i;
             }
             ).ConfigureAwait(false);
-        await query1.ExecuteDeleteAsync().ConfigureAwait(false);
+        return await query1.ExecuteDeleteAsync().ConfigureAwait(false);
     }
 
     protected virtual async Task UpdateFromQueryInternalAsync<Entity>(IQuerySpec<Entity> spec, Action<UpdateSettersBuilder<Entity>> setPropertyCalls) where Entity : EntityBase, IEntity<Entity>

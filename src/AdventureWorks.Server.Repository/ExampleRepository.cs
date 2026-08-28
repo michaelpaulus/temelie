@@ -41,7 +41,7 @@ public class ExampleRepository : RepositoryBase, IExampleRepository
         return DeleteRangeInternalAsync(entities);
     }
 
-    public Task DeleteFromQueryAsync<Entity>(IQuerySpec<Entity> spec) where Entity : EntityBase, IEntity<Entity>, IProjectEntity
+    public Task<int> DeleteFromQueryAsync<Entity>(IQuerySpec<Entity> spec) where Entity : EntityBase, IEntity<Entity>, IProjectEntity
     {
         return DeleteFromQueryInternalAsync(spec);
     }
