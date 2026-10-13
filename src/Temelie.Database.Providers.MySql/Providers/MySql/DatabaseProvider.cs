@@ -149,7 +149,7 @@ public partial class DatabaseProvider : DatabaseProviderBase
 
                     var extra = row["extra"].ToString().Replace("GENERATED", "").Trim();
 
-                    row["computed_definition"] = $"GENERATED ALWAYS AS {computedDefinition} {extra}";
+                    row["computed_definition"] = $"GENERATED ALWAYS AS ({computedDefinition}) {extra}";
                 }
             }
         }
