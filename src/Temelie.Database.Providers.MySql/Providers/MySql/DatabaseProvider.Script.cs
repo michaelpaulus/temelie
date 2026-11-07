@@ -7,7 +7,7 @@ namespace Temelie.Database.Providers.MySql;
 public partial class DatabaseProvider
 {
 
-    public override IDatabaseObjectScript GetScript(IndexModel model, bool isView)
+    public override IDatabaseObjectScript? GetScript(IndexModel model, bool isView)
     {
         if (model.IsPrimaryKey)
         {
@@ -67,7 +67,7 @@ public partial class DatabaseProvider
         return new DatabaseObjectScript(generateCreateScript, generateDropScript);
     }
 
-    public override IDatabaseObjectScript GetScript(TableModel model)
+    public override IDatabaseObjectScript? GetScript(TableModel model)
     {
         if (string.IsNullOrEmpty(model.TableName))
         {
@@ -156,7 +156,7 @@ public partial class DatabaseProvider
         return sb.ToString();
     }
 
-    public override IDatabaseObjectScript GetScript(CheckConstraintModel model)
+    public override IDatabaseObjectScript? GetScript(CheckConstraintModel model)
     {
         return null;
     }
@@ -182,7 +182,7 @@ public partial class DatabaseProvider
 
         return new DatabaseObjectScript(generateCreateScript, generateDropScript);
     }
-    public override IDatabaseObjectScript GetScript(ForeignKeyModel model)
+    public override IDatabaseObjectScript? GetScript(ForeignKeyModel model)
     {
         if (model == null ||
             string.IsNullOrEmpty(model.ForeignKeyName) ||
@@ -233,12 +233,12 @@ public partial class DatabaseProvider
         return new DatabaseObjectScript(generateCreateScript, generateDropScript);
     }
 
-    public override IDatabaseObjectScript GetScript(SecurityPolicyModel model)
+    public override IDatabaseObjectScript? GetScript(SecurityPolicyModel model)
     {
         return null;
     }
 
-    public override IDatabaseObjectScript GetScript(TriggerModel model)
+    public override IDatabaseObjectScript? GetScript(TriggerModel model)
     {
         if (model == null || string.IsNullOrEmpty(model.TriggerName) || string.IsNullOrEmpty(model.TableName))
         {
@@ -263,7 +263,7 @@ public partial class DatabaseProvider
         return new DatabaseObjectScript(generateCreateScript, generateDropScript);
     }
 
-    public override IDatabaseObjectScript GetColumnScript(ColumnModel column)
+    public override IDatabaseObjectScript? GetColumnScript(ColumnModel column)
     {
         if (string.IsNullOrEmpty(column.ColumnName) || string.IsNullOrEmpty(column.TableName))
         {

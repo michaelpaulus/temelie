@@ -1,14 +1,15 @@
 namespace Temelie.Database.Models;
+
 public class IndexModel : DatabaseObjectModel
 {
 
-    public string TableName { get; set; }
-    public string SchemaName { get; set; }
-    public string IndexName { get; set; }
-    public string IndexType { get; set; }
-    public string FilterDefinition { get; set; }
-    public string PartitionSchemeName { get; set; }
-    public string DataCompressionDesc { get; set; }
+    public string TableName { get; set; } = "";
+    public string SchemaName { get; set; } = "";
+    public string IndexName { get; set; } = "";
+    public string IndexType { get; set; } = "";
+    public string FilterDefinition { get; set; } = "";
+    public string PartitionSchemeName { get; set; } = "";
+    public string DataCompressionDesc { get; set; } = "";
     public int? CompressionDelay { get; set; }
     public bool IsUnique { get; set; }
     public int FillFactor { get; set; }
@@ -16,7 +17,7 @@ public class IndexModel : DatabaseObjectModel
     public bool IsPrimaryKey { get; set; }
     public int TotalBucketCount { get; set; }
 
-    private IList<IndexColumnModel> _columns;
+    private IList<IndexColumnModel>? _columns;
     public IList<IndexColumnModel> Columns
     {
         get
@@ -33,7 +34,7 @@ public class IndexModel : DatabaseObjectModel
         }
     }
 
-    private IList<IndexColumnModel> _includeColumns;
+    private IList<IndexColumnModel>? _includeColumns;
     public IList<IndexColumnModel> IncludeColumns
     {
         get

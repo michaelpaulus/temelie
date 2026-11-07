@@ -9,6 +9,7 @@ using Temelie.Database.Providers;
 using Temelie.DependencyInjection;
 
 namespace Temelie.Database.ViewModels;
+
 [ExportTransient(typeof(DatabaseConnectionViewModel))]
 public class DatabaseConnectionViewModel : ViewModel
 {
@@ -34,9 +35,9 @@ public class DatabaseConnectionViewModel : ViewModel
     public Command DeleteCommand { get; set; }
     public Command SaveCommand { get; set; }
 
-    public Models.ConnectionStringModel SelectedConnection { get; set; }
+    public Models.ConnectionStringModel? SelectedConnection { get; set; }
 
-    private BindingList<Models.ConnectionStringModel> _connnections;
+    private BindingList<Models.ConnectionStringModel>? _connnections;
     public BindingList<Models.ConnectionStringModel> Connections
     {
         get
@@ -49,7 +50,7 @@ public class DatabaseConnectionViewModel : ViewModel
         }
     }
 
-    private ObservableCollection<Models.DatabaseProviderModel> _databaseConnectionTypes;
+    private ObservableCollection<Models.DatabaseProviderModel>? _databaseConnectionTypes;
     private readonly IEnumerable<IDatabaseProvider> _databaseProviders;
 
     public ObservableCollection<Models.DatabaseProviderModel> ConnectionTypes
@@ -126,12 +127,12 @@ public class DatabaseConnectionViewModel : ViewModel
 
     }
 
-    private void Connections_ListChanged(object sender, ListChangedEventArgs e)
+    private void Connections_ListChanged(object? sender, ListChangedEventArgs e)
     {
         switch (e.ListChangedType)
         {
             case ListChangedType.ItemChanged:
-                if (e.PropertyDescriptor.Name == nameof(ConnectionStringModel.DatabaseProviderName))
+                if (e.PropertyDescriptor?.Name == nameof(ConnectionStringModel.DatabaseProviderName))
                 {
                     var connectionString = Connections[e.NewIndex];
                     var provider = _databaseProviders.FirstOrDefault(i => i.Name == connectionString.DatabaseProviderName);

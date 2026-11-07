@@ -35,12 +35,11 @@ public class PartialPropertySymbolVisitor : SymbolVisitor
 
     public override void VisitProperty(IPropertySymbol symbol)
     {
-        if (symbol.IsPartialDefinition)
+        if (symbol.IsPartialDefinition && symbol.ContainingType is { } declaringType)
         {
             var propertyName = symbol.Name;
-            var declaringClass = symbol.ContainingType?.Name;
-            var declaringNamespace = symbol.ContainingNamespace?.ToDisplayString();
-            _partialPropertyModels.Add(new PartialPropertyModel(declaringNamespace, declaringClass, propertyName));
+            var declaringNamespace = symbol.ContainingNamespace?.ToDisplayString() ?? "";
+            _partialPropertyModels.Add(new PartialPropertyModel(declaringNamespace, declaringType.Name, propertyName));
         }
         base.VisitProperty(symbol);
     }

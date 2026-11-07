@@ -13,7 +13,7 @@ namespace Temelie.Database
             /// <summary>
             /// The parent Window of the control.
             /// </summary>
-            private Window _parent;
+            private Window? _parent;
 
             #region Properties
 
@@ -99,7 +99,7 @@ namespace Temelie.Database
             /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
             private void CloseButtonClick(object sender, RoutedEventArgs e)
             {
-                _parent.Close();
+                _parent?.Close();
             }
 
             /// <summary>
@@ -109,7 +109,10 @@ namespace Temelie.Database
             /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
             private void RestoreButtonClick(object sender, RoutedEventArgs e)
             {
-                _parent.WindowState = (_parent.WindowState == WindowState.Maximized) ? WindowState.Normal : WindowState.Maximized;
+                if (_parent is not null)
+                {
+                    _parent.WindowState = (_parent.WindowState == WindowState.Maximized) ? WindowState.Normal : WindowState.Maximized;
+                }
             }
 
             /// <summary>
@@ -119,7 +122,10 @@ namespace Temelie.Database
             /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
             private void MinimizeButtonClick(object sender, RoutedEventArgs e)
             {
-                _parent.WindowState = WindowState.Minimized;
+                if (_parent is not null)
+                {
+                    _parent.WindowState = WindowState.Minimized;
+                }
             }
 
             #endregion
@@ -130,7 +136,7 @@ namespace Temelie.Database
             /// Gets the top parent (Window).
             /// </summary>
             /// <returns>The parent Window.</returns>
-            private Window GetTopParent()
+            private Window? GetTopParent()
             {
                 return Window.GetWindow(this);
             }

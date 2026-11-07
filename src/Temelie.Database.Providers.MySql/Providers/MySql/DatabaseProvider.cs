@@ -1,12 +1,13 @@
 using System.Data;
 using System.Data.Common;
+using System.Text;
+using MySqlConnector;
 using Temelie.Database.Models;
 using Temelie.Database.Services;
 using Temelie.DependencyInjection;
-using System.Text;
-using MySqlConnector;
 
 namespace Temelie.Database.Providers.MySql;
+
 [ExportProvider(typeof(IDatabaseProvider))]
 public partial class DatabaseProvider : DatabaseProviderBase
 {
@@ -36,7 +37,7 @@ public partial class DatabaseProvider : DatabaseProviderBase
         return new MySqlDbProviderFactory();
     }
 
-    public override bool TryHandleColumnValueLoadException(Exception ex, Models.ColumnModel column, out object value)
+    public override bool TryHandleColumnValueLoadException(Exception ex, Models.ColumnModel column, out object? value)
     {
         var mysqlException = ex as MySqlConversionException;
 
@@ -136,18 +137,17 @@ public partial class DatabaseProvider : DatabaseProviderBase
 
             foreach (DataRow row in table.Rows)
             {
-                if (row["extra"].ToString().Contains("VIRTUAL") || row["extra"].ToString().Contains("STORED"))
+                if (AsString(row["extra"]).Contains("VIRTUAL") || AsString(row["extra"]).Contains("STORED"))
                 {
                     row["is_computed"] = true;
 
-                    var computedDefinition = row["generation_expression"]
-                                                    .ToString()
+                    var computedDefinition = AsString(row["generation_expression"])
                                                     .Replace("b\"(", "(")
                                                     .Replace(")\"", ")")
                                                     .Replace("\\", "")
                                                     .Replace("_utf8mb4", "");
 
-                    var extra = row["extra"].ToString().Replace("GENERATED", "").Trim();
+                    var extra = AsString(row["extra"]).Replace("GENERATED", "").Trim();
 
                     row["computed_definition"] = $"GENERATED ALWAYS AS ({computedDefinition}) {extra}";
                 }
@@ -156,12 +156,12 @@ public partial class DatabaseProvider : DatabaseProviderBase
 
         if (table.Columns.Contains("ordinal_position"))
         {
-            table.Columns["ordinal_position"].ColumnName = "column_id";
+            RequiredColumn(table, "ordinal_position").ColumnName = "column_id";
         }
 
         if (table.Columns.Contains("type_name") && !(table.Columns.Contains("column_type")))
         {
-            table.Columns["type_name"].ColumnName = "column_type";
+            RequiredColumn(table, "type_name").ColumnName = "column_type";
         }
 
         if (!table.Columns.Contains("is_primary_key"))
@@ -174,7 +174,7 @@ public partial class DatabaseProvider : DatabaseProviderBase
 
                 if (table.Columns.Contains("COLUMN_KEY"))
                 {
-                    string value = Convert.ToString(row["COLUMN_KEY"]);
+                    string? value = Convert.ToString(row["COLUMN_KEY"]);
                     if (value != null &&
                         value.Equals("PRI", StringComparison.OrdinalIgnoreCase))
                     {
@@ -193,7 +193,7 @@ public partial class DatabaseProvider : DatabaseProviderBase
 
                 if (table.Columns.Contains("EXTRA"))
                 {
-                    string value = Convert.ToString(row["EXTRA"]);
+                    string? value = Convert.ToString(row["EXTRA"]);
                     if (value != null &&
                         value.Equals("auto_increment", StringComparison.OrdinalIgnoreCase))
                     {
@@ -210,7 +210,7 @@ public partial class DatabaseProvider : DatabaseProviderBase
 
             foreach (var row in table.Rows.OfType<System.Data.DataRow>())
             {
-                string strColumnType = Convert.ToString(row["data_type"]);
+                string strColumnType = AsString(row["data_type"]);
 
                 if (!(string.IsNullOrEmpty(strColumnType)) && strColumnType.ToUpper().EndsWith(" IDENTITY"))
                 {
@@ -235,7 +235,7 @@ public partial class DatabaseProvider : DatabaseProviderBase
 
                 if (dataTypeRow != null)
                 {
-                    strColumnType = Convert.ToString(dataTypeRow["DataType"]);
+                    strColumnType = AsString(dataTypeRow["DataType"]);
                     if (strColumnType.Contains('.'.ToString()))
                     {
                         strColumnType = strColumnType.Split('.')[strColumnType.Split('.').Length - 1];
@@ -250,28 +250,28 @@ public partial class DatabaseProvider : DatabaseProviderBase
 
         if (table.Columns.Contains("numeric_scale"))
         {
-            table.Columns["numeric_scale"].ColumnName = "scale";
+            RequiredColumn(table, "numeric_scale").ColumnName = "scale";
         }
 
         if (table.Columns.Contains("decimal_digits"))
         {
-            table.Columns["decimal_digits"].ColumnName = "scale";
+            RequiredColumn(table, "decimal_digits").ColumnName = "scale";
         }
 
         if (table.Columns.Contains("num_prec_radix"))
         {
-            table.Columns["num_prec_radix"].ColumnName = "numeric_precision";
+            RequiredColumn(table, "num_prec_radix").ColumnName = "numeric_precision";
         }
 
         if (table.Columns.Contains("column_size"))
         {
-            table.Columns["column_size"].ColumnName = "character_maximum_length";
+            RequiredColumn(table, "column_size").ColumnName = "character_maximum_length";
         }
 
         foreach (var row in table.Rows.OfType<DataRow>())
         {
 
-            string columnDefault = GetStringValue(row, "COLUMN_DEFAULT");
+            string? columnDefault = GetStringValue(row, "COLUMN_DEFAULT");
 
             if (!string.IsNullOrEmpty(columnDefault))
             {
@@ -331,7 +331,7 @@ public partial class DatabaseProvider : DatabaseProviderBase
             }
             else
             {
-                table.Columns["numeric_precision"].ColumnName = "precision";
+                RequiredColumn(table, "numeric_precision").ColumnName = "precision";
             }
         }
 
@@ -345,6 +345,18 @@ public partial class DatabaseProvider : DatabaseProviderBase
             command.CommandText = "set net_write_timeout=99999;set net_read_timeout=99999;";
             command.ExecuteNonQuery();
         }
+    }
+
+    /// <summary>Gets a column the caller has just selected or added; a missing column is a programming error.</summary>
+    private static DataColumn RequiredColumn(DataTable table, string columnName)
+    {
+        return table.Columns[columnName] ?? throw new ArgumentException($"Column '{columnName}' does not exist.", nameof(columnName));
+    }
+
+    /// <summary>Database values (including <see cref="DBNull"/>) never format to null.</summary>
+    private static string AsString(object value)
+    {
+        return value.ToString() ?? string.Empty;
     }
 
     public override string GetDatabaseName(string connectionString)

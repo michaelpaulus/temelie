@@ -30,14 +30,15 @@ public class DependencyInjectionSymbolVisitor : SymbolVisitor
 
         foreach (var attribute in symbol.GetAttributesWithInherited())
         {
+            var attributeName = attribute.AttributeClass?.Name;
             if (!symbol.IsAbstract &&
                 (
-                    attribute.AttributeClass.Name == "ExportHostedServiceAttribute" ||
-                    attribute.AttributeClass.Name == "ExportStartupConfigurationAttribute" ||
-                    attribute.AttributeClass.Name == "ExportProviderAttribute" ||
-                    attribute.AttributeClass.Name == "ExportSingletonAttribute" ||
-                    attribute.AttributeClass.Name == "ExportScopedAttribute" ||
-                    attribute.AttributeClass.Name == "ExportTransientAttribute"
+                    attributeName == "ExportHostedServiceAttribute" ||
+                    attributeName == "ExportStartupConfigurationAttribute" ||
+                    attributeName == "ExportProviderAttribute" ||
+                    attributeName == "ExportSingletonAttribute" ||
+                    attributeName == "ExportScopedAttribute" ||
+                    attributeName == "ExportTransientAttribute"
                 ))
             {
                 var forType = "";
@@ -62,18 +63,18 @@ public class DependencyInjectionSymbolVisitor : SymbolVisitor
                     }
                     if (arg.Key == "Type")
                     {
-                        type = (arg.Value.Value as INamedTypeSymbol)?.FullName();
+                        type = (arg.Value.Value as INamedTypeSymbol)?.FullName() ?? type;
                     }
                 }
 
                 var export = new Export()
                 {
-                    IsProvider = attribute.AttributeClass.Name == "ExportProviderAttribute",
-                    IsSingleton = attribute.AttributeClass.Name == "ExportSingletonAttribute",
-                    IsScoped = attribute.AttributeClass.Name == "ExportScopedAttribute",
-                    IsTransient = attribute.AttributeClass.Name == "ExportTransientAttribute",
-                    IsHosted = attribute.AttributeClass.Name == "ExportHostedServiceAttribute",
-                    IsStartupConfig = attribute.AttributeClass.Name == "ExportStartupConfigurationAttribute",
+                    IsProvider = attributeName == "ExportProviderAttribute",
+                    IsSingleton = attributeName == "ExportSingletonAttribute",
+                    IsScoped = attributeName == "ExportScopedAttribute",
+                    IsTransient = attributeName == "ExportTransientAttribute",
+                    IsHosted = attributeName == "ExportHostedServiceAttribute",
+                    IsStartupConfig = attributeName == "ExportStartupConfigurationAttribute",
                     Type = type,
                     ForType = forType,
                     Priority = priority

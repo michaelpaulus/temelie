@@ -41,12 +41,12 @@ public class Command : System.Windows.Input.ICommand
         CanExecuteChanged?.Invoke(this, e);
     }
 
-    public Boolean CanExecute(Object parameter)
+    public Boolean CanExecute(Object? parameter)
     {
         return this.IsEnabled;
     }
 
-    public void Execute(Object parameter)
+    public void Execute(Object? parameter)
     {
         this.Action?.Invoke();
 
@@ -56,7 +56,7 @@ public class Command : System.Windows.Input.ICommand
 
     #region "Events"
 
-    public event EventHandler CanExecuteChanged;
+    public event EventHandler? CanExecuteChanged;
 
     #endregion;
 
@@ -64,7 +64,7 @@ public class Command : System.Windows.Input.ICommand
 public class Command<T> : System.Windows.Input.ICommand where T : class
 {
 
-    public Command(Action<T> action)
+    public Command(Action<T?> action)
     {
         this.Action = action;
         this._isEnabled = true;
@@ -72,7 +72,7 @@ public class Command<T> : System.Windows.Input.ICommand where T : class
 
     #region "Properties"
 
-    Action<T> Action { get; set; }
+    Action<T?> Action { get; set; }
 
     bool _isEnabled;
     public bool IsEnabled
@@ -100,12 +100,12 @@ public class Command<T> : System.Windows.Input.ICommand where T : class
         CanExecuteChanged?.Invoke(this, e);
     }
 
-    public Boolean CanExecute(Object parameter)
+    public Boolean CanExecute(Object? parameter)
     {
         return this.IsEnabled;
     }
 
-    public void Execute(Object parameter)
+    public void Execute(Object? parameter)
     {
         this.Action?.Invoke(parameter as T);
     }
@@ -114,7 +114,7 @@ public class Command<T> : System.Windows.Input.ICommand where T : class
 
     #region "Events"
 
-    public event EventHandler CanExecuteChanged;
+    public event EventHandler? CanExecuteChanged;
 
     #endregion;
 

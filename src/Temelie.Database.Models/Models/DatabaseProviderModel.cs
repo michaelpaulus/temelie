@@ -14,7 +14,7 @@ public class DatabaseProviderModel : Model
         DefaultConnectionString = defaultConnectionString;
     }
 
-    public string Name { get; set; }
-    public string DefaultConnectionString { get; set; }
+    public string Name { get; set; } = "";
+    public string DefaultConnectionString { get; set; } = "";
 
 }

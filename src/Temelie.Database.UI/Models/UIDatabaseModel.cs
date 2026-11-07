@@ -22,7 +22,7 @@ namespace Temelie.Database
                 }
             }
 
-            private string _databaseName;
+            private string _databaseName = "";
             public string DatabaseName
             {
                 get
@@ -36,7 +36,7 @@ namespace Temelie.Database
                 }
             }
 
-            private IList<string> _files;
+            private IList<string>? _files;
             public IList<string> Files
             {
                 get

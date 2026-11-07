@@ -39,7 +39,7 @@ public partial class DatabaseConnection : UserControl
         }
     }
 
-    public ConnectionStringModel ConnectionString
+    public ConnectionStringModel? ConnectionString
     {
         get
         {

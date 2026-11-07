@@ -7,12 +7,12 @@ public class UserSettings : PropertyChangedObject
 
     #region Properties
 
-    public string CreateScriptsPath { get; set; }
-    public string ScriptsPath { get; set; }
-    public string TargetConnectionString { get; set; }
-    public string SourceConnectionString { get; set; }
+    public string? CreateScriptsPath { get; set; }
+    public string? ScriptsPath { get; set; }
+    public string? TargetConnectionString { get; set; }
+    public string? SourceConnectionString { get; set; }
 
-    private System.Collections.Specialized.StringCollection _mergeTableLists;
+    private System.Collections.Specialized.StringCollection? _mergeTableLists;
     public System.Collections.Specialized.StringCollection MergeTableLists
     {
         get
@@ -29,7 +29,7 @@ public class UserSettings : PropertyChangedObject
         }
     }
 
-    private IList<Models.ConnectionStringModel> _connections;
+    private IList<Models.ConnectionStringModel>? _connections;
     public IList<Models.ConnectionStringModel> Connections
     {
         get
@@ -46,7 +46,7 @@ public class UserSettings : PropertyChangedObject
         }
     }
 
-    public string MainWindowPlacement { get; set; }
+    public string? MainWindowPlacement { get; set; }
 
     #endregion
 

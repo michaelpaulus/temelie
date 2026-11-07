@@ -1,7 +1,8 @@
 namespace Temelie.Database.Models;
+
 public class TableMapping : Mapping
 {
-    private string _sourceTableName;
+    private string _sourceTableName = "";
     public string SourceTableName
     {
         get
@@ -14,7 +15,7 @@ public class TableMapping : Mapping
         }
     }
 
-    private string _targetTableName;
+    private string _targetTableName = "";
     public string TargetTableName
     {
         get
@@ -27,7 +28,7 @@ public class TableMapping : Mapping
         }
     }
 
-    private string _sourceDatabase;
+    private string _sourceDatabase = "";
     public string SourceDatabase
     {
         get
@@ -40,7 +41,7 @@ public class TableMapping : Mapping
         }
     }
 
-    private string _targetDatabase;
+    private string _targetDatabase = "";
     public string TargetDatabase
     {
         get
@@ -53,7 +54,7 @@ public class TableMapping : Mapping
         }
     }
 
-    private List<ColumnMappingModel> _columnMappings;
+    private List<ColumnMappingModel>? _columnMappings;
     public List<ColumnMappingModel> ColumnMappings
     {
         get
@@ -66,8 +67,8 @@ public class TableMapping : Mapping
         }
     }
 
-    private string _selectCriteria;
-    public string SelectCriteria
+    private string? _selectCriteria;
+    public string? SelectCriteria
     {
         get
         {
@@ -94,8 +95,8 @@ public class TableMapping : Mapping
 
     public void Parse(System.Xml.XmlNode node)
     {
-        this.SourceDatabase = this.GetAttributeValue(node.OwnerDocument.DocumentElement, "sourceDatabase");
-        this.TargetDatabase = this.GetAttributeValue(node.OwnerDocument.DocumentElement, "targetDatabase");
+        this.SourceDatabase = this.GetAttributeValue(node.OwnerDocument?.DocumentElement, "sourceDatabase");
+        this.TargetDatabase = this.GetAttributeValue(node.OwnerDocument?.DocumentElement, "targetDatabase");
 
         this.SourceTableName = this.GetAttributeValue(node, "sourceTableName");
         this.TargetTableName = this.GetAttributeValue(node, "targetTableName");

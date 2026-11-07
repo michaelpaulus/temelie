@@ -1,11 +1,12 @@
 namespace Temelie.Database.Models;
+
 public class DefinitionModel : DatabaseObjectModel
 {
 
-    public string DefinitionName { get; set; }
-    public string SchemaName { get; set; }
+    public string DefinitionName { get; set; } = "";
+    public string SchemaName { get; set; } = "";
     [System.Text.Json.Serialization.JsonIgnore]
-    public string Definition { get; set; }
+    public string Definition { get; set; } = "";
 
     [System.Text.Json.Serialization.JsonPropertyName(nameof(Definition))]
     public string[] DefinitionLines
@@ -20,7 +21,7 @@ public class DefinitionModel : DatabaseObjectModel
         }
     }
 
-    public string XType { get; set; }
+    public string XType { get; set; } = "";
 
     public string Type
     {
@@ -37,6 +38,6 @@ public class DefinitionModel : DatabaseObjectModel
         }
     }
 
-    public TableModel View { get; set; }
+    public TableModel? View { get; set; }
 
 }

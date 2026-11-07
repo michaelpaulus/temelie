@@ -9,6 +9,7 @@ using Temelie.Database.Services;
 using Temelie.DependencyInjection;
 
 namespace Temelie.Database.ViewModels;
+
 [ExportTransient(typeof(CreateScriptsViewModel))]
 public class CreateScriptsViewModel : ViewModel
 {
@@ -34,12 +35,12 @@ public class CreateScriptsViewModel : ViewModel
 
     #region Properties
 
-    public string ScriptPath { get; set; }
-    public string ObjectFilter { get; set; }
+    public string? ScriptPath { get; set; }
+    public string? ObjectFilter { get; set; }
 
-    public ConnectionStringModel DatabaseConnectionString { get; set; }
+    public ConnectionStringModel? DatabaseConnectionString { get; set; }
 
-    private ObservableCollection<System.IO.FileInfo> _files;
+    private ObservableCollection<System.IO.FileInfo>? _files;
     public ObservableCollection<System.IO.FileInfo> Files
     {
         get
@@ -53,11 +54,11 @@ public class CreateScriptsViewModel : ViewModel
     }
 
     public int ProgressPercentage { get; set; }
-    public string ProgressStatus { get; set; }
+    public string ProgressStatus { get; set; } = "";
 
     public ObservableCollection<IDatabaseProvider> Providers { get; set; } = new ObservableCollection<IDatabaseProvider>();
 
-    public IDatabaseProvider SelectedProvider { get; set; }
+    public IDatabaseProvider? SelectedProvider { get; set; }
 
 
     #endregion
@@ -91,8 +92,10 @@ public class CreateScriptsViewModel : ViewModel
 
     private void CreateScriptsInternal(Action<ScriptProgress> progress)
     {
-        System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(this.ScriptPath);
-        _scriptService.CreateScripts(this.DatabaseConnectionString, di, progress, this.ObjectFilter, SelectedProvider);
+        var connectionString = this.DatabaseConnectionString ?? throw new InvalidOperationException("Select a database connection.");
+        var scriptPath = string.IsNullOrEmpty(this.ScriptPath) ? throw new InvalidOperationException("Select a script folder.") : this.ScriptPath;
+        System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(scriptPath);
+        _scriptService.CreateScripts(connectionString, di, progress, this.ObjectFilter ?? "", SelectedProvider);
     }
     private void ReportProgress(ScriptProgress progress)
     {

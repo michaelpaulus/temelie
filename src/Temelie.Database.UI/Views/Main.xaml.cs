@@ -21,7 +21,7 @@ public partial class Main : UserControl
             from i in this.Menu.Items.OfType<MenuItem>()
             select i))
         {
-            menuItem.Header = menuItem.Header.ToString().ToLower();
+            menuItem.Header = menuItem.Header?.ToString()?.ToLower();
         }
 
     }
@@ -30,7 +30,7 @@ public partial class Main : UserControl
 
     private void ShowPage(Type type, string title)
     {
-        var element = (Control)Activator.CreateInstance(type);
+        var element = Activator.CreateInstance(type) as Control ?? throw new InvalidOperationException($"'{type.FullName}' is not a page control.");
 
         this.TitleLabel.Content = title.ToUpper();
 
@@ -46,8 +46,9 @@ public partial class Main : UserControl
     private void MenuItem_Click(object sender, RoutedEventArgs e)
     {
         var menuItem = (MenuItem)sender;
-        var type = System.Type.GetType("Temelie.Database." + menuItem.CommandParameter.ToString());
-        this.ShowPage(type, menuItem.Header.ToString());
+        var type = System.Type.GetType("Temelie.Database." + menuItem.CommandParameter) ??
+            throw new InvalidOperationException($"Unknown page ''{menuItem.CommandParameter}''.");
+        this.ShowPage(type, menuItem.Header?.ToString() ?? "");
     }
 
     #endregion

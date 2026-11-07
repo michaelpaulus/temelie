@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
@@ -9,6 +10,7 @@ using Temelie.Database.Services;
 using Temelie.DependencyInjection;
 
 namespace Temelie.Database.ViewModels;
+
 [ExportTransient(typeof(ConvertViewModel))]
 public class ConvertViewModel : ViewModel
 {
@@ -40,7 +42,7 @@ public class ConvertViewModel : ViewModel
 
     #region Properties
 
-    private ObservableCollection<Temelie.Database.Models.TableModel> _tables;
+    private ObservableCollection<Temelie.Database.Models.TableModel>? _tables;
     public ObservableCollection<Temelie.Database.Models.TableModel> Tables
     {
         get
@@ -53,16 +55,16 @@ public class ConvertViewModel : ViewModel
         }
     }
 
-    public ConnectionStringModel SourceDatabaseConnectionString { get; set; }
-    public ConnectionStringModel TargetDatabaseConnectionString { get; set; }
+    public ConnectionStringModel? SourceDatabaseConnectionString { get; set; }
+    public ConnectionStringModel? TargetDatabaseConnectionString { get; set; }
 
-    public string ErrorMessage { get; set; }
+    public string ErrorMessage { get; set; } = "";
     public int ThreadCount { get; set; }
     public bool UseTransaction { get; set; } = true;
     public int BatchSize { get; set; }
     public bool TrimStrings { get; set; }
 
-    private Stopwatch Stopwatch { get; set; }
+    private Stopwatch? Stopwatch { get; set; }
 
     #endregion
 
@@ -70,30 +72,30 @@ public class ConvertViewModel : ViewModel
 
     private TableConverterSettings GetTableConverterSettings()
     {
+        var sourceConnectionString = this.SourceDatabaseConnectionString ?? throw new InvalidOperationException("Select a source connection.");
+        var targetConnectionString = this.TargetDatabaseConnectionString ?? throw new InvalidOperationException("Select a target connection.");
+
         var selectedTables = (from i in this.Tables where i.Selected select i).ToList();
 
-        TableConverterSettings settings = new TableConverterSettings();
+        IList<TableModel> targetTables;
 
-        var targetDatabaseType = _databaseFactory.GetDatabaseProvider(TargetDatabaseConnectionString);
-
-        using (var conn = _databaseExecutionService.CreateDbConnection(TargetDatabaseConnectionString))
+        using (var conn = _databaseExecutionService.CreateDbConnection(targetConnectionString))
         {
             var provider = _databaseFactory.GetDatabaseProvider(conn);
             var targetColumns = provider.GetTableColumns(conn);
-            var targetTables = provider.GetTables(conn, targetColumns);
-            settings.TargetTables = targetTables.ToList();
+            targetTables = provider.GetTables(conn, targetColumns).ToList();
         }
 
-        settings.SourceConnectionString = this.SourceDatabaseConnectionString;
-        settings.TargetConnectionString = this.TargetDatabaseConnectionString;
-
-        settings.SourceTables = selectedTables;
-
-        settings.UseTransaction = this.UseTransaction;
-        settings.BatchSize = this.BatchSize;
-        settings.TrimStrings = this.TrimStrings;
-
-        return settings;
+        return new TableConverterSettings
+        {
+            SourceConnectionString = sourceConnectionString,
+            TargetConnectionString = targetConnectionString,
+            SourceTables = selectedTables,
+            TargetTables = targetTables,
+            UseTransaction = this.UseTransaction,
+            BatchSize = this.BatchSize,
+            TrimStrings = this.TrimStrings
+        };
     }
 
     public void Convert()

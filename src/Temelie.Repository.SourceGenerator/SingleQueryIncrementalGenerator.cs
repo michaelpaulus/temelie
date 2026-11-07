@@ -10,7 +10,7 @@ public class SingleQueryIncrementalGenerator : IIncrementalGenerator
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var options = context.AnalyzerConfigOptionsProvider.Select(static (c, _) => { c.GlobalOptions.TryGetValue("build_property.RootNamespace", out string rootNamespace); return rootNamespace; });
+        var options = context.AnalyzerConfigOptionsProvider.Select(static (c, _) => { c.GlobalOptions.TryGetValue("build_property.RootNamespace", out string? rootNamespace); return rootNamespace ?? ""; });
 
         var compliationProvider = context.CompilationProvider.Select(static (compilation, token) =>
         {

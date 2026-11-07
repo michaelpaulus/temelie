@@ -1,7 +1,7 @@
 using System;
+using Microsoft.Extensions.DependencyInjection;
 using Temelie.Database.UI;
 using Temelie.Database.ViewModels;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Temelie.Database;
 
@@ -16,14 +16,14 @@ public partial class CreateScripts
 
     }
 
-    private ViewModels.CreateScriptsViewModel _viewModel;
+    private ViewModels.CreateScriptsViewModel? _viewModel;
     public ViewModels.CreateScriptsViewModel ViewModel
     {
         get
         {
             if (this._viewModel == null)
             {
-                this._viewModel = ServiceProviderApplication.ServiceProvider.GetService<CreateScriptsViewModel>();
+                this._viewModel = ServiceProviderApplication.ServiceProvider.GetRequiredService<CreateScriptsViewModel>();
             }
             return this._viewModel;
         }
@@ -48,7 +48,7 @@ public partial class CreateScripts
         }
     }
 
-    private void DatabaseConnection_SelectionChanged(object sender, EventArgs e)
+    private void DatabaseConnection_SelectionChanged(object? sender, EventArgs e)
     {
         this.ViewModel.DatabaseConnectionString = this.DatabaseConnection.ConnectionString;
     }

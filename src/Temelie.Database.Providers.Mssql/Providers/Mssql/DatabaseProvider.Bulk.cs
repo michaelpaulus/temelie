@@ -5,10 +5,11 @@ using Temelie.Database.Models;
 using Temelie.Database.Services;
 
 namespace Temelie.Database.Providers.Mssql;
+
 public partial class DatabaseProvider
 {
 
-    public override void ConvertBulk(TableConverterService service, Action<TableProgress> progress, TableModel sourceTable, IDataReader sourceReader, int sourceRowCount, TableModel targetTable, DbConnection targetConnection, bool trimStrings, int batchSize, bool useTransaction = true, bool validateTargetTable = true)
+    public override void ConvertBulk(TableConverterService service, Action<TableProgress>? progress, TableModel sourceTable, IDataReader sourceReader, int sourceRowCount, TableModel targetTable, DbConnection targetConnection, bool trimStrings, int batchSize, bool useTransaction = true, bool validateTargetTable = true)
     {
         progress?.Invoke(new TableProgress() { ProgressPercentage = 0, Table = sourceTable });
 

@@ -50,12 +50,12 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
     private void InitializeColumn(ColumnModel column, DataRow row)
     {
 
-        column.TableName = GetStringValue(row, "table_name");
-        column.SchemaName = GetStringValue(row, "schema_name");
-        column.ColumnName = GetStringValue(row, "column_name");
+        column.TableName = GetRequiredStringValue(row, "table_name");
+        column.SchemaName = GetRequiredStringValue(row, "schema_name");
+        column.ColumnName = GetRequiredStringValue(row, "column_name");
         column.Precision = GetInt32Value(row, "precision");
         column.Scale = GetInt32Value(row, "scale");
-        column.ColumnType = GetStringValue(row, "column_type");
+        column.ColumnType = GetRequiredStringValue(row, "column_type");
         column.IsNullable = GetBoolValue(row, "is_nullable");
         column.IsIdentity = GetBoolValue(row, "is_identity");
         column.IsComputed = GetBoolValue(row, "is_computed");
@@ -72,7 +72,7 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
         var extendedProperites = GetStringValue(row, "extended_properties");
         if (!string.IsNullOrEmpty(extendedProperites))
         {
-            foreach (var item in JsonSerializer.Deserialize<IEnumerable<ExtendedProperty>>(extendedProperites, ModelsJsonSerializerOptions.Default))
+            foreach (var item in JsonSerializer.Deserialize<IEnumerable<ExtendedProperty>>(extendedProperites, ModelsJsonSerializerOptions.Default) ?? [])
             {
                 column.ExtendedProperties.Add(item.Name.ToLower(), item.Value);
             }
@@ -93,9 +93,15 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
 
     }
 
-    protected static string GetStringValue(DataRow row, string columnName)
+    /// <summary>Returns the column value, or an empty string for columns that are always populated.</summary>
+    protected static string GetRequiredStringValue(DataRow row, string columnName)
     {
-        string value = null;
+        return GetStringValue(row, columnName) ?? "";
+    }
+
+    protected static string? GetStringValue(DataRow row, string columnName)
+    {
+        string? value = null;
 
         try
         {
@@ -219,10 +225,10 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
             {
                 var model = new DefinitionModel
                 {
-                    Definition = GetStringValue(row, "definition").Replace("\t", "    ").RemoveLeadingAndTrailingLines(),
-                    DefinitionName = GetStringValue(row, "name"),
-                    SchemaName = GetStringValue(row, "schema_name"),
-                    XType = GetStringValue(row, "xtype").Trim()
+                    Definition = GetRequiredStringValue(row, "definition").Replace("\t", "    ").RemoveLeadingAndTrailingLines(),
+                    DefinitionName = GetRequiredStringValue(row, "name"),
+                    SchemaName = GetRequiredStringValue(row, "schema_name"),
+                    XType = GetRequiredStringValue(row, "xtype").Trim()
                 };
                 list.Add(model);
 
@@ -252,16 +258,16 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
                 from i in dtDefinitions.Rows.OfType<DataRow>()
                 group new SecurityPolicyPredicate
                 {
-                    TargetSchema = GetStringValue(i, "TargetSchema"),
-                    Operation = GetStringValue(i, "Operation"),
-                    PredicateDefinition = GetStringValue(i, "PredicateDefinition"),
-                    PredicateType = GetStringValue(i, "PredicateType"),
-                    TargetName = GetStringValue(i, "TargetName")
+                    TargetSchema = GetRequiredStringValue(i, "TargetSchema"),
+                    Operation = GetRequiredStringValue(i, "Operation"),
+                    PredicateDefinition = GetRequiredStringValue(i, "PredicateDefinition"),
+                    PredicateType = GetRequiredStringValue(i, "PredicateType"),
+                    TargetName = GetRequiredStringValue(i, "TargetName")
                 }
                 by new
                 {
-                    PolicySchema = GetStringValue(i, "PolicySchema"),
-                    PolicyName = GetStringValue(i, "PolicyName"),
+                    PolicySchema = GetRequiredStringValue(i, "PolicySchema"),
+                    PolicyName = GetRequiredStringValue(i, "PolicyName"),
                     IsEnabled = GetBoolValue(i, "IsEnabled"),
                     IsSchemaBound = GetBoolValue(i, "IsSchemaBound")
                 } into g
@@ -299,9 +305,9 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
            from i in dataTable.Rows.Cast<DataRow>()
            group i by new
            {
-               SchemaName = GetStringValue(i, "schema_name"),
-               TableName = GetStringValue(i, "table_name"),
-               ForeignKeyName = GetStringValue(i, "foreign_key_name")
+               SchemaName = GetRequiredStringValue(i, "schema_name"),
+               TableName = GetRequiredStringValue(i, "table_name"),
+               ForeignKeyName = GetRequiredStringValue(i, "foreign_key_name")
            } into g
            select new
            {
@@ -319,19 +325,19 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
                     ForeignKeyName = tableGroup.ForeignKeyName,
                     TableName = tableGroup.TableName,
                     SchemaName = tableGroup.SchemaName,
-                    ReferencedSchemaName = GetStringValue(summaryRow, "referenced_schema_name"),
-                    ReferencedTableName = GetStringValue(summaryRow, "referenced_table_name"),
+                    ReferencedSchemaName = GetRequiredStringValue(summaryRow, "referenced_schema_name"),
+                    ReferencedTableName = GetRequiredStringValue(summaryRow, "referenced_table_name"),
                     IsNotForReplication = GetBoolValue(summaryRow, "is_not_for_replication"),
-                    DeleteAction = GetStringValue(summaryRow, "delete_action"),
-                    UpdateAction = GetStringValue(summaryRow, "update_action")
+                    DeleteAction = GetRequiredStringValue(summaryRow, "delete_action"),
+                    UpdateAction = GetRequiredStringValue(summaryRow, "update_action")
                 };
 
                 list.Add(foreignKey);
 
                 foreignKey.Detail = tableGroup.Items.Select(i => new ForeignKeyDetailModel
                 {
-                    Column = GetStringValue(i, "column_name"),
-                    ReferencedColumn = GetStringValue(i, "referenced_column_name"),
+                    Column = GetRequiredStringValue(i, "column_name"),
+                    ReferencedColumn = GetRequiredStringValue(i, "referenced_column_name"),
                 }).ToList();
 
                 foreach (var databaseModelProvider in _databaseModelProviders)
@@ -355,10 +361,10 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
         {
             foreach (DataRow detailRow in dataTable.Rows)
             {
-                var strTableName = GetStringValue(detailRow, "table_name");
-                var strSchemaName = GetStringValue(detailRow, "schema_name");
-                var strConstraintName = GetStringValue(detailRow, "check_constraint_name");
-                var strDefinition = GetStringValue(detailRow, "check_constraint_definition");
+                var strTableName = GetRequiredStringValue(detailRow, "table_name");
+                var strSchemaName = GetRequiredStringValue(detailRow, "schema_name");
+                var strConstraintName = GetRequiredStringValue(detailRow, "check_constraint_name");
+                var strDefinition = GetRequiredStringValue(detailRow, "check_constraint_definition");
 
                 var constraint = new CheckConstraintModel
                 {
@@ -384,8 +390,7 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
     public IEnumerable<IndexModel> GetIndexes(DbConnection connection)
     {
         IList<IndexModel> list = new List<IndexModel>();
-        DataTable dtIndexes = null;
-        dtIndexes = GetIndexesDataTable(connection);
+        var dtIndexes = GetIndexesDataTable(connection);
 
         if (dtIndexes != null)
         {
@@ -398,9 +403,9 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
                 indexBucketCounts = (from i in dtIndexBucketCounts.Rows.OfType<DataRow>()
                                      select new IndexBucket
                                      {
-                                         TableName = GetStringValue(i, "table_name"),
-                                         IndexName = GetStringValue(i, "index_name"),
-                                         SchemaName = GetStringValue(i, "schema_name"),
+                                         TableName = GetRequiredStringValue(i, "table_name"),
+                                         IndexName = GetRequiredStringValue(i, "index_name"),
+                                         SchemaName = GetRequiredStringValue(i, "schema_name"),
                                          BucketCount = GetInt32Value(i, "total_bucket_count")
                                      }).ToList();
             }
@@ -409,9 +414,9 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
                 from i in dtIndexes.Rows.Cast<DataRow>()
                 group i by new
                 {
-                    IndexName = GetStringValue(i, "index_name"),
-                    TableName = GetStringValue(i, "table_name"),
-                    SchemaName = GetStringValue(i, "schema_name")
+                    IndexName = GetRequiredStringValue(i, "index_name"),
+                    TableName = GetRequiredStringValue(i, "table_name"),
+                    SchemaName = GetRequiredStringValue(i, "schema_name")
                 } into g
                 select new
                 {
@@ -429,11 +434,11 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
                     TableName = indexGroup.TableName,
                     IndexName = indexGroup.IndexName,
                     SchemaName = indexGroup.SchemaName,
-                    PartitionSchemeName = GetStringValue(summaryRow, "partition_scheme_name") ?? "",
-                    DataCompressionDesc = GetStringValue(summaryRow, "data_compression_desc") ?? "",
+                    PartitionSchemeName = GetRequiredStringValue(summaryRow, "partition_scheme_name"),
+                    DataCompressionDesc = GetRequiredStringValue(summaryRow, "data_compression_desc"),
                     CompressionDelay = GetNullableInt32Value(summaryRow, "compression_delay"),
-                    IndexType = GetStringValue(summaryRow, "index_type"),
-                    FilterDefinition = GetStringValue(summaryRow, "filter_definition") ?? "",
+                    IndexType = GetRequiredStringValue(summaryRow, "index_type"),
+                    FilterDefinition = GetRequiredStringValue(summaryRow, "filter_definition"),
                     IsUnique = GetBoolValue(summaryRow, "is_unique"),
                     FillFactor = GetInt32Value(summaryRow, "fill_factor"),
                     IsPrimaryKey = GetBoolValue(summaryRow, "is_primary_key")
@@ -454,7 +459,7 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
                 {
                     var blnIsDescending = GetBoolValue(detialRow, "is_descending_key");
                     var blnIsIncludeColumn = GetBoolValue(detialRow, "is_included_column");
-                    var strColumnName = GetStringValue(detialRow, "column_name");
+                    var strColumnName = GetRequiredStringValue(detialRow, "column_name");
 
                     var columnModel = new IndexColumnModel
                     {
@@ -506,8 +511,8 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
         foreach (DataRow row in dataTable.Rows)
         {
             var table = new TableModel();
-            table.TableName = GetStringValue(row, "table_name");
-            table.SchemaName = GetStringValue(row, "schema_name");
+            table.TableName = GetRequiredStringValue(row, "table_name");
+            table.SchemaName = GetRequiredStringValue(row, "schema_name");
             table.TemporalType = GetInt32Value(row, "temporal_type");
             table.HistoryTableName = GetStringValue(row, "history_table_name");
             table.IsMemoryOptimized = GetBoolValue(row, "is_memory_optimized");
@@ -527,7 +532,7 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
             {
                 try
                 {
-                    var props = JsonSerializer.Deserialize<IEnumerable<ExtendedProperty>>(extendedProperites, ModelsJsonSerializerOptions.Default);
+                    var props = JsonSerializer.Deserialize<IEnumerable<ExtendedProperty>>(extendedProperites, ModelsJsonSerializerOptions.Default) ?? [];
                     foreach (var item in props)
                     {
                         table.ExtendedProperties.Add(item.Name.ToLower(), item.Value);
@@ -572,9 +577,7 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
 
     public IEnumerable<TableModel> GetTables(DbConnection connection, IEnumerable<ColumnModel> columns)
     {
-        DataTable dataTable = null;
-
-        dataTable = GetTablesDataTable(connection);
+        var dataTable = GetTablesDataTable(connection);
 
         IList<TableModel> list = new List<TableModel>();
 
@@ -623,15 +626,15 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
         {
             foreach (DataRow detailRow in dataTable.Rows)
             {
-                var strTableName = GetStringValue(detailRow, "table_name");
-                var strTriggerName = GetStringValue(detailRow, "trigger_name");
-                var strDefinition = GetStringValue(detailRow, "definition");
+                var strTableName = GetRequiredStringValue(detailRow, "table_name");
+                var strTriggerName = GetRequiredStringValue(detailRow, "trigger_name");
+                var strDefinition = GetRequiredStringValue(detailRow, "definition");
 
                 var trigger = new TriggerModel
                 {
                     TableName = strTableName,
                     TriggerName = strTriggerName,
-                    SchemaName = GetStringValue(detailRow, "schema_name"),
+                    SchemaName = GetRequiredStringValue(detailRow, "schema_name"),
                     Definition = strDefinition.Replace("\t", "    ").RemoveLeadingAndTrailingLines()
                 };
 
@@ -651,48 +654,48 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
 
     #region Datatable
 
-    protected abstract DataTable GetTablesDataTable(DbConnection connection);
+    protected abstract DataTable? GetTablesDataTable(DbConnection connection);
 
-    protected abstract DataTable GetViewsDataTable(DbConnection connection);
+    protected abstract DataTable? GetViewsDataTable(DbConnection connection);
 
-    protected abstract DataTable GetTriggersDataTable(DbConnection connection);
+    protected abstract DataTable? GetTriggersDataTable(DbConnection connection);
 
-    protected abstract DataTable GetForeignKeysDataTable(DbConnection connection);
+    protected abstract DataTable? GetForeignKeysDataTable(DbConnection connection);
 
-    protected abstract DataTable GetCheckConstraintsDataTable(DbConnection connection);
+    protected abstract DataTable? GetCheckConstraintsDataTable(DbConnection connection);
 
-    protected abstract DataTable GetDefinitionsDataTable(DbConnection connection);
+    protected abstract DataTable? GetDefinitionsDataTable(DbConnection connection);
 
-    protected abstract DataTable GetDefinitionDependenciesDataTable(DbConnection connection);
+    protected abstract DataTable? GetDefinitionDependenciesDataTable(DbConnection connection);
 
-    protected abstract DataTable GetTableColumnsDataTable(DbConnection connection);
+    protected abstract DataTable? GetTableColumnsDataTable(DbConnection connection);
 
-    protected abstract DataTable GetViewColumnsDataTable(DbConnection connection);
+    protected abstract DataTable? GetViewColumnsDataTable(DbConnection connection);
 
-    protected abstract DataTable GetIndexeBucketCountsDataTable(DbConnection connection);
+    protected abstract DataTable? GetIndexeBucketCountsDataTable(DbConnection connection);
 
-    protected abstract DataTable GetIndexesDataTable(DbConnection connection);
+    protected abstract DataTable? GetIndexesDataTable(DbConnection connection);
 
-    protected abstract DataTable GetSecurityPoliciesDataTable(DbConnection connection);
+    protected abstract DataTable? GetSecurityPoliciesDataTable(DbConnection connection);
 
     #endregion
 
     #region Provider
 
-    public abstract IDatabaseObjectScript GetScript(CheckConstraintModel model);
+    public abstract IDatabaseObjectScript? GetScript(CheckConstraintModel model);
 
-    public abstract IDatabaseObjectScript GetScript(DefinitionModel model);
+    public abstract IDatabaseObjectScript? GetScript(DefinitionModel model);
 
-    public abstract IDatabaseObjectScript GetScript(ForeignKeyModel model);
+    public abstract IDatabaseObjectScript? GetScript(ForeignKeyModel model);
 
-    public abstract IDatabaseObjectScript GetScript(IndexModel model, bool isView);
+    public abstract IDatabaseObjectScript? GetScript(IndexModel model, bool isView);
 
-    public abstract IDatabaseObjectScript GetScript(SecurityPolicyModel model);
+    public abstract IDatabaseObjectScript? GetScript(SecurityPolicyModel model);
 
-    public abstract IDatabaseObjectScript GetScript(TableModel model);
+    public abstract IDatabaseObjectScript? GetScript(TableModel model);
     public abstract string GetRenameScript(TableModel model, string newTableName, bool dropNewTableIfExists = false);
 
-    public abstract IDatabaseObjectScript GetScript(TriggerModel model);
+    public abstract IDatabaseObjectScript? GetScript(TriggerModel model);
 
     public virtual void SetReadTimeout(DbCommand sourceCommand)
     {
@@ -707,13 +710,13 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
     {
     }
 
-    public abstract ColumnTypeModel GetColumnType(ColumnTypeModel sourceColumnType);
+    public abstract ColumnTypeModel? GetColumnType(ColumnTypeModel sourceColumnType);
 
     public abstract DbConnection CreateConnection();
 
-    public abstract bool TryHandleColumnValueLoadException(Exception ex, ColumnModel column, out object value);
+    public abstract bool TryHandleColumnValueLoadException(Exception ex, ColumnModel column, out object? value);
 
-    public virtual void ConvertBulk(TableConverterService service, Action<TableProgress> progress, TableModel sourceTable, IDataReader sourceReader, int sourceRowCount, TableModel targetTable, DbConnection targetConnection, bool trimStrings, int batchSize, bool useTransaction = true, bool validateTargetTable = true)
+    public virtual void ConvertBulk(TableConverterService service, Action<TableProgress>? progress, TableModel sourceTable, IDataReader sourceReader, int sourceRowCount, TableModel targetTable, DbConnection targetConnection, bool trimStrings, int batchSize, bool useTransaction = true, bool validateTargetTable = true)
     {
         throw new NotImplementedException();
     }
@@ -724,7 +727,7 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
 
     public abstract int GetRowCount(DbCommand command, string schemaName, string tableName);
     public abstract string GetSelectStatement(string schemaName, string tableName, IEnumerable<string> columns);
-    public abstract IDatabaseObjectScript GetColumnScript(ColumnModel column);
+    public abstract IDatabaseObjectScript? GetColumnScript(ColumnModel column);
 
     public virtual Task UpgradeTableAsync(TableModel sourceTable, TableModel currentTable, DbConnection dbConnection, ICollection<string> ignoreColumns)
     {
@@ -737,9 +740,9 @@ public abstract class DatabaseProviderBase : IDatabaseProvider
 
     private class IndexBucket
     {
-        public string TableName { get; set; }
-        public string IndexName { get; set; }
-        public string SchemaName { get; set; }
+        public string TableName { get; set; } = "";
+        public string IndexName { get; set; } = "";
+        public string SchemaName { get; set; } = "";
         public int BucketCount { get; set; }
     }
 

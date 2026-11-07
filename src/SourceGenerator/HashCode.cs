@@ -387,7 +387,7 @@ internal struct HashCode
 
     [Obsolete("HashCode is a mutable struct and should not be compared with other HashCodes.", error: true)]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public override bool Equals(object obj) => throw new NotSupportedException("Equality not supported");
+    public override bool Equals(object? obj) => throw new NotSupportedException("Equality not supported");
 #pragma warning restore 0809
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

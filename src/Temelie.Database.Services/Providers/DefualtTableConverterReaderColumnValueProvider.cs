@@ -160,7 +160,8 @@ public class DefualtTableConverterReaderColumnValueProvider : ITableConverterRea
                         }
                         else
                         {
-                            returnValue = trimStrings ? value.ToString().TrimEnd() : value.ToString();
+                            var text = value.ToString() ?? string.Empty;
+                            returnValue = trimStrings ? text.TrimEnd() : text;
                         }
                         break;
                     }

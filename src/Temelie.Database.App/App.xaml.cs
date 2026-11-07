@@ -1,7 +1,7 @@
 using System;
 using System.Windows;
-using Temelie.Database.UI;
 using Microsoft.Extensions.Hosting;
+using Temelie.Database.UI;
 using Temelie.DependencyInjection;
 
 namespace Temelie.Database.App;
@@ -11,9 +11,9 @@ namespace Temelie.Database.App;
 /// </summary>
 public partial class App : Application, IServiceProviderApplication
 {
-    public IServiceProvider ServiceProvider => _host.Services;
+    public IServiceProvider ServiceProvider => _host?.Services ?? throw new InvalidOperationException("The application host has not been started.");
 
-    private IHost _host;
+    private IHost? _host;
 
     protected override void OnStartup(StartupEventArgs e)
     {

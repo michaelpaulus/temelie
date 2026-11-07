@@ -6,6 +6,7 @@ using Temelie.Database.Providers;
 using Temelie.DependencyInjection;
 
 namespace Temelie.Database.Services;
+
 [ExportTransient(typeof(ITableConverterService))]
 public class TableConverterService : ITableConverterService
 {
@@ -24,7 +25,7 @@ public class TableConverterService : ITableConverterService
     }
 
     public void ConvertTables(TableConverterSettings settings,
-        Action<TableProgress> progress,
+        Action<TableProgress>? progress,
         int maxDegreeOfParallelism)
     {
 
@@ -39,7 +40,7 @@ public class TableConverterService : ITableConverterService
         });
     }
 
-    public void ConvertTable(TableConverterSettings settings, Models.TableModel sourceTable, Action<TableProgress> progress)
+    public void ConvertTable(TableConverterSettings settings, Models.TableModel sourceTable, Action<TableProgress>? progress)
     {
 
         var targetTable = (
@@ -61,7 +62,7 @@ public class TableConverterService : ITableConverterService
         ConvertTable(settings, sourceTable, targetTable, progress);
     }
 
-    public void ConvertTable(TableConverterSettings settings, Models.TableModel sourceTable, Models.TableModel targetTable, Action<TableProgress> progress, bool throwOnFailure = false)
+    public void ConvertTable(TableConverterSettings settings, Models.TableModel sourceTable, Models.TableModel? targetTable, Action<TableProgress>? progress, bool throwOnFailure = false)
     {
         if (targetTable != null)
         {
@@ -97,7 +98,7 @@ public class TableConverterService : ITableConverterService
         }
     }
 
-    public void ConvertBulk(Action<TableProgress> progress,
+    public void ConvertBulk(Action<TableProgress>? progress,
       Models.TableModel sourceTable,
       IDataReader sourceReader,
       int sourceRowCount,
@@ -116,7 +117,7 @@ public class TableConverterService : ITableConverterService
         }
     }
 
-    public void ConvertBulk(Action<TableProgress> progress,
+    public void ConvertBulk(Action<TableProgress>? progress,
      Models.TableModel sourceTable,
      IDataReader sourceReader,
      int sourceRowCount,
@@ -144,7 +145,7 @@ public class TableConverterService : ITableConverterService
         return command;
     }
 
-    public void ConvertBulk(Action<TableProgress> progress,
+    public void ConvertBulk(Action<TableProgress>? progress,
         Models.TableModel sourceTable,
         ConnectionStringModel sourceConnectionString,
         Models.TableModel targetTable,

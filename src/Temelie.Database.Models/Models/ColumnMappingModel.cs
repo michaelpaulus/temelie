@@ -3,7 +3,7 @@ namespace Temelie.Database.Models;
 public class ColumnMappingModel : Mapping
 {
 
-    private string _sourceColumnName;
+    private string _sourceColumnName = "";
     public string SourceColumnName
     {
         get
@@ -16,7 +16,7 @@ public class ColumnMappingModel : Mapping
         }
     }
 
-    private string _targetColumnName;
+    private string _targetColumnName = "";
     public string TargetColumnName
     {
         get
@@ -31,7 +31,7 @@ public class ColumnMappingModel : Mapping
 
     public bool WrapInIsNull { get; set; }
 
-    private string _columnMapping;
+    private string? _columnMapping;
     public string ColumnMapping
     {
         get

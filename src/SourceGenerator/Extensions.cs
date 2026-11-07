@@ -1,7 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Microsoft.CodeAnalysis;
 
 namespace Temelie;
+
 internal static class Extensions
 {
     internal static string FullName(this ITypeSymbol type)
@@ -28,7 +30,7 @@ internal static class Extensions
         return value.ToString();
     }
 
-    internal static bool TryGetNonNullable(this ITypeSymbol symbol, out ITypeSymbol nonNullable)
+    internal static bool TryGetNonNullable(this ITypeSymbol symbol, [NotNullWhen(true)] out ITypeSymbol? nonNullable)
     {
         if (symbol.NonNullableValueType() is { } t)
         {
@@ -52,7 +54,7 @@ internal static class Extensions
 
     internal static bool IsNullableValueType(this ITypeSymbol symbol) => symbol.NonNullableValueType() != null;
 
-    internal static ITypeSymbol NonNullableValueType(this ITypeSymbol symbol)
+    internal static ITypeSymbol? NonNullableValueType(this ITypeSymbol symbol)
     {
         if (symbol.IsValueType && symbol is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T } namedType)
         {

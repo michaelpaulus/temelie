@@ -78,7 +78,15 @@ public class FileGenerator
                 visitor.Visit(compilation!.GlobalNamespace);
                 var partialProperties = visitor.PartialPropertyModels;
 
-                var files = jsonFiles.Select(i => (i.FilePath, i.GetTextAsync().Result.ToString())).ToList();
+                var files = new List<(string FilePath, string FileContents)>();
+                foreach (var jsonFile in jsonFiles)
+                {
+                    if (jsonFile.FilePath is { } filePath)
+                    {
+                        files.Add((filePath, (await jsonFile.GetTextAsync().ConfigureAwait(false)).ToString()));
+                    }
+                }
+
                 pendingFiles.AddRange(entityGenerator.Generate(entitiesProject.DefaultNamespace!, files, partialProperties));
             }
 

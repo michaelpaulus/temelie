@@ -1,7 +1,7 @@
 using System;
+using Microsoft.Extensions.DependencyInjection;
 using Temelie.Database.UI;
 using Temelie.Database.ViewModels;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Temelie.Database;
 
@@ -24,14 +24,14 @@ public partial class TableMappingScript
 
     #region Properties
 
-    private ViewModels.TableMappingViewModel _viewModel;
+    private ViewModels.TableMappingViewModel? _viewModel;
     public ViewModels.TableMappingViewModel ViewModel
     {
         get
         {
             if (this._viewModel == null)
             {
-                this._viewModel = ServiceProviderApplication.ServiceProvider.GetService<TableMappingViewModel>();
+                this._viewModel = ServiceProviderApplication.ServiceProvider.GetRequiredService<TableMappingViewModel>();
             }
             return this._viewModel;
         }
@@ -41,12 +41,12 @@ public partial class TableMappingScript
 
     #region Event Handlers
 
-    private void SourceDatabaseConnection_SelectionChanged(object sender, EventArgs e)
+    private void SourceDatabaseConnection_SelectionChanged(object? sender, EventArgs e)
     {
         this.ViewModel.SourceDatabaseConnectionString = this.SourceDatabaseConnection.ConnectionString;
     }
 
-    private void TargetDatabaseConnection_SelectionChanged(object sender, EventArgs e)
+    private void TargetDatabaseConnection_SelectionChanged(object? sender, EventArgs e)
     {
         this.ViewModel.TargetDatabaseConnectionString = this.TargetDatabaseConnection.ConnectionString;
     }

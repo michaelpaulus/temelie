@@ -16,7 +16,7 @@ public class Mapping
             {
                 string strColumnName = column.ColumnName;
 
-                Models.ColumnModel targetColumn = (
+                Models.ColumnModel? targetColumn = (
                     from i in targetTableColumns
                     where i.ColumnName.EqualsIgnoreCase(strColumnName)
                     select i).FirstOrDefault();
@@ -73,13 +73,15 @@ public class Mapping
             string strSourceTableName = tableMapping.SourceTableName;
             string strTargetTableName = tableMapping.TargetTableName;
 
-            System.Xml.XmlNode tempVar = xmlDoc.AppendChild(xmlDoc.CreateElement("table"));
+            var tempVar = xmlDoc.CreateElement("table");
+            xmlDoc.AppendChild(tempVar);
             tempVar.Attributes.Append(CreateAttribute(xmlDoc, "sourceTableName", strSourceTableName));
             tempVar.Attributes.Append(CreateAttribute(xmlDoc, "targetTableName", strTargetTableName));
             foreach (Models.ColumnMappingModel mapping in tableMapping.ColumnMappings)
             {
                 string strSourceColumnName = mapping.SourceColumnName;
-                System.Xml.XmlNode tempVar2 = tempVar.AppendChild(xmlDoc.CreateElement("columnMapping"));
+                var tempVar2 = xmlDoc.CreateElement("columnMapping");
+                tempVar.AppendChild(tempVar2);
                 tempVar2.Attributes.Append(CreateAttribute(xmlDoc, "sourceColumnName", mapping.SourceColumnName));
                 tempVar2.Attributes.Append(CreateAttribute(xmlDoc, "targetColumnName", mapping.TargetColumnName));
                 if (!(string.IsNullOrEmpty(mapping.ColumnMapping)))

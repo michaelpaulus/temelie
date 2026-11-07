@@ -232,7 +232,7 @@ WHERE
         {
             var script = provider.GetScript(tableModel);
 
-            if (string.IsNullOrEmpty(script.CreateScript))
+            if (string.IsNullOrEmpty(script?.CreateScript))
             {
                 throw new Exception("Create table script is null");
             }
@@ -256,7 +256,7 @@ WHERE
 
                 var pkScript = provider.GetScript(pk, false);
 
-                if (!string.IsNullOrEmpty(pkScript.CreateScript))
+                if (!string.IsNullOrEmpty(pkScript?.CreateScript))
                 {
                     _databaseExecutionService.ExecuteFile(dbConnection, pkScript.CreateScript);
                 }
@@ -391,7 +391,7 @@ WHERE
         return tempTable;
     }
 
-    private TableModel CreateTargetTableModel(TableModel tableModel, ChangeTrackingMapping mapping, string tableName = null)
+    private TableModel CreateTargetTableModel(TableModel tableModel, ChangeTrackingMapping mapping, string? tableName = null)
     {
         var tempTable = JsonSerializer.Deserialize<TableModel>(JsonSerializer.Serialize(tableModel))!;
 
@@ -529,7 +529,7 @@ WHERE
         public int GetOrdinal(string name)
         {
             var column = _tableModel.Columns.FirstOrDefault(c => c.ColumnName == name);
-            return _tableModel.Columns.IndexOf(column);
+            return column is null ? -1 : _tableModel.Columns.IndexOf(column);
         }
 
         public DataTable? GetSchemaTable()

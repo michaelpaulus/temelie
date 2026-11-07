@@ -1,5 +1,3 @@
-#nullable enable
-
 using Temelie.Database.Models;
 using Temelie.Database.Models.ChangeTracking;
 

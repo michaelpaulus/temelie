@@ -1,7 +1,7 @@
 using System;
+using Microsoft.Extensions.DependencyInjection;
 using Temelie.Database.UI;
 using Temelie.Database.ViewModels;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Temelie.Database;
 
@@ -23,14 +23,14 @@ public partial class Convert
 
     }
 
-    private ViewModels.ConvertViewModel _viewModel;
+    private ViewModels.ConvertViewModel? _viewModel;
     public ViewModels.ConvertViewModel ViewModel
     {
         get
         {
             if (this._viewModel == null)
             {
-                this._viewModel = ServiceProviderApplication.ServiceProvider.GetService<ConvertViewModel>();
+                this._viewModel = ServiceProviderApplication.ServiceProvider.GetRequiredService<ConvertViewModel>();
             }
             return this._viewModel;
         }
@@ -47,17 +47,17 @@ public partial class Convert
 
     #region Event Handlers
 
-    private void SourceDatabaseConnection_SelectionChanged(object sender, EventArgs e)
+    private void SourceDatabaseConnection_SelectionChanged(object? sender, EventArgs e)
     {
         this.ViewModel.SourceDatabaseConnectionString = this.SourceDatabaseConnection.ConnectionString;
     }
 
-    private void TargetDatabaseConnection_SelectionChanged(object sender, EventArgs e)
+    private void TargetDatabaseConnection_SelectionChanged(object? sender, EventArgs e)
     {
         this.ViewModel.TargetDatabaseConnectionString = this.TargetDatabaseConnection.ConnectionString;
     }
 
-    private void ResultsListBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+    private void ResultsListBox_SelectionChanged(object? sender, System.Windows.Controls.SelectionChangedEventArgs e)
     {
         this.UpdateColumns();
     }
@@ -67,7 +67,7 @@ public partial class Convert
         this.UpdateColumns();
     }
 
-    private void ResultsListBox_SourceUpdated(object sender, System.Windows.Data.DataTransferEventArgs e)
+    private void ResultsListBox_SourceUpdated(object? sender, System.Windows.Data.DataTransferEventArgs e)
     {
         this.UpdateColumns();
     }

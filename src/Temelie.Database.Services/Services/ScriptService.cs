@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using Temelie.Database.Extensions;
@@ -6,6 +7,7 @@ using Temelie.Database.Providers;
 using Temelie.DependencyInjection;
 
 namespace Temelie.Database.Services;
+
 [ExportTransient(typeof(IScriptService))]
 public class ScriptService : IScriptService
 {
@@ -36,9 +38,10 @@ public class ScriptService : IScriptService
 
     private (FileInfo File, bool Changed, bool New) WriteIfDifferent(string path, string contents)
     {
-        if (!Directory.Exists(Path.GetDirectoryName(path)))
+        var parentDirectory = Path.GetDirectoryName(path) ?? throw new ArgumentException($"'{path}' has no parent directory.", nameof(path));
+        if (!Directory.Exists(parentDirectory))
         {
-            Directory.CreateDirectory(Path.GetDirectoryName(path));
+            Directory.CreateDirectory(parentDirectory);
         }
 
         contents = contents.NormalizeLineEndings("\n").Trim('\n').NormalizeLineEndings(Environment.NewLine);
@@ -84,8 +87,10 @@ public class ScriptService : IScriptService
 
                     if (File.Exists(jsonPath))
                     {
-                        var currentTable = JsonSerializer.Deserialize<TableModel>(File.ReadAllText(jsonPath), ModelsJsonSerializerOptions.Default);
-                        var newTable = JsonSerializer.Deserialize<TableModel>(json, ModelsJsonSerializerOptions.Default);
+                        var currentTable = JsonSerializer.Deserialize<TableModel>(File.ReadAllText(jsonPath), ModelsJsonSerializerOptions.Default) ??
+                            throw new InvalidDataException($"'{jsonPath}' does not contain a table model.");
+                        var newTable = JsonSerializer.Deserialize<TableModel>(json, ModelsJsonSerializerOptions.Default) ??
+                            throw new UnreachableException();
 
                         foreach (var column in currentTable.Columns)
                         {
@@ -102,7 +107,8 @@ public class ScriptService : IScriptService
 
                         if (newColumns.Count > 0 || removedColumns.Count > 0)
                         {
-                            var changeFileName = Path.Combine(directory.Parent.FullName, "04_Migrations", DateTime.UtcNow.ToString("yyyy-MM-dd"), $"01_{table.TableName}.sql");
+                            var scriptRoot = directory.Parent ?? throw new InvalidOperationException($"'{directory.FullName}' must be inside a script directory.");
+                            var changeFileName = Path.Combine(scriptRoot.FullName, "04_Migrations", DateTime.UtcNow.ToString("yyyy-MM-dd"), $"01_{table.TableName}.sql");
 
                             var sb = new StringBuilder();
 
@@ -357,7 +363,7 @@ public class ScriptService : IScriptService
         return json;
     }
 
-    public void CreateScripts(ConnectionStringModel connectionString, System.IO.DirectoryInfo directory, Action<ScriptProgress> progress, string objectFilter = "", IDatabaseProvider createScriptsProvider = null)
+    public void CreateScripts(ConnectionStringModel connectionString, System.IO.DirectoryInfo directory, Action<ScriptProgress>? progress, string objectFilter = "", IDatabaseProvider? createScriptsProvider = null)
     {
         var provider = _databaseFactory.GetDatabaseProvider(connectionString);
         Models.DatabaseModel database = _databaseModelService.CreateModel(connectionString, new Models.DatabaseModelOptions { ObjectFilter = objectFilter, ExcludeDoubleUnderscoreObjects = true });
@@ -475,7 +481,7 @@ public class ScriptService : IScriptService
         return System.Text.RegularExpressions.Regex.Replace(name, invalidRegStr, "_");
     }
 
-    public void ExecuteScripts(ConnectionStringModel connectionString, DirectoryInfo directory, Action<ScriptProgress> progress, bool continueOnError = true, bool skipMigrations = false)
+    public void ExecuteScripts(ConnectionStringModel connectionString, DirectoryInfo directory, Action<ScriptProgress>? progress, bool continueOnError = true, bool skipMigrations = false)
     {
         IList<string> migrations = [];
 
@@ -516,7 +522,7 @@ public class ScriptService : IScriptService
 
         IEnumerable<(string Name, string Contents)> getFiles(DirectoryInfo dir, DatabaseModel currentDatabaseModel, DatabaseModel updatedDatabaseModel, IDatabaseProvider provider)
         {
-            if (dir.Parent.Name.EndsWith("_Migrations"))
+            if (dir.Parent?.Name.EndsWith("_Migrations") == true)
             {
 
                 var list = new List<(string Name, string Contents)>();
@@ -549,10 +555,10 @@ public class ScriptService : IScriptService
                         void compareObjects<T>(IList<T> currentList,
                             IList<T> updatedList,
                             Func<T, string> getName,
-                            Func<T, IDatabaseObjectScript> createScript,
+                            Func<T, IDatabaseObjectScript?> createScript,
                             bool alwaysUpdate = false,
-                            Action<T> handleDrop = null,
-                            Action<T, T> handleUpdate = null) where T : DatabaseObjectModel
+                            Action<T>? handleDrop = null,
+                            Action<T, T>? handleUpdate = null) where T : DatabaseObjectModel
                         {
                             foreach (var current in currentList)
                             {
@@ -601,7 +607,10 @@ public class ScriptService : IScriptService
                             {
                                 var name = getName(updated);
                                 var script = createScript(updated);
-                                list.Add(($"CREATE {dir.Name}/{name}", script.CreateScript));
+                                if (script is not null)
+                                {
+                                    list.Add(($"CREATE {dir.Name}/{name}", script.CreateScript));
+                                }
                             }
                         }
 
@@ -619,9 +628,9 @@ public class ScriptService : IScriptService
                                 handleUpdate: (current, updated) =>
                                 {
 
-                                    var current2 = JsonSerializer.Deserialize<TableModel>(JsonSerializer.Serialize(current));
+                                    var current2 = JsonSerializer.Deserialize<TableModel>(JsonSerializer.Serialize(current)) ?? throw new UnreachableException();
 
-                                    var updated2 = JsonSerializer.Deserialize<TableModel>(JsonSerializer.Serialize(updated));
+                                    var updated2 = JsonSerializer.Deserialize<TableModel>(JsonSerializer.Serialize(updated)) ?? throw new UnreachableException();
 
                                     foreach (var column in current2.Columns)
                                     {
@@ -643,7 +652,7 @@ public class ScriptService : IScriptService
                                     var currentScript = provider.GetScript(current2);
                                     var updatedScript = provider.GetScript(updated2);
 
-                                    if (currentScript.CreateScript == updatedScript.CreateScript)
+                                    if (currentScript?.CreateScript == updatedScript?.CreateScript)
                                     {
                                         //ignore collation / character set diffs
                                         return;

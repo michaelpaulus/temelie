@@ -121,7 +121,7 @@ public class TableConverterReader : System.Data.IDataReader
         return this.Parent.GetOrdinal(name);
     }
 
-    public DataTable GetSchemaTable()
+    public DataTable? GetSchemaTable()
     {
         return this.Parent.GetSchemaTable();
     }
@@ -136,11 +136,10 @@ public class TableConverterReader : System.Data.IDataReader
         catch (Exception ex)
         {
             var sourceColumn = _sourceColumns[i];
-            object newValue;
             if (_databaseProvider != null &&
-                _databaseProvider.TryHandleColumnValueLoadException(ex, sourceColumn, out newValue))
+                _databaseProvider.TryHandleColumnValueLoadException(ex, sourceColumn, out var newValue))
             {
-                value = newValue;
+                value = newValue ?? DBNull.Value;
             }
             else
             {
@@ -195,7 +194,7 @@ public class TableConverterReader : System.Data.IDataReader
         throw new NotImplementedException();
     }
 
-    public long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length)
+    public long GetBytes(int i, long fieldOffset, byte[]? buffer, int bufferoffset, int length)
     {
         throw new NotImplementedException();
     }
@@ -205,7 +204,7 @@ public class TableConverterReader : System.Data.IDataReader
         throw new NotImplementedException();
     }
 
-    public long GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length)
+    public long GetChars(int i, long fieldoffset, char[]? buffer, int bufferoffset, int length)
     {
         throw new NotImplementedException();
     }
@@ -272,7 +271,7 @@ public class TableConverterReader : System.Data.IDataReader
 
     public int GetValues(object[] values)
     {
-        for(var i = 0; i < values.Length; i++)
+        for (var i = 0; i < values.Length; i++)
         {
             values[i] = this.GetValue(i);
         }

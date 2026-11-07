@@ -7,7 +7,7 @@ public class ColumnModel : Model
 {
     #region Properties
 
-    private string _tableName;
+    private string _tableName = "";
     [JsonIgnore]
     public string TableName
     {
@@ -22,9 +22,9 @@ public class ColumnModel : Model
         }
     }
 
-    public string SchemaName { get; set; }
+    public string SchemaName { get; set; } = "";
 
-    private string _columnName;
+    private string _columnName = "";
     public string ColumnName
     {
         get
@@ -197,8 +197,8 @@ public class ColumnModel : Model
 
     public int GeneratedAlwaysType { get; set; }
 
-    private string _computedDefinition;
-    public string ComputedDefinition
+    private string? _computedDefinition;
+    public string? ComputedDefinition
     {
         get
         {
@@ -218,7 +218,7 @@ public class ColumnModel : Model
         }
     }
 
-    private string _columnType;
+    private string _columnType = "";
     public string ColumnType
     {
         get
@@ -235,9 +235,9 @@ public class ColumnModel : Model
         }
     }
 
-    public string ColumnDefault { get; set; }
-    public string CollationName { get; set; }
-    public string CharacterSetName { get; set; }
+    public string? ColumnDefault { get; set; }
+    public string? CollationName { get; set; }
+    public string? CharacterSetName { get; set; }
 
     [JsonIgnore]
     public DbType DbType
@@ -346,7 +346,7 @@ public class ColumnModel : Model
 
     public static string GetSystemTypeString(Type type)
     {
-        var propertyType = type.FullName;
+        var propertyType = type.FullName ?? type.Name;
         if (propertyType.StartsWith("System.String"))
         {
             propertyType = "string";

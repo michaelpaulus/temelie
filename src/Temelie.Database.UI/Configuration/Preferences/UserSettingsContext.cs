@@ -17,7 +17,7 @@ public class UserSettingsContext
             System.IO.Directory.CreateDirectory(UserSettingsPath);
         }
 
-        UserSettings settings = null;
+        UserSettings? settings = null;
         string strFileName = GetFileName();
         if (System.IO.File.Exists(strFileName))
         {

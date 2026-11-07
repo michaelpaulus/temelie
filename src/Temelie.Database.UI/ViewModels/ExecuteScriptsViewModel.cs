@@ -6,6 +6,7 @@ using Temelie.Database.Services;
 using Temelie.DependencyInjection;
 
 namespace Temelie.Database.ViewModels;
+
 [ExportTransient(typeof(ExecuteScriptsViewModel))]
 public class ExecuteScriptsViewModel : ViewModel
 {
@@ -24,13 +25,13 @@ public class ExecuteScriptsViewModel : ViewModel
 
     #region Properties
 
-    public string ScriptPath { get; set; }
+    public string? ScriptPath { get; set; }
 
-    public ConnectionStringModel DatabaseConnectionString { get; set; }
+    public ConnectionStringModel? DatabaseConnectionString { get; set; }
 
     public int ProgressPercentage { get; set; }
-    public string ProgressStatus { get; set; }
-    public string Message { get; set; }
+    public string ProgressStatus { get; set; } = "";
+    public string Message { get; set; } = "";
     public bool ContinueOnError { get; set; }
 
     #endregion
@@ -90,7 +91,9 @@ public class ExecuteScriptsViewModel : ViewModel
     {
         try
         {
-            _scriptService.ExecuteScripts(DatabaseConnectionString, new System.IO.DirectoryInfo(ScriptPath), progress, ContinueOnError);
+            var connectionString = DatabaseConnectionString ?? throw new InvalidOperationException("Select a database connection.");
+            var scriptPath = string.IsNullOrEmpty(ScriptPath) ? throw new InvalidOperationException("Select a script folder.") : ScriptPath;
+            _scriptService.ExecuteScripts(connectionString, new System.IO.DirectoryInfo(scriptPath), progress, ContinueOnError);
         }
         catch
         {

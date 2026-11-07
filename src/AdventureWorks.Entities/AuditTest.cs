@@ -1,5 +1,3 @@
-#nullable enable
-
 using Temelie.Entities;
 
 namespace AdventureWorks.Entities;

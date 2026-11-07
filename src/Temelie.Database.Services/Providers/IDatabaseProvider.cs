@@ -26,29 +26,29 @@ public interface IDatabaseProvider
     IEnumerable<IndexModel> GetIndexes(DbConnection connection);
     IEnumerable<SecurityPolicyModel> GetSecurityPolicies(DbConnection connection);
 
-    IDatabaseObjectScript GetScript(CheckConstraintModel model);
-    IDatabaseObjectScript GetScript(DefinitionModel model);
-    IDatabaseObjectScript GetScript(ForeignKeyModel model);
-    IDatabaseObjectScript GetScript(IndexModel model, bool isView);
-    IDatabaseObjectScript GetScript(SecurityPolicyModel model);
-    IDatabaseObjectScript GetScript(TableModel model);
-    IDatabaseObjectScript GetScript(TriggerModel model);
+    IDatabaseObjectScript? GetScript(CheckConstraintModel model);
+    IDatabaseObjectScript? GetScript(DefinitionModel model);
+    IDatabaseObjectScript? GetScript(ForeignKeyModel model);
+    IDatabaseObjectScript? GetScript(IndexModel model, bool isView);
+    IDatabaseObjectScript? GetScript(SecurityPolicyModel model);
+    IDatabaseObjectScript? GetScript(TableModel model);
+    IDatabaseObjectScript? GetScript(TriggerModel model);
     string GetRenameScript(TableModel model, string newTableName, bool dropNewTableIfExists = false);
-    IDatabaseObjectScript GetColumnScript(ColumnModel column);
+    IDatabaseObjectScript? GetColumnScript(ColumnModel column);
 
     void SetReadTimeout(System.Data.Common.DbCommand sourceCommand);
     string TransformConnectionString(string connectionString);
 
     void UpdateParameter(DbParameter parameter, Models.ColumnModel column);
 
-    Models.ColumnTypeModel GetColumnType(Models.ColumnTypeModel sourceColumnType);
+    Models.ColumnTypeModel? GetColumnType(Models.ColumnTypeModel sourceColumnType);
     DbConnection CreateConnection();
 
-    bool TryHandleColumnValueLoadException(Exception ex, Models.ColumnModel column, out object value);
+    bool TryHandleColumnValueLoadException(Exception ex, Models.ColumnModel column, out object? value);
 
     void ConvertBulk(
        TableConverterService service,
-       Action<TableProgress> progress,
+       Action<TableProgress>? progress,
        Models.TableModel sourceTable,
        IDataReader sourceReader,
        int sourceRowCount,

@@ -13,11 +13,11 @@ public class TableModel : DatabaseObjectModel
     [JsonIgnore]
     public bool Selected { get; set; }
 
-    public string TableName { get; set; }
-    public string SchemaName { get; set; }
-    public string Engine { get; set; }
-    public string CollationName { get; set; }
-    public string CharacterSetName { get; set; }
+    public string TableName { get; set; } = "";
+    public string SchemaName { get; set; } = "";
+    public string? Engine { get; set; }
+    public string? CollationName { get; set; }
+    public string? CharacterSetName { get; set; }
 
     [JsonIgnore]
     public string SchemaAndTableName => string.IsNullOrEmpty(SchemaName) ? TableName : $"{SchemaName}.{TableName}";
@@ -43,21 +43,21 @@ public class TableModel : DatabaseObjectModel
     public int ProgressPercentage { get; set; }
 
     [JsonIgnore]
-    public string ErrorMessage { get; set; }
+    public string? ErrorMessage { get; set; }
 
     public int TemporalType { get; set; }
-    public string HistoryTableName { get; set; }
+    public string? HistoryTableName { get; set; }
     public bool IsMemoryOptimized { get; set; }
-    public string DurabilityDesc { get; set; }
+    public string? DurabilityDesc { get; set; }
     public bool IsExternal { get; set; }
-    public string DataSourceName { get; set; }
-    public string RemoteSchemaName { get; set; }
-    public string RemoteObjectName { get; set; }
+    public string? DataSourceName { get; set; }
+    public string? RemoteSchemaName { get; set; }
+    public string? RemoteObjectName { get; set; }
     [JsonIgnore]
     public bool IsHistoryTable { get { return TemporalType == 1; } }
     public bool IsView { get; set; }
 
-    private IList<ColumnModel> _columns;
+    private IList<ColumnModel>? _columns;
     public IList<ColumnModel> Columns
     {
         get
@@ -76,13 +76,13 @@ public class TableModel : DatabaseObjectModel
 
     public Dictionary<string, string> ExtendedProperties { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-    public string PartitionSchemeName { get; set; }
-    public string PartitionSchemeColumns { get; set; }
+    public string? PartitionSchemeName { get; set; }
+    public string? PartitionSchemeColumns { get; set; }
 
-    public string Options { get; set; }
+    public string? Options { get; set; }
 
     [JsonIgnore]
-    public IndexModel PrimaryKey { get; set; }
+    public IndexModel? PrimaryKey { get; set; }
 
 }
 

@@ -6,6 +6,7 @@ using Temelie.Database.Providers;
 using Temelie.DependencyInjection;
 
 namespace Temelie.Database.Services;
+
 [ExportTransient(typeof(IDatabaseModelService))]
 public class DatabaseModelService : IDatabaseModelService
 {
@@ -19,7 +20,7 @@ public class DatabaseModelService : IDatabaseModelService
         _databaseExecutionService = databaseExecutionService;
     }
 
-    public DatabaseModel CreateModel(ConnectionStringModel connectionString, DatabaseModelOptions options = null)
+    public DatabaseModel CreateModel(ConnectionStringModel connectionString, DatabaseModelOptions? options = null)
     {
         using (var conn = _databaseExecutionService.CreateDbConnection(connectionString))
         {
@@ -27,7 +28,7 @@ public class DatabaseModelService : IDatabaseModelService
         }
     }
 
-    public DatabaseModel CreateModel(DbConnection connection, DatabaseModelOptions options = null)
+    public DatabaseModel CreateModel(DbConnection connection, DatabaseModelOptions? options = null)
     {
         if (options is null)
         {
@@ -53,7 +54,7 @@ public class DatabaseModelService : IDatabaseModelService
 
         var fks = GetForeignKeys(connection).Where(i => tableNames.Contains(i.TableName) && tableNames.Contains(i.ReferencedTableName)).ToList();
 
-        var conts = GetCheckConstraints(connection).Where(i => tableNames.Contains(i.TableName) ).ToList();
+        var conts = GetCheckConstraints(connection).Where(i => tableNames.Contains(i.TableName)).ToList();
         var indexes = GetIndexes(connection).Where(i => tableNames.Contains(i.TableName) || viewNames.Contains(i.TableName)).ToList();
         var triggers = GetTriggers(connection, options).Where(i => tableNames.Contains(i.TableName) || viewNames.Contains(i.TableName)).ToList();
         var secPol = GetSecurityPolicies(connection);

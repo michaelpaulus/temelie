@@ -38,18 +38,19 @@ public class EntitySymbolVisitor : SymbolVisitor
 
             foreach (var attr in symbol.GetAttributes())
             {
-                if (attr.AttributeClass.FullName() == "System.ComponentModel.DataAnnotations.Schema.TableAttribute")
+                var attributeName = attr.AttributeClass?.FullName();
+                if (attributeName == "System.ComponentModel.DataAnnotations.Schema.TableAttribute")
                 {
-                    tableName = (string)attr.ConstructorArguments[0].Value;
+                    tableName = attr.ConstructorArguments[0].Value as string ?? tableName;
                     foreach (var na in attr.NamedArguments)
                     {
                         if (na.Key == "Schema")
                         {
-                            schema = (string)na.Value.Value;
+                            schema = na.Value.Value as string ?? schema;
                         }
                     }
                 }
-                if (attr.AttributeClass.FullName() == "Temelie.Entities.HasTriggerAttribute")
+                if (attributeName == "Temelie.Entities.HasTriggerAttribute")
                 {
                     hasTrgger = true;
                 }
@@ -70,54 +71,50 @@ public class EntitySymbolVisitor : SymbolVisitor
 
                     foreach (var attr in propSymbol.GetAttributes())
                     {
-                        if (attr.AttributeClass.FullName() == "System.ComponentModel.DataAnnotations.KeyAttribute")
+                        var attributeName = attr.AttributeClass?.FullName();
+                        if (attributeName == "System.ComponentModel.DataAnnotations.KeyAttribute")
                         {
                             isPrimaryKey = true;
                             isView = false;
                         }
-                        if (attr.AttributeClass.FullName() == "System.ComponentModel.DataAnnotations.Schema.ColumnAttribute")
+                        if (attributeName == "System.ComponentModel.DataAnnotations.Schema.ColumnAttribute")
                         {
                             if (attr.ConstructorArguments.Length == 1)
                             {
-                                columnName = (string)attr.ConstructorArguments[0].Value;
+                                columnName = attr.ConstructorArguments[0].Value as string ?? columnName;
                             }
                             foreach (var arg in attr.NamedArguments)
                             {
-                                if (arg.Key == "Order")
+                                if (arg.Key == "Order" && arg.Value.Value is int columnOrder)
                                 {
-                                    order = (int)arg.Value.Value;
+                                    order = columnOrder;
                                 }
                             }
                         }
-                        if (attr.AttributeClass.FullName() == "System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedAttribute")
+                        if (attributeName == "System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedAttribute")
                         {
                             if (attr.ConstructorArguments.Length == 1)
                             {
-                                isIdentity = attr.ConstructorArguments[0].Value.ToString().Equals("1");
-                                isComputed = attr.ConstructorArguments[0].Value.ToString().Equals("2");
+                                var databaseGeneratedOption = attr.ConstructorArguments[0].Value?.ToString();
+                                isIdentity = databaseGeneratedOption == "1";
+                                isComputed = databaseGeneratedOption == "2";
                             }
                             else
                             {
-                                
+
                             }
                         }
-                        if (attr.AttributeClass.FullName() == "Temelie.Entities.ColumnPrecisionAttribute")
+                        if (attributeName == "Temelie.Entities.ColumnPrecisionAttribute")
                         {
-                            if (attr.ConstructorArguments.Length == 2)
+                            if (attr.ConstructorArguments.Length == 2 &&
+                                attr.ConstructorArguments[0].Value is int columnPrecision &&
+                                attr.ConstructorArguments[1].Value is int columnScale)
                             {
-                                precision = (int)attr.ConstructorArguments[0].Value;
-                                scale = (int)attr.ConstructorArguments[1].Value;
+                                precision = columnPrecision;
+                                scale = columnScale;
                             }
                         }
                         isNullable = propSymbol.Type.IsNullable();
-
-                        var propertyType = propSymbol.Type;
-
-                        if (isNullable)
-                        {
-                            propertyType.TryGetNonNullable(out propertyType);
-                        }
-
                     }
 
                     var columnType = propSymbol.Type;
@@ -126,10 +123,11 @@ public class EntitySymbolVisitor : SymbolVisitor
 
                     if (columnType is INamedTypeSymbol namedTypeSymbol)
                     {
-                        if (namedTypeSymbol.IsNullable())
+                        if (namedTypeSymbol.IsNullable() &&
+                            namedTypeSymbol.TryGetNonNullable(out var nonNullableType) &&
+                            nonNullableType is INamedTypeSymbol nonNullableNamedType)
                         {
-                            namedTypeSymbol.TryGetNonNullable(out var temp);
-                            namedTypeSymbol = temp as INamedTypeSymbol;
+                            namedTypeSymbol = nonNullableNamedType;
                         }
 
                         foreach (var member in namedTypeSymbol.GetMembers())

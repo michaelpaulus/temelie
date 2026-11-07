@@ -27,7 +27,7 @@ public class DatabaseModel(
 
     public IEnumerable<IndexModel> PrimaryKeys => (from i in _allIndexes where i.IsPrimaryKey select i).ToList();
 
-    public ColumnModel GetForeignKeySourceColumn(string sourceSchemaName, string sourceTableName, string sourceColumnName)
+    public ColumnModel? GetForeignKeySourceColumn(string sourceSchemaName, string sourceTableName, string sourceColumnName)
     {
         foreach (var fk in ForeignKeys)
         {
@@ -70,6 +70,10 @@ public class DatabaseModel(
         return CreateFromFiles(files);
     }
 
+    private static T Deserialize<T>(string fileName, string json) =>
+        JsonSerializer.Deserialize<T>(json, ModelsJsonSerializerOptions.Default) ??
+            throw new InvalidDataException($"'{fileName}' does not contain a {typeof(T).Name}.");
+
     public static DatabaseModel CreateFromFiles(IEnumerable<(string FileName, string Contents)> files)
     {
         var tables = new List<TableModel>();
@@ -89,27 +93,27 @@ public class DatabaseModel(
                 var json = file.Contents;
                 if (name.Contains("02_Tables"))
                 {
-                    var model = JsonSerializer.Deserialize<TableModel>(json, ModelsJsonSerializerOptions.Default);
+                    var model = Deserialize<TableModel>(name, json);
                     tables.Add(model);
                 }
                 else if (name.Contains("03_Indexes"))
                 {
-                    var model = JsonSerializer.Deserialize(json, typeof(IndexModel), ModelsJsonSerializerOptions.Default)! as IndexModel;
+                    var model = Deserialize<IndexModel>(name, json);
                     allIndexes.Add(model);
                 }
                 else if (name.Contains("04_CheckConstraints"))
                 {
-                    var model = JsonSerializer.Deserialize(json, typeof(CheckConstraintModel), ModelsJsonSerializerOptions.Default)! as CheckConstraintModel;
+                    var model = Deserialize<CheckConstraintModel>(name, json);
                     checkConstraints.Add(model);
                 }
                 else if (name.Contains("05_Programmability"))
                 {
-                    var model = JsonSerializer.Deserialize(json, typeof(DefinitionModel), ModelsJsonSerializerOptions.Default)! as DefinitionModel;
+                    var model = Deserialize<DefinitionModel>(name, json);
                     definitions.Add(model);
                 }
                 else if (name.Contains("05_Views"))
                 {
-                    var model = JsonSerializer.Deserialize(json, typeof(DefinitionModel), ModelsJsonSerializerOptions.Default)! as DefinitionModel;
+                    var model = Deserialize<DefinitionModel>(name, json);
                     definitions.Add(model);
                     if (model.View is not null)
                     {
@@ -118,17 +122,17 @@ public class DatabaseModel(
                 }
                 else if (name.Contains("06_Triggers"))
                 {
-                    var model = JsonSerializer.Deserialize(json, typeof(TriggerModel), ModelsJsonSerializerOptions.Default)! as TriggerModel;
+                    var model = Deserialize<TriggerModel>(name, json);
                     triggers.Add(model);
                 }
                 else if (name.Contains("08_ForeignKeys"))
                 {
-                    var model = JsonSerializer.Deserialize(json, typeof(ForeignKeyModel), ModelsJsonSerializerOptions.Default)! as ForeignKeyModel;
+                    var model = Deserialize<ForeignKeyModel>(name, json);
                     foreignKeys.Add(model);
                 }
                 else if (name.Contains("09_SecurityPolicies"))
                 {
-                    var model = JsonSerializer.Deserialize(json, typeof(SecurityPolicyModel), ModelsJsonSerializerOptions.Default)! as SecurityPolicyModel;
+                    var model = Deserialize<SecurityPolicyModel>(name, json);
                     securityPolicies.Add(model);
                 }
             }

@@ -1,12 +1,13 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using PropertyChanged;
 using Temelie.Database.Configuration.Preferences;
 using Temelie.Database.Views;
 using Temelie.DependencyInjection;
-using PropertyChanged;
 
 namespace Temelie.Database.ViewModels;
+
 [ExportTransient(typeof(ConnectionViewModel))]
 public class ConnectionViewModel : ViewModel
 {
@@ -20,9 +21,9 @@ public class ConnectionViewModel : ViewModel
 
     public Command EditCommand { get; set; }
 
-    public Models.ConnectionStringModel SelectedConnection { get; set; }
+    public Models.ConnectionStringModel? SelectedConnection { get; set; }
 
-    private ObservableCollection<Models.ConnectionStringModel> _connnections;
+    private ObservableCollection<Models.ConnectionStringModel>? _connnections;
     public ObservableCollection<Models.ConnectionStringModel> Connections
     {
         get
@@ -114,7 +115,7 @@ public class ConnectionViewModel : ViewModel
 
     #region Events
 
-    public event EventHandler SelectionChanged;
+    public event EventHandler? SelectionChanged;
 
     #endregion
 

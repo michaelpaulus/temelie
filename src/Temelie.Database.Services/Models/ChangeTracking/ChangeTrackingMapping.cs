@@ -1,4 +1,3 @@
-#nullable enable
 namespace Temelie.Database.Models.ChangeTracking;
 
 public partial record ChangeTrackingMapping

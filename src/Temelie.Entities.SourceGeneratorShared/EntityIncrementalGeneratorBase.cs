@@ -13,7 +13,7 @@ public abstract class EntityIncrementalGeneratorBase : IIncrementalGenerator
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var options = context.AnalyzerConfigOptionsProvider.Select(static (c, _) => { c.GlobalOptions.TryGetValue("build_property.RootNamespace", out string rootNamespace); return rootNamespace; });
+        var options = context.AnalyzerConfigOptionsProvider.Select(static (c, _) => { c.GlobalOptions.TryGetValue("build_property.RootNamespace", out string? rootNamespace); return rootNamespace ?? ""; });
 
         var compliationProvider = context.CompilationProvider.Select(static (compilation, token) =>
         {
@@ -42,7 +42,17 @@ public abstract class EntityIncrementalGeneratorBase : IIncrementalGenerator
 
         if (files.Any())
         {
-            var sourceFiles = Generate(result.RootNamesapce, files.Select(i => (i.FilePath, i.Content.ToString())).ToList(), partialProperties);
+            var contents = new List<(string FilePath, string FileContents)>();
+            foreach (var file in files)
+            {
+                // GetText returns null for additional files that cannot be read.
+                if (file.Content is { } content)
+                {
+                    contents.Add((file.FilePath, content.ToString()));
+                }
+            }
+
+            var sourceFiles = Generate(result.RootNamesapce, contents, partialProperties);
             foreach (var file in sourceFiles)
             {
                 context.AddSource(file.Name, file.Code);

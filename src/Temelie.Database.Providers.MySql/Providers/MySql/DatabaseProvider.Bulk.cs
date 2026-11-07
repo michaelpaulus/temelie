@@ -1,14 +1,15 @@
 using System.Data;
 using System.Data.Common;
+using MySqlConnector;
 using Temelie.Database.Models;
 using Temelie.Database.Services;
-using MySqlConnector;
 
 namespace Temelie.Database.Providers.MySql;
+
 public partial class DatabaseProvider
 {
 
-    public override void ConvertBulk(TableConverterService service, Action<TableProgress> progress, TableModel sourceTable, IDataReader sourceReader, int sourceRowCount, TableModel targetTable, DbConnection targetConnection, bool trimStrings, int batchSize, bool useTransaction = true, bool validateTargetTable = true)
+    public override void ConvertBulk(TableConverterService service, Action<TableProgress>? progress, TableModel sourceTable, IDataReader sourceReader, int sourceRowCount, TableModel targetTable, DbConnection targetConnection, bool trimStrings, int batchSize, bool useTransaction = true, bool validateTargetTable = true)
     {
         progress?.Invoke(new TableProgress() { ProgressPercentage = 0, Table = sourceTable });
 
@@ -24,7 +25,7 @@ public partial class DatabaseProvider
             }
         }
 
-        void bulkCopy(MySqlTransaction transaction1)
+        void bulkCopy(MySqlTransaction? transaction1)
         {
             int intRowIndex = 0;
 

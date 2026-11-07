@@ -1,3 +1,4 @@
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Temelie.Database.Models;
@@ -6,6 +7,7 @@ using Temelie.Database.Services;
 using Temelie.DependencyInjection;
 
 namespace Temelie.Database.ViewModels;
+
 [ExportTransient(typeof(TableMappingViewModel))]
 public class TableMappingViewModel : ViewModel
 {
@@ -33,9 +35,9 @@ public class TableMappingViewModel : ViewModel
 
     #region Properties
 
-    public string ColumnMapping { get; set; }
+    public string? ColumnMapping { get; set; }
 
-    private ObservableCollection<Temelie.Database.Models.ColumnMappingModel> _columnMappings;
+    private ObservableCollection<Temelie.Database.Models.ColumnMappingModel>? _columnMappings;
     public ObservableCollection<Temelie.Database.Models.ColumnMappingModel> ColumnMappings
     {
         get
@@ -54,14 +56,14 @@ public class TableMappingViewModel : ViewModel
 
     public bool IncludeNotExists { get; set; }
 
-    public Temelie.Database.Models.ColumnMappingModel SelectedColumnMapping { get; set; }
+    public Temelie.Database.Models.ColumnMappingModel? SelectedColumnMapping { get; set; }
 
-    public ConnectionStringModel SourceDatabaseConnectionString { get; set; }
+    public ConnectionStringModel? SourceDatabaseConnectionString { get; set; }
 
-    public Temelie.Database.Models.TableModel SourceTable { get; set; }
-    public Temelie.Database.Models.ColumnModel SourceColumn { get; set; }
+    public Temelie.Database.Models.TableModel? SourceTable { get; set; }
+    public Temelie.Database.Models.ColumnModel? SourceColumn { get; set; }
 
-    private ObservableCollection<Temelie.Database.Models.TableModel> _sourceTables;
+    private ObservableCollection<Temelie.Database.Models.TableModel>? _sourceTables;
     public ObservableCollection<Temelie.Database.Models.TableModel> SourceTables
     {
         get
@@ -74,7 +76,7 @@ public class TableMappingViewModel : ViewModel
         }
     }
 
-    private ObservableCollection<Temelie.Database.Models.ColumnModel> _sourceColumns;
+    private ObservableCollection<Temelie.Database.Models.ColumnModel>? _sourceColumns;
     public ObservableCollection<Temelie.Database.Models.ColumnModel> SourceColumns
     {
         get
@@ -87,13 +89,13 @@ public class TableMappingViewModel : ViewModel
         }
     }
 
-    public Temelie.Database.Models.TableModel TargetTable { get; set; }
+    public Temelie.Database.Models.TableModel? TargetTable { get; set; }
 
-    public Temelie.Database.Models.ColumnModel TargetColumn { get; set; }
+    public Temelie.Database.Models.ColumnModel? TargetColumn { get; set; }
 
-    public ConnectionStringModel TargetDatabaseConnectionString { get; set; }
+    public ConnectionStringModel? TargetDatabaseConnectionString { get; set; }
 
-    private ObservableCollection<Temelie.Database.Models.TableModel> _targetTables;
+    private ObservableCollection<Temelie.Database.Models.TableModel>? _targetTables;
     public ObservableCollection<Temelie.Database.Models.TableModel> TargetTables
     {
         get
@@ -106,7 +108,7 @@ public class TableMappingViewModel : ViewModel
         }
     }
 
-    private ObservableCollection<Temelie.Database.Models.ColumnModel> _targetColumns;
+    private ObservableCollection<Temelie.Database.Models.ColumnModel>? _targetColumns;
     public ObservableCollection<Temelie.Database.Models.ColumnModel> TargetColumns
     {
         get
@@ -139,7 +141,7 @@ public class TableMappingViewModel : ViewModel
                 SourceColumnName = strSourceColumnName,
                 TargetColumnName = this.TargetColumn.ColumnName,
                 IsTargetColumnIdentity = this.TargetColumn.IsIdentity,
-                ColumnMapping = this.ColumnMapping,
+                ColumnMapping = this.ColumnMapping ?? "",
                 WrapInIsNull = SourceColumn != null &&
                             ColumnModel.GetSystemType(TargetColumn.DbType) == typeof(string) &&
                             ColumnModel.GetSystemType(SourceColumn.DbType) == typeof(string) &&
@@ -236,24 +238,28 @@ public class TableMappingViewModel : ViewModel
 
     public Temelie.Database.Models.TableMapping CreateTableMapping()
     {
-        Temelie.Database.Models.TableMapping tableMapping = new Temelie.Database.Models.TableMapping { SourceTableName = this.SourceTable.SchemaAndTableName, TargetTableName = this.TargetTable.SchemaAndTableName };
+        var sourceTable = this.SourceTable ?? throw new InvalidOperationException("Select a source table.");
+        var targetTable = this.TargetTable ?? throw new InvalidOperationException("Select a target table.");
+        Temelie.Database.Models.TableMapping tableMapping = new Temelie.Database.Models.TableMapping { SourceTableName = sourceTable.SchemaAndTableName, TargetTableName = targetTable.SchemaAndTableName };
         tableMapping.ColumnMappings.AddRange(this.ColumnMappings);
 
         if (this.IncludeSourceDatabase)
         {
-            var provider = _databaseFactory.GetDatabaseProvider(this.SourceDatabaseConnectionString);
-            tableMapping.SourceDatabase = provider.GetDatabaseName(this.SourceDatabaseConnectionString.ConnectionString);
+            var sourceConnectionString = this.SourceDatabaseConnectionString ?? throw new InvalidOperationException("Select a source connection.");
+            var provider = _databaseFactory.GetDatabaseProvider(sourceConnectionString);
+            tableMapping.SourceDatabase = provider.GetDatabaseName(sourceConnectionString.ConnectionString);
         }
 
         if (this.IncludeTargetDatabase)
         {
-            var provider = _databaseFactory.GetDatabaseProvider(this.TargetDatabaseConnectionString);
-            tableMapping.TargetDatabase = provider.GetDatabaseName(this.TargetDatabaseConnectionString.ConnectionString);
+            var targetConnectionString = this.TargetDatabaseConnectionString ?? throw new InvalidOperationException("Select a target connection.");
+            var provider = _databaseFactory.GetDatabaseProvider(targetConnectionString);
+            tableMapping.TargetDatabase = provider.GetDatabaseName(targetConnectionString.ConnectionString);
         }
 
         if (this.IncludeNotExists)
         {
-            tableMapping.SelectCriteria = tableMapping.GenerateIncludeNotExists(this.SourceTable, this.TargetTable);
+            tableMapping.SelectCriteria = tableMapping.GenerateIncludeNotExists(sourceTable, targetTable);
         }
 
         return tableMapping;
@@ -273,6 +279,11 @@ public class TableMappingViewModel : ViewModel
 
     public void UpdateTargetTables()
     {
+        if (TargetDatabaseConnectionString is null)
+        {
+            return;
+        }
+
         using (var conn = _databaseExecutionService.CreateDbConnection(TargetDatabaseConnectionString))
         {
             var provider = _databaseFactory.GetDatabaseProvider(conn);
@@ -297,6 +308,11 @@ public class TableMappingViewModel : ViewModel
 
     public void UpdateSourceTables()
     {
+        if (SourceDatabaseConnectionString is null)
+        {
+            return;
+        }
+
         using (var conn = _databaseExecutionService.CreateDbConnection(SourceDatabaseConnectionString))
         {
             var provider = _databaseFactory.GetDatabaseProvider(conn);

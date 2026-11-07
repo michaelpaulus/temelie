@@ -3,10 +3,11 @@ using System.Data.Common;
 using MySqlConnector;
 
 namespace Temelie.Database.Providers.MySql;
+
 public partial class DatabaseProvider
 {
 
-    protected override DataTable GetDefinitionDependenciesDataTable(DbConnection connection)
+    protected override DataTable? GetDefinitionDependenciesDataTable(DbConnection connection)
     {
         return null;
     }
@@ -30,13 +31,13 @@ WHERE
 
         var dataTable = _database.Execute(connection, sql).Tables[0];
 
-        dataTable.Columns["definition"].MaxLength = int.MaxValue;
+        RequiredColumn(dataTable, "definition").MaxLength = int.MaxValue;
 
         foreach (DataRow row in dataTable.Rows)
         {
-            var name = row["name"].ToString();
+            var name = AsString(row["name"]);
             var procedureDefinition = _database.Execute(connection, $"SHOW CREATE PROCEDURE `{name}`").Tables[0];
-            row["definition"] = procedureDefinition.Rows[0]["Create Procedure"].ToString().Replace(" DEFINER=`root`@`%`", "") + ";";
+            row["definition"] = AsString(procedureDefinition.Rows[0]["Create Procedure"]).Replace(" DEFINER=`root`@`%`", "") + ";";
         }
 
         sql = $@"
@@ -69,12 +70,12 @@ ORDER BY
 
     }
 
-    protected override DataTable GetIndexeBucketCountsDataTable(DbConnection connection)
+    protected override DataTable? GetIndexeBucketCountsDataTable(DbConnection connection)
     {
         return null;
     }
 
-    protected override DataTable GetSecurityPoliciesDataTable(DbConnection connection)
+    protected override DataTable? GetSecurityPoliciesDataTable(DbConnection connection)
     {
         return null;
     }
@@ -112,7 +113,7 @@ ORDER BY
         return dataTable;
     }
 
-    protected override DataTable GetCheckConstraintsDataTable(DbConnection connection)
+    protected override DataTable? GetCheckConstraintsDataTable(DbConnection connection)
     {
         return null;
     }
@@ -154,9 +155,10 @@ ORDER BY
         dataTable.Columns.Add("partition_ordinal");
         dataTable.Columns.Add("compression_delay");
 
-        if (dataTable.Columns["index_name"].MaxLength < 500)
+        var indexNameColumn = RequiredColumn(dataTable, "index_name");
+        if (indexNameColumn.MaxLength < 500)
         {
-            dataTable.Columns["index_name"].MaxLength = 500;
+            indexNameColumn.MaxLength = 500;
         }
 
         foreach (var row in dataTable.Rows.OfType<DataRow>())
@@ -166,10 +168,10 @@ ORDER BY
             row["is_included_column"] = false;
             row["fill_factor"] = 0;
             row["partition_ordinal"] = 0;
-            row["is_primary_key"] = row["index_name"].ToString().ToUpper() == "PRIMARY";
+            row["is_primary_key"] = AsString(row["index_name"]).ToUpper() == "PRIMARY";
             if (Convert.ToBoolean(row["is_primary_key"]))
             {
-                row["index_name"] = "PK_" + row["table_name"].ToString();
+                row["index_name"] = "PK_" + AsString(row["table_name"]);
             }
 
         }
