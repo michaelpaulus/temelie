@@ -5,7 +5,7 @@
     <RootNamespace>Temelie.Database</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="PropertyChanged.Fody" Version="4.1.0">
+    <PackageReference Include="PropertyChanged.Fody">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>

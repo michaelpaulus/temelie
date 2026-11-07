@@ -8,6 +8,9 @@
     <FileVersion>1.0.0.0</FileVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- Known package vulnerability advisories (low/moderate/high/critical) stay warnings. -->
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);NU1901;NU1902;NU1903;NU1904</WarningsNotAsErrors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/michaelpaulus/temelie</RepositoryUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>

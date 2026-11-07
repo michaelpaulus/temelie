@@ -8,8 +8,8 @@
     <Compile Include="..\Temelie.Database.Models\Extensions\StringExtensions.cs" Link="Extensions\StringExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Azure.Identity" Version="1.21.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.10" />
+    <PackageReference Include="Azure.Identity" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Temelie.Database.Models\Temelie.Database.Models.csproj" />

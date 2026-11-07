@@ -33,7 +33,7 @@ public class DatabaseModelProvider : IDatabaseModelProvider
             AllowExternalLibraryPaths = false,
             AsKeywordOnOwnLine = false,
             NewLineAfterBinaryBooleanExpresson = true,
-            NewLineAfterFromClause = true,
+            NewLineAfterFromKeyword = true,
             NewLineAfterGroupByKeyword = true,
             NewLineAfterHavingKeyword = true,
             NewLineAfterOnKeyword = true,
