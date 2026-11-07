@@ -12,10 +12,12 @@ public sealed record ScriptRun(IReadOnlyList<ScriptProgress> Progress, Exception
 {
     /// <summary>
     /// Scripts in the order they were started (plus renames and retries), excluding
-    /// error reports, table-change notices, and the final "Complete".
+    /// error reports, table-change and migration-required notices, and the final "Complete".
     /// </summary>
     public IReadOnlyList<string> Steps => Progress
-        .Where(i => i.ErrorMessage is null && i.ProgressStatus != "Complete" && !i.ProgressStatus.StartsWith("Table Change: ", StringComparison.Ordinal))
+        .Where(i => i.ErrorMessage is null && i.ProgressStatus != "Complete" &&
+            !i.ProgressStatus.StartsWith("Table Change: ", StringComparison.Ordinal) &&
+            !i.ProgressStatus.StartsWith("Migration Required: ", StringComparison.Ordinal))
         .Select(i => i.ProgressStatus)
         .ToList();
 
@@ -25,6 +27,12 @@ public sealed record ScriptRun(IReadOnlyList<ScriptProgress> Progress, Exception
         .Where(i => i.ProgressStatus.StartsWith("Table Change: ", StringComparison.Ordinal))
         .Select(i => i.ProgressStatus["Table Change: ".Length..])
         .Distinct()
+        .ToList();
+
+    /// <summary>Schema-bound or indexed-view changes that were not applied because they need a migration.</summary>
+    public IReadOnlyList<string> MigrationsRequired => Progress
+        .Where(i => i.ProgressStatus.StartsWith("Migration Required: ", StringComparison.Ordinal))
+        .Select(i => i.ProgressStatus["Migration Required: ".Length..])
         .ToList();
 }
 

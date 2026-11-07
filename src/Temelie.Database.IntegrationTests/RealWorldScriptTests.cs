@@ -66,12 +66,13 @@ public class RealWorldScriptTests
 
         run.Error.Should().BeNull();
         run.TableChanges.Should().BeEmpty();
+        run.MigrationsRequired.Should().BeEmpty();
         run.Steps.Should().Equal(ScriptFolderSteps(path));
         database.Migrations.Should().HaveCount(MigrationIds(path).Count);
     }
 
     [TestCaseSource(nameof(Databases))]
-    public void FreshDeploymentRunsEveryMigrationOnceInFolderOrder(string provider, string path)
+    public void FreshDeploymentRunsEveryMigrationOnceInFolderOrderAndOnlyRefreshesStaleObjects(string provider, string path)
     {
         using var context = ScriptTestContext.For(provider);
         var database = new FakeDatabase(DatabaseState.From(LoadModel(path)));
@@ -82,7 +83,20 @@ public class RealWorldScriptTests
         run.Error.Should().BeNull();
         run.Steps.Where(migrations.Contains).Should().Equal(migrations);
         database.Migrations.Select(i => i.Id).Should().Equal(migrations);
-        run.Steps.Where(i => i.StartsWith("CREATE ", StringComparison.Ordinal) || i.StartsWith("DROP ", StringComparison.Ordinal)).Should().BeEmpty();
+
+        // The schema already matches, so the only object steps are refreshes of what the migrations' table changes can make stale.
+        var objectSteps = run.Steps.Where(i => i.StartsWith("CREATE ", StringComparison.Ordinal) || i.StartsWith("DROP ", StringComparison.Ordinal)).ToList();
+        objectSteps.Should().OnlyContain(i => i.Contains(" 05_Views/") || i.Contains(" 05_Programmability/") || i.Contains(" 06_Triggers/"));
+        objectSteps.Where(i => i.StartsWith("DROP ", StringComparison.Ordinal)).Select(i => i["DROP ".Length..])
+            .Should().BeEquivalentTo(objectSteps.Where(i => i.StartsWith("CREATE ", StringComparison.Ordinal)).Select(i => i["CREATE ".Length..]));
+
+        var model = LoadModel(path);
+        var indexed = model.PrimaryKeys.Concat(model.Indexes).Select(i => $"{i.SchemaName}.{i.TableName}").ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var indexedViews = model.Definitions.Where(i => i.View is not null && indexed.Contains($"{i.SchemaName}.{i.DefinitionName}"))
+            .Select(i => $"/{i.SchemaName}.{i.DefinitionName}").ToList();
+        objectSteps.Should().NotContain(i => indexedViews.Any(v => i.EndsWith(v, StringComparison.OrdinalIgnoreCase) || i.Contains(v + ".", StringComparison.OrdinalIgnoreCase)),
+            "indexed views are only rebuilt when their own definition changes");
+        TestContext.Out.WriteLine($"Indexed views: {string.Join(", ", indexedViews)}");
     }
 
     private static IEnumerable<string> SourceFiles(string path) => Directory

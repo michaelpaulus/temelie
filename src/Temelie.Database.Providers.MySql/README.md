@@ -14,7 +14,7 @@ Use `DatabaseProviderName = "MySqlConnection"` (`DatabaseProvider.ProviderName`)
 | --- | --- | --- |
 | Tables (including engine, character set, collation, and generated columns) | ✓ | ✓ (primary keys inline) |
 | Indexes and foreign keys | ✓ | ✓ |
-| Views and stored procedures | ✓ | ✓ |
+| Views, stored procedures, and stored functions | ✓ | ✓ |
 | Triggers | ✓ | ✓ |
 | Check constraints, security policies | – | – |
 

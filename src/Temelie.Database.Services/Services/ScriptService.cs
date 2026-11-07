@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using Temelie.Database.Extensions;
@@ -84,59 +83,6 @@ public class ScriptService : IScriptService
 
                     var jsonPath = System.IO.Path.Combine(directory.FullName, fileName + ".json");
                     var json = GetJson(table);
-
-                    if (File.Exists(jsonPath))
-                    {
-                        var currentTable = JsonSerializer.Deserialize<TableModel>(File.ReadAllText(jsonPath), ModelsJsonSerializerOptions.Default) ??
-                            throw new InvalidDataException($"'{jsonPath}' does not contain a table model.");
-                        var newTable = JsonSerializer.Deserialize<TableModel>(json, ModelsJsonSerializerOptions.Default) ??
-                            throw new UnreachableException();
-
-                        foreach (var column in currentTable.Columns)
-                        {
-                            column.TableName = currentTable.TableName;
-                        }
-
-                        foreach (var column in newTable.Columns)
-                        {
-                            column.TableName = newTable.TableName;
-                        }
-
-                        var newColumns = newTable.Columns.Where(i => !currentTable.Columns.Any(i2 => i.ColumnName == i2.ColumnName)).ToList();
-                        var removedColumns = currentTable.Columns.Where(i => !newTable.Columns.Any(i2 => i.ColumnName == i2.ColumnName)).ToList();
-
-                        if (newColumns.Count > 0 || removedColumns.Count > 0)
-                        {
-                            var scriptRoot = directory.Parent ?? throw new InvalidOperationException($"'{directory.FullName}' must be inside a script directory.");
-                            var changeFileName = Path.Combine(scriptRoot.FullName, "04_Migrations", DateTime.UtcNow.ToString("yyyy-MM-dd"), $"01_{table.TableName}.sql");
-
-                            var sb = new StringBuilder();
-
-                            foreach (var newColumn in newColumns)
-                            {
-                                var columnScript = provider.GetColumnScript(newColumn);
-                                if (columnScript is not null && !string.IsNullOrEmpty(columnScript.CreateScript))
-                                {
-                                    sb.AppendLine(columnScript.CreateScript);
-                                }
-                            }
-
-                            foreach (var removedColumn in removedColumns)
-                            {
-                                var columnScript = provider.GetColumnScript(removedColumn);
-                                if (columnScript is not null && !string.IsNullOrEmpty(columnScript.DropScript))
-                                {
-                                    sb.AppendLine(columnScript.DropScript);
-                                }
-                            }
-
-                            if (sb.Length > 0)
-                            {
-                                WriteIfDifferent(changeFileName, sb.ToString());
-                            }
-                        }
-
-                    }
 
                     files.Add(WriteIfDifferent(jsonPath, json));
                 }
@@ -518,9 +464,7 @@ public class ScriptService : IScriptService
             return migrations.Contains(id);
         }
 
-        var hasTableChange = false;
-
-        IEnumerable<(string Name, string Contents)> getFiles(DirectoryInfo dir, DatabaseModel currentDatabaseModel, DatabaseModel updatedDatabaseModel, IDatabaseProvider provider)
+        IEnumerable<(string Name, string Contents)> getFiles(DirectoryInfo dir)
         {
             if (dir.Parent?.Name.EndsWith("_Migrations") == true)
             {
@@ -549,213 +493,7 @@ public class ScriptService : IScriptService
                 {
                     var jsonFiles = dir.GetFiles("*.sql.json").OrderBy(i => i.FullName).ToList();
 
-                    if (jsonFiles.Count > 0)
-                    {
-
-                        void compareObjects<T>(IList<T> currentList,
-                            IList<T> updatedList,
-                            Func<T, string> getName,
-                            Func<T, IDatabaseObjectScript?> createScript,
-                            bool alwaysUpdate = false,
-                            Action<T>? handleDrop = null,
-                            Action<T, T>? handleUpdate = null) where T : DatabaseObjectModel
-                        {
-                            foreach (var current in currentList)
-                            {
-                                var name = getName(current);
-
-                                var updated = updatedList.FirstOrDefault(i => getName(i) == name);
-                                if (updated is null)
-                                {
-                                    if (handleDrop is null)
-                                    {
-                                        var script = createScript(current);
-                                        if (script is not null)
-                                        {
-                                            list.Add(($"DROP {dir.Name}/{name}", script.DropScript));
-                                        }
-                                    }
-                                    else
-                                    {
-                                        handleDrop(current);
-                                    }
-                                }
-                                else
-                                {
-                                    updatedList.Remove(updated);
-                                    var currentScript = createScript(current);
-                                    var updatedScript = createScript(updated);
-                                    if (currentScript is not null &&
-                                        updatedScript is not null &&
-                                        (alwaysUpdate ||
-                                        currentScript.CreateScript != updatedScript.CreateScript))
-                                    {
-                                        if (handleUpdate is null)
-                                        {
-                                            list.Add(($"DROP {dir.Name}/{name}", updatedScript.DropScript));
-                                            list.Add(($"CREATE {dir.Name}/{name}", updatedScript.CreateScript));
-                                        }
-                                        else
-                                        {
-                                            handleUpdate(current, updated);
-                                        }
-                                    }
-                                }
-                            }
-
-                            foreach (var updated in updatedList)
-                            {
-                                var name = getName(updated);
-                                var script = createScript(updated);
-                                if (script is not null)
-                                {
-                                    list.Add(($"CREATE {dir.Name}/{name}", script.CreateScript));
-                                }
-                            }
-                        }
-
-                        if (dir.Name.Contains("02_Tables"))
-                        {
-                            compareObjects(
-                                currentDatabaseModel.Tables.ToList(),
-                                updatedDatabaseModel.Tables.ToList(),
-                                i => $"{i.SchemaName}.{i.TableName}",
-                                i => provider.GetScript(i),
-                                handleDrop: (current) =>
-                                {
-                                    hasTableChange = true;
-                                },
-                                handleUpdate: (current, updated) =>
-                                {
-
-                                    var current2 = JsonSerializer.Deserialize<TableModel>(JsonSerializer.Serialize(current)) ?? throw new UnreachableException();
-
-                                    var updated2 = JsonSerializer.Deserialize<TableModel>(JsonSerializer.Serialize(updated)) ?? throw new UnreachableException();
-
-                                    foreach (var column in current2.Columns)
-                                    {
-                                        column.CollationName = "";
-                                        column.CharacterSetName = "";
-                                    }
-
-                                    foreach (var column in updated2.Columns)
-                                    {
-                                        column.CollationName = "";
-                                        column.CharacterSetName = "";
-                                    }
-
-                                    current2.CollationName = "";
-                                    current2.CharacterSetName = "";
-                                    updated2.CollationName = "";
-                                    updated2.CharacterSetName = "";
-
-                                    var currentScript = provider.GetScript(current2);
-                                    var updatedScript = provider.GetScript(updated2);
-
-                                    if (currentScript?.CreateScript == updatedScript?.CreateScript)
-                                    {
-                                        //ignore collation / character set diffs
-                                        return;
-                                    }
-
-                                    progress?.Invoke(new ScriptProgress() { ProgressPercentage = 0, ProgressStatus = "Table Change: " + current.TableName });
-
-                                    hasTableChange = true;
-                                }
-                             );
-                        }
-                        else if (dir.Name.Contains("03_Indexes"))
-                        {
-                            compareObjects(
-                                currentDatabaseModel.PrimaryKeys.ToList(),
-                                updatedDatabaseModel.PrimaryKeys.ToList(),
-                                i => $"{i.SchemaName}.{i.TableName}.{i.IndexName}",
-                                i => provider.GetScript(i, IsView(i, currentDatabaseModel))
-                             );
-                            compareObjects(
-                                currentDatabaseModel.Indexes.ToList(),
-                                updatedDatabaseModel.Indexes.ToList(),
-                                i => $"{i.SchemaName}.{i.TableName}.{i.IndexName}",
-                                i => provider.GetScript(i, IsView(i, currentDatabaseModel))
-                             );
-                        }
-                        else if (dir.Name.Contains("04_CheckConstraints"))
-                        {
-                            compareObjects(
-                                currentDatabaseModel.CheckConstraints.ToList(),
-                                updatedDatabaseModel.CheckConstraints.ToList(),
-                                i => $"{i.SchemaName}.{i.TableName}.{i.CheckConstraintName}",
-                                i => provider.GetScript(i)
-                             );
-                        }
-                        else if (dir.Name.Contains("05_Programmability"))
-                        {
-                            compareObjects(
-                                currentDatabaseModel.Definitions.Where(i => i.View is null).ToList(),
-                                updatedDatabaseModel.Definitions.Where(i => i.View is null).ToList(),
-                                i => $"{i.SchemaName}.{i.DefinitionName}",
-                                i => provider.GetScript(i),
-                                alwaysUpdate: hasTableChange
-                             );
-                        }
-                        else if (dir.Name.Contains("05_Views"))
-                        {
-                            var viewsWithIndexes = new List<string>();
-
-                            viewsWithIndexes.AddRange(updatedDatabaseModel.Definitions.Where(i => i.View is not null && updatedDatabaseModel.Indexes.Any(i2 => i2.TableName == i.View.TableName && i2.SchemaName == i.View.SchemaName)).Select(i => $"{i.SchemaName}.{i.DefinitionName}"));
-                            viewsWithIndexes.AddRange(currentDatabaseModel.Definitions.Where(i => i.View is not null && currentDatabaseModel.Indexes.Any(i2 => i2.TableName == i.View.TableName && i2.SchemaName == i.View.SchemaName)).Select(i => $"{i.SchemaName}.{i.DefinitionName}"));
-
-                            var viewsWithIndexesUpdated = updatedDatabaseModel.Definitions.Where(i => i.View is not null && viewsWithIndexes.Contains($"{i.SchemaName}.{i.DefinitionName}")).ToList();
-                            var viewsWithIndexesCurrent = currentDatabaseModel.Definitions.Where(i => i.View is not null && viewsWithIndexes.Contains($"{i.SchemaName}.{i.DefinitionName}")).ToList();
-                            var viewsWithoutIndexesUpdated = updatedDatabaseModel.Definitions.Where(i => i.View is not null && !viewsWithIndexes.Contains($"{i.SchemaName}.{i.DefinitionName}")).ToList();
-                            var viewsWithoutIndexesCurrent = currentDatabaseModel.Definitions.Where(i => i.View is not null && !viewsWithIndexes.Contains($"{i.SchemaName}.{i.DefinitionName}")).ToList();
-
-                            compareObjects(
-                                viewsWithIndexesCurrent,
-                                viewsWithIndexesUpdated,
-                                i => $"{i.SchemaName}.{i.DefinitionName}",
-                                i => provider.GetScript(i),
-                                alwaysUpdate: false
-                             );
-
-                            compareObjects(
-                                viewsWithoutIndexesCurrent,
-                                viewsWithoutIndexesUpdated,
-                                i => $"{i.SchemaName}.{i.DefinitionName}",
-                                i => provider.GetScript(i),
-                                alwaysUpdate: hasTableChange
-                             );
-                        }
-                        else if (dir.Name.Contains("06_Triggers"))
-                        {
-                            compareObjects(
-                                currentDatabaseModel.Triggers.ToList(),
-                                updatedDatabaseModel.Triggers.ToList(),
-                                i => $"{i.SchemaName}.{i.TriggerName}",
-                                i => provider.GetScript(i),
-                                alwaysUpdate: hasTableChange
-                             );
-                        }
-                        else if (dir.Name.Contains("08_ForeignKeys"))
-                        {
-                            compareObjects(
-                               currentDatabaseModel.ForeignKeys.ToList(),
-                               updatedDatabaseModel.ForeignKeys.ToList(),
-                               i => $"{i.SchemaName}.{i.TableName}.{i.ForeignKeyName}",
-                               i => provider.GetScript(i)
-                            );
-                        }
-                        else if (dir.Name.Contains("09_SecurityPolicies"))
-                        {
-                            compareObjects(
-                               currentDatabaseModel.SecurityPolicies.ToList(),
-                               updatedDatabaseModel.SecurityPolicies.ToList(),
-                               i => $"{i.PolicySchema}.{i.PolicyName}",
-                               i => provider.GetScript(i)
-                            );
-                        }
-                    }
-                    else
+                    if (jsonFiles.Count == 0)
                     {
                         foreach (var file in files)
                         {
@@ -851,7 +589,9 @@ public class ScriptService : IScriptService
                 }
             }
 
-            var currentDatabaseModel = _databaseModelService.CreateModel(connectionString, new Models.DatabaseModelOptions { ExcludeDoubleUnderscoreObjects = true });
+            DatabaseModel readCurrentModel() => _databaseModelService.CreateModel(connectionString, new Models.DatabaseModelOptions { ExcludeDoubleUnderscoreObjects = true });
+
+            var currentDatabaseModel = readCurrentModel();
             ensureMigrationsTable(currentDatabaseModel);
 
             migrations = getMigrations();
@@ -861,12 +601,13 @@ public class ScriptService : IScriptService
 
             var tablesDirectory = directory.GetDirectories("02_Tables");
 
-            if (tablesDirectory is not null)
+            if (tablesDirectory.Length > 0)
             {
                 var renameFound = false;
                 foreach (var current in currentDatabaseModel.Tables)
                 {
-                    var updatedTable = updatedDatabaseModel.Tables.FirstOrDefault(i => i.SchemaName == current.SchemaName && i.TableName == current.TableName);
+                    var updatedTable = updatedDatabaseModel.Tables.FirstOrDefault(i =>
+                        i.SchemaName.EqualsIgnoreCase(current.SchemaName) && i.TableName.EqualsIgnoreCase(current.TableName));
                     if (updatedTable is null && current.TableName != "Migrations")
                     {
                         var rename = provider.GetRenameScript(current, $"__{current.TableName}", dropNewTableIfExists: true);
@@ -878,59 +619,118 @@ public class ScriptService : IScriptService
                         renameFound = true;
                     }
                 }
+
                 if (renameFound)
                 {
-                    currentDatabaseModel = _databaseModelService.CreateModel(connectionString, new Models.DatabaseModelOptions { ExcludeDoubleUnderscoreObjects = true });
+                    currentDatabaseModel = readCurrentModel();
                 }
             }
-
-            var directories = new List<(DirectoryInfo Directory, bool IsMigration)>();
+            var directories = new List<(DirectoryInfo Directory, bool IsMigration, List<(string Name, string Contents)> Files)>();
+            var managedDirectories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var dir in directory.GetDirectories().OrderBy(i => i.Name))
             {
+                var category = _directoryList.FirstOrDefault(dir.Name.Contains);
+                if (category != null && dir.GetFiles("*.sql.json").Length > 0)
+                {
+                    managedDirectories.Add(category);
+                }
+
                 if (dir.Name.EndsWith("_Migrations"))
                 {
                     foreach (var migration in dir.GetDirectories().OrderBy(i => i.Name))
                     {
-                        var list = getFiles(migration, currentDatabaseModel, updatedDatabaseModel, provider);
-                        if (list.Any())
+                        var list = getFiles(migration).ToList();
+                        if (list.Count > 0)
                         {
-                            directories.Add(new(migration, true));
+                            directories.Add(new(migration, true, list));
                         }
                     }
                 }
                 else
                 {
-                    var list = getFiles(dir, currentDatabaseModel, updatedDatabaseModel, provider);
-                    if (list.Any())
-                    {
-                        directories.Add(new(dir, false));
-                    }
+                    directories.Add(new(dir, false, getFiles(dir).ToList()));
                 }
             }
 
-            double total = directories.Sum(i => getFiles(i.Directory, currentDatabaseModel, updatedDatabaseModel, provider).Count());
+            int? getSlot(string category)
+            {
+                if (!managedDirectories.Contains(category))
+                {
+                    return null;
+                }
+
+                var slot = directories.FindIndex(d => !d.IsMigration && d.Directory.Name.Contains(category));
+                return slot < 0 ? null : slot;
+            }
+
+            var databaseName = provider.GetDatabaseName(connectionString.ConnectionString);
+            var reportedTables = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var reportedSkips = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            DatabaseDependencyPlan createPlan(IEnumerable<string> migrationSql, IEnumerable<string> pendingKeys)
+            {
+                var plan = new DatabaseDependencyPlan(currentDatabaseModel, updatedDatabaseModel, provider, migrationSql, getSlot, databaseName, pendingKeys);
+                foreach (var table in plan.ChangedTables.Where(reportedTables.Add))
+                {
+                    progress?.Invoke(new ScriptProgress() { ProgressPercentage = 0, ProgressStatus = "Table Change: " + table });
+                }
+
+                foreach (var skipped in plan.SkippedChanges.Where(reportedSkips.Add))
+                {
+                    progress?.Invoke(new ScriptProgress() { ProgressPercentage = 0, ProgressStatus = "Migration Required: " + skipped });
+                }
+
+                return plan;
+            }
+
+            var plan = createPlan([], []);
+
+            // A re-plan only applies from planStart on; folders that already ran are not revisited, except that a drop
+            // moves up when its object is still created in a later folder.
+            var planStart = 0;
+            int? slotOf(DatabaseDependencyPlan.Script script, bool drop)
+            {
+                if (script.Slot >= planStart)
+                {
+                    return script.Slot;
+                }
+
+                return drop && plan.Creates.Any(c => c.Slot >= planStart && c.Key.Equals(script.Key, StringComparison.OrdinalIgnoreCase)) ? planStart : null;
+            }
+
+            IEnumerable<DatabaseDependencyPlan.Script> scheduled(Func<int, bool> slots) =>
+                plan.Drops.Where(s => slotOf(s, true) is int slot && slots(slot))
+                .Concat(plan.Creates.Where(s => slotOf(s, false) is int slot && slots(slot)));
+
+            double total = scheduled(_ => true).Count() + directories.Sum(d => d.Files.Count);
             var index = 0;
 
             var errors = new List<string>();
 
-            foreach (var dir in directories)
+            for (var slot = 0; slot < directories.Count; slot++)
             {
-                var files = getFiles(dir.Directory, currentDatabaseModel, updatedDatabaseModel, provider);
+                var dir = directories[slot];
 
-                foreach (var file in files)
+                // Folders run in name order as before; each folder's planned drops then creates run before its own scripts.
+                var steps = scheduled(s => s == slot)
+                    .Select(s => (s.Name, s.Contents, IsMigration: false))
+                    .Concat(dir.Files.Select(f => (f.Name, f.Contents, dir.IsMigration)))
+                    .ToList();
+
+                foreach (var file in steps)
                 {
-                    int percent = Convert.ToInt32((index / total) * 100);
+                    int percent = Math.Min(100, Convert.ToInt32((index / total) * 100));
 
                     progress?.Invoke(new ScriptProgress() { ProgressPercentage = percent, ProgressStatus = $"{file.Name}" });
 
                     try
                     {
-                        if (!(dir.IsMigration && skipMigrations) && !string.IsNullOrEmpty(file.Contents.Trim()))
+                        if (!(file.IsMigration && skipMigrations) && !string.IsNullOrEmpty(file.Contents.Trim()))
                         {
                             _databaseExecutionService.ExecuteFile(connectionString, file.Contents);
                         }
-                        if (dir.IsMigration)
+                        if (file.IsMigration)
                         {
                             addMigration(file.Name);
                         }
@@ -939,7 +739,7 @@ public class ScriptService : IScriptService
                     {
                         errors.Add($"{file.Name} ErrorMessage: {ex.Message}");
                         progress?.Invoke(new ScriptProgress() { ProgressPercentage = percent, ProgressStatus = $"{file.Name}", ErrorMessage = ex.Message });
-                        if (!continueOnError || dir.IsMigration)
+                        if (!continueOnError || file.IsMigration)
                         {
                             throw new Exception(string.Join(Environment.NewLine, errors));
                         }
@@ -948,13 +748,16 @@ public class ScriptService : IScriptService
                     index += 1;
                 }
 
-                //refresh the knowledge of the current schema after migrations
+                //refresh the knowledge of the current schema after migrations and plan the rest against it
                 if (dir.IsMigration)
                 {
-                    currentDatabaseModel = _databaseModelService.CreateModel(connectionString, new Models.DatabaseModelOptions { ExcludeDoubleUnderscoreObjects = true });
+                    currentDatabaseModel = readCurrentModel();
+                    var pendingKeys = scheduled(s => s > slot).Select(s => s.Key).Where(plan.RefreshKeys.Contains).ToList();
+                    plan = createPlan(skipMigrations ? [] : dir.Files.Select(f => f.Contents), pendingKeys);
+                    planStart = slot + 1;
+                    total = index + scheduled(_ => true).Count() + directories.Skip(slot + 1).Sum(d => d.Files.Count);
                 }
             }
-
             if (errors.Count > 0)
             {
                 throw new Exception(string.Join(Environment.NewLine, errors));

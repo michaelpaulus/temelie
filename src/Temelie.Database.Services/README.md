@@ -59,7 +59,7 @@ Generation details:
 
 - **File names** are `schema.name.sql`.
 - **Unchanged files** are left untouched, and files for objects that no longer exist are deleted.
-- **Column changes** to an existing table are written as a dated migration, `04_Migrations/yyyy-MM-dd/01_<Table>.sql`.
+- **Table changes** only update the table's script and model. Write the migration that changes an existing table yourself, in a `*_Migrations/<name>/` folder.
 
 ## Deploying scripts
 
@@ -71,15 +71,16 @@ Top-level folders run in name order, which lets you interleave your own folders 
 
 | Folder kind | Behavior |
 | --- | --- |
-| Object folders (contain `.sql.json`) | Compared with the live database; only differences are applied. Missing objects are created, changed objects are dropped and recreated, and removed objects are dropped. A table change also recreates procedures, functions, triggers, and views without indexes. Tables themselves are never recreated: change them with migrations. |
+| Object folders (contain `.sql.json`) | Compared with the live database; only differences are applied. Missing objects are created, changed objects are dropped and recreated (with everything that depends on them, in dependency order), and removed objects are dropped. Tables themselves are never recreated: change them with migrations. See [Dependency-aware deployment](#dependency-aware-deployment). |
 | `*_Migrations/<name>/*.sql` | Each file runs once, in order, and is recorded in a `Migrations` table (created automatically) with the id `<folder>/<name>/<file>`. With `skipMigrations: true` they are recorded without running, for example to baseline an existing database. |
 | `*_Always/*.sql` | Run on every deployment. |
 | Other folders with only `.sql` files | Each file runs on every deployment. |
 
 More deployment details:
 
-- **Removed tables** are renamed to `__<Table>` instead of being dropped, so no data is lost.
-- **Failures:** with `continueOnError`, failed non-migration scripts are collected, and the whole run is retried up to 5 times. This resolves most ordering problems between objects. A failed migration ends the current attempt immediately. Without `continueOnError`, the first failure stops the deployment.
+- **Removed tables** are renamed to `__<Table>` instead of being dropped, so no data is lost (only when the folder has a `02_Tables` folder).
+- **Schema refresh:** the live schema is read again after renames and after each migration folder, so later folders are compared with what the migrations produced.
+- **Failures:** with `continueOnError`, failed non-migration scripts are collected, and the whole run is retried up to 5 times. A failed migration ends the current attempt immediately. Without `continueOnError`, the first failure stops the deployment.
 - **Batches:** scripts are split into batches on `GO` lines.
 
 A typical project layout:
@@ -95,6 +96,19 @@ MyApp.Database/
   08_ForeignKeys/ 09_SecurityPolicies/
   09_Always/              post-deployment scripts
 ```
+
+### Dependency-aware deployment
+
+Dependencies are inferred from the SQL in the `.sql.json` models (SQL Server and MySQL); nothing extra has to be generated.
+
+- **Only what is affected is recreated.** A changed or removed object recreates its direct and transitive dependents, nothing else.
+- **Table changes refresh only what can go stale.** When a table differs, or a migration runs `ALTER TABLE` (or similar) on it, the views, procedures, functions, and triggers that use it are refreshed. Indexes, check constraints, foreign keys, and security policies are only recreated when their own definition changes.
+- **Schema-bound objects and indexed views are left to migrations.** Existing schema-bound views, functions, and security policies, and indexed views with their indexes, are never dropped or recreated, even when their own definition changed; a `Migration Required: <object>` progress message reports each such change. Missing ones are still created (for example on a new database). Nothing propagates into them either: if something they use is recreated, the database refuses the drop because of the schema binding, and that change has to be made in a migration too.
+- **Folders keep their name order.** At each folder, its affected objects are dropped (dependents first) and created (dependencies first) before the folder's own scripts. An object moves to a later folder only when it must, for example a procedure that uses a view runs with `05_Views`. New tables stay in `02_Tables`; anything they need, such as a function used in a default, is created just before them.
+- **Re-planning after migrations.** After each migration folder the schema is read again and the remaining folders are re-planned, so objects a migration already created or changed are not applied twice. Folders that already ran are not revisited.
+- **Cycles** among scheduled objects fail with the dependency path.
+
+Inference recognizes static table references, function and procedure calls, quoted identifiers, and local database qualification, and ignores comments, strings, temporary tables, and CTE names. Unqualified SQL Server names resolve against the object's schema, then `dbo`; MySQL names resolve within the current database. Dynamic SQL, synonyms, and other databases cannot be inferred; changes that depend on them need migrations.
 
 Generated `.sql.json` files can also feed [Temelie.Entities.SourceGenerator](https://github.com/michaelpaulus/temelie/blob/main/src/Temelie.Entities.SourceGenerator/README.md).
 

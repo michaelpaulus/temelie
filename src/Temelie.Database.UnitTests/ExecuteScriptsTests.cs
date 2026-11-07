@@ -157,20 +157,18 @@ public class ExecuteScriptsTests
     }
 
     [Test]
-    public void ScriptFolderWithoutTablesRenamesEveryExistingTable()
+    public void ScriptFolderWithoutTablesDoesNotRenameExistingTables()
     {
-        // Current behavior: the rename step runs even when there is no 02_Tables folder,
-        // so every table that is not in the (empty) script model is renamed.
         using var context = ScriptTestContext.SqlServer();
         context.Folder.Write("01_Always/01_Before.sql", "SELECT 1");
 
         var run = context.Execute(ScriptTestContext.Database(db => db.Tables.Add(Db.Table("dbo", "Customer"))));
 
-        run.Steps.Should().Equal("__Customer", "01_Always/01_Before.sql");
+        run.Steps.Should().Equal("01_Always/01_Before.sql");
     }
 
     [Test]
-    public void MigrationsTableIsNeverRenamedButCountsAsATableChangeWhenNotScripted()
+    public void UnscriptedMigrationsTableIsNeverRenamedOrTreatedAsATableChange()
     {
         using var context = ScriptTestContext.SqlServer();
         context.Generate(Samples.Customers);
@@ -181,14 +179,8 @@ public class ExecuteScriptsTests
             db.Tables.Add(Db.Table("dbo", "Migrations", ("Id", "NVARCHAR")));
         }));
 
-        run.Steps.Should().NotContain("__Migrations");
-        run.Steps.Should().Equal(
-            "DROP 05_Programmability/dbo.GetCustomers",
-            "CREATE 05_Programmability/dbo.GetCustomers",
-            "DROP 05_Views/dbo.CustomerView",
-            "CREATE 05_Views/dbo.CustomerView",
-            "DROP 06_Triggers/dbo.trCustomer",
-            "CREATE 06_Triggers/dbo.trCustomer");
+        run.Steps.Should().BeEmpty();
+        run.TableChanges.Should().BeEmpty();
     }
 
     /// <summary>A SQL Server project layout with interleaved migration folders and script-only folders.</summary>
@@ -316,8 +308,9 @@ public class ExecuteScriptsTests
         context.Generate(db => db.Definitions.AddRange([a, b]));
         var createA = context.Provider.GetScript(Db.View("dbo", "a", a.Definition))!.CreateScript;
         var createB = context.Provider.GetScript(Db.View("dbo", "b", b.Definition))!.CreateScript;
+        var failures = 1;
         var database = ScriptTestContext.Database()
-            .FailWhen((sql, db) => sql == createA && !db.Definitions.Any(i => i.DefinitionName == "b"), "Invalid object name 'dbo.b'.")
+            .FailWhen((sql, _) => sql == createA && failures-- > 0, "Transaction was deadlocked.")
             .WhenExecuted(createA, db => db.Definitions.Add(Db.View("dbo", "a", a.Definition)))
             .WhenExecuted(createB, db => db.Definitions.Add(Db.View("dbo", "b", b.Definition)));
 
@@ -325,7 +318,7 @@ public class ExecuteScriptsTests
 
         run.Error.Should().BeNull();
         run.Failed.Should().Equal("CREATE 05_Views/dbo.a");
-        run.Steps.Should().Equal("CREATE 05_Views/dbo.a", "CREATE 05_Views/dbo.b", "Retry 1 of 5", "CREATE 05_Views/dbo.a");
+        run.Steps.Should().Equal("CREATE 05_Views/dbo.b", "CREATE 05_Views/dbo.a", "Retry 1 of 5", "CREATE 05_Views/dbo.a");
     }
 
     [Test]
@@ -335,13 +328,13 @@ public class ExecuteScriptsTests
         context.Generate(db => db.Definitions.AddRange([
             Db.View("dbo", "a", "CREATE VIEW [dbo].[a] AS SELECT [Id] FROM [dbo].[b]"),
             Db.View("dbo", "b", "CREATE VIEW [dbo].[b] AS SELECT 1 AS [Id]")]));
-        var database = ScriptTestContext.Database().FailWhen((sql, _) => sql.Contains("[dbo].[a]"), "Invalid object name 'dbo.b'.");
+        var database = ScriptTestContext.Database().FailWhen((sql, _) => sql.Contains("CREATE VIEW [dbo].[b]"), "Transaction was deadlocked.");
 
         var run = context.Execute(database, continueOnError: false);
 
         run.Error.Should().NotBeNull();
-        run.Error!.Message.Should().Contain("CREATE 05_Views/dbo.a").And.Contain("Invalid object name 'dbo.b'.");
-        run.Steps.Should().Equal("CREATE 05_Views/dbo.a");
+        run.Error!.Message.Should().Contain("CREATE 05_Views/dbo.b").And.Contain("Transaction was deadlocked.");
+        run.Steps.Should().Equal("CREATE 05_Views/dbo.b");
     }
 
     [Test]

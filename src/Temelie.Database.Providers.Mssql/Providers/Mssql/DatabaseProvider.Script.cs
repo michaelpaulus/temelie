@@ -32,25 +32,9 @@ public partial class DatabaseProvider
         check_constraints.name = '{model.CheckConstraintName}' AND
         schemas.name = '{schema}'
 )
-BEGIN
-IF NOT EXISTS
-    (
-        SELECT
-            1
-        FROM
-            sys.check_constraints INNER JOIN
-            sys.tables ON
-                check_constraints.parent_object_id = tables.object_id INNER JOIN
-            sys.schemas ON
-                tables.schema_id = schemas.schema_id
-        WHERE
-            check_constraints.name = '{model.CheckConstraintName}' AND
-            schemas.name = '{schema}' AND
-            check_constraints.definition = '{model.CheckConstraintDefinition.Replace("'", "''")}'
-    )");
-            sb.AppendLine($@"BEGIN
+BEGIN");
+            sb.AppendLine($@"
 ALTER TABLE {QuoteCharacterStart}{schema}{QuoteCharacterEnd}.{QuoteCharacterStart}{model.TableName}{QuoteCharacterEnd} DROP CONSTRAINT {QuoteCharacterStart}{model.CheckConstraintName}{QuoteCharacterEnd}
-END
 END
 GO");
 

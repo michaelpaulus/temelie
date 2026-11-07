@@ -164,33 +164,19 @@ public class CreateScriptsTests
     }
 
     [Test]
-    public void AddedAndRemovedColumnsCreateADatedMigration()
+    public void TableChangesNeverCreateMigrations()
     {
+        // Migrations are written by hand; scripting only updates the table script and model.
         using var context = ScriptTestContext.SqlServer();
         context.Generate(db => db.Tables.Add(Db.Table("dbo", "Customer", ("Id", "INT"), ("Name", "NVARCHAR"))));
-        var before = DateTime.UtcNow.ToString("yyyy-MM-dd");
-
-        context.Generate(db => db.Tables.Add(Db.Table("dbo", "Customer", ("Id", "INT"), ("Email", "NVARCHAR"))));
-
-        var after = DateTime.UtcNow.ToString("yyyy-MM-dd");
-        var migration = new[] { before, after }.Select(i => $"04_Migrations/{i}/01_Customer.sql").First(context.Folder.Exists);
-        var script = context.Folder.Read(migration);
-        script.Should().Contain(context.Provider.GetColumnScript(Db.Column("dbo", "Customer", "Email", "NVARCHAR", 2))!.CreateScript.Trim());
-        script.Should().Contain(context.Provider.GetColumnScript(Db.Column("dbo", "Customer", "Name", "NVARCHAR", 2))!.DropScript.Trim());
-    }
-
-    [Test]
-    public void ColumnTypeChangesAndNewTablesDoNotCreateMigrations()
-    {
-        using var context = ScriptTestContext.SqlServer();
-        context.Generate(db => db.Tables.Add(Db.Table("dbo", "Customer", ("Id", "INT"))));
 
         context.Generate(db =>
         {
-            db.Tables.Add(Db.Table("dbo", "Customer", ("Id", "BIGINT")));
+            db.Tables.Add(Db.Table("dbo", "Customer", ("Id", "BIGINT"), ("Email", "NVARCHAR")));
             db.Tables.Add(Db.Table("dbo", "Order", ("Id", "INT")));
         });
 
+        context.Folder.Read("02_Tables/dbo.Customer.sql").Should().Contain("Email").And.NotContain("[Name]");
         context.Folder.Exists("04_Migrations").Should().BeFalse();
     }
 

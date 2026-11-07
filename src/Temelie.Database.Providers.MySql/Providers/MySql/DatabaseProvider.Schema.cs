@@ -19,14 +19,14 @@ public partial class DatabaseProvider
         string sql = $@"
 SELECT
     routines.routine_name AS name, 
-    'P' AS xtype, 
+    CASE WHEN routines.routine_type = 'PROCEDURE' THEN 'P' ELSE 'FN' END AS xtype,
     '' AS schema_name,
     '' AS definition
 FROM
     information_schema.routines
 WHERE 
     routine_schema = '{csb.Database}' AND 
-    routine_type = 'PROCEDURE'
+    routine_type IN ('PROCEDURE', 'FUNCTION')
 ";
 
         var dataTable = _database.Execute(connection, sql).Tables[0];
@@ -36,8 +36,9 @@ WHERE
         foreach (DataRow row in dataTable.Rows)
         {
             var name = AsString(row["name"]);
-            var procedureDefinition = _database.Execute(connection, $"SHOW CREATE PROCEDURE `{name}`").Tables[0];
-            row["definition"] = AsString(procedureDefinition.Rows[0]["Create Procedure"]).Replace(" DEFINER=`root`@`%`", "") + ";";
+            var type = AsString(row["xtype"]) == "P" ? "PROCEDURE" : "FUNCTION";
+            var definition = _database.Execute(connection, $"SHOW CREATE {type} `{name.Replace("`", "``")}`").Tables[0];
+            row["definition"] = AsString(definition.Rows[0][type == "PROCEDURE" ? "Create Procedure" : "Create Function"]).Replace(" DEFINER=`root`@`%`", "") + ";";
         }
 
         sql = $@"

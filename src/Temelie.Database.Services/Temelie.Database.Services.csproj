@@ -5,6 +5,7 @@
     <RootNamespace>Temelie.Database</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="Temelie.Database.UnitTests" />
     <Compile Include="..\Temelie.Database.Models\Extensions\StringExtensions.cs" Link="Extensions\StringExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
