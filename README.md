@@ -71,6 +71,8 @@ The `AdventureWorks.*` projects show the whole flow:
 | `src/AdventureWorks.Entities` | Entities generated from the database's `.sql.json` files, plus hand-written partials. |
 | `src/AdventureWorks.Server.Repository` | A `DbContext` built on the generated `DbContextBase`, a repository, query specifications, and an event provider. |
 | `src/Temelie.Repository.UnitTests` | End-to-end repository tests against SQLite in memory. |
+| `src/Temelie.Database.UnitTests` | How script generation and deployment behave, run against a fake database. |
+| `src/Temelie.Database.IntegrationTests` | Script generation and deployment checked against real database script folders (opt-in). |
 
 ## Building
 
